@@ -24,5 +24,21 @@ def create_task():
     db.session.commit()
 
     return jsonify(f"Task: {new_task}"), 201
-    # return new_task, 201
     # return make_response(jsonify(new_task, 201))
+    # return make_response(f"Book {new_book.title} successfully created", 201)
+
+
+@tasks_bp.route("", methods=["GET"])
+def read_all_tasks():
+    tasks_response = []
+    tasks = Task.query.all()
+    for task in tasks:
+        tasks_response.append(
+            {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": task.completed_at
+            }
+        )
+    return jsonify(tasks_response)
