@@ -41,3 +41,16 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
+
+@task_bp.route('', methods=['POST'])
+def create_one_task():
+    request_body = request.get_json()
+    
+    new_task = Task(title=request_body['title'],
+                    description=request_body['description']
+                    # completed_at=request_body['completed_at']
+                    )
+    db.session.add(new_task)
+    db.session.commit()
+    # return jsonify({"task":{"id":new_task.task_id,"title":new_task.title,"description":new_task.description,"is_complete":False}}), 201
+    return jsonify({"task":new_task.to_dict()}), 201
