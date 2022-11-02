@@ -5,7 +5,7 @@ class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    completed_at = db.Column(db.DateTime, null=True) # is this correct? null=True
+    completed_at = db.Column(db.DateTime, nullable=False) # is this correct? null=True
     #Can be nullable, and contain a null 
     # value. A task with a null value for completed_at has not been completed. 
     # When we create a new task, completed_at should be null AKA None in Python.
