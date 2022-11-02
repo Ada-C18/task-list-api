@@ -30,5 +30,9 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # Register Blueprints here
+    from app.models.task import Task #importing model Breakfast into our project. This line of code can be anywhere
+    
+    # from .routes.task import task_bp
+    # app.register_blueprint(breakfast_bp)
 
     return app
