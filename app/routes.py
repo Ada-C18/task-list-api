@@ -13,6 +13,15 @@ def get_tasks():
 
     return jsonify(response), 200
 
+
+@task_list_bp.route("/<task_id>", methods= ["GET"])
+def get_one_task(task_id):
+    task = validate_task(task_id)
+    response = {"task": task.to_dict()}
+
+    return jsonify(response), 200
+
+
 def validate_task(task_id):
     try:
         task_id = int(task_id)
