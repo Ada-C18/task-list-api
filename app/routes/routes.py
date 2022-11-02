@@ -23,7 +23,10 @@ def create_task():
     # submit changes
     db.session.commit()
 
-    return jsonify(f"Task: {new_task}"), 201
+    # TODO create method to convert response to json
+    task_dict = Task.to_dict(new_task)
+
+    return task_dict, 201
     # return make_response(jsonify(new_task, 201))
     # return make_response(f"Book {new_book.title} successfully created", 201)
 
@@ -51,11 +54,11 @@ def get_one_bike(task_id):
     chosen_task = Task.query.get(task_id)
 
     # returns jsonified object and response code as tuple
-    bike_dict = {
+    task_dict = {
         "id": chosen_task.id,
         "title": chosen_task.title,
         "description": chosen_task.description,
         "is_complete": chosen_task.completed_at,
     }
 
-    return jsonify(bike_dict), 200
+    return jsonify(task_dict), 200
