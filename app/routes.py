@@ -4,6 +4,7 @@ from app.models.task import Task
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
+#GET all tasks
 @task_list_bp.route("", methods=["GET"])
 def get_tasks():
     tasks = Task.query.all()
@@ -23,12 +24,14 @@ def get_tasks():
 #         response = {"task": task.to_dict()}
 #         return jsonify(response), 200
 
+#GET one task
 @task_list_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     task = validate_task(task_id)
     response = {"task": task.to_dict()}
     return jsonify(response), 200
 
+#CREATE new task
 @task_list_bp.route("", methods = ["POST"])
 def create_new_task():
     request_body = request.get_json()
@@ -43,6 +46,8 @@ def create_new_task():
     response_body = {"task": new_task.to_dict()}
     return jsonify(response_body), 201
 
+
+#UPDATE task
 @task_list_bp.route("/<task_id>", methods = ["PUT"])
 def update_task(task_id):
     task = validate_task(task_id)
@@ -55,6 +60,16 @@ def update_task(task_id):
     response_body = {"task": task.to_dict()}
 
     return jsonify(response_body)
+
+#DELETE task
+@task_list_bp.route("/<task_id>", methods = ["DELETE"])
+def delete_task(task_id):
+    task = validate_task(task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200 
 
 def validate_task(task_id):
     try:
