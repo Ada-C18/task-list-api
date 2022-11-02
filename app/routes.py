@@ -4,14 +4,14 @@ from app.models.task import Task
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
-@task_list_bp.route("/tasks", methods=["GET"])
+@task_list_bp.route("", methods=["GET"])
 def get_tasks():
     tasks = Task.query.all()
     response = []
     for task in tasks:
-        response.append({
+        response.append(task.to_dict())
 
-        })
+    return jsonify(response), 200
 
 def validate_task(task_id):
     try:
