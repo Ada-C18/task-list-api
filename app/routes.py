@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, abort
 from app import db 
 from app.models.task import Task 
 
@@ -14,13 +14,20 @@ def get_tasks():
     return jsonify(response), 200
 
 
+# @task_list_bp.route("/<task_id>", methods= ["GET"])
+# def get_one_task(task_id):
+#     task = Task.query.get(task_id)
+#     if not task:
+#         abort(make_response({"message": f"task {task_id} not found"}, 404))
+#     else:
+#         response = {"task": task.to_dict()}
+#         return jsonify(response), 200
+
 @task_list_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     task = validate_task(task_id)
     response = {"task": task.to_dict()}
-
     return jsonify(response), 200
-
 
 def validate_task(task_id):
     try:
