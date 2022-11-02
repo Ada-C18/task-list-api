@@ -74,7 +74,7 @@ def update_one_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    
+
     is_complete = True if task.completed_at is not None else False
 
     response_body = {
@@ -89,6 +89,20 @@ def update_one_task(task_id):
     db.session.commit()
 
     return jsonify(response_body), 200
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    task = validate_task(task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    response_body = {
+        "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
+    }
+
+    return jsonify(response_body), 200
+
 
 def validate_task(task_id):
     try:

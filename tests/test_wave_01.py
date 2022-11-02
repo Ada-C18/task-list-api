@@ -92,7 +92,6 @@ def test_create_task(client):
     assert new_task.description == "Test Description"
     assert new_task.completed_at == None
 
-
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_update_task(client, one_task):
     # Act
@@ -137,7 +136,7 @@ def test_update_task_not_found(client):
     # *****************************************************************
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
