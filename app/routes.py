@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 
@@ -108,8 +108,19 @@ def validate_task(task_id):
     try:
         task_id = int(task_id)
     except:
-        raise ValueError()
+        response_body = {
+            "message": f"Task id {task_id} is invalid."
+        }
+
+        abort(make_response(jsonify(response_body), 400))
     
     task = Task.query.get(task_id)
+
+    if task is None:
+        response_body = {
+            "message": f"Task {task_id} is does not exist."
+        }
+
+        abort(make_response(jsonify(response_body), 404))
 
     return task
