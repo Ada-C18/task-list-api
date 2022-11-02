@@ -27,6 +27,20 @@ def get_all_tasks():
         result.append(item.to_dict())  
     return jsonify(result), 200
 
+@task_bp.route('/<task_id>', methods=['GET'])
+def get_one_breakfast(task_id):
+    chosen_task = get_task_from_id(task_id)
 
+    return jsonify(chosen_task.to_dict()), 200
 
-  
+# helper
+def get_task_from_id(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return abort(make_response({"msg": f"invalid data type: {task_id}"}, 400))
+
+    chosen_task = Task.query.get(task_id)
+    if chosen_task is None:
+        return abort(make_response({"msg": f"Could not find task with id: {task_id}"}, 404))  
+    return chosen_task
