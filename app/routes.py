@@ -35,6 +35,8 @@ def get_one_task(task_id):
 @task_list_bp.route("", methods = ["POST"])
 def create_new_task():
     request_body = request.get_json()
+    if "title" not in request_body or "description" not in request_body:
+        abort(make_response({"details": "Invalid data"}, 400))
     new_task = Task(
         title = request_body["title"],
         description = request_body["description"],
