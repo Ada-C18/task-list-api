@@ -9,7 +9,7 @@ def get_all_tasks():
     tasks = Task.query.all()
     response = []
     for task in tasks:
-        task_dict = task.make_dict
+        task_dict = task.make_dict()
         response.append(task_dict)
     return jsonify(response), 200
 
