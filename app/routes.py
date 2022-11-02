@@ -70,7 +70,7 @@ def update_task(task_id):
             
             if attribute not in task_attributes:
                 response_message += attribute +", "
-        return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),404
+        return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
         
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200

@@ -136,6 +136,8 @@ def test_update_task_not_found(client):
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
+    assert "message" in response_body
+    assert response_body["message"] == "Could not find task item with id: 1"
     # *****************************************************************
 
 
