@@ -29,3 +29,20 @@ def add_one_task():
     }
 
     return jsonify(response_body), 201
+
+@tasks_bp.route("", methods=["GET"])
+def get_all_tasks():
+    response_body = []
+
+    for task in Task.query.all():
+        is_complete = True if task.completed_at is not None else False
+        response_body.append(
+            {
+                "id": task.task_id,
+                "title":task.title,
+                "description": task.description,
+                "is_complete": is_complete
+            }
+        )
+    
+    return jsonify(response_body), 200
