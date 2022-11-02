@@ -54,3 +54,31 @@ def create_one_task():
     db.session.commit()
     # return jsonify({"task":{"id":new_task.task_id,"title":new_task.title,"description":new_task.description,"is_complete":False}}), 201
     return jsonify({"task":new_task.to_dict()}), 201
+
+@task_bp.route('/<task_id>', methods=['PUT'])
+def update_task(task_id):
+    update_task = get_task_from_id(task_id)
+    request_body = request.get_json()
+    
+    task_attributes = ["title","description"]
+    response_message = ""
+    try:
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+    except KeyError:
+        for attribute in task_attributes:
+            
+            if attribute not in task_attributes:
+                response_message += attribute +", "
+        return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),404
+        
+    db.session.commit()
+    return jsonify({"task":update_task.to_dict()}),200
+    
+
+
+
+
+@task_bp.route('/<task_id>', methods=['DELETE'])
+def delete_one_task():
+    pass
