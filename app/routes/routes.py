@@ -38,7 +38,24 @@ def read_all_tasks():
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": task.completed_at
+                "is_complete": task.completed_at,
             }
         )
     return jsonify(tasks_response)
+
+
+# Create GET route for 1 task
+@tasks_bp.route("/<task_id>", methods=["GET"])
+def get_one_bike(task_id):
+    # chosen_task = validate_task(task_id)
+    chosen_task = Task.query.get(task_id)
+
+    # returns jsonified object and response code as tuple
+    bike_dict = {
+        "id": chosen_task.id,
+        "title": chosen_task.title,
+        "description": chosen_task.description,
+        "is_complete": chosen_task.completed_at,
+    }
+
+    return jsonify(bike_dict), 200
