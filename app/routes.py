@@ -33,6 +33,28 @@ def get_one_breakfast(task_id):
 
     return jsonify(chosen_task.to_dict()), 200
 
+@task_bp.route('/<task_id>', methods=['PUT'])
+def update_one_task(task_id):
+    update_task = get_task_from_id(task_id)
+    request_body = request.get_json()
+
+    try:
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+        update_task.completed_at = request_body["completed_at"]
+    except KeyError:
+        return jsonify({"msg": "Missing needed data"}), 400
+    
+    db.session.commit()
+    return jsonify({"msg": f"Successfully updated task with id {update_task.task_id}"}), 200
+
+@task_bp.route('/<task_id>', methods=['DELETE'])
+def delete_one_task(task_id):
+    task_to_delete = get_task_from_id(task_id)
+    db.session.delete(task_to_delete)
+    db.session.commit()
+    return jsonify({"msg": f"Successfully deleted task with id {task_to_delete.task_id}"}), 200
+
 # helper
 def get_task_from_id(task_id):
     try:
