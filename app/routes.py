@@ -9,14 +9,22 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 def add_one_task():
     request_body = request.get_json()
 
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"],
-        completed_at=None
-    )
+    try:
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"],
+            completed_at=None
+        )
 
-    db.session.add(new_task)
-    db.session.commit()
+        db.session.add(new_task)
+        db.session.commit()
+        
+    except:
+        response_body = {
+            "details": "Invalid data"
+        }
+
+        abort(make_response(jsonify(response_body), 400))
     
     is_complete = True if new_task.completed_at is not None else False
 
@@ -30,6 +38,7 @@ def add_one_task():
     }
 
     return jsonify(response_body), 201
+
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
@@ -49,6 +58,7 @@ def get_all_tasks():
     
     return jsonify(response_body), 200
 
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_task(task_id)
@@ -65,6 +75,7 @@ def get_one_task(task_id):
     }
 
     return jsonify(response_body), 200
+
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
@@ -89,6 +100,7 @@ def update_one_task(task_id):
     db.session.commit()
 
     return jsonify(response_body), 200
+
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
