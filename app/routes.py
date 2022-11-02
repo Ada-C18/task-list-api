@@ -43,6 +43,19 @@ def create_new_task():
     response_body = {"task": new_task.to_dict()}
     return jsonify(response_body), 201
 
+@task_list_bp.route("/<task_id>", methods = ["PUT"])
+def update_task(task_id):
+    task = validate_task(task_id)
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+
+    db.session.commit()
+    response_body = {"task": task.to_dict()}
+
+    return jsonify(response_body)
+
 def validate_task(task_id):
     try:
         task_id = int(task_id)
