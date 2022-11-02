@@ -76,9 +76,12 @@ def update_task(task_id):
     return jsonify({"task":update_task.to_dict()}),200
     
 
-
-
-
 @task_bp.route('/<task_id>', methods=['DELETE'])
-def delete_one_task():
+def delete_one_task(task_id):
+    task_to_delete = get_task_from_id(task_id)
+    
+    db.session.delete(task_to_delete)
+    db.session.commit()
+    
+    return 
     pass
