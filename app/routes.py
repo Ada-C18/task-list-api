@@ -14,7 +14,7 @@ def create_one_task():
     db.session.commit()
     return jsonify({"msg":f"Successfully created Task with id={new_task.task_id}"}), 201
 
-'''
+
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
     #rating_query_value = request.args.get("rating")
@@ -26,7 +26,7 @@ def get_all_tasks():
     for item in tasks:
         result.append(item.to_dict())  
     return jsonify(result), 200
-'''
+
 
 
   
