@@ -17,6 +17,7 @@ def validate_model(cls, model_id, action):
     
     return model
 
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id, "get")
@@ -25,12 +26,19 @@ def read_one_task(task_id):
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
-
+    sort_query = request.args.get("sort") 
+    if sort_query == "asc":
+        sort_method = Task.title.asc()
+    elif sort_query == "desc":
+        sort_method = Task.title.desc()
+    else:
+        sort_method = None
+    
     title_query = request.args.get("title")
     if title_query:
-        tasks = Task.query.filter_by(title=title_query)
+        tasks = Task.query.filter_by(title=title_query).order_by(sort_method).all()
     else:
-        tasks = Task.query.all()
+        tasks = Task.query.order_by(sort_method).all()
 
     tasks_response = [task.to_dict() for task in tasks]
     return jsonify(tasks_response), 200
