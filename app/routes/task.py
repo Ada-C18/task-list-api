@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, make_response, request, abort,Response
 from app import db
 from app.models.task import Task
 from sqlalchemy import asc, desc
+import datetime
 
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
@@ -82,11 +83,7 @@ def update_task(task_id):
     task.title = request_body["title"]
     task.description = request_body["description"]
 
-    task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False}
+    task_dict = task.to_dict()
 
     db.session.commit()
     return jsonify({"task":task_dict}),200
@@ -98,3 +95,30 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"details":f"Task {task.task_id} \"{task.title}\" successfully deleted"}),200
+
+@task_bp.route("/<task_id>/mark_complete",methods = ['PATCH'])
+def mark_complete_on_incomplete_task(task_id):
+    task = validate_task_id(task_id)
+
+    datetime_object = datetime.datetime.now()
+    task.completed_at = datetime_object
+    task.is_complete = True
+    task_dict = task.to_dict()
+    
+    db.session.commit()
+
+    return jsonify({"task":task_dict})
+
+@task_bp.route("/<task_id>/mark_incomplete",methods = ['PATCH'])
+def mark_incomplete_on_complete_task(task_id):
+    task = validate_task_id(task_id)
+
+    task.completed_at = None
+    task.is_complete = False
+    task_dict = task.to_dict()
+    
+    db.session.commit()
+
+    return jsonify({"task":task_dict})
+
+
