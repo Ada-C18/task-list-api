@@ -34,10 +34,10 @@ def create_one_task():
     request_body = request.get_json()
 
     try:
-        new_task = Task.from_dict(request_body)
+        new_task = Task(title=request_body["title"], description=request_body["description"])
             
-    except:
-        return jsonify({"msg": "missing data"}), 400
+    except Exception as e:
+        return jsonify({"msg": f"{e}"}), 400
 
     db.session.add(new_task)
     db.session.commit()
