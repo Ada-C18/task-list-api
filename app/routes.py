@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, make_response, abort
 from app import db 
 from app.models.task import Task 
+from datetime import date
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
@@ -18,15 +19,6 @@ def get_all_tasks():
         response.append(task.to_dict())
 
     return jsonify(response), 200
-
-# @task_list_bp.route("/<task_id>", methods= ["GET"])
-# def get_one_task(task_id):
-#     task = Task.query.get(task_id)
-#     if not task:
-#         abort(make_response({"message": f"task {task_id} not found"}, 404))
-#     else:
-#         response = {"task": task.to_dict()}
-#         return jsonify(response), 200
 
 #GET one task
 @task_list_bp.route("/<task_id>", methods= ["GET"])
@@ -78,9 +70,17 @@ def delete_task(task_id):
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200 
 
 #PATCH complete task
-# @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
-# def mark_complete(task_id):
-#     complete_query = 
+@task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
+def mark_complete(task_id):
+    task = validate_task(task_id)
+
+    if not task.completed_at:
+        task.completed_at = date.today()
+        response = {"task": task.to_dict()}
+        response['task']['is_complete'] = True 
+
+        db.session.commit()
+        return jsonify(response), 200
 
 #================== Helper Functions=================
 def validate_task(task_id):
