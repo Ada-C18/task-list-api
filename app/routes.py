@@ -63,6 +63,10 @@ def update_one_task(task_id):
 
 @task_bp.route("/<task_id>/mark_complete", methods=['PATCH'])
 def mark_task_as_complete(task_id):
+    """
+    Please note, I'm commenting out the slack bot section as while it does work,
+    it is also continuously crashing my Slack with each pytest and I'd rather not have it do that.
+    """
     task = validate_model(Task,task_id)
 
     task.completed_at = datetime.now()
@@ -70,9 +74,9 @@ def mark_task_as_complete(task_id):
     db.session.commit()
     
     #this is the slack bot section
-    slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
-    headers = {'Authorization': f'Bearer {slack_bot_token}'}
-    r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
+    # slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
+    # headers = {'Authorization': f'Bearer {slack_bot_token}'}
+    # r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
     
     return make_response({f"task":task.dictionfy()},200)
 
