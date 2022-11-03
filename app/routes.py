@@ -122,7 +122,7 @@ def delete_one_task(task_id):
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
-    request_body = request.get_json()    
+    # request_body = request.get_json()    
     
     chosen_task.completed_at = date.today()
     
@@ -130,5 +130,11 @@ def mark_complete_one_task(task_id):
     
     return jsonify({"task":chosen_task.to_dict()}), 200
 
-# @task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
-
+@task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
+def mark_incomplete_one_task(task_id):
+    chosen_task = get_task_from_id(task_id)
+    chosen_task.completed_at = None
+    db.session.commit()
+    
+    return jsonify({"task":chosen_task.to_dict()}), 200
+    
