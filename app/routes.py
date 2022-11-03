@@ -42,12 +42,12 @@ def create_one_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify(new_task.to_dict()), 201
+    return {"task": new_task.to_dict()}, 201
 
 @tasks_bp.route("/<model_id>", methods=["GET"])
 def read_one_task_by_id(model_id):
     task = validate_model(Task, model_id)
-    return task.to_dict()
+    return {"task": task.to_dict()}
 
 
 @tasks_bp.route("/<model_id>", methods=["PUT"])
@@ -60,7 +60,7 @@ def update_one_task_by_id(model_id):
 
     db.session.commit()
 
-    return jsonify(task.to_dict()), 200
+    return {"task": task.to_dict()}, 200
 
 @tasks_bp.route("/<model_id>", methods=["DELETE"])
 def delete_task_by_id(model_id):
