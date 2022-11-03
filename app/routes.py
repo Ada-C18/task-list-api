@@ -15,6 +15,7 @@ goal_bp = Blueprint("goal_bp",__name__,url_prefix="/goals")
 @task_bp.route("", methods=['POST'])
 def make_new_task():
     response_body = request.get_json()
+    
     try:
         new_task = Task(
             title=response_body["title"],
@@ -23,6 +24,7 @@ def make_new_task():
         return make_response({
         "details": "Invalid data"
     },400)
+   
     db.session.add(new_task)
     db.session.commit()
 
@@ -35,12 +37,15 @@ def get_all_tasks():
     return_list=[]
     
     sort_query = request.args.get("sort")
+    
     if sort_query=="desc":
         tasks = Task.query.order_by(Task.title.desc()).all()
     else:
         tasks = Task.query.order_by(Task.title.asc()).all()
+    
     for task in tasks:
         return_list.append(task.dictionfy())
+    
     return make_response(jsonify(return_list),200)
 
 
@@ -77,7 +82,7 @@ def mark_task_as_complete(task_id):
     #this is the slack bot section
     slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
     headers = {'Authorization': f'Bearer {slack_bot_token}'}
-    r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
+    requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
     
     return make_response({f"task":task.dictionfy()},200)
 
@@ -107,6 +112,7 @@ def delete_a_task(task_id):
 @goal_bp.route("", methods=['POST'])
 def create_new_goal():
     response_body = request.get_json()
+    
     try:
         new_goal = Goal(
             title=response_body["title"])
@@ -114,6 +120,7 @@ def create_new_goal():
         return make_response({
         "details": "Invalid data"
     },400)
+
     db.session.add(new_goal)
     db.session.commit()
 
@@ -124,12 +131,15 @@ def get_all_goals():
     return_list=[]
     
     sort_query = request.args.get("sort")
+   
     if sort_query=="desc":
         goals = Goal.query.order_by(Goal.title.desc()).all()
     else:
         goals = Goal.query.order_by(Goal.title.asc()).all()
+    
     for goal in goals:
         return_list.append(goal.goal_dictionfy())
+    
     return make_response(jsonify(return_list),200)
 
 @goal_bp.route("/<goal_id>", methods=['GET'])
@@ -164,10 +174,11 @@ def create_book(goal_id):
 
     request_body = request.get_json()
     for task_id in request_body["task_ids"]:
-        task = Task.query.get(task_id)
+        task = validate_model(Task,task_id)
         task.goal_id = goal.goal_id
 
     db.session.commit()
+
     return make_response(jsonify({
         "id": goal.goal_id,
         "task_ids":request_body["task_ids"]
@@ -177,13 +188,16 @@ def create_book(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_from_goal(goal_id):
     goal = validate_model(Goal, goal_id)
+
     return_dict = {
         "id":goal.goal_id,
         "title":goal.title,
         "tasks":[]
     }
+
     for task in goal.tasks:
         return_dict["tasks"].append(task.dictionfy())
+
     return make_response(jsonify(return_dict),200)
 
 def validate_model(cls, model_id):
