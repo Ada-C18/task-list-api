@@ -21,10 +21,7 @@ def validate_task(task_id):
 
     return task
 
-# def task_is_complete():
-#     if task
 
- 
 
 
 @tasks_bp.route("", methods=["POST"])
