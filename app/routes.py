@@ -1,8 +1,20 @@
 from flask import Blueprint, jsonify, abort, make_response
 from app.models.task import Task
+from app import db
 
 #make a blueprint
 task_bp = Blueprint("task_bp", __name__, url_prefix = "/tasks")
+
+@task_bp.route("", methods = ["POST"])
+def post_new_task():
+    request_body = request.get_json()
+    new_task = make_new_task(request_body)
+    db.session.add(new_task)
+    db.session.commit()
+    task_dict = new_task.make_dict()
+    response = {"task": task_dict}
+    return make_response(response, 201)
+    
 
 @task_bp.route("", methods = ["GET"])
 def get_all_tasks():
