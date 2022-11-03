@@ -9,7 +9,6 @@ def create_task():
     request_body = request.get_json()
     if not "title" in request_body or not "description" in request_body:
         return make_response({"details":"Invalid data"}, 400)
-    # title, description, completed_at
 
     new_task = Task.from_dict(request_body)
 
@@ -27,7 +26,20 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    pass
+    all_tasks = Task.query.all()
+    response_body = []
+    
+    for task in all_tasks:
+        response_body.append(
+            {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": False if task.completed_at is None else True
+            }
+        )
+    return jsonify(response_body)
+
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task():
