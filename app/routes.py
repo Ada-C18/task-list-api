@@ -50,6 +50,13 @@ def create_one_task():
                     description=request_body['description']
                     # completed_at=request_body['completed_at']
                     )
+    try:
+        new_task.title = request_body["title"]
+        new_task.description = request_body["description"]
+    except KeyError:
+        return jsonify({"details": "Invalid data"}),400
+    
+    
     db.session.add(new_task)
     db.session.commit()
     # return jsonify({"task":{"id":new_task.task_id,"title":new_task.title,"description":new_task.description,"is_complete":False}}), 201
@@ -62,16 +69,20 @@ def update_task(task_id):
     
     task_attributes = ["title","description"]
     response_message = ""
+    
     try:
         update_task.title = request_body["title"]
         update_task.description = request_body["description"]
     except KeyError:
+        # return jsonify({"details": "Invalid data"}),400
         for attribute in task_attributes:
             
             if attribute not in task_attributes:
                 response_message += attribute +", "
         return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
-        
+    
+
+    
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200
     
