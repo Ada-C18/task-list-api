@@ -19,7 +19,9 @@ def post_task():
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
-    return jsonify([t.to_dict() for t in Task.query.all()])
+    sort = request.args.get("sort")
+    sort = getattr(Task.title, sort)() if sort in ("asc", "desc") else None
+    return jsonify([t.to_dict() for t in Task.query.order_by(sort).all()])
 
 
 @task_bp.route("/<task_id>", methods=["GET"])
