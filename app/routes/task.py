@@ -11,12 +11,16 @@ task_bp = Blueprint("task",__name__,url_prefix = "/tasks")
 @task_bp.route('',methods =['POST']) 
 def create_task():
     request_body = request.get_json()
-    new_task = Task(
+    try:
+        new_task = Task(
+            title = request_body['title'],
+            description = request_body['description'],
+            # completed_at = request_body['completed_at']
+        )
+    except:
+        return abort(make_response({"details": "Invalid data"},400))
         
-        title = request_body['title'],
-        description = request_body['description'],
-        # completed_at = request_body['completed_at']
-    )
+          
 
     db.session.add(new_task)
     db.session.commit()
@@ -26,10 +30,12 @@ def create_task():
 
 @task_bp.route('',methods = ["GET"])
 def get_all_tasks():
-    title_query_value = request.args.get("title")
+    query_value = request.args.get("sort")
 
-    if title_query_value is not None:
-        tasks = Task.query.filter_by(title = title_query_value) 
+    if query_value == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif query_value == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()      
     else:
         tasks = Task.query.all()
 
@@ -46,6 +52,38 @@ def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
 
     return make_response(jsonify({"task":chosen_task.to_dict()}),200)
+
+
+@task_bp.route('/<breakfast_id>', methods = ["PUT"])
+def update_task(breakfast_id):
+    update_task = get_task_from_id(breakfast_id)
+
+    request_body = request.get_json()
+    
+    try:
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+       
+    except KeyError:
+        return jsonify({'msg':"Missing needed data"}),400
+
+    db.session.commit()
+
+    return make_response(jsonify({"task": update_task.to_dict()}),200)
+    
+
+@task_bp.route('/<task_id>', methods = ["DELETE"])
+def delete_one_task(task_id):
+    task = get_task_from_id(task_id)
+
+    # request_body = request.get_json()
+    
+   
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response(jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}),200)
+
 
 
 

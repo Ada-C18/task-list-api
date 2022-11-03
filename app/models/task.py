@@ -9,6 +9,7 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime,nullable=True)
 
     def to_dict(self):
+        
         return {
 
             "id":self.task_id,
