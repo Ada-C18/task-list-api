@@ -4,7 +4,7 @@ from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-
+#------------------------------------WAVE1----------------------------------
 #Create a Task: Valid Task With null completed_at
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -29,7 +29,14 @@ def create_task():
 #Get all Task
 @tasks_bp.route("", methods=["Get"])
 def get_all_task():
-    tasks = Task.query.all()
+    task_query = request.args.get("sort")
+    if task_query =='desc':
+        #Sorting Tasks: By Title, Descending
+        tasks = Task.query.order_by(Task.title.desc()).all() 
+    else:
+        #Sorting Tasks: By Title, Ascending
+        tasks = Task.query.order_by(Task.title).all() 
+    # tasks = Task.query.all()
     tasks_response = []
     for task in tasks:
         tasks_response.append({
@@ -91,3 +98,7 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return jsonify({"details":f'Task {task_id} "{task.title}" successfully deleted'}),200
+
+
+    
+ 
