@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
+from operator import itemgetter
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -60,8 +61,17 @@ def create_one_task():
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
     # request_body = request.get_json()
+    title_sort = request.args.get("sort")
 
+    # if title_sort is None:
+    #     tasks = Task.query.all()
+    # elif title_sort == "asc":
+    #     tasks = sorted(tasks, key=itemgetter("title"))
+    # elif title_sort == "desc":
+    #     tasks = sorted(tasks, key=itemgetter("title", reverse=True))
+    
     tasks = Task.query.all()
+
 
     response = []
     for task in tasks:
@@ -72,6 +82,12 @@ def get_all_tasks():
             "is_complete": determine_completion(task, task)
         }
         response.append(task_dict)
+
+    if title_sort == "asc":
+        response = sorted(response, key=itemgetter("title"))
+    elif title_sort == "desc":
+        response = sorted(response, key=itemgetter("title"), reverse=True)
+
     return jsonify(response), 200
 
 @task_bp.route("/<task_id_input>", methods=["GET"])
