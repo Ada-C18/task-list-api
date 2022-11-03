@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, abort, make_response
 from app.models.task import Task
+from app import db
 
 #make a blueprint
 task_bp = Blueprint("task_bp", __name__, url_prefix = "/tasks")
@@ -20,6 +21,17 @@ def get_one_task(task_id):
     task_dict = task.make_dict()
     return make_response({"task": task_dict}, 200)
     
+@task_bp.route("", methods = "POST")
+def post_new_task():
+    request_body = request.get_json()
+    new_task = make_new_task(request_body)
+    db.session.add(new_task)
+    db.session.commit()
+    task_dict = new_task.make_dict()
+    response = {"task": task_dict}
+    return make_response(response, 201)
+    
+    
 
 def validate_task(task_id):
     try:
@@ -33,4 +45,11 @@ def validate_task(task_id):
         abort(make_response({"message": response_str}, 404))
     return task
 
+def make_new_task(task_dict):
+    new_task = Task(
+        title = task_dict["title"],
+        description = task_dict["description"],
+        is_complete = task_dict["is_complete"]
+    )
+    return new_task
 
