@@ -41,6 +41,9 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
+    # message = chosen_task.to_dict()
+    # return jsonify(chosen_task.to_dict()), 200
+    # return jsonify([message]), 200
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
@@ -57,8 +60,8 @@ def create_one_task():
         
     db.session.add(new_task)
     db.session.commit()
-    # return jsonify({"task":{"id":new_task.task_id,"title":new_task.title,"description":new_task.description,"is_complete":False}}), 201
     return jsonify({"task":new_task.to_dict()}), 201
+    # return jsonify(new_task.to_dict()), 201
 
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_task(task_id):
@@ -83,6 +86,7 @@ def update_task(task_id):
     
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200
+    # return jsonify(update_task.to_dict()), 200
     
 
 @task_bp.route('/<task_id>', methods=['DELETE'])
