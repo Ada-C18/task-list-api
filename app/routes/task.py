@@ -5,6 +5,20 @@ from app import db
 
 task_bp = Blueprint("task", __name__, url_prefix = "/tasks")
 
+# Helper function
+def get_task_from_id(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return abort(make_response({"message" : f"{task_id} is invalid"}, 400))
+
+    chosen_task = Task.query.get(task_id)
+   
+    if chosen_task is None:
+        return abort(make_response({'msg': f' Could not find task item with id : {task_id}'}, 404))
+     
+    return chosen_task
+
 @task_bp.route('', methods= ['POST'])
 def create_one_task():
     request_body = request.get_json()
@@ -36,6 +50,13 @@ def get_all_tasks():
         response.append(task.to_dict())
 
     return jsonify(response), 200
+
+@task_bp.route("/<task_id>", methods= ["GET"])
+def get_one_task(task_id):
+    
+    chosen_task = get_task_from_id(task_id)
+
+    return make_response(jsonify(chosen_task.to_dict()),200)
 
 
 

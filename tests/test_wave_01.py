@@ -13,7 +13,7 @@ def test_get_tasks_no_saved_tasks(client):
     assert response_body == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_one_saved_tasks(client, one_task):
     # Act
     response = client.get("/tasks")
@@ -24,15 +24,15 @@ def test_get_tasks_one_saved_tasks(client, one_task):
     assert len(response_body) == 1
     assert response_body == [
         {
-            "id": 1,
+           "task": {"id": 1,
             "title": "Go on my daily walk 🏞",
             "description": "Notice something new every day",
-            "is_complete": False
+            "is_complete": False}
         }
     ]
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task(client, one_task):
     # Act
     response = client.get("/tasks/1")
@@ -51,7 +51,7 @@ def test_get_task(client, one_task):
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_not_found(client):
     # Act
     response = client.get("/tasks/1")
@@ -59,8 +59,10 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
+    assert 'msg' in response_body
+    assert response_body == {'msg': ' Could not find task item with id : 1'}
+    
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
@@ -186,7 +188,7 @@ def test_create_task_must_contain_title(client):
     assert Task.query.all() == []
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task_must_contain_description(client):
     # Act
     response = client.post("/tasks", json={
