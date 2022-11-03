@@ -6,20 +6,19 @@ task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
 #GET all tasks 
 @task_list_bp.route("", methods=["GET"])
-def get_sorted_tasks():
+def get_all_tasks():
     sort_query = request.args.get("sort")
     if sort_query:
-        if sort_query == "desc": 
-            tasks = Task.query.order_by(Task.title.desc()).all()
-        else:
-            tasks = Task.query.order_by(Task.title).all()
+        tasks = get_tasks_sorted(sort_query)
     else:
         tasks = Task.query.all()
+
     response = []
     for task in tasks:
         response.append(task.to_dict())
 
     return jsonify(response), 200
+
 # @task_list_bp.route("/<task_id>", methods= ["GET"])
 # def get_one_task(task_id):
 #     task = Task.query.get(task_id)
@@ -78,6 +77,12 @@ def delete_task(task_id):
 
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200 
 
+#PATCH complete task
+# @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
+# def mark_complete(task_id):
+#     complete_query = 
+
+#================== Helper Functions=================
 def validate_task(task_id):
     try:
         task_id = int(task_id)
@@ -90,3 +95,12 @@ def validate_task(task_id):
         abort(make_response({"message": f"task {task_id} not found"}, 404))
 
     return task
+
+#GET sorted tasks helper function
+def get_tasks_sorted(sort_query):
+    if sort_query == "desc": 
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    else:
+        tasks = Task.query.order_by(Task.title).all()
+
+    return(tasks)
