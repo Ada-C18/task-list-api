@@ -5,6 +5,23 @@ from app import db
 
 task_bp = Blueprint("task", __name__, url_prefix = "/tasks")
 
+@task_bp.route('', methods= ['POST'])
+def create_one_task():
+    request_body = request.get_json()
+    try:
+        new_task = Task(title=request_body['title'], 
+                        description=request_body['description'])
+                    # completed_at=request_body['completed_at'])
+    except:
+        return abort(make_response({"details": "Invalid data"}, 400))
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify(new_task.to_dict()), 201
+
+
+
 @task_bp.route('', methods=["GET"])
 def get_all_tasks():
     title_query_value = request.args.get("title") 
