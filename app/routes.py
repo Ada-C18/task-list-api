@@ -7,7 +7,7 @@ tasks_bp = Blueprint("tasks", __name__,url_prefix="/tasks")
 
 
 # Helper function
-def get_task_from_id():
+def get_task_from_id(task_id):
     try:
         task_id = int(task_id)
     except ValueError:
@@ -49,5 +49,12 @@ def get_all_planets():
         result.append(task.to_dict())
     
     return jsonify(result), 200
+
+@tasks_bp.route('/<task_id>', methods=['GET'])
+def get_one_task(task_id):
+
+    chosen_task = get_task_from_id(task_id)
+
+    return jsonify({"task":chosen_task.to_dict()}), 200
 
 
