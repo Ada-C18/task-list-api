@@ -38,8 +38,6 @@ def create_one_task():
             
     except:
         return jsonify({"msg": "missing data"}), 400
-    
-    # response_body = new_task.to_dict()
 
     db.session.add(new_task)
     db.session.commit()
@@ -62,7 +60,7 @@ def update_one_task_by_id(model_id):
 
     db.session.commit()
 
-    return jsonify({"msg": f"{task.title} successfully updated."}), 200
+    return jsonify(task.to_dict()), 200
 
 @tasks_bp.route("/<model_id>", methods=["DELETE"])
 def delete_task_by_id(model_id):
