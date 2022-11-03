@@ -46,6 +46,13 @@ def update_task(task_id):
     response = {"task": task.make_dict()}  #refactor this line and line 37 above to helper function? or method on class?
     return make_response(response, 200)
 
+@task_bp.route("/<task_id>", methods = ["DELETE"])
+def delete_task(task_id):
+    task = validate_task(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    response_body = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
+    return make_response(response_body, 200)
 
 def validate_task(task_id):
     try:
