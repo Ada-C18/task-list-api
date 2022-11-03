@@ -5,12 +5,15 @@ class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    completed_at = db.Column(db.DateTime, nullable = False) # Columns are nullable by default
+    completed_at = db.Column(db.DateTime, nullable = True) # Can be nullable
 
-    def to_dict(self):
+    def to_response(self):
         return {
-            "task_id":self.task_id,
-            "title":self.title,
-            "description":self.description,
-            "completed_at":self.completed_at
+            "task": {
+                "id":self.task_id,
+                "title":self.title,
+                "description":self.description,
+                # "completed_at":self.completed_at
+                "is_complete": True if self.completed_at else False
+            }
         }
