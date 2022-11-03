@@ -83,5 +83,5 @@ def delete_one_task(task_id):
     db.session.delete(task_to_delete)
     db.session.commit()
     
-    return 
-    pass
+    return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"})
+    
