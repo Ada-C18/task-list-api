@@ -12,14 +12,15 @@ def get_all_tasks():
         tasks_response.append({
             "id": task.task_id,
             "title": task.title,
-            "description": task.description
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
         })
     return jsonify(tasks_response)
 
 @tasks_bp.route("", methods = ["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = Task(title = request_body["title"], description = request_body["description"])
+    new_task = Task(title = request_body["title"], description = request_body["description"], completed_at = request_body["completed_at"])
     db.session.add(new_task)
     db.session.commit()
 
