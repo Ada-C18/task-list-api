@@ -42,13 +42,21 @@ def add_task():
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
     tasks = Task.query.all()
+    sort_param = request.args.get("sort")
+
 
     response = []
     for task in tasks:
         task_dict = make_task_dict(task)
         response.append(task_dict)
     
+    if sort_param == "asc":
+        response = sorted(response, key=lambda i:i['title'])
+    if sort_param == "desc":
+        response = sorted(response, key=lambda i:i['title'], reverse=True)
+
     return jsonify(response), 200
+
 
 #helper function to validate that task ids are valid
 def validate_id(task_id):
