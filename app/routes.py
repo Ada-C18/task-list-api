@@ -29,8 +29,13 @@ def read_all_tasks():
 @tasks_bp.route("", methods=["POST"])
 def create_one_task():
     request_body = request.get_json()
-
+    
     new_task = Task.from_dict(request_body)
+
+    try:
+        new_task 
+    except:
+        return jsonify({"msg": "missing data"}), 400
 
     db.session.add(new_task)
     db.session.commit()
@@ -42,5 +47,24 @@ def read_one_task_by_id(model_id):
     task = validate_model(Task, model_id)
     return task.to_dict()
 
-    
 
+@tasks_bp.route("/<model_id>", methods=["PUT"])
+def update_one_task_by_id(model_id):
+    request_body = request.get_json()
+    task = validate_model(Task, model_id)
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+
+    db.session.commit()
+
+    return jsonify({"msg": f"{task.title} successfully updated."}), 200
+
+@tasks_bp.route("/<model_id>", methods=["DELETE"])
+def delete_task_by_id(model_id):
+    task = validate_model(Task, model_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({"msg": f"{task.title} successfully deleted."}), 200
