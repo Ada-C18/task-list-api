@@ -9,11 +9,14 @@ class Task(db.Model):
 
     def to_response(self):
         return {
-            "task": {
+            "task": self.to_dict()
+        }
+        
+    def to_dict(self):
+        return {    
                 "id":self.task_id,
                 "title":self.title,
                 "description":self.description,
                 # "completed_at":self.completed_at
                 "is_complete": True if self.completed_at else False
-            }
         }
