@@ -63,7 +63,7 @@ def delete_a_goal(goal_id):
     return make_response(jsonify({'details':f'Goal {goal_id} \"{goal.title}\" successfully deleted'}),200)
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-def create_book(goal_id):
+def map_tasks_to_goals(goal_id):
 
     goal = validate_model(Goal, goal_id)
 
