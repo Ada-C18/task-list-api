@@ -1,12 +1,29 @@
 from flask import Flask, Blueprint, jsonify, abort, make_response, request
-from models.task import Task
+from app.models.task import Task
 from app import db
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 @tasks_bp.route("", methods=["POST"])
 def create_task():
-    pass
+    request_body = request.get_json()
+    if not "title" in request_body or not "description" in request_body:
+        return make_response({"details":"Invalid data"}, 400)
+    # title, description, completed_at
+
+    new_task = Task.from_dict(request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return make_response({
+        "task": {
+            "id": new_task.task_id,
+            "title": new_task.title,
+            "description": new_task.description,
+            "is_complete": False
+        }
+    }, 201)
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
