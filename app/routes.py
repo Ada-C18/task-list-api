@@ -4,17 +4,19 @@ from app.models.task import Task
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
-#GET all tasks
+#GET all tasks 
 @task_list_bp.route("", methods=["GET"])
-def get_tasks():
-    tasks = Task.query.all()
+def get_sorted_tasks():
+    sort_query = request.args.get("sort")
+    if sort_query: 
+        tasks = Task.query.order_by(Task.title).all()
+    else:
+        tasks = Task.query.all()
     response = []
     for task in tasks:
         response.append(task.to_dict())
 
     return jsonify(response), 200
-
-
 # @task_list_bp.route("/<task_id>", methods= ["GET"])
 # def get_one_task(task_id):
 #     task = Task.query.get(task_id)
