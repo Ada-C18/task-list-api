@@ -23,7 +23,7 @@ def create_app(test_config=None):
             "SQLALCHEMY_TEST_DATABASE_URI")
 
     SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
-    
+
 
     # Import models here for Alembic setup
     from app.models.task import Task
@@ -32,9 +32,10 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
 
-    from app.models.task import Task
-
-    from .routes import tasks_bp
+    from .task_routes import tasks_bp
     app.register_blueprint(tasks_bp)
+
+    from .goal_routes import goals_bp
+    app.register_blueprint(goals_bp)
 
     return app

@@ -93,11 +93,14 @@ logger = logging.getLogger(__name__)
 def mark_one_task_as_completed(task_id):
     task_to_mark_complete = validate_model(Task, task_id, "mark complete")
 
-    if not task_to_mark_complete.completed_at:
-        task_to_mark_complete.completed_at = datetime.datetime.utcnow()
-        db.session.commit()
-    else:
-        return jsonify({"message": f"Task <{task_to_mark_complete.title.title()}> has already been completed"}), 400
+    task_to_mark_complete.completed_at = datetime.datetime.utcnow()
+    db.session.commit()
+
+    # if not task_to_mark_complete.completed_at:
+    #     task_to_mark_complete.completed_at = datetime.datetime.utcnow()
+    #     db.session.commit()
+    # else:
+    #     return jsonify({"message": f"Task <{task_to_mark_complete.title.title()}> has already been completed"}), 200
 
     try:
         result = client.chat_postMessage(
