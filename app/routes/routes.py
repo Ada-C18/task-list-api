@@ -24,11 +24,12 @@ def create_task():
     db.session.commit()
 
     # TODO create method to convert response to json
-    task_dict = Task.to_dict(new_task)
+    # task_dict = Task.to_dict(new_task)
+    response = {
+        "task": new_task.to_dict()
+    }
 
-    return task_dict, 201
-    # return make_response(jsonify(new_task, 201))
-    # return make_response(f"Book {new_book.title} successfully created", 201)
+    return response, 201
 
 
 @tasks_bp.route("", methods=["GET"])
@@ -36,14 +37,10 @@ def read_all_tasks():
     tasks_response = []
     tasks = Task.query.all()
     for task in tasks:
-        tasks_response.append(
-            {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.completed_at,
-            }
-        )
+        task_dict = task.to_dict()
+
+        tasks_response.append(task_dict)
+
     return jsonify(tasks_response)
 
 
@@ -54,11 +51,8 @@ def get_one_bike(task_id):
     chosen_task = Task.query.get(task_id)
 
     # returns jsonified object and response code as tuple
-    task_dict = {
-        "id": chosen_task.id,
-        "title": chosen_task.title,
-        "description": chosen_task.description,
-        "is_complete": chosen_task.completed_at,
+    response = {
+        "task": chosen_task.to_dict()
     }
 
-    return jsonify(task_dict), 200
+    return response, 200
