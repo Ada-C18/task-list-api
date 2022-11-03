@@ -15,7 +15,7 @@ def create_task():
     new_task = Task(
         title=request_body["title"],
         description=request_body["description"],
-        completed_at=request_body["completed_at"]
+        completed_at=None
     )
 
     # add to dict
