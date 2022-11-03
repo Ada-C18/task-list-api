@@ -21,14 +21,16 @@ def create_one_task():
 
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
-    #rating_query_value = request.args.get("rating")
-    #if rating_query_value is not None:
-    #    tasks = Task.query.filter_by(rating=rating_query_value)
-    #else:
     tasks = Task.query.all()
     result = []
     for item in tasks:
-        result.append(item.to_dict())  
+        result.append(item.to_dict()) 
+    #tasks is List - why can i sort    
+    sort_query = request.args.get("sort") #key
+    if sort_query == "asc":
+        result = sorted(result, key=lambda t:t['title'])
+    elif sort_query == "desc":
+        result = sorted(result, key=lambda t:t['title'], reverse=True)
     return jsonify(result), 200
 
 @task_bp.route('/<task_id>', methods=['GET'])
