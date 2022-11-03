@@ -46,23 +46,15 @@ def get_one_task(task_id):
 def create_one_task():
     request_body = request.get_json()
     
-    new_task = Task(title=request_body["title"],
+    try:
+        new_task = Task(title=request_body["title"],
                     description=request_body["description"]
                     # completed_at=request_body['completed_at']
                     )
     
-    attributes = ["title","description"]
-    
-    try:
-        new_task.title = request_body["title"]
-        new_task.description = request_body["description"]
     except KeyError:
-        # return jsonify({"details": "Invalid data"}),400
-        for attribute in attributes:
-            if attribute not in request_body:
-                return jsonify({"details": "Invalid data"}),400
-    
-    
+        return jsonify({"details": "Invalid data"}),400
+        
     db.session.add(new_task)
     db.session.commit()
     # return jsonify({"task":{"id":new_task.task_id,"title":new_task.title,"description":new_task.description,"is_complete":False}}), 201
