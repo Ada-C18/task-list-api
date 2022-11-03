@@ -91,6 +91,7 @@ def update_task(task_id):
     db.session.commit()
 
     return jsonify(response), 200
+    # return response, 200 # jsonify needed here?
 # REQUEST
 # {
 #   "title": "Updated Task Title",
@@ -115,7 +116,7 @@ def delete_task(task_id):
     db.session.commit()
 
     response = {
-        "details": f"Task {task.title} successfully deleter"
+        "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
     }
 
     return jsonify(response), 200
@@ -124,3 +125,7 @@ def delete_task(task_id):
 # {
 #   "details": "Task 1 \"Go on my daily walk 🏞\" successfully deleted"
 # }
+
+    # assert response_body == {
+    #     "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
+    # }
