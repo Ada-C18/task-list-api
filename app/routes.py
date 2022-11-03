@@ -156,6 +156,34 @@ def delete_a_goal(goal_id):
 
     return make_response({'details':f'Goal {goal_id} \"{goal.title}\" successfully deleted'},200)
 
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_book(goal_id):
+
+    goal = validate_model(Goal, goal_id)
+
+    request_body = request.get_json()
+    for task_id in request_body["task_ids"]:
+        task = Task.query.get(task_id)
+        task.goal_id = goal.goal_id
+
+    db.session.commit()
+    return make_response(jsonify({
+        "id": goal.goal_id,
+        "task_ids":request_body["task_ids"]
+    }), 200)
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_from_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    return_dict = {
+        "id":goal.goal_id,
+        "title":goal.title,
+        "tasks":[]
+    }
+    for task in goal.tasks:
+        return_dict["tasks"].append(task.dictionfy())
+    return make_response(jsonify(return_dict),200)
 
 def validate_model(cls, model_id):
     try:
