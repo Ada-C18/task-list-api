@@ -68,7 +68,7 @@ def mark_task_as_complete(task_id):
     #this is the slack bot section
     slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
     headers = {'Authorization': f'Bearer {slack_bot_token}'}
-    r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text={task.title}',headers=headers)
+    r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
     
     return make_response({f"task":task.dictionfy()},200)
 
