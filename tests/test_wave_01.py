@@ -149,7 +149,7 @@ def test_delete_task(client, one_task):
     assert Task.query.get(1) == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task_not_found(client):
     # Act
     response = client.delete("/tasks/1")
