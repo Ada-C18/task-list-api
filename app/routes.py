@@ -50,6 +50,30 @@ def get_task():
         response.append(task_dict)
     return jsonify(response), 200
 
+@task_bp.route("/<task_id>", methods =["GET"])
+def get_one_task(task_id):
+    tasks = Task.query.all()
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        response_str = f"Invalid task_id: {task_id} ID must be integer"
+        return jsonify({"message": response_str}), 400
+
+    for task in tasks:
+        if task_id == task.task_id:
+            is_completed = True
+            if task.completed_at is None:
+                is_completed = False
+            task_dict = {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": is_completed
+            }
+            return jsonify({"task": task_dict}), 200
+    response_message = f"Could not find task with ID {task_id}"
+    return jsonify({"message": response_message}), 404
+
 
 
     
