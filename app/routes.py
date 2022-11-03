@@ -5,6 +5,7 @@ from app.models.task import Task
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
+########################## WAVE 1 ##########################
 #helper function to validate task id
 def get_task_from_id(task_id):
     try:
@@ -19,12 +20,31 @@ def get_task_from_id(task_id):
 
     return chosen_task
 
-##End route to get all tasks
+# ##WAVE 1 ##End route to get all tasks
+# @task_bp.route('', methods=['GET'])
+# def get_all_tasks():
+#     title_query_value = request.args.get("title")
+#     if title_query_value is not None:
+#         tasks = Task.query.filter_by(title=title_query_value)
+    
+#     else:
+#         tasks = Task.query.all()
+    
+#     result = []
+    
+#     for task in tasks:
+#         result.append(task.to_dict())
+    
+#     return jsonify(result), 200
+
+##WAVE 2##
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
-    title_query_value = request.args.get("title")
-    if title_query_value is not None:
-        tasks = Task.query.filter_by(title=title_query_value)
+    title_query_sort = request.args.get("sort")
+    if title_query_sort == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif title_query_sort == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
     
     else:
         tasks = Task.query.all()
@@ -35,6 +55,7 @@ def get_all_tasks():
         result.append(task.to_dict())
     
     return jsonify(result), 200
+
 
 ##End route to get one task
 @task_bp.route('/<task_id>', methods=['GET'])
@@ -97,4 +118,5 @@ def delete_one_task(task_id):
     db.session.commit()
     
     return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"})
-    
+
+########################## WAVE 2 ##########################
