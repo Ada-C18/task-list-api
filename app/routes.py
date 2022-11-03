@@ -15,3 +15,12 @@ def validate_model(cls, model_id):
         abort(make_response({"ERROR":f"No {cls.__name__} with ID {model_id} in database"}, 404))
 
     return model
+
+@tasks_bp.route("", methods=["GET"])
+def get_all_tasks():
+    tasks = Task.query.all()
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append(task.as_dict())
+
+    return jsonify(tasks_response)
