@@ -46,15 +46,21 @@ def get_one_task(task_id):
 def create_one_task():
     request_body = request.get_json()
     
-    new_task = Task(title=request_body['title'],
-                    description=request_body['description']
+    new_task = Task(title=request_body["title"],
+                    description=request_body["description"]
                     # completed_at=request_body['completed_at']
                     )
+    
+    attributes = ["title","description"]
+    
     try:
         new_task.title = request_body["title"]
         new_task.description = request_body["description"]
     except KeyError:
-        return jsonify({"details": "Invalid data"}),400
+        # return jsonify({"details": "Invalid data"}),400
+        for attribute in attributes:
+            if attribute not in request_body:
+                return jsonify({"details": "Invalid data"}),400
     
     
     db.session.add(new_task)
@@ -77,7 +83,7 @@ def update_task(task_id):
         # return jsonify({"details": "Invalid data"}),400
         for attribute in task_attributes:
             
-            if attribute not in task_attributes:
+            if attribute not in request_body:
                 response_message += attribute +", "
         return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
     
