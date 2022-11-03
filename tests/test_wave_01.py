@@ -67,6 +67,18 @@ def test_get_task_not_found(client):
     # *****************************************************************
 
 
+def test_get_task_invalid(client):
+    # Act
+    response = client.get("/tasks/hello")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "details" in response_body
+    assert response_body == {
+        "details": "Invalid data"
+    }
+
 #@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task(client):
     # Act
@@ -171,6 +183,18 @@ def test_delete_task_not_found(client):
 
     assert Task.query.all() == []
 
+
+def test_delete_task_invalid(client):
+    # Act
+    response = client.delete("/tasks/hello")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "details" in response_body
+    assert response_body == {
+        "details": "Invalid data"
+    }
 
 #@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task_must_contain_title(client):
