@@ -73,3 +73,25 @@ def get_one_bike(task_id):
     }
 
     return response, 200
+
+
+# Update Task
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_task(task_id)
+
+    request_body = request.get_json()
+    task.title = request_body["title"]
+    task.descrition = request_body["description"]
+
+    db.session.commit()
+
+    response = {
+        "task": task.to_dict()
+    }
+
+    return response
+# {
+#   "title": "Updated Task Title",
+#   "description": "Updated Test Description",
+# }
