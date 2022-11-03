@@ -13,4 +13,10 @@ def get_all_tasks():
         response.append(task_dict)
     return jsonify(response), 200
 
+"""
+@task_bp.route("", methods = ["GET"])
+def get_one_task():
+    task
+    """
+
 

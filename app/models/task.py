@@ -1,4 +1,5 @@
 from app import db
+import os
 
 
 class Task(db.Model):
@@ -6,14 +7,27 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default = None)
+    #we want to make a column that is aboolean, 
+    #and define that column to be True when there is a time stamp
+    #and False when there is not a time stamp for completed.
+    #for now I could make it be false no matter what ??
+    is_complete = db.Column(db.Boolean, default = False)
+    #old tries:
+    #is_complete = db.column_property(os.path.exists(self.completed_at))
+    
+    # if completed_at == None:
+    #     is_complete = False
+    # else:
+    #     is_complete = True
 
     def make_dict(self):
         """given a task, return a dictionary
         with all the attibutes of that task."""
         task_dict = {
-            "task_id": self.task_id,
+            "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "completed_at": self.completed_at
+            #I'm putting 'is_complete' to match test wave 1
+            "is_complete": self.is_complete
         }
         return task_dict
