@@ -1,9 +1,14 @@
-from flask import Blueprint, jsonify, abort, make_response
+from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
 
 #make a blueprint
 task_bp = Blueprint("task_bp", __name__, url_prefix = "/tasks")
+
+#constants: (refactor to make this from the database later.)
+COL_NAMES = ["title", "description", "is_complete"] #later, add completed ad
+COL_DEFAULTS = [None, "", False]
+COL_NAME_DEFAULT_DICT = dict(zip(COL_NAMES, COL_DEFAULTS))
 
 @task_bp.route("", methods = ["GET"])
 def get_all_tasks():
@@ -21,10 +26,11 @@ def get_one_task(task_id):
     task_dict = task.make_dict()
     return make_response({"task": task_dict}, 200)
     
-@task_bp.route("", methods = "POST")
+@task_bp.route("", methods = ["POST"])
 def post_new_task():
     request_body = request.get_json()
-    new_task = make_new_task(request_body)
+    dict_of_field_vals = fill_empties_with_defaults(request_body)
+    new_task = make_new_task(dict_of_field_vals)
     db.session.add(new_task)
     db.session.commit()
     task_dict = new_task.make_dict()
@@ -53,3 +59,15 @@ def make_new_task(task_dict):
     )
     return new_task
 
+def fill_empties_with_defaults(request_body):
+    """Go through entered fields.  
+    If it has an entry, use that, if not, use the default."""
+    task_dict = {}
+    for field, default in COL_NAME_DEFAULT_DICT.items():
+
+        if field not in request_body:
+            task_dict[field] = default
+        else:
+            task_dict[field] = request_body[field]
+
+    return task_dict
