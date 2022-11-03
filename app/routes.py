@@ -6,12 +6,30 @@ from app.models.task import Task
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
+def validate_task(task_id):
+    try:
+        task_id = int(task_id)
+    except:
+        abort(make_response(f'"details": invalid data'), 400)
+
+    task = Task.query.get(task_id)
+
+    if not task:
+        response = f"task not found"
+        abort(make_response(jsonify({"message":response}), 404))
+
+    return task
+
+ 
+
+
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
+    if "title" not in request_body or "description" not in request_body:
+        return make_response({"details": "Invalid data"},400)
     new_task = Task(title=request_body["title"],
-                    description=request_body["description"])           
-    
+                    description=request_body["description"])       
     db.session.add(new_task)
     db.session.commit()
 
@@ -25,7 +43,6 @@ def create_task():
         }
 
     }
-
     return make_response(jsonify(response)), 201 
    
 
@@ -50,56 +67,62 @@ def get_all_tasks():
 
     return jsonify(task_response), 200
 
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response(f'"details": invalid data'), 400)
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response({"message":f"task {task_id} not found"}, 404))
 
 
+@tasks_bp.route("/<task_id>", methods=["GET"])
+def get_one_task(task_id):
+    task = validate_task(task_id)
 
-# @tasks_bp.route("/<task_id>", methods=["GET"])
-# def get_one_task(task_id):
-#     task = validate_task(task_id)
+    return {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.completed_at is not None
+        }
 
-#     response = {
-#         "task": {
-#             "id": task.task_id,
-#             "title": task.title,
-#             "description": task.description,
-#             "is_complete": task.completed_at is not None
-#         }
+    }, 200
 
-#     }
 
-#     return jsonify(response), 200
     
 
-# # @tasks_bp.route("/<task_id>", methods=["PUT"])
-# # def update_task(task_id):
-# #     task = validate_task(task_id)
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_task(task_id)
 
-# #     request_body = request.get_json()
+    request_body = request.get_json()
 
-# #     task.title = request_body["title"]
-# #     task.description = request_body["description"]
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+
+    db.session.commit()
+
+    response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.completed_at is not None
+        }
+    }
     
 
-# #     db.session.commit()
+  
+    return make_response(jsonify(response)), 200
 
-# #     return make_response(jsonify(f"task"{request_body}), 200
 
-# @tasks_bp.route("/<task_id>", methods=["DELETE"])
-# def delete_task(task_id):
-#     task = validate_task(task_id)
 
-#     db.session.delete(task)
-#     db.session.commit()
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_task(task_id)
 
-#     return make_response(f'"details": "{task.id}\{task.desciption}" successfully deleted"'), 200
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200
+
+
+
+
+
 
