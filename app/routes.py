@@ -37,15 +37,14 @@ def get_task_from_id(task_id):
     
 #     return jsonify(result), 200
 
-##WAVE 2##
+##WAVE 2 - updating get end point with sort features##
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
     title_query_sort = request.args.get("sort")
     if title_query_sort == "asc":
         tasks = Task.query.order_by(Task.title.asc())
     elif title_query_sort == "desc":
-        tasks = Task.query.order_by(Task.title.desc())
-    
+        tasks = Task.query.order_by(Task.title.desc())    
     else:
         tasks = Task.query.all()
     
@@ -119,4 +118,25 @@ def delete_one_task(task_id):
     
     return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"})
 
-########################## WAVE 2 ##########################
+########################## WAVE 3 ##########################
+@task_bp.route('/<task_id>', methods=['PATCH'])
+def update_one_task(task_id):
+    chosen_task = get_task_from_id(task_id)
+    request_body = request.get_json()
+    
+
+    # task_patch_helper
+    # task_patch_helper(chosen_task,"title", request_body)
+    
+    db.session.commit()
+    
+    return jsonify({"task":chosen_task.to_dict()}), 200
+
+    
+
+#helpder function
+def task_patch_helper(task, value, request_body):
+    try:
+        setattr(task,value,request_body[value])
+    except KeyError:
+        return None
