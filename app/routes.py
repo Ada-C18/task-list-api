@@ -35,15 +35,16 @@ def create_one_task():
 
     try:
         new_task = Task.from_dict(request_body)
+            
     except:
         return jsonify({"msg": "missing data"}), 400
     
-    response_body = new_task.to_dict()
+    # response_body = new_task.to_dict()
 
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify(response_body), 201
+    return jsonify(new_task.to_dict()), 201
 
 @tasks_bp.route("/<model_id>", methods=["GET"])
 def read_one_task_by_id(model_id):
