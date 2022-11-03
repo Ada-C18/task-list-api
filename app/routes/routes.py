@@ -29,10 +29,23 @@ def validate_task(task_id):
 def create_task():
     request_body = request.get_json()
 
+    if "title" not in request_body or \
+            "description" not in request_body:
+        # or "completed_at" not in request_body:
+        return jsonify({"details": "Invalid data"}), 400
+
+    # completed_at_status = None
+    # is_complete_status = None
+    # if "completed_at" not in request_body:
+    #     is_complete_status = False
+    #     completed_at_status = None
+
     new_task = Task(
         title=request_body["title"],
         description=request_body["description"],
-        completed_at=None
+        completed_at=None,
+        # completed_at=completed_at_status,
+        # is_complete=is_complete_status,
     )
 
     # add to dict
