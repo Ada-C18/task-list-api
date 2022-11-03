@@ -19,7 +19,7 @@ class Task(db.Model):
             "is_complete": self.is_complete()
             }
 
-    @classmethod
-    def from_dict(cls, task_data):
-        new_task = Task(title=task_data["title"], description=task_data["description"], completed_at=task_data["completed_at"])
-        return new_task
+    # @classmethod
+    # def from_dict(cls, task_data):
+    #     new_task = Task(title=task_data["title"], description=task_data["description"], completed_at=task_data["completed_at"])
+    #     return new_task
