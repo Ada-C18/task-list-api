@@ -32,16 +32,20 @@ def create_one_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify(new_task.to_dict()), 201
+    return jsonify({'task':new_task.to_dict()}), 201
 
 
 
 @task_bp.route('', methods=["GET"])
 def get_all_tasks():
-    title_query_value = request.args.get("title") 
+    query_value = request.args.get("sort") 
     # It's better to check for None rather than check for falsey, in case we are checking for value equal to 0 or False.
-    if title_query_value is not None: 
-        tasks = Task.query.filter_by(title = title_query_value)
+    
+    if query_value == "asc" :
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif query_value == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+
     else:
         tasks = Task.query.all()
 
@@ -49,14 +53,44 @@ def get_all_tasks():
     for task in tasks:    
         response.append(task.to_dict())
 
-    return jsonify(response), 200
+    return make_response(jsonify(response), 200)
 
 @task_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     
     chosen_task = get_task_from_id(task_id)
 
-    return make_response(jsonify(chosen_task.to_dict()),200)
+    return make_response(jsonify({'task':chosen_task.to_dict()}),200)
+
+@task_bp.route('/<task_id>', methods= ['PUT'])
+def update_one_task(task_id):
+    update_task= get_task_from_id(task_id)
+
+    request_body = request.get_json()
+
+    try: 
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+        # update_task.is_complete = request_body["is_complete"]
+    except KeyError:
+        return jsonify({"msg": "Missing needed data"}), 400
+        
+    db.session.commit()
+    return jsonify({'task':update_task.to_dict()}), 200
+
+
+@task_bp.route('/<task_id>', methods= ['DELETE'])
+def delete_one_task(task_id):
+    task_to_delete = get_task_from_id(task_id)
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return jsonify({
+             "details": f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'
+            }), 200
+
+
 
 
 
