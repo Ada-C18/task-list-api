@@ -7,6 +7,23 @@ from app.models.task import Task
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
+# error handling
+def validate_task(task_id):
+    # invalid task id
+    try:
+        task_id = int(task_id)
+    except:
+        abort(make_response({{"message": f"Invalid task id {task_id}."}}, 400))
+
+    task = Task.query.get(task_id)
+
+    # task not found
+    if not task:
+        abort(make_response({"message": f"Task {task_id} not found."}, 404))
+
+    return task
+
+
 # Wave 1 - Create a Task
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -47,8 +64,8 @@ def read_all_tasks():
 # Create GET route for 1 task
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_bike(task_id):
-    # chosen_task = validate_task(task_id)
-    chosen_task = Task.query.get(task_id)
+    chosen_task = validate_task(task_id)
+    # chosen_task = Task.query.get(task_id)
 
     # returns jsonified object and response code as tuple
     response = {
