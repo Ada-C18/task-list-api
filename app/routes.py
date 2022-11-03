@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request, make_response, abort
 from app import db 
 from app.models.task import Task
+from sqlalchemy import desc, asc
 
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
@@ -19,6 +20,9 @@ def validate_task(task_id):
         abort(make_response(jsonify({"message":response}), 404))
 
     return task
+
+# def task_is_complete():
+#     if task
 
  
 
@@ -50,12 +54,17 @@ def create_task():
 @tasks_bp.route("", methods=["GET"]) 
 def get_all_tasks():
 
-    title_query = request.args.get("title")
-    if title_query:
-        tasks = Task.query.filter_by(title=title_query)
+    title_query = request.args.get("sort")
+    # print(title_query)
+    if title_query == "desc":
+        tasks = Task.query.order_by(desc(Task.title))
+        
+    elif title_query == "asc": 
+        tasks = Task.query.order_by(asc(Task.title))
     else:
         tasks = Task.query.all()
-  
+
+
     task_response = [] 
     for task in tasks:
         task_response.append({
@@ -122,6 +131,10 @@ def delete_task(task_id):
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200
 
 
+
+# @tasks_bp.route("/<task_id>/<mark_complete_or_not>", methods=["PATCH"])
+# def task_is_complete():
+    
 
 
 
