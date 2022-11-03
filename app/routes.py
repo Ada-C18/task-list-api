@@ -30,3 +30,28 @@ def create_task():
 
     return jsonify({"task":task_dict}), 201
 
+@task_bp.route("", methods = ["GET"])
+def get_task():
+    tasks = Task.query.all()
+    response= []
+    
+    for task in tasks:
+        is_completed = True
+        if task.completed_at is None:
+            is_completed = False
+        task_dict = {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": is_completed
+            
+        }
+
+        response.append(task_dict)
+    return jsonify(response), 200
+
+
+
+    
+
+

@@ -14,22 +14,22 @@ import pytest
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_get_tasks_one_saved_tasks(client, one_task):
-#     # Act
-#     response = client.get("/tasks")
-#     response_body = response.get_json()
+def test_get_tasks_one_saved_tasks(client, one_task):
+    # Act
+    response = client.get("/tasks")
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 200
-#     assert len(response_body) == 1
-#     assert response_body == [
-#         {
-#             "id": 1,
-#             "title": "Go on my daily walk 🏞",
-#             "description": "Notice something new every day",
-#             "is_complete": False
-    #     }
-    # ]
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 1
+    assert response_body == [
+        {
+            "id": 1,
+            "title": "Go on my daily walk 🏞",
+            "description": "Notice something new every day",
+            "is_complete": False
+        }
+    ]
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
