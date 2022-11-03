@@ -37,7 +37,15 @@ def post_new_task():
     response = {"task": task_dict}
     return make_response(response, 201)
     
-    
+@task_bp.route("/<task_id>", methods = ["PUT", "PATCH"])
+def update_task(task_id):
+    task = validate_task(task_id)
+    request_body = request.get_json()
+    task = update_given_values(task, request_body)
+    db.session.commit()
+    response = {"task": task.make_dict()}  #refactor this line and line 37 above to helper function? or method on class?
+    return make_response(response, 200)
+
 
 def validate_task(task_id):
     try:
@@ -71,3 +79,14 @@ def fill_empties_with_defaults(request_body):
             task_dict[field] = request_body[field]
 
     return task_dict
+
+#can I make this a method for Tasks?
+def update_given_values(task, request_body):
+    if "title" in request_body:
+        task.title = request_body["title"]
+    if "description" in request_body:
+        task.description = request_body["description"]
+    if "is_complete" in request_body:
+        task.is_complete = request_body["is_complete"]
+    #can add completed_at when you put that in. 
+    return task
