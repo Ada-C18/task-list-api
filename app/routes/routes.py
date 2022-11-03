@@ -82,16 +82,45 @@ def update_task(task_id):
 
     request_body = request.get_json()
     task.title = request_body["title"]
-    task.descrition = request_body["description"]
-
-    db.session.commit()
+    task.description = request_body["description"]
 
     response = {
         "task": task.to_dict()
     }
 
-    return response
+    db.session.commit()
+
+    return jsonify(response), 200
+# REQUEST
 # {
 #   "title": "Updated Task Title",
 #   "description": "Updated Test Description",
+# }
+# RESPONSE
+# {
+#   "task": {
+#     "id": 1,
+#     "title": "Updated Task Title",
+#     "description": "Updated Test Description",
+#     "is_complete": false
+#   }
+# }
+
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_task(task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    response = {
+        "details": f"Task {task.title} successfully deleter"
+    }
+
+    return jsonify(response), 200
+
+# RESPONSE
+# {
+#   "details": "Task 1 \"Go on my daily walk 🏞\" successfully deleted"
 # }
