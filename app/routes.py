@@ -11,9 +11,17 @@ def create_one_task():
         title=request_body["title"],
         description=request_body["description"]
         # completed_at=request_body["completed_at"]
-
     )
 
     db.session.add(new_task)
     db.session.commit()
     return jsonify(new_task.to_dict()), 201
+
+@tasks_bp.route("", methods=["GET"])
+def get_all_tasks():
+    tasks = Task.query.all()
+
+    result = []
+    for task in tasks:
+        result.append(task.to_dict())
+    return jsonify(result), 200
