@@ -4,7 +4,9 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import asc, desc
 import datetime
-
+import requests
+from dotenv import load_dotenv
+import os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -21,6 +23,21 @@ def validate_task_id(task_id):
         abort(make_response(jsonify({"message": response_str}), 404))
 
     return matching_task
+
+def slack_call(msg):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("SLACK_TOKEN")
+
+    query_params = {
+        "channel": "task-notifications",
+        "text": msg
+    }
+
+    header = {
+        "Authorization": "Bearer " + SLACK_API_KEY
+    }
+
+    requests.post(PATH, params=query_params, headers=header)
 
 @task_bp.route("", methods = ["POST"])
 def add_task():
@@ -104,8 +121,9 @@ def mark_complete_on_incomplete_task(task_id):
     task.completed_at = datetime_object
     task.is_complete = True
     task_dict = task.to_dict()
-    
     db.session.commit()
+    
+    slack_call(f"Someone just completed the task {task.title}")
 
     return jsonify({"task":task_dict})
 
