@@ -6,7 +6,7 @@ pytest --cov=app --cov-report html --cov-report term
 ##Slack Bot token:
 
 
-
+## Code from the wrong fork
 SQLALCHEMY_DATABASE_URI = postgresql+psycopg2://postgres:postgres@localhost:5432/tasklist_dev
 SQLALCHEMY_TEST_DATABASE_URI = ostgresql+psycopg2://postgres:postgres@localhost:5432/tasklist_test
 

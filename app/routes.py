@@ -9,6 +9,7 @@ import os
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 goal_bp = Blueprint("goal_bp",__name__,url_prefix="/goals")
 
+#Note: this has both the routes for task and goal
 
 """Routes for Task"""
 @task_bp.route("", methods=['POST'])
@@ -74,9 +75,9 @@ def mark_task_as_complete(task_id):
     db.session.commit()
     
     #this is the slack bot section
-    # slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
-    # headers = {'Authorization': f'Bearer {slack_bot_token}'}
-    # r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
+    slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
+    headers = {'Authorization': f'Bearer {slack_bot_token}'}
+    r=requests.put(f'https://slack.com/api/chat.postMessage?channel=task-notifications&text=Someone just completed the task {task.title}',headers=headers)
     
     return make_response({f"task":task.dictionfy()},200)
 
