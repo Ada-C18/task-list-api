@@ -69,7 +69,8 @@ def test_create_task(client):
     # Act
     response = client.post("/tasks", json={
         "title": "A Brand New Task",
-        "description": "Test Description"
+        "description": "Test Description",
+        "is_complete": False #added 
     })
     response_body = response.get_json()
 
