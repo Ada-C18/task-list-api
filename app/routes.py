@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
-
+from datetime import date
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -119,24 +119,16 @@ def delete_one_task(task_id):
     return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"})
 
 ########################## WAVE 3 ##########################
-@task_bp.route('/<task_id>', methods=['PATCH'])
-def update_one_task(task_id):
+@task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+def mark_complete_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
-    request_body = request.get_json()
+    request_body = request.get_json()    
     
-
-    # task_patch_helper
-    # task_patch_helper(chosen_task,"title", request_body)
+    chosen_task.completed_at = date.today()
     
     db.session.commit()
     
     return jsonify({"task":chosen_task.to_dict()}), 200
 
-    
+# @task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
 
-#helpder function
-def task_patch_helper(task, value, request_body):
-    try:
-        setattr(task,value,request_body[value])
-    except KeyError:
-        return None
