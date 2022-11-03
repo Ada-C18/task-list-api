@@ -4,6 +4,19 @@ from app import db
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+def validate_model(cls, model_id):
+    try:
+        model_id = int(model_id)
+    except:
+        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
+
+    model = cls.query.get(model_id)
+
+    if not model:
+        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
+
+    return model
+
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
@@ -28,7 +41,7 @@ def create_task():
 def get_all_tasks():
     all_tasks = Task.query.all()
     response_body = []
-    
+
     for task in all_tasks:
         response_body.append(
             {
@@ -42,8 +55,14 @@ def get_all_tasks():
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
-def get_one_task():
-    pass
+def get_one_task(task_id):
+    task = validate_model(Task, task_id)
+    return {"task": {
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": False if task.completed_at is None else True
+    }}
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task():
