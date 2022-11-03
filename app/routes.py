@@ -4,6 +4,7 @@ from app.models.task import Task
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+
 def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
@@ -17,6 +18,7 @@ def validate_model(cls, model_id):
 
     return model
 
+
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
     tasks = Task.query.all()
@@ -26,21 +28,22 @@ def read_all_tasks():
     
     return jsonify(response), 200
 
+
 @tasks_bp.route("", methods=["POST"])
 def create_one_task():
     request_body = request.get_json()
-    
-    new_task = Task.from_dict(request_body)
 
     try:
-        new_task 
+        new_task = Task.from_dict(request_body)
     except:
         return jsonify({"msg": "missing data"}), 400
+    
+    response_body = new_task.to_dict()
 
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify({"msg": f"{new_task.title} added to task list."}), 201
+    return jsonify(response_body), 201
 
 @tasks_bp.route("/<model_id>", methods=["GET"])
 def read_one_task_by_id(model_id):
