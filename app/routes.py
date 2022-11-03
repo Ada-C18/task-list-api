@@ -39,11 +39,11 @@ def get_one_breakfast(task_id):
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_one_task(task_id):  
     update_task = get_task_from_id(task_id)
-    request_body = request.get_json()
+    request_body = request.get_json()   
     try:
         update_task.title = request_body["title"]
         update_task.description = request_body["description"]
-        update_task.completed_at = request_body["completed_at"]
+        update_task.is_complete = request_body.get('completed_at')   
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
     
@@ -68,15 +68,3 @@ def get_task_from_id(task_id):
     if chosen_task is None:
         return abort(make_response("", 404))  
     return chosen_task
-
-'''
-def validate_data(task_id):
-    res_task = get_task_from_id(task_id)
-    request_body = request.get_json()
-    try:
-        res_task.title = request_body["title"]
-        res_task.description = request_body["description"]
-        res_task.completed_at = request_body["completed_at"]
-    except KeyError:
-        return jsonify({"details": "Invalid data"}), 400
-        '''
