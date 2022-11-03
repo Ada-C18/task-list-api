@@ -1,7 +1,11 @@
-import datetime
+import datetime, logging, os
 from app import db
 from app.models.task import Task
 from flask import abort, Blueprint, jsonify, make_response, request
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+from dotenv import load_dotenv
+load_dotenv()
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -82,13 +86,29 @@ def delete_one_task(task_id):
 
     return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"}), 200
 
+client = WebClient(token=os.environ.get('SLACK_BOT_TOKEN'))
+logger = logging.getLogger(__name__)
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_one_task_as_completed(task_id):
     task_to_mark_complete = validate_model(Task, task_id, "mark complete")
 
-    task_to_mark_complete.completed_at = datetime.datetime.utcnow()
-    db.session.commit()
+    if not task_to_mark_complete.completed_at:
+        task_to_mark_complete.completed_at = datetime.datetime.utcnow()
+        db.session.commit()
+    else:
+        return jsonify({"message": f"Task <{task_to_mark_complete.title.title()}> has already been completed"}), 400
+
+    try:
+        result = client.chat_postMessage(
+            channel="C0495RTF6LV",
+            text=f"Someone just completed the task <{task_to_mark_complete.title.title()}> on {task_to_mark_complete.completed_at:%m-%d-%Y}"
+        )
+        logger.info(result)
+
+    except SlackApiError as e:
+        logger.error(f"Error posing message: {e}")
+
     return jsonify({"task": task_to_mark_complete.to_dict()}), 200
 
 
