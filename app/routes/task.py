@@ -1,9 +1,9 @@
 from flask import Blueprint
 from flask import Blueprint, jsonify, make_response, request, abort,Response
 from app import db
-# from app.models import task
 from app.models.task import Task
-import json
+from sqlalchemy import asc, desc
+
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -27,18 +27,14 @@ def add_task():
     if "title" not in request_body or \
         "description" not in request_body:
         return jsonify({"details": "Invalid data"}),400
-        
+
     new_task = Task(title=request_body["title"],
                     description=request_body["description"])
 
     db.session.add(new_task)
     db.session.commit()
 
-    task_dict = {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": False}
+    task_dict = new_task.to_dict()
 
     return jsonify({"task":task_dict}),201
 
@@ -48,7 +44,7 @@ def get_all_tasks():
     title_query = request.args.get("title")
     description_query = request.args.get("description")
     completed_at_query = request.args.get("completed_at")
-
+    sort_at_query = request.args.get("sort")
 
     if title_query:
         tasks = Task.query.filter_by(title = title_query)
@@ -56,36 +52,21 @@ def get_all_tasks():
         tasks = Task.query.filter_by(description = description_query)
     elif completed_at_query:
         tasks = Task.query.filter_by(completed_At = completed_at_query)
+    elif sort_at_query == "asc":
+        tasks = Task.query.order_by(Task.title)
+    elif sort_at_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
     else:
         tasks = Task.query.all()
     response = []
     for task in tasks:
-        if task.completed_at is None:
-            task_dict = {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": False
-            }
-            response.append(task_dict)
+        response.append(task.to_dict())
     return jsonify(response), 200
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_task_id(task_id)
-    if task.completed_at is None:
-        task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-}
-    else:
-        task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True}
+    task_dict = task.to_dict()
     
     return jsonify({"task":task_dict})
 
