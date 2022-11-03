@@ -18,7 +18,7 @@ def add_one_task():
 
         db.session.add(new_task)
         db.session.commit()
-        
+
     except:
         response_body = {
             "details": "Invalid data"
@@ -42,9 +42,18 @@ def add_one_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
+    order = request.args.get("sort")
+
+    if order is None:
+        tasks = Task.query.all()
+    elif order == "asc":
+        tasks = Task.query.order_by(Task.title)
+    elif order == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
+
     response_body = []
 
-    for task in Task.query.all():
+    for task in tasks:
         is_complete = True if task.completed_at is not None else False
 
         response_body.append(
