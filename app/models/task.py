@@ -19,12 +19,14 @@ class Task(db.Model):
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            # "is_complete": task_complete,
+            "is_complete": self.completed_at is not None,
         }
 
-        if self.completed_at is None:
-            task_dict["is_complete"] = False
-        else:
-            task_dict["is_complete"] = True
+        # is_complete is a "derived value"
+
+        # if self.completed_at is None:
+        #     task_dict["is_complete"] = False
+        # else:
+        #     task_dict["is_complete"] = True
 
         return task_dict
