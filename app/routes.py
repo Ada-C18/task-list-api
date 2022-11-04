@@ -5,27 +5,21 @@ from app import db
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
-#-------------#creates one task
 @task_bp.route('', methods=['POST'])
 def create_one_task():
     request_body = request.get_json()
 
-    if "title" not in request_body or "description" not in request_body or "completed_at" not in request_body:
+    if "title" not in request_body or "description" not in request_body:
         return jsonify({
             "details": "Invalid data"
-        }), 400
-
+            }), 400
+    
     new_task = Task( 
         title=request_body["title"],
-        description=request_body["description"],
-        # completed_at=request_body["completed_at"]
-    )
+        description=request_body["description"],)
     db.session.add(new_task)
     db.session.commit()
 
-    # response_body = new_task.to_dict()
-
-    # return jsonify(response_body), 201
     return jsonify({ 
         "task": {
         "id": new_task.task_id,
@@ -33,10 +27,7 @@ def create_one_task():
         "description": new_task.description,
         "is_complete": False
     }
-    }), 201 #created
-
-
-#---------------gets all tasks
+    }), 201 
 
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
@@ -50,32 +41,12 @@ def get_all_tasks():
             "is_complete": False
         })
     return jsonify(task_response)
-    # title_query_value = request.args.get("title") #not sure if this is good
-    # if title_query_value is not None:
-    #     tasks = Task.query.filter_by(title=title_query_value)
-    # else:
-    #     tasks = Task.query.all()
-
-    # result = []
-    # for item in tasks:
-    #     result.append(item.to_dict())
-    #return jsonify(result), 200
-
-
-# Get Tasks: No Saved Tasks
-# As a client, I want to be able to make a GET request to /tasks when there are zero saved tasks and get this response:
-# 200 OK
-# []
-
-#-------------------get a task by id
+   
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
-    # print(f"chosen_task is {chosen_task}")
-
-
-    # return jsonify(chosen_task.to_dict()), 200
-    return jsonify ({ "task": {
+    return jsonify ({ 
+        "task": {
         "id": chosen_task.task_id,
         "title": chosen_task.title,
         "description": chosen_task.description,
@@ -83,7 +54,6 @@ def get_one_task(task_id):
     }
     })
 
-#--------------------updates a task by id
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     request_body = request.get_json()
@@ -99,10 +69,6 @@ def update_task(task_id):
 
     db.session.commit()
 
-    # return make_response(f"Task #{task.task_id} successfully updated")
-    # response_body = task.to_dict()
-
-    # return jsonify(response_body), 200
     return jsonify({
         "task": {
             "id": task.task_id,
@@ -112,7 +78,6 @@ def update_task(task_id):
         }
 
     })
-    #--------deletes a task
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
@@ -126,8 +91,6 @@ def delete_one_task(task_id):
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
         })
     
-    make_response(f"Task #{task_id} successfully deleted")
-
 
 
 
