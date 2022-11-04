@@ -5,11 +5,6 @@ from flask import abort, Blueprint, jsonify, make_response, request
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 def validate_task(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"details": "Invalid data"}), 400)
-
     task = Task.query.get(task_id)
 
     if not task:
@@ -77,4 +72,3 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{task_title}" successfully deleted'}), 200
-    
