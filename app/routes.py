@@ -26,12 +26,14 @@ def get_task_from_id(task_id):
 @tasks_bp.route("", methods=["POST"])
 def create_one_task():
     request_body = request.get_json()
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"]
-        # completed_at=request_body["completed_at"]
-    )
-
+    try:
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"]
+            # completed_at=request_body["completed_at"]
+        )
+    except:
+        return abort(make_response({"details": "Invalid data"}, 400)) 
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"task":new_task.to_dict()}), 201
@@ -56,8 +58,10 @@ def update_task(task_id):
     task = validate_task(task_id)
     request_body = request.get_json()
 
+
     task.title = request_body["title"]
     task.description = request_body["description"]
+
     # task.completed_at = request_body["completed_at"]
     db.session.commit()
 
