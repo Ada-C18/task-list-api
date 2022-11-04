@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app.models.task import Task
 from app import db
+from datetime import datetime
 
 
 task_bp = Blueprint("task", __name__, url_prefix = "/tasks")
@@ -19,6 +20,7 @@ def get_task_from_id(task_id):
      
     return chosen_task
 
+
 @task_bp.route('', methods= ['POST'])
 def create_one_task():
     request_body = request.get_json()
@@ -33,7 +35,6 @@ def create_one_task():
     db.session.commit()
 
     return jsonify({'task':new_task.to_dict()}), 201
-
 
 
 @task_bp.route('', methods=["GET"])
@@ -55,12 +56,14 @@ def get_all_tasks():
 
     return make_response(jsonify(response), 200)
 
+
 @task_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     
     chosen_task = get_task_from_id(task_id)
 
     return make_response(jsonify({'task':chosen_task.to_dict()}),200)
+
 
 @task_bp.route('/<task_id>', methods= ['PUT'])
 def update_one_task(task_id):
@@ -89,6 +92,26 @@ def delete_one_task(task_id):
     return jsonify({
              "details": f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'
             }), 200
+
+
+@task_bp.route('/<task_id>/mark_complete', methods =['PATCH'])
+def mark_complete(task_id):
+    task= get_task_from_id(task_id)
+    task.completed_at = datetime.utcnow()
+    
+    db.session.commit()
+    return jsonify({'task':task.to_dict()}), 200
+
+@task_bp.route('/<task_id>/mark_incomplete', methods =['PATCH'])
+def mark_incomplete(task_id):
+    task= get_task_from_id(task_id)
+    task.completed_at = None
+  
+    db.session.commit()
+    return jsonify({'task':task.to_dict()}), 200
+
+
+
 
 
 
