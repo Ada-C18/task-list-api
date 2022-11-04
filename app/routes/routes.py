@@ -3,6 +3,7 @@ from flask import abort, Blueprint, jsonify, make_response, request
 from app import db
 from app.models.task import Task
 from sqlalchemy import desc, asc
+from datetime import datetime
 
 # create instance of blueprint class
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -25,7 +26,6 @@ def validate_task(task_id):
     return task
 
 
-# Wave 1 - Create a Task
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
@@ -37,7 +37,10 @@ def create_task():
 
     # completed_at_status = None
     # is_complete_status = None
-    # if "completed_at" not in request_body:
+    # if "completed_at" in request_body:
+    #     is_complete_status = True
+    #     # completed_at_status = DATETIME
+    # else:
     #     is_complete_status = False
     #     completed_at_status = None
 
@@ -153,3 +156,62 @@ def delete_task(task_id):
     # assert response_body == {
     #     "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
     # }
+
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def update_to_complete(task_id):
+    task = validate_task(task_id)
+
+    # request_body = request.get_json()
+
+    # if request_body["completed_at"] == True:
+    # if task.completed_at is not None:
+    # if "completed_at" in request_body:
+    task.completed_at = datetime.utcnow()
+    # else:
+    #     # task.is_complete = False
+    #     task.completed_at = None
+
+    updated_task = task.to_dict()
+
+    db.session.commit()
+
+    response = {
+        "task": updated_task
+    }
+
+    return response, 200
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def update_to_incomplete(task_id):
+    task = validate_task(task_id)
+
+    # request_body = request.get_json()
+
+    # if "completed_at" in request_body:
+    # if request_body["is_complete"] == True:
+    #     # updated_task["is_complete"] = True
+    #     task.completed_at = datetime.utcnow()
+    # else:
+    #     # task.is_complete = False
+    task.completed_at = None
+
+    db.session.commit()
+
+    updated_task = task.to_dict()
+    response = {
+        "task": updated_task
+    }
+
+    return response, 200
+
+# PATCH response
+# {
+#   "task": {
+#     "id": 1,
+#     "title": "Go on my daily walk 🏞",
+#     "description": "Notice something new every day",
+#     "is_complete": true
+#   }
+# }
