@@ -48,6 +48,22 @@ def delete_task(task_id):
     return {"details": f'Task {task.task_id} "{task.title}" successfully deleted'}
 
 
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def complete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    task.mark_complete()
+    db.session.commit()
+    return {"task": task.to_dict()}
+
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def incomplete_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    task.mark_complete(False)
+    db.session.commit()
+    return {"task": task.to_dict()}
+
+
 from psycopg2.errors import InvalidTextRepresentation
 
 

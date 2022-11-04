@@ -1,4 +1,6 @@
 from app import db
+from sqlalchemy import sql
+from datetime import datetime
 
 
 class Task(db.Model):
@@ -14,3 +16,10 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": self.completed_at is not None,
         }
+
+    def mark_complete(self, when=None):
+        self.completed_at = (
+            when
+            if type(when) is datetime
+            else (None if when is False else sql.func.now())
+        )
