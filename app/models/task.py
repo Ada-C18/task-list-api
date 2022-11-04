@@ -14,8 +14,3 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": False if self.completed_at is None else True
         }
-
-    def sort(self, list_of_dict_tasks):
-        sorted_list = sorted(list_of_dict_tasks.items(), key=lambda x:x[1])
-        convert_to_dict = dict(sorted_list)
-        return convert_to_dict
