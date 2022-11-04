@@ -17,6 +17,7 @@ def validate_model(cls, model_id):
     return model
 
 @tasks_bp.route("", methods=["GET"])
+# Get every task in the task list
 def get_all_tasks():
     tasks = Task.query.all()
     tasks_response = []
@@ -24,3 +25,9 @@ def get_all_tasks():
         tasks_response.append(task.as_dict())
 
     return jsonify(tasks_response)
+
+@tasks_bp.route("/<task_id>", methods=["GET"])
+# Get one specific task from the task list
+def get_one_task(task_id):
+    task = validate_model(Task, task_id)
+    return {"task": task.as_dict()}
