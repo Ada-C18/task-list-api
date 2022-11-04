@@ -22,8 +22,7 @@ def get_task_from_id(task_id):
 def create_one_task():
     request_body = request.get_json()
     try:
-        new_task = Task(title=request_body["title"],
-                    description=request_body["description"])
+        new_task = Task.from_dict(request_body)
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
     
@@ -42,6 +41,8 @@ def get_or_sort_tasks():
         tasks = Task.query.order_by(Task.title.desc()).all()  
     else:
         tasks = Task.query.all() 
+        # tasks is a list of Task objects. Model.query.all() return a list of objects.
+        # task.to_dict() return a dictionary, as defined in to_dict method in Task(a class). Task is a db model we created.
 
     result = []
     for task in tasks:
@@ -49,7 +50,7 @@ def get_or_sort_tasks():
     
     return jsonify(result), 200
 
-
+###### Solution 2 using lambda and sorted function ##########
 # @task_bp.route('', methods=['GET'])
 # def get_or_sort_tasks():
 #     tasks = Task.query.all() 
