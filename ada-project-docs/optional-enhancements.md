@@ -20,7 +20,9 @@ What should happen if...
 
 - when creating a task, the value of `completed_at` is a string that is not a datetime?
 - when updating a task, the value of `completed_at` is a string that is not a datetime?
+  Fixed by obfuscation: you cannot update completed_at with another other than now
 - when getting all tasks, and using query params, the value of `sort` is not "desc" or "asc"?
+  I throw a value error
 
 For each of these, consider what the HTTP response should be.
 

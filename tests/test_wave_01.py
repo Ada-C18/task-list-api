@@ -131,6 +131,91 @@ def test_update_task(client, one_task):
     assert task.description == "Updated Test Description"
     assert task.completed_at == None
 
+#@pytest.mark.skip(reason="No way to test this feature yet")
+def test_patch_task_both_param(client, one_task):
+    # Act
+    response = client.patch("/tasks/1", json={
+        "title": "Updated Task Title",
+        "description": "Updated Test Description",
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 202
+    assert "task" in response_body
+    assert response_body == {
+        "task": {
+            "id": 1,
+            "title": "Updated Task Title",
+            "description": "Updated Test Description",
+            "is_complete": False
+        }
+    }
+    task = Task.query.get(1)
+    assert task.title == "Updated Task Title"
+    assert task.description == "Updated Test Description"
+    assert task.completed_at == None
+
+#@pytest.mark.skip(reason="No way to test this feature yet")
+def test_update_task_title_param(client, one_task):
+    # Act
+    response = client.patch("/tasks/1", json={
+        "title": "Updated Task Title"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 202
+    assert "task" in response_body
+    assert response_body == {
+        "task": {
+            "id": 1,
+            "title": "Updated Task Title",
+            "description": "Notice something new every day",
+            "is_complete": False
+        }
+    }
+    task = Task.query.get(1)
+    assert task.title == "Updated Task Title"
+    assert task.description == "Notice something new every day"
+    assert task.completed_at == None
+
+#@pytest.mark.skip(reason="No way to test this feature yet")
+def test_update_task_description_param(client, one_task):
+    # Act
+    response = client.patch("/tasks/1", json={
+        "description": "Updated d"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 202
+    assert "task" in response_body
+    assert response_body == {
+        "task": {
+            "id": 1,
+            "title": "Go on my daily walk 🏞",
+            "description": "Updated d",
+            "is_complete": False
+        }
+    }
+    task = Task.query.get(1)
+    assert task.title == "Go on my daily walk 🏞"
+    assert task.description == "Updated d"
+    assert task.completed_at == None
+
+def test_update_task_no_param(client, one_task):
+    # Act
+    response = client.patch("/tasks/1", json={
+        "cheese": "Gouda"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "warning" in response_body
+    assert response_body['warning'] == 'Please send valid information: title or description. K thx <3'
+
 
 #@pytest.mark.skip(reason="No way to test this feature yet")
 def test_update_task_not_found(client):

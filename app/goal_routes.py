@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app.models.goal import Goal
 from app import db
-from datetime import datetime
 
 goal_bp = Blueprint("goal_bp",__name__,url_prefix="/goals")
 
@@ -27,10 +26,15 @@ def create_new_goal():
 @goal_bp.route("", methods=['GET'])
 def get_all_goals():
     return_list=[]
-    
-    sort_query = request.args.get("sort")
-   
-    goals = Goal.query.all()
+    match_command = [(key,value) for key,value in request.args.items()]
+
+    if match_command:
+        try:
+            goals = sort_query_helper(Goal,match_command)
+        except ValueError:
+            return make_response(jsonify({"warning":"Invalid query sorting parameters"}),400)
+    else:
+        goals = Goal.query.all()
     
     for goal in goals:
         return_list.append(goal.goal_dictionfy())
@@ -103,3 +107,21 @@ def validate_model(cls, model_id):
         abort(make_response({"details":f"{cls.__name__} {model_id} not found"}, 404))
 
     return model
+
+def sort_query_helper(cls,request_dict):
+    obj,order = request_dict[0]
+    match obj:
+        case "sort":
+            order_object = cls.title
+        case "id_sort":
+            order_object = cls.task_id if cls==Task else cls.goal_id #I know there's gonna be a big refactor if I need more than 2 classes to take this but it's what I've got
+        case other:
+            raise ValueError
+    match order:    
+        case "desc":
+            order_object = order_object.desc()
+        case 'asc':
+            order_object = order_object.asc()
+        case other:
+            raise ValueError
+    return cls.query.order_by(order_object).all()
