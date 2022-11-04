@@ -40,24 +40,30 @@ def create_one_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    # sort = request.args.get('sort')
-
-    desc_tasks = Task.query.order_by(Task.title.desc()).all()
-    asc_tasks = Task.query.order_by(Task.title.asc()).all()
+    sort = request.args.get("sort")
     result = []
-    if asc_tasks:
+    if sort == "asc":
+        asc_tasks = Task.query.order_by(Task.title.asc()).all()
         for task in asc_tasks:
             result.append(task.to_dict())
         return jsonify(result), 200
-    if desc_tasks:
+    # desc_tasks = Task.query.order_by(Task.title.desc()).all()
+    # asc_tasks = Task.query.order_by(Task.title.asc()).all()
+
+    # if asc_tasks:
+    #     for task in asc_tasks:
+    #         result.append(task.to_dict())
+    #     return jsonify(result), 200
+    if sort == "desc":
+        desc_tasks = Task.query.order_by(Task.title.desc()).all()
         for task in desc_tasks:
             result.append(task.to_dict())
         return jsonify(result), 200
-    else:
-        tasks = Task.query.all()
-        for task in tasks:
-            result.append(task.to_dict())
-        return jsonify(result), 200 
+
+    tasks = Task.query.all()
+    for task in tasks:
+        result.append(task.to_dict())
+    return jsonify(result), 200 
 
 
 
