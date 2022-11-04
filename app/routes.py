@@ -27,59 +27,29 @@ def add_one_task():
 
         abort(make_response(jsonify(response_body), 400))
     
-    response_body = {
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": True if new_task.completed_at else False
-        }
-    }
-
-    return jsonify(response_body), 201
+    return jsonify(generate_response_body(new_task)), 201
 
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     order = request.args.get("sort")
 
+    tasks = None
     if order is None:
         tasks = Task.query.all()
     elif order == "asc":
-        tasks = Task.query.order_by(Task.title)
+        tasks = Task.query.order_by(Task.title).all()
     elif order == "desc":
-        tasks = Task.query.order_by(Task.title.desc())
+        tasks = Task.query.order_by(Task.title.desc()).all()
 
-    response_body = []
-
-    for task in tasks:
-
-        response_body.append(
-            {
-                "id": task.task_id,
-                "title":task.title,
-                "description": task.description,
-                "is_complete": True if task.completed_at else False
-            }
-        )
-    
-    return jsonify(response_body), 200
+    return jsonify(generate_response_body(tasks)), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_task(task_id)
 
-    response_body = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True if task.completed_at else False
-        }
-    }
-
-    return jsonify(response_body), 200
+    return jsonify(generate_response_body(task)), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -90,19 +60,10 @@ def update_one_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-
-    response_body = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True if task.completed_at else False
-        }
-    }
     
     db.session.commit()
 
-    return jsonify(response_body), 200
+    return jsonify(generate_response_body(task)), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
@@ -127,16 +88,7 @@ def mark_one_task_as_complete(task_id):
 
     db.session.commit()
 
-    response_body = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True if task.completed_at else False
-        }
-    }
-
-    return jsonify(response_body), 200
+    return jsonify(generate_response_body(task)), 200
 
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
@@ -147,16 +99,29 @@ def mark_one_task_as_incomplete(task_id):
 
     db.session.commit()
 
-    response_body = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True if task.completed_at else False
-        }
-    }
+    return jsonify(generate_response_body(task)), 200
 
-    return jsonify(response_body), 200
+
+#*************** helper functions ***************#
+
+def generate_response_body(tasks):
+    """
+    Return a list of task-detail dictionaries if @param tasks is a list of Task objects
+    Return a single dictionary {"task": task-detail} if @param tasks is a Task object
+    """
+    if isinstance(tasks, list):
+        response = []
+
+        for task in tasks:
+            response.append(task.to_dict())
+
+        return response
+    
+    else:
+        return {
+            "task": tasks.to_dict()
+        }
+
 
 def validate_task(task_id):
     try:
