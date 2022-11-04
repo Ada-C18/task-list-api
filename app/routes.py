@@ -158,6 +158,20 @@ def update_one_goal(goal_id):
 
     return jsonify(generate_response_body(Goal, goal)), 200
 
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    response_body = {
+        "details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"
+    }
+
+    return jsonify(response_body), 200
+
 #************************************************#
 #*************** Helper Functions ***************#
 #************************************************#
