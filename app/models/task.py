@@ -1,25 +1,20 @@
 from app import db
+# from app.models.goal import Goal
 
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    completed_at = db.Column(db.DateTime,nullable = True)
+    completed_at = db.Column(db.DateTime)
     is_complete = db.Column(db.Boolean,default = False)
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
+
 
     def to_dict(self):
-        if self.completed_at:
-            return {
+        return {
                 "id":self.task_id,
                 "title":self.title,
                 "description":self.description,
-                "is_complete":True
-            }
-        else:
-            return {
-                "id":self.task_id,
-                "title":self.title,
-                "description":self.description,
-                "is_complete":False
+                "is_complete":self.is_complete
             }
