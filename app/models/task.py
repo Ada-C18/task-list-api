@@ -7,3 +7,4 @@ class Task(db.Model):
     description = db.Column(db.String)
     # confirm null is default if task has not been completed
     completed_at = db.Column(db.DateTime, nullable=True)
+# pretend code to push something up 
