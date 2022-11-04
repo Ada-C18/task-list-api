@@ -10,7 +10,7 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 def create_one_task():
     request_body = request.get_json()
 
-    if "title" not in request_body or "description" not in request_body:
+    if "title" not in request_body or "description" not in request_body or "completed_at" not in request_body:
         return jsonify({
             "details": "Invalid data"
         }), 400
