@@ -34,7 +34,7 @@ def create_one_task():
 
 
 @task_bp.route('', methods=['GET'])
-def sort_tasks():
+def get_or_sort_tasks():
     tasks = Task.query.all() 
     result = []
     for task in tasks:
