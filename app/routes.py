@@ -15,6 +15,7 @@ def validate_task(id):
         abort(make_response({"message": f"task {id} not found"}, 404))
     return task
 
+# ---------------------------------
 # create a task (POST)
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -26,9 +27,10 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify(new_task.to_dict())
+   
+    return make_response({"task": new_task.to_dict()}, 201)
 
-
+# ---------------------------------
 # read one task (GET)
 @tasks_bp.route("/<id>", methods=["GET"])
 def read_one_task(id):
@@ -37,24 +39,17 @@ def read_one_task(id):
     response = {"task": task.to_dict()}
     return response
 
-
+# ---------------------------------
 # read all tasks (GET)
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
     tasks_response = []
     tasks = Task.query.all()
-    for task in tasks:
-        tasks_response.append(
-            {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": False
-            }
-        )
+    tasks_response = [task.to_dict() for task in tasks]
+    
     return jsonify(tasks_response)
 
-
+# ---------------------------------
 # replace a task (PUT)
 @tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
@@ -64,11 +59,11 @@ def update_task(id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"]
 
     db.session.commit()
-
-    return make_response(f"Task {task.title} successfully updated", 201)
+    
+    response = {"task": task.to_dict()}
+    return response
 
 
 # update a task (PATCH)
@@ -106,5 +101,6 @@ def delete_task(id):
     db.session.delete(task)
     db.session.commit()
 
-    return make_response(f"Task {task.title} successfully deleted", 200)
+    response = make_response(f"details: Task {task.id} {task.description} successfully deleted", 202)
+    return response
 
