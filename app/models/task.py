@@ -35,8 +35,8 @@ class Task(db.Model):
         else: 
             task_as_dict["id"] = self.task_id
             task_as_dict["title"] = self.title
-            task_as_dict["description"] = self.description,
-            task_as_dict["is_complete"] = self.completed_at
+            task_as_dict["description"] = self.description
+            task_as_dict["is_complete"] = True
         return task_as_dict
 
     def update(self, req_body):
@@ -45,3 +45,9 @@ class Task(db.Model):
             self.description = req_body["description"]
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"}, 400))
+    
+    # def mark_complete(self):
+    #     try:
+    #         self.completed_at = datetime.datetime.now()
+    #     except KeyError as error:
+    #         abort(make_response({"message": f"Missing attribute: {error}"}, 400))
