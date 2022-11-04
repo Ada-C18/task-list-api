@@ -118,9 +118,6 @@ def get_tasks_for_goal(goal_id):
     return goal.to_dict(tasks=True), 200
 
 
-from psycopg2.errors import InvalidTextRepresentation
-
-
 @task_bp.errorhandler(404)
 def handle_task_not_found(e):
     return {"details": "Task not found"}, 404
@@ -129,11 +126,6 @@ def handle_task_not_found(e):
 @goal_bp.errorhandler(404)
 def handle_goal_not_found(e):
     return {"details": "Goal not found"}, 404
-
-
-@task_bp.errorhandler(InvalidTextRepresentation)
-def handle_task_invalid_id(e):
-    return {"details": "Task id must be numeric"}, 400
 
 
 @task_bp.errorhandler(KeyError)
