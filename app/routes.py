@@ -16,6 +16,16 @@ def validate_model(cls, model_id):
 
     return model
 
+@tasks_bp.route("", methods=["POST"])
+# Creates a new task and returns it as a json
+def create_new_task():
+    request_body = request.get_json()
+    new_task = Task.from_dict(request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+    return {"task": new_task.as_dict()}, 201
+
 @tasks_bp.route("", methods=["GET"])
 # Get every task in the task list
 def get_all_tasks():
