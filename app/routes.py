@@ -27,6 +27,15 @@ def determine_completion(task):
         task.completed_at = True #task["completed_at"]
     
     return task.completed_at
+
+def task_dict(task, determine_completion):
+    return {
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": determine_completion(task)
+            
+        }
     
 #-------------------------------------------POST----------------------------------
 @task_bp.route("", methods=["POST"])
@@ -50,13 +59,7 @@ def create_one_task():
 
 
     return {
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": determine_completion(new_task)
-            
-        }
+        "task": task_dict(new_task, determine_completion)
     }, 201
 #-------------------------------------------GET----------------------------------
 @task_bp.route("", methods=["GET"])
@@ -76,13 +79,8 @@ def get_all_tasks():
 
     response = []
     for task in tasks:
-        task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": determine_completion(task)
-        }
-        response.append(task_dict)
+        task_info = task_dict(task, determine_completion)
+        response.append(task_info)
 
     if title_sort == "asc":
         response = sorted(response, key=itemgetter("title"))
@@ -95,16 +93,11 @@ def get_all_tasks():
 def get_one_task(task_id_input):
     chosen_task = validate_task(task_id_input)
 
-    task_dict = {
-        "task": {
-            "id": chosen_task.task_id,
-            "title": chosen_task.title,
-            "description": chosen_task.description,
-            "is_complete": determine_completion(chosen_task)
-        }
+    task_info = {
+        "task": task_dict(chosen_task, determine_completion)
     }
 
-    return jsonify(task_dict), 200
+    return jsonify(task_info), 200
 # -------------------------------------------PUT----------------------------------
 @task_bp.route("/<task_id_input>", methods=["PUT"])
 def update_a_task(task_id_input):
@@ -122,18 +115,12 @@ def update_a_task(task_id_input):
     db.session.commit()
 
     return {
-        "task": {
-            "id": chosen_task.task_id,
-            "title": chosen_task.title,
-            "description": chosen_task.description,
-            "is_complete": determine_completion(chosen_task)
-            
-        }
+        "task": task_dict(chosen_task, determine_completion)
     }, 200
 
 # -------------------------------------------PATCH----------------------------------
 @task_bp.route("/<task_id_input>/<complete_status>", methods=["PATCH"])
-def mark_complete(task_id_input, complete_status):
+def mark_complete_status(task_id_input, complete_status):
     chosen_task = validate_task(task_id_input)
 
     request_body = request.get_json()
@@ -150,12 +137,7 @@ def mark_complete(task_id_input, complete_status):
     # print(f"DATE!!!!: {chosen_task.completed_at}")
 
     return {
-    "task": {
-        "id": chosen_task.task_id,
-        "title": chosen_task.title,
-        "description": chosen_task.description,
-        "is_complete": determine_completion(chosen_task)
-        }
+    "task": task_dict(chosen_task, determine_completion)
     }
 
 # @task_bp.route("/<task_id_input>/<complete_status>", methods=["PATCH"])
