@@ -4,16 +4,16 @@ from app.models.task import Task
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
-def get_task_from_id(task_id):
+def validate_model(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except ValueError:
         return abort(make_response({"details": "Invalid data"}, 400))
 
-    task_chosen = Task.query.get(task_id)
+    task_chosen = cls.query.get(model_id)
 
     if not task_chosen:
-        return abort(make_response({"msg": f"Could not find the task with id = {task_id}"}, 404))
+        return abort(make_response({"msg": f"Could not find the task with id = {model_id}"}, 404))
     
     return task_chosen
 
@@ -67,14 +67,14 @@ def get_or_sort_tasks():
 
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
-    task_chosen = get_task_from_id(task_id)
+    task_chosen = validate_model(Task, task_id)
 
     return jsonify({"task":task_chosen.to_dict()}), 200
 
 
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_one_task(task_id):
-    update_task = get_task_from_id(task_id)
+    update_task = validate_model(Task, task_id)
 
     request_body = request.get_json()
 
@@ -88,7 +88,7 @@ def update_one_task(task_id):
 
 @task_bp.route('/<task_id>', methods=['DELETE'])
 def delete_one_task(task_id):
-    delete_task = get_task_from_id(task_id)
+    delete_task = validate_model(Task, task_id)
 
     db.session.delete(delete_task)
     db.session.commit()
