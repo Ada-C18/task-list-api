@@ -69,18 +69,29 @@ def delete_task(task_id):
 
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200 
 
-#PATCH complete task
+#PATCH mark complete
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def mark_complete(task_id):
     task = validate_task(task_id)
 
-    if not task.completed_at:
-        task.completed_at = date.today()
-        response = {"task": task.to_dict()}
-        response['task']['is_complete'] = True 
+    task.completed_at = date.today()
+    response = {"task": task.to_dict()}
+    response['task']['is_complete'] = True 
 
-        db.session.commit()
-        return jsonify(response), 200
+    db.session.commit()
+    return jsonify(response), 200
+
+#PATCH mark incomplete
+@task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_task(task_id)
+
+    response = {"task": task.to_dict()}
+    task.completed_at = None
+
+    db.session.commit()
+    return jsonify(response), 200
+
 
 #================== Helper Functions=================
 def validate_task(task_id):
