@@ -13,6 +13,7 @@ def get_task_from_id(task_id):
     except ValueError:
         return abort(make_response({"msg": f"invalid data type: {task_id}"}, 200))
 
+
     chosen_task = Task.query.get(task_id)
 
     if chosen_task is None:
@@ -56,5 +57,34 @@ def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
 
     return jsonify({"task":chosen_task.to_dict()}), 200
+
+@tasks_bp.route('/<task_id>', methods=['PUT'])
+def update_one_task(task_id):
+    update_task = get_task_from_id(task_id)
+
+    request_body = request.get_json()
+
+    try:
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+
+    except KeyError:
+        return jsonify ({"msg": f"Missing attributes"}), 400
+
+    db.session.commit()
+    return jsonify({"task":update_task.to_dict()})
+
+@tasks_bp.route('/<task_id>', methods=['DELETE'])
+def delete_one_task(task_id):
+    task_to_delete = get_task_from_id(task_id)
+
+    title_task_to_delete= get_task_from_id(task_id).to_dict()["title"]
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return jsonify({"details": f'Task {task_id} "{title_task_to_delete}" successfully deleted'}), 200
+        
+
 
 
