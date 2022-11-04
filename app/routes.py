@@ -4,6 +4,20 @@ from flask import abort, Blueprint, jsonify, make_response, request
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
+def validate_task(task_id):
+    # try:
+    #     task_id = int(task_id)
+    # except:
+    #     abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
+
+    task = Task.query.get(task_id)
+
+    if not task:
+        abort(make_response({"msg":f"Task {task_id} not found"}, 404))
+        # f"{cls.__name__} {model_id} not found"}, 404))
+
+    return task
+
 def get_task_from_id(task_id):
     # try:
     #     breakfast_id = int(breakfast_id)
@@ -41,3 +55,36 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_task(task_id)
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    # task.completed_at = request_body["completed_at"]
+    db.session.commit()
+
+    return jsonify({"task":task.to_dict()}), 200
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_task(task_id)
+    task_title = task.title
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return jsonify({"details": f'Task {task_id} "{task_title}" successfully deleted'}), 200
+
+# @tasks_bp.routes("</task_id>", methods=["DELETE"])
+# def delete_task(task_id):
+#     task = validate_task(task_id)
+
+#     db.session.delete(task)
+#     db.session.commit()
+
+#     return jsonify({"details": f"'Task {task_id} {task.description} successfully deleted'"}), 200 
+    # jsonify({"details": f"Task {task_id} \'{task.description}' successfully deleted" , 200
+    # f"Book #{book.id} successfully deleted")), 200
