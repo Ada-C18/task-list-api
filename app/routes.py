@@ -35,7 +35,6 @@ def add_one_task():
 def get_all_tasks():
     order = request.args.get("sort")
 
-    tasks = None
     if order is None:
         tasks = Task.query.all()
     elif order == "asc":
@@ -48,14 +47,14 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     return jsonify(generate_response_body(task)), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     request_body = request.get_json()
 
@@ -69,7 +68,7 @@ def update_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -83,7 +82,7 @@ def delete_one_task(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_one_task_as_complete(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     task.completed_at = datetime.now()
 
@@ -94,7 +93,7 @@ def mark_one_task_as_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_one_task_as_incomplete(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     task.completed_at = None
 
@@ -102,8 +101,9 @@ def mark_one_task_as_incomplete(task_id):
 
     return jsonify(generate_response_body(task)), 200
 
-
+#************************************************#
 #*************** helper functions ***************#
+#************************************************#
 
 def generate_response_body(tasks):
     """
@@ -124,23 +124,23 @@ def generate_response_body(tasks):
         }
 
 
-def validate_task(task_id):
+def validate_model(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except:
         response_body = {
-            "message": f"Task id {task_id} is invalid."
+            "message": f"{cls.__name__} id {model_id} is invalid."
         }
 
         abort(make_response(jsonify(response_body), 400))
     
-    task = Task.query.get(task_id)
+    model = cls.query.get(model_id)
 
-    if task is None:
+    if model is None:
         response_body = {
-            "message": f"Task {task_id} is does not exist."
+            "message": f"{cls.__name__} {model_id} is does not exist."
         }
 
         abort(make_response(jsonify(response_body), 404))
 
-    return task
+    return model
