@@ -3,10 +3,18 @@ from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import datetime
+import logging
+import os
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 
+task_notifications_channel_id = "C049LSP26LB"
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+logger = logging.getLogger(__name__)
 
 #***********************************************#
 #***************** Task Routes *****************#
@@ -44,6 +52,16 @@ def mark_one_task_as_complete(task_id):
     task.completed_at = datetime.now()
 
     db.session.commit()
+
+    try:
+        result = client.chat_postMessage(
+            channel=task_notifications_channel_id, 
+            text=f"Someone just completed the task {task.title}"
+        )
+        logger.info(result)
+
+    except SlackApiError as e:
+        logger.error(f"Error posting message: {e}")
 
     return jsonify(generate_response_body(Task, task)), 200
 
@@ -123,7 +141,7 @@ def validate_model(cls, model_id):
 
     if model is None:
         response_body = {
-            "message": f"{cls.__name__} {model_id} is does not exist."
+            "message": f"{cls.__name__} {model_id} does not exist."
         }
 
         abort(make_response(jsonify(response_body), 404))
@@ -150,9 +168,9 @@ def delete_one_model(cls, model_id):
     return jsonify(response_body), 200
 
 
-def create_one_model(cls, request_dict):
+def create_one_model(cls, request_body):
     try:
-        model = cls.create_from_dict(request_dict)
+        model = cls.create_from_dict(request_body)
 
         db.session.add(model)
         db.session.commit()
@@ -167,11 +185,11 @@ def create_one_model(cls, request_dict):
     return jsonify(generate_response_body(cls, model)), 201
 
 
-def update_one_model(cls, model_id, request_dict):
+def update_one_model(cls, model_id, request_body):
     model = validate_model(cls, model_id)
 
     try:
-        cls.update_from_dict(model, request_dict)
+        cls.update_from_dict(model, request_body)
 
         db.session.commit()
     
