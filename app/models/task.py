@@ -9,20 +9,20 @@ class Task(db.Model):
 
     def to_dict(self):
         if self.completed_at is None:
-            bike_dict = {
+            task_dict = {
                 "id": self.task_id,
                 "title": self.title,
                 "description": self.description,
                 "is_complete": False
             }
         else:
-            bike_dict = {
+            task_dict = {
                 "id": self.task_id,
                 "title": self.title,
                 "description": self.description,
                 "completed_at": self.completed_at
             }
-        return bike_dict
+        return task_dict
     
     @classmethod
     def from_dict(cls, data_dict):

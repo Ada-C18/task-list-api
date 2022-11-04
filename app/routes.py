@@ -55,12 +55,20 @@ def add_task():
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
+    sort_param = request.args.get("sort")
+    
     tasks = Task.query.all()
 
     response = []
     for task in tasks:
         task_dict = get_completed_task(task)
         response.append(task_dict)
+    
+    if sort_param == "asc":
+        response = sorted(response, key=lambda task: task['title'])
+    elif sort_param == "desc":
+        response = sorted(response, key=lambda task: task['title'], reverse=True)
+
     return jsonify(response), 200
 
 @task_bp.route("/<task_id>", methods=["GET"])
