@@ -37,9 +37,7 @@ def get_all_tasks():
 
 @goal_bp.route("", methods=["GET"])
 def get_all_goals():
-    sort = request.args.get("sort")
-    sort = getattr(Goal.title, sort)() if sort in ("asc", "desc") else None
-    return jsonify([g.to_dict() for g in Goal.query.order_by(sort).all()])
+    return jsonify([g.to_dict() for g in Goal.query.all()])
 
 
 @task_bp.route("/<task_id>", methods=["GET"])
