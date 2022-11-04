@@ -39,16 +39,8 @@ def get_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
-    task = validate_model(Task, task_id)
-
     request_body = request.get_json()
-
-    task.title = request_body["title"]
-    task.description = request_body["description"]
-    
-    db.session.commit()
-
-    return jsonify(generate_response_body(Task, task)), 200
+    return update_one_model(Task, task_id, request_body)
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
@@ -100,15 +92,8 @@ def get_one_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_one_goal(goal_id):
-    goal = validate_model(Goal, goal_id)
-
     request_body = request.get_json()
-
-    goal.title = request_body["title"]
-    
-    db.session.commit()
-
-    return jsonify(generate_response_body(Goal, goal)), 200
+    return update_one_model(Goal, goal_id, request_body)
 
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
@@ -179,9 +164,9 @@ def delete_one_model(cls, model_id):
     return jsonify(response_body), 200
 
 
-def create_one_model(cls, request_body):
+def create_one_model(cls, request_dict):
     try:
-        model = cls.create_from_dict(request_body)
+        model = cls.create_from_dict(request_dict)
 
         db.session.add(model)
         db.session.commit()
@@ -194,3 +179,21 @@ def create_one_model(cls, request_body):
         abort(make_response(jsonify(response_body), 400))
     
     return jsonify(generate_response_body(cls, model)), 201
+
+
+def update_one_model(cls, model_id, request_dict):
+    model = validate_model(cls, model_id)
+
+    try:
+        cls.update_from_dict(model, request_dict)
+
+        db.session.commit()
+    
+    except:
+        response_body = {
+            "details": "Invalid data"
+        }
+
+        abort(make_response(jsonify(response_body), 400))
+
+    return jsonify(generate_response_body(cls, model)), 200
