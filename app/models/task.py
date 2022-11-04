@@ -10,8 +10,10 @@ class Task(db.Model):
 
     def to_dict(self):
         return {
-            "id": self.task_id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": False
-    }
+                "id": self.task_id,
+                "title": self.title,
+                "description": self.description,
+                "is_complete": False 
+        }
+
+    #create a different helper function, one to get one task, another to get all tasks----
