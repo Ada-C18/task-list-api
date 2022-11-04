@@ -5,6 +5,7 @@ from app.models.task import Task
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 # def get_one_task(task_id):
+    
 #     matching_task = Task.query.get(task_id)
 
 #     return matching_task
@@ -41,6 +42,7 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
+
     task = Task.query.get(task_id)
 
     return {
@@ -49,3 +51,13 @@ def get_one_task(task_id):
         "description": task.description,
         "is_complete": False
     }, 200
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+
+    task = Task.query.get(task_id)
+
+    request_body = request.get_json()
+    response = task
+
+    
