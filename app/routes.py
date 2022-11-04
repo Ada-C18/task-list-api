@@ -29,8 +29,14 @@ def get_one_task(task_id):
 @task_bp.route("", methods = ["POST"])
 def post_new_task():
     request_body = request.get_json()
-    dict_of_field_vals = fill_empties_with_defaults(request_body)
-    new_task = make_new_task(dict_of_field_vals)
+    #dict_of_field_vals = fill_empties_with_defaults(request_body)
+    if "title" not in request_body or "description" not in request_body:
+        response_str = "Invalid data"
+        abort(make_response({"details":response_str}, 400))
+    if "completed_at" not in request_body:
+        request_body["is_complete"] = False
+
+    new_task = Task.from_dict(request_body)
     db.session.add(new_task)
     db.session.commit()
     task_dict = new_task.make_dict()
@@ -66,27 +72,6 @@ def validate_task(task_id):
         abort(make_response({"message": response_str}, 404))
     return task
 
-def make_new_task(task_dict):
-    new_task = Task(
-        title = task_dict["title"],
-        description = task_dict["description"],
-        is_complete = task_dict["is_complete"]
-    )
-    return new_task
-
-def fill_empties_with_defaults(request_body):
-    """Go through entered fields.  
-    If it has an entry, use that, if not, use the default."""
-    task_dict = {}
-    for field, default in COL_NAME_DEFAULT_DICT.items():
-
-        if field not in request_body:
-            task_dict[field] = default
-        else:
-            task_dict[field] = request_body[field]
-
-    return task_dict
-
 #can I make this a method for Tasks?
 def update_given_values(task, request_body):
     if "title" in request_body:
@@ -97,3 +82,19 @@ def update_given_values(task, request_body):
         task.is_complete = request_body["is_complete"]
     #can add completed_at when you put that in. 
     return task
+
+# I used this in my journal.py.  This isn't want the tests are asking for, so I'll delete it. 
+# def fill_empties_with_defaults(request_body):
+#     """Go through entered fields.  
+#     If it has an entry, use that, if not, use the default."""
+#     task_dict = {}
+#     for field, default in COL_NAME_DEFAULT_DICT.items():
+
+#         if field not in request_body:
+#             task_dict[field] = default
+#         else:
+#             task_dict[field] = request_body[field]
+
+#     return task_dict
+
+

@@ -31,3 +31,11 @@ class Task(db.Model):
             "is_complete": self.is_complete
         }
         return task_dict
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        new_object = cls(
+            title = data_dict["title"],
+            description = data_dict["description"],
+            is_complete = data_dict["is_complete"])
+        return new_object
