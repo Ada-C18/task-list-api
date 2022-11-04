@@ -12,12 +12,15 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
-        return {
+        task = {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.completed_at is not None,
         }
+        if self.goal_id:
+            task["goal_id"] = self.goal_id
+        return task
 
     def mark_complete(self, when=None):
         self.completed_at = (

@@ -103,6 +103,21 @@ def incomplete_task(task_id):
     return {"task": task.to_dict()}
 
 
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_tasks_to_goal(goal_id):
+    goal = Goal.query.get_or_404(goal_id)
+    request_body = request.get_json()
+    goal.tasks += [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+    db.session.commit()
+    return {"id": goal.goal_id, "task_ids": [task.task_id for task in goal.tasks]}, 200
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_goal(goal_id):
+    goal = Goal.query.get_or_404(goal_id)
+    return goal.to_dict(tasks=True), 200
+
+
 from psycopg2.errors import InvalidTextRepresentation
 
 
