@@ -14,22 +14,12 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 @tasks_bp.route("", methods=["POST"])
 def add_one_task():
-    request_body = request.get_json()
-    return create_one_model(Task, request_body)
+    return create_one_model(Task, request.get_json())
 
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    order = request.args.get("sort")
-
-    if order is None:
-        tasks = Task.query.all()
-    elif order == "asc":
-        tasks = Task.query.order_by(Task.title).all()
-    elif order == "desc":
-        tasks = Task.query.order_by(Task.title.desc()).all()
-
-    return jsonify(generate_response_body(Task, tasks)), 200
+    return get_all_models(Task, request.args.get("sort"))
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -39,8 +29,7 @@ def get_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
-    request_body = request.get_json()
-    return update_one_model(Task, task_id, request_body)
+    return update_one_model(Task, task_id, request.get_json())
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
@@ -75,14 +64,12 @@ def mark_one_task_as_incomplete(task_id):
 
 @goals_bp.route("", methods=["POST"])
 def add_one_goal():
-    request_body = request.get_json()
-    return create_one_model(Goal, request_body)
+    return create_one_model(Goal, request.get_json())
 
 
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
-    goals = Goal.query.all()
-    return jsonify(generate_response_body(Goal, goals)), 200
+    return get_all_models(Goal)
 
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
@@ -92,8 +79,7 @@ def get_one_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_one_goal(goal_id):
-    request_body = request.get_json()
-    return update_one_model(Goal, goal_id, request_body)
+    return update_one_model(Goal, goal_id, request.get_json())
 
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
@@ -197,3 +183,14 @@ def update_one_model(cls, model_id, request_dict):
         abort(make_response(jsonify(response_body), 400))
 
     return jsonify(generate_response_body(cls, model)), 200
+
+
+def get_all_models(cls, order=None):
+    if order == "asc":
+        models = cls.query.order_by(cls.title).all()
+    elif order == "desc":
+        models = cls.query.order_by(cls.title.desc()).all()
+    else:
+        models = cls.query.all()
+    
+    return jsonify(generate_response_body(cls, models)), 200
