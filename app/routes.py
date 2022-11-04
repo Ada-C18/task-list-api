@@ -5,12 +5,6 @@ from app.models.task import Task
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
 #--------------------------------helper functions---------------------------
-def return_false_for_null(task, dict):
-    if task.completed_at is None:
-        dict["is_complete"] = False
-    return dict
-
-
 def get_one_task_or_abort(task_id):
     try:
         task_id = int(task_id)
@@ -43,13 +37,7 @@ def add_task():
     db.session.add(new_task)
     db.session.commit()
 
-    task_dict = {
-    "id": new_task.task_id,
-    "title": new_task.title,
-    "description": new_task.description,
-    "is_complete": new_task.completed_at
-}
-    return {"task": return_false_for_null(new_task, task_dict)}, 201 
+    return jsonify({"task": new_task.create_dict()}), 201 
 
 
 #--------------------------------------GET------------------------------------
@@ -60,28 +48,15 @@ def get_all_tasks():
 
     response = []
     for task in tasks:
-        task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.completed_at
-        }
-
-        response.append(return_false_for_null(task, task_dict))
+        response.append(task.create_dict())
     return jsonify(response), 200
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
 
     task = get_one_task_or_abort(task_id)
-    task_dict = {
-        "id": task.task_id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": task.completed_at
-    }
 
-    return jsonify({"task": return_false_for_null(task, task_dict)}), 200
+    return jsonify({"task": task.create_dict()}), 200
 
 #--------------------------------PUT-------------------------
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -96,14 +71,8 @@ def update_task_values(task_id):
     task.title = request_body["title"]
     task.description = request_body["description"]
     db.session.commit()
-    task_dict = {
-    "id": task.task_id,
-    "title": task.title,
-    "description": task.description,
-    "is_complete": task.completed_at
-    }
 
-    return jsonify({"task": return_false_for_null(task, task_dict)}), 200
+    return jsonify({"task": task.create_dict()}), 200
 
 #-------------------------DELETE----------------------------
 @task_bp.route("/<task_id>", methods=["DELETE"])
