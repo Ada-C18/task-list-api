@@ -1,10 +1,11 @@
 from app import db
 from app.models import task
 from app.models.task import Task
+from datetime import datetime
 from flask import Blueprint, jsonify, make_response, request, abort
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-#------------------------------------WAVE1----------------------------------
+#------------------------------------WAVE 1----------------------------------
 #Create a Task: Valid Task With null completed_at
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -99,6 +100,37 @@ def delete_task(task_id):
     db.session.commit()
     return jsonify({"details":f'Task {task_id} "{task.title}" successfully deleted'}),200
 
+#------------------------------------WAVE 3----------------------------------
+#Mark Complete on an Incompleted Task
+@tasks_bp.route('/<task_id>/mark_complete', methods =["PATCH"])   
+def mark_complete(task_id):
+    task = check_valid_id(task_id)
+    if task.completed_at is None:
+        task.completed_at = datetime.now()
 
+        db.session.commit()
+    return make_response({
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": True
+        }},200)
     
- 
+#Mark Incomplete on a Completed Task
+@tasks_bp.route('/<task_id>/mark_incomplete', methods =["PATCH"])     
+def mark_incomplete(task_id):
+    task =  check_valid_id(task_id)
+    if task.completed_at:
+        task.completed_at = None
+        
+    db.session.commit()
+    return make_response({
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }},200)
+    
+#------------------------------------WAVE 4----------------------------------
