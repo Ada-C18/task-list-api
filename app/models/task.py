@@ -7,16 +7,24 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default=None, nullable=True)
-    # WAVE 3: add is_complete
+    # WAVE 3: add is_complete?
     # is_complete = db.Column(db. , default=False)
 
     # converts Task object into Dict
     def to_dict(self):
+        # if statement to get value for is_complete
+        # task_complete = None
+
         task_dict = {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "is_complete": False
+            # "is_complete": task_complete,
         }
+
+        if self.completed_at is None:
+            task_dict["is_complete"] = False
+        else:
+            task_dict["is_complete"] = True
 
         return task_dict
