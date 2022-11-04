@@ -15,25 +15,7 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 @tasks_bp.route("", methods=["POST"])
 def add_one_task():
     request_body = request.get_json()
-
-    try:
-        new_task = Task(
-            title=request_body["title"],
-            description=request_body["description"],
-            completed_at=None
-        )
-
-        db.session.add(new_task)
-        db.session.commit()
-
-    except:
-        response_body = {
-            "details": "Invalid data"
-        }
-
-        abort(make_response(jsonify(response_body), 400))
-    
-    return jsonify(generate_response_body(Task, new_task)), 201
+    return create_one_model(Task, request_body)
 
 
 @tasks_bp.route("", methods=["GET"])
@@ -102,29 +84,12 @@ def mark_one_task_as_incomplete(task_id):
 @goals_bp.route("", methods=["POST"])
 def add_one_goal():
     request_body = request.get_json()
-
-    try:
-        new_goal = Goal(
-            title=request_body["title"]
-        )
-
-        db.session.add(new_goal)
-        db.session.commit()
-
-    except:
-        response_body = {
-            "details": "Invalid data"
-        }
-
-        abort(make_response(jsonify(response_body), 400))
-    
-    return jsonify(generate_response_body(Goal, new_goal)), 201
+    return create_one_model(Goal, request_body)
 
 
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
     goals = Goal.query.all()
-
     return jsonify(generate_response_body(Goal, goals)), 200
 
 
@@ -195,6 +160,12 @@ def validate_model(cls, model_id):
     return model
 
 
+def get_one_model(cls, model_id):
+    model = validate_model(cls, model_id)
+
+    return jsonify(generate_response_body(cls, model)), 200
+
+
 def delete_one_model(cls, model_id):
     model = validate_model(cls, model_id)
 
@@ -208,7 +179,18 @@ def delete_one_model(cls, model_id):
     return jsonify(response_body), 200
 
 
-def get_one_model(cls, model_id):
-    model = validate_model(cls, model_id)
+def create_one_model(cls, request_body):
+    try:
+        model = cls.create_from_dict(request_body)
 
-    return jsonify(generate_response_body(cls, model)), 200
+        db.session.add(model)
+        db.session.commit()
+
+    except:
+        response_body = {
+            "details": "Invalid data"
+        }
+
+        abort(make_response(jsonify(response_body), 400))
+    
+    return jsonify(generate_response_body(cls, model)), 201
