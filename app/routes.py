@@ -3,6 +3,11 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import asc, desc
 from datetime import datetime
+import os
+import requests
+
+slack_oauth_token = os.environ.get("SLACK_OATH_TOKEN")
+print(slack_oauth_token)
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -19,17 +24,6 @@ def validate_task_id(task_id):
         abort(make_response(({"msg": f"{task_id} not found"}), 404))
 
     return task
-
-
-# @tasks_bp.route("", methods=["GET"])
-# def read_all_tasks():
-#     tasks = Task.query.all()
-
-#     response = []
-#     for task in tasks:
-#         response.append(task.to_dict())
-    
-#     return jsonify(response), 200
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -97,7 +91,21 @@ def mark_complete(task_id):
     task.completed_at = datetime.now()
     db.session.commit()
 
-    return {"task": task.to_dict()}
+    # slack api call to post to task-notifications
+    url = "https://slack.com/api/chat.postMessage"
+
+    params = {
+        "channel": "task-notifications",
+        "text": ""
+    }
+
+    headers = {"Authorization": f"Bearer {slack_oauth_token}"}
+    # headers = {"Authorization": "Bearer %s" % slack_oauth_token, "Content-Type": "application/json",}
+
+    response = requests.patch(url=url, params=params, headers=headers)
+
+    return response.content
+    # return {"task": task.to_dict()}
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
