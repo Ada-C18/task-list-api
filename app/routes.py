@@ -35,16 +35,33 @@ def create_one_task():
 
 @task_bp.route('', methods=['GET'])
 def get_or_sort_tasks():
-    tasks = Task.query.all() 
+    sort_query = request.args.get("sort")
+    if sort_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()  
+    else:
+        tasks = Task.query.all() 
+
     result = []
     for task in tasks:
         result.append(task.to_dict())
-    sort_query = request.args.get("sort")
-    if sort_query == "asc":
-        result = sorted(result, key=lambda x: x['title'])
-    elif sort_query == "desc":
-        result = sorted(result, key=lambda x: x['title'], reverse=True)   
+    
     return jsonify(result), 200
+
+
+# @task_bp.route('', methods=['GET'])
+# def get_or_sort_tasks():
+#     tasks = Task.query.all() 
+#     result = []
+#     for task in tasks:
+#         result.append(task.to_dict())
+#     sort_query = request.args.get("sort")
+#     if sort_query == "asc":
+#         result = sorted(result, key=lambda x: x['title'])
+#     elif sort_query == "desc":
+#         result = sorted(result, key=lambda x: x['title'], reverse=True)   
+#     return jsonify(result), 200
 
 
 @task_bp.route('/<task_id>', methods=['GET'])
