@@ -10,13 +10,11 @@ def add_task():
     request_body = request.get_json()
 
     new_task = Task(
-        title=request_body["A Brand New Task"],
-        description=request_body["Test Description"],
-        completed_at=request_body["null"]
-
+        title=request_body["title"],
+        description=request_body["description"]
     )
 
     db.session.add(new_task)
     db.session.commit()
 
-    return {"id": new_task.id}, 201
+    return jsonify({"task": new_task.to_dict()}), 201

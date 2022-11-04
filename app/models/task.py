@@ -2,14 +2,20 @@ from app import db
 
 
 class Task(db.Model):
-    task_id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True) # is this correct? null=True
     #Can be nullable, and contain a null 
     # value. A task with a null value for completed_at has not been completed. 
     # When we create a new task, completed_at should be null AKA None in Python.
-
+    def to_dict(self):
+        return {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": False
+        }
 
 # Wave 1 CRUD
 # Tasks are entities that describe a task a user wants to complete. They contain a:
