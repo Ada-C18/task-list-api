@@ -52,9 +52,7 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_model(Task, task_id)
-
-    return jsonify(generate_response_body(Task, task)), 200
+    return get_one_model(Task, task_id)
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -73,7 +71,7 @@ def update_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
-    return delete(Task, task_id)
+    return delete_one_model(Task, task_id)
 
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
@@ -132,9 +130,7 @@ def get_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    goal = validate_model(Goal, goal_id)
-
-    return jsonify(generate_response_body(Goal, goal)), 200
+    return get_one_model(Goal, goal_id)
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
@@ -152,7 +148,7 @@ def update_one_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_one_goal(goal_id):
-    return delete(Goal, goal_id)
+    return delete_one_model(Goal, goal_id)
 
 #************************************************#
 #*************** Helper Functions ***************#
@@ -198,7 +194,8 @@ def validate_model(cls, model_id):
 
     return model
 
-def delete(cls, model_id):
+
+def delete_one_model(cls, model_id):
     model = validate_model(cls, model_id)
 
     db.session.delete(model)
@@ -209,3 +206,9 @@ def delete(cls, model_id):
     }
 
     return jsonify(response_body), 200
+
+
+def get_one_model(cls, model_id):
+    model = validate_model(cls, model_id)
+
+    return jsonify(generate_response_body(cls, model)), 200
