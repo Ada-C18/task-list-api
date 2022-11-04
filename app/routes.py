@@ -1,6 +1,7 @@
-from flask import Blueprint, request, make_response, jsonify, abort
+from flask import Blueprint, request, make_response, jsonify, abort, session
 from app.models.task import Task
 from app import db
+from sqlalchemy import asc, desc
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -11,7 +12,6 @@ def create_tasks():
     try:
         new_task = Task(title=request_body["title"],
                         description=request_body["description"])
-                        # completed_at=request_body["is_complete"])
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
 
@@ -23,10 +23,17 @@ def create_tasks():
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
     title_query = request.args.get("title")
+    sort_query = request.args.get("sort")
+
     if title_query:
         tasks = Task.query.filter_by(title=title_query)
     else:
         tasks = Task.query.all()
+
+    if sort_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
 
     tasks_response = []
     for task in tasks:
@@ -48,7 +55,6 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    # task.is_complete = request_body["completed_at"]
 
     db.session.commit()
 
@@ -76,3 +82,4 @@ def validate_task_id(task_id):
         abort(make_response({"message": f"task {task_id} not found"}, 404))
     
     return task
+
