@@ -140,7 +140,7 @@ As a client, I want to be able to make a `PUT` request to `/tasks/1` when there 
 ```json
 {
   "title": "Updated Task Title",
-  "description": "Updated Test Description",
+  "description": "Updated Test Description"
 }
 ```
 
@@ -177,9 +177,9 @@ As a client, I want to be able to make a `DELETE` request to `/tasks/1` when the
 
 As a client, if I make any of the following requests:
 
-  * `GET` `/tasks/<task_id>`
-  * `UPDATE` `/tasks/<task_id>`
-  * `DELETE` `/tasks/<task_id>`
+- `GET` `/tasks/<task_id>`
+- `UPDATE` `/tasks/<task_id>`
+- `DELETE` `/tasks/<task_id>`
 
 and there is no existing task with `task_id`
 
@@ -188,7 +188,6 @@ The response code should be `404`.
 You may choose the response body.
 
 Make sure to complete the tests for non-existing tasks to check that the correct response body is returned.
- 
 
 ### Create a Task: Invalid Task With Missing Data
 
