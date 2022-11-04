@@ -1,6 +1,8 @@
 from app import db
 from sqlalchemy import sql
 from datetime import datetime
+import requests
+import os
 
 
 class Task(db.Model):
@@ -28,3 +30,12 @@ class Task(db.Model):
             if type(when) is datetime
             else (None if when is False else sql.func.now())
         )
+        if self.completed_at is not None:
+            slack_oauth_token = os.environ.get("SLACK_OAUTH_TOKEN")
+            slack_channel = "task-notifications"
+            completed_message = f"Someone just completed the task {self.title}"
+            requests.get(
+                "https://slack.com/api/chat.postMessage",
+                params={"channel": slack_channel, "text": completed_message},
+                headers={"Authorization": f"Bearer {slack_oauth_token}"},
+            )
