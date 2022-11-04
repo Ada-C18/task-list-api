@@ -7,3 +7,12 @@ class Task(db.Model):
     description = db.Column(db.String)
     # optional
     completed_at = db.Column(db.DateTime, nullable=True)
+    
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                        description=task_data["description"],
+                        completed_at=task_data["completed_at"]
+        )
+
+        return new_task
