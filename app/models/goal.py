@@ -15,7 +15,12 @@ class Goal(db.Model):
     
 
     @classmethod
-    def create_from_dict(cls, request_dict):
+    def create_from_dict(cls, request_body):
         return Goal(
-            title=request_dict["title"]
+            title=request_body["title"]
         )
+
+
+    @classmethod
+    def update_from_dict(cls, self, request_body):
+        self.title = request_body["title"]

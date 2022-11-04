@@ -19,9 +19,15 @@ class Task(db.Model):
     
 
     @classmethod
-    def create_from_dict(cls, request_dict):
+    def create_from_dict(cls, request_body):
         return Task(
-            title=request_dict["title"],
-            description=request_dict["description"],
+            title=request_body["title"],
+            description=request_body["description"],
             completed_at=None
         )
+    
+
+    @classmethod
+    def update_from_dict(cls, self, request_body):
+        self.title = request_body["title"]
+        self.description = request_body["description"]
