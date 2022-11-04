@@ -14,31 +14,44 @@ def get_one_task_or_abort(task_id):
     matching_task = Task.query.get(task_id)
 
     if matching_task is None:
-        response_str = f"Bike with id `{task_id}` was not found in the database."
+        response_str = f"Task with id `{task_id}` was not found in the database."
         abort(make_response(jsonify({"message":response_str}), 404))
     
     return matching_task
+
+def get_completed_task(task):
+    if task.completed_at is None:
+        task_dict = {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }
+    else:
+        task_dict = {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "completed_at": task.completed_at
+        }
+    return task_dict
 
 @task_bp.route("", methods=["POST"])
 def add_task():
     request_body = request.get_json()
 
     if "title" not in request_body or \
-        "description" not in request_body or \
-        "completed_at" not in request_body:
-            return jsonify({"message": "Request body must contain title and description"}), 400
+        "description" not in request_body:
+            return jsonify({"details": "Invalid data"}), 400
 
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"],
-        completed_at=request_body["completed_at"]
-    )
-
+    new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
     db.session.commit()
 
-    return {"task": new_task.task_id}, 201
+    task_dict = Task.to_dict(new_task)
+
+    return jsonify({"task": task_dict}), 201
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
@@ -46,26 +59,17 @@ def get_all_tasks():
 
     response = []
     for task in tasks:
-        task_dict = {
-           "id": task.task_id,
-           "title": task.title,
-           "description": task.description,
-           "is_complete": task.completed_at
-        }
+        task_dict = get_completed_task(task)
         response.append(task_dict)
     return jsonify(response), 200
 
-@task_bp.route("<task_id>", methods=["GET"])
+@task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     selected_task = get_one_task_or_abort(task_id)
-    task_dict = {
-        "id": selected_task.task_id,
-        "title": selected_task.title,
-        "description": selected_task.description,
-        "is_complete": selected_task.completed_at
-    }
 
-    return jsonify(task_dict), 200
+    task_dict = Task.to_dict(selected_task)
+
+    return jsonify({"task": task_dict}), 200
 
 @task_bp.route("<task_id>", methods=["PUT"])
 def update_one_task(task_id):
@@ -81,8 +85,9 @@ def update_one_task(task_id):
     selected_task.description = request_body["description"]
 
     db.session.commit()
-
-    return jsonify({"task": selected_task.task_id}), 200
+    
+    task_dict = Task.to_dict(selected_task)
+    return jsonify({"task": task_dict}), 200
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
@@ -91,4 +96,4 @@ def delete_one_task(task_id):
     db.session.delete(selected_task)
     db.session.commit()
 
-    return jsonify({"message": f"Successfully deleted task with id `{task_id}`"}), 200
+    return jsonify({"details": f'Task {task_id} "{selected_task.title}" successfully deleted'}), 200
