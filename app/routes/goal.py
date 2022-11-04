@@ -90,7 +90,7 @@ def delete_goal(goal_id):
     return jsonify({"details":f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}),200
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-def get_all_tasks_for_one_goal(goal_id):
+def add_all_tasks_for_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
     request_body = request.get_json()
 
@@ -106,3 +106,23 @@ def get_all_tasks_for_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"id": goal.goal_id, "task_ids": request_body["task_ids"]}), 200
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_all_tasks_for_one_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+    all_goal_tasks = []
+    tasks = goal.tasks 
+    for task in tasks:
+        all_goal_tasks.append({
+            "id": task.task_id, 
+            "goal_id": task.goal_id,
+            "title": task.title, 
+            "description": task.description, 
+            "is_complete": task.is_complete
+        })
+
+    return {
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": all_goal_tasks
+    }, 200

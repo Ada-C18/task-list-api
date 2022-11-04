@@ -12,6 +12,14 @@ class Task(db.Model):
 
 
     def to_dict(self):
+        if self.goal_id:
+            return {
+                "id":self.task_id,
+                "goal_id":self.goal_id,
+                "title":self.title,
+                "description":self.description,
+                "is_complete":self.is_complete
+            }
         return {
                 "id":self.task_id,
                 "title":self.title,

@@ -95,7 +95,7 @@ def update_task(task_id):
 
     if "title" not in request_body or \
         "description" not in request_body:
-                return jsonify({"message":"Request must include title, description, and is complete"}),400
+                return jsonify({"message":"Request must include title and description"}),400
 
     task.title = request_body["title"]
     task.description = request_body["description"]
