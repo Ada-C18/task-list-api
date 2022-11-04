@@ -34,13 +34,19 @@ def create_one_task():
 
 
 @task_bp.route('', methods=['GET'])
-def get_all_tasks():
-    tasks = Task.query.all()
+def sort_tasks():
+    tasks = Task.query.all() 
     result = []
     for task in tasks:
         result.append(task.to_dict())
-            
-    return jsonify(result),200
+    sort_query = request.args.get("sort")
+    print("print sort_query")
+    print(sort_query)
+    if sort_query == "asc":
+        result = sorted(result, key=lambda x: x['title'])
+    elif sort_query == "desc":
+        result = sorted(result, key=lambda x: x['title'], reverse=True)   
+    return jsonify(result), 200
 
 
 @task_bp.route('/<task_id>', methods=['GET'])
@@ -72,6 +78,15 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{delete_task.title}" successfully deleted'}), 200
+
+
+
+
+
+
+    
+    
+
 
 
 
