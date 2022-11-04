@@ -25,34 +25,36 @@ def validate_task(task_id):
 def create_task():
     response_body = request.get_json()
 
+    # If add "is_complete" not in respnse_body
+    # in postman it return 500. 
+    # Haven't solve the problem, so I take out that line
     if "title" not in response_body or\
        "description" not in response_body:
+       # "is_complete" not in respnse_body
         return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task(
         title = response_body["title"],
-        description = response_body["description"]
+        description = response_body["description"],
+        # completed_at = response_body["is_complete"]
     )
        
     db.session.add(new_task)
     db.session.commit()
 
+    # using the class method in task.py 
     return jsonify({"task":new_task.return_body()}),201
 
 
 # Get Tasks: Getting Saved Tasks
 @task_bp.route("", methods=["GET"])
 def read_task():
-    # title_param = request.args.get("title")
-    # if title_param is not None:
-    #     tasks = Task.query.filter_by(title=title_param)
-    # else:
     tasks = Task.query.all()
     
     read_task_result = []
-    for task in tasks:
-        read_task_result.append(task.return_body())
-
+    # for task in tasks:
+    #     read_task_result.append(task.return_body())
+    read_task_result = [task.return_body() for task in tasks]
     return jsonify(read_task_result), 200
 
 
@@ -67,6 +69,8 @@ def get_one_task_by_id(task_id):
 # Update Task
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
+    # after update the task, it becomes to the last one
+    # id order: 2341
     chosen_task = validate_task(task_id)
     request_body = request.get_json()
 
@@ -76,6 +80,7 @@ def update_task(task_id):
     db.session.commit()
     return jsonify({"task":chosen_task.return_body()}), 200
 
+    
 
 # Deleting a Task
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -85,5 +90,5 @@ def delete_one_task(task_id):
     db.session.delete(task_to_delete)
     db.session.commit()
 
-    return jsonify({"details": f'Task {task_to_delete.task_id} \
-        "{task_to_delete.title}" successfully deleted'}), 200
+    # mistakes in the return sentence trapped me for some time 
+    return jsonify({"details": f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'}), 200
