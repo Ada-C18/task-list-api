@@ -67,9 +67,11 @@ def get_one_task(task_id):
 def update_one_task(task_id):
     response_body = request.get_json()
     task = validate_model(Task,task_id)
-
-    task.title = response_body["title"]
-    task.description = response_body["description"]
+    try:
+        task.title = response_body["title"]
+        task.description = response_body["description"]
+    except KeyError:
+        return make_response(jsonify({'warning':'Enter both title and description or use patch method'}),400)
 
     db.session.commit()
 

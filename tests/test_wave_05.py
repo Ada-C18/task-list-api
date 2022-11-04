@@ -83,6 +83,7 @@ def test_create_goal(client):
     }
 
 
+
 #@pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal(client, one_goal):
     #raise Exception("Complete test")
@@ -108,6 +109,52 @@ def test_update_goal(client, one_goal):
     # assertion 3 goes here
     # ---- Complete Assertions Here ----
 
+def test_update_goal_patch(client, one_goal):
+    #raise Exception("Complete test")
+    # Act
+    # ---- Complete Act Here ----
+    response = client.patch("/goals/1", json={
+        "title": "My New New Goal"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert "goal" in response_body
+    assert response_body == {
+        "goal": {
+            "id": 1,
+            "title": "My New New Goal"
+        }
+    }
+
+def test_update_goal_no_body_patch(client, one_goal):
+    #raise Exception("Complete test")
+    # Act
+    # ---- Complete Act Here ----
+    response = client.patch("/goals/1", json={
+        "cheese": "My New New Goal"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "warning" in response_body
+    assert response_body['warning'] =='Enter a title'
+
+def test_update_goal_no_body(client, one_goal):
+    #raise Exception("Complete test")
+    # Act
+    # ---- Complete Act Here ----
+    response = client.put("/goals/1", json={
+        "cheese": "My New New Goal"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "warning" in response_body
+    assert response_body['warning'] =='Enter a title'
 
 #@pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):

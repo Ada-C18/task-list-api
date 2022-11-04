@@ -131,6 +131,18 @@ def test_update_task(client, one_task):
     assert task.description == "Updated Test Description"
     assert task.completed_at == None
 
+def test_update_task_failure(client, one_task):
+    # Act
+    response = client.put("/tasks/1", json={
+        "title": "Updated Task Title"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert "warning" in response_body
+    assert response_body['warning'] =='Enter both title and description or use patch method'
+
 #@pytest.mark.skip(reason="No way to test this feature yet")
 def test_patch_task_both_param(client, one_task):
     # Act

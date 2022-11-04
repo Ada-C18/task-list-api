@@ -46,13 +46,15 @@ def get_one_goal(goal_id):
     goal = validate_model(Goal,goal_id)
     return make_response(jsonify({"goal":goal.goal_dictionfy()}),200)
 
-@goal_bp.route("/<goal_id>", methods=['PUT'])
+@goal_bp.route("/<goal_id>", methods=['PUT','PATCH'])
 def update_one_goal(goal_id):
     response_body = request.get_json()
     goal = validate_model(Goal,goal_id)
+    try:
+        goal.title = response_body["title"]
+    except KeyError:
+        return make_response(jsonify({'warning':'Enter a title'}),400)
 
-    goal.title = response_body["title"]
-   
     db.session.commit()
 
     return make_response(jsonify({f"goal":goal.goal_dictionfy()}),200)
