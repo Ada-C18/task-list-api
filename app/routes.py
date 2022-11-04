@@ -40,8 +40,6 @@ def get_or_sort_tasks():
     for task in tasks:
         result.append(task.to_dict())
     sort_query = request.args.get("sort")
-    print("print sort_query")
-    print(sort_query)
     if sort_query == "asc":
         result = sorted(result, key=lambda x: x['title'])
     elif sort_query == "desc":
