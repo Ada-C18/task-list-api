@@ -1,8 +1,8 @@
-"""created the 2 base databases
+"""created task model
 
-Revision ID: c9d7da9a064d
+Revision ID: cefd41a62161
 Revises: 
-Create Date: 2022-11-03 20:02:40.113558
+Create Date: 2022-11-04 12:09:03.479559
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c9d7da9a064d'
+revision = 'cefd41a62161'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,12 +23,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('goal_id')
     )
     op.create_table('task',
-    sa.Column('task_id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
-    sa.Column('is_complete', sa.Boolean(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('task_id')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 

@@ -21,13 +21,12 @@ def create_task():
     request_body = request.get_json()
     new_task = Task(
         title=request_body["title"],
-        description=request_body["description"],
-        completed_at=None)
+        description=request_body["description"])
 
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(f"Task {new_task.title} successfully created", 201)
+    return jsonify(new_task.to_dict())
 
 
 # read one task (GET)
@@ -35,12 +34,8 @@ def create_task():
 def read_one_task(id):
     task = validate_task(id)
 
-    return {
-        "id": task.id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": False
-    }
+    response = {"task": task.to_dict()}
+    return response
 
 
 # read all tasks (GET)
