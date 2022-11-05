@@ -6,7 +6,7 @@ import os #newly added for wave4
 import requests #newly added for wave4
 
 
-
+goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
 ########################## WAVE 1 ##########################
@@ -40,25 +40,44 @@ def get_model_from_id(cls,model_id):
 #         result.append(task.to_dict())
     
 #     return jsonify(result), 200
-
-##WAVE 2 - updating get end point with sort features##
-@task_bp.route('', methods=['GET'])
-def get_all_tasks():    
+def get_all_objects(cls):    
     '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
     
     title_query_sort = request.args.get("sort")
     if title_query_sort == "asc":
-        tasks = Task.query.order_by(Task.title.asc())
+        tasks = cls.query.order_by(cls.title.asc())
     elif title_query_sort == "desc":
-        tasks = Task.query.order_by(Task.title.desc())    
+        tasks = cls.query.order_by(cls.title.desc())    
     else:
-        tasks = Task.query.all()
+        tasks = cls.query.all()
     
     result = []
     
     for task in tasks:
         result.append(task.to_dict())
+    return result
+    # return jsonify(result), 200
+
+##WAVE 2 - updating get end point with sort features##
+@task_bp.route('', methods=['GET'])
+def get_all_tasks():    
+    # '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
     
+    # title_query_sort = request.args.get("sort")
+    # if title_query_sort == "asc":
+    #     tasks = Task.query.order_by(Task.title.asc())
+    # elif title_query_sort == "desc":
+    #     tasks = Task.query.order_by(Task.title.desc())    
+    # else:
+    #     tasks = Task.query.all()
+    
+    # result = []
+    
+    # for task in tasks:
+    #     result.append(task.to_dict())
+    
+    # return jsonify(result), 200
+    result = get_all_objects(Task)
     return jsonify(result), 200
 
 
@@ -150,4 +169,6 @@ def mark_incomplete_one_task(task_id):
     return jsonify({"task":chosen_task.to_dict()}), 200
     
 
-
+@goal_bp.route('', methods=["GET"])
+def get_al_goals():
+    pass
