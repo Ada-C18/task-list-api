@@ -33,7 +33,7 @@ def create_task():
                     "id": new_task.id,
                     "title": new_task.title,
                     "description": new_task.description,
-                    "is_complete": False
+                    "is_complete": new_task.is_complete
                 }
             },201
 
@@ -47,7 +47,7 @@ def read_all_tasks():
                 "id": task.id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": False
+                "is_complete": task.is_complete
             }
         )
     return jsonify(tasks_response)
@@ -60,7 +60,7 @@ def read_one_task(task_id):
                 "id": task.id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": False
+                "is_complete": task.is_complete
             }
         }
 
@@ -80,7 +80,7 @@ def update_task(task_id):
                 "id": task.id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": False
+                "is_complete": task.is_complete
             }
         }
 
