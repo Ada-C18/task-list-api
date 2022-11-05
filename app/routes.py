@@ -4,7 +4,7 @@ from app.models.task import Task
 from app.models.goal import Goal
 from sqlalchemy import desc
 from .routes_helper import validate_id, validate_input
-import datetime, os, requests
+import datetime, os,requests
 
 task_bp= Blueprint("task_bp", __name__, url_prefix="/tasks")
 goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
@@ -108,6 +108,7 @@ def mark_incomplete(task_id):
 @goal_bp.route("", methods=["POST"])
 def create_new_goal():
     request_body = request.get_json()
+
     validate_input(Goal, request_body)
     goal = Goal.from_dict(request_body)
 
@@ -149,3 +150,34 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return {"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def assoc_tasks_with_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+    request_body = request.get_json()
+    
+    task_ids = request_body["task_ids"]
+    
+    for task_id in task_ids:
+        task = validate_id(Task, task_id)
+        task.goal_id = goal_id
+        db.session.commit()
+    
+    response = {
+        "id": goal.goal_id, 
+        "task_ids": task_ids
+    }
+
+    return jsonify(response),200
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_from_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+
+    response = {
+        "id": goal.goal_id, 
+        "title": goal.title,
+        "tasks": [task.to_dict() for task in goal.tasks]
+    }
+
+    return jsonify(response), 200

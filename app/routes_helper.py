@@ -9,7 +9,6 @@ def validate_id(cls, id):
         abort(make_response({"details": "Invalid data"}, 400))
     
     query_result = cls.query.get(id)
-    print(query_result)
 
     if not query_result:
         abort(make_response({"details": f"{cls.__name__} {id} Not Found"}, 404))
