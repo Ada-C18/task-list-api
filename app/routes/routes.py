@@ -8,19 +8,22 @@ from datetime import datetime
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
+# TODO: Debug => 400 error not working
 # error handling
 def validate_task(task_id):
     # invalid task id
     try:
         task_id = int(task_id)
-    except:
-        abort(make_response({{"message": f"Invalid task id {task_id}."}}, 400))
+    except ValueError:
+        response_str = f"Invalid task id {task_id}. ID must be a integer."
+        abort(make_response({"message": response_str}, 400))
 
     task = Task.query.get(task_id)
 
     # task not found
     if not task:
-        abort(make_response({"message": f"Task {task_id} not found."}, 404))
+        response_str = f"Task {task_id} not found."
+        abort(make_response({"message": response_str}, 404))
 
     return task
 
@@ -116,7 +119,7 @@ def delete_task(task_id):
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
     }
 
-    return jsonify(response), 200
+    return make_response(jsonify(response))  # returns 200 by default
 
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
