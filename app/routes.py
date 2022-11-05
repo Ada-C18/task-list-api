@@ -56,6 +56,10 @@ def get_task_by_id(task_id):
 def create_task():
     request_body = request.get_json()
 
+    if "title" not in request_body or \
+    "description" not in request_body:
+        return jsonify({"details": "Invalid data"}), 400
+
     new_task = Task(
         title=request_body["title"],
         description=request_body["description"],
