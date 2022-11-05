@@ -24,4 +24,10 @@ def create_task():
     db.session.commit()
 
     # Successful response
-    return make_response(f"Task {new_task.title} has been successfully created!", 201)
+    return ({
+    # "task": f'{id}',  need to figure out how to return id
+    "title": new_task.title,
+    "description": new_task.description,
+    "is_complete": new_task.completed_at
+    },201)
+
