@@ -63,18 +63,14 @@ def update_task_with_new_vals(task_id):
 
     return make_response(jsonify(response_body), 200)
 
-# @task_bp.route("/<task_id>", methods=["DELETE"])
-# def delete_one_task(task_id):
-#     chosen_task = get_one_obj_or_abort(Task, task_id)
+@task_bp.route("/<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
 
-#     db.session.delete(chosen_task)
+    db.session.delete(chosen_task)
+    db.session.commit()
 
-#     db.session.commit()
-
-#     return jsonify({}), 200
-
-
-
+    return make_response(jsonify({"details": f"Task {task_id} \"{chosen_task.title}\" successfully deleted"}), 200)
 
 
 
