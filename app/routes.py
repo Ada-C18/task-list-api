@@ -66,7 +66,18 @@ def get_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    pass
+    task = validate_model(Task, task_id)
+    request_body = request.get_json()
+
+    task.update(request_body)
+    db.session.commit()
+
+    return {"task": {
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": False if task.completed_at is None else True
+    }}
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
