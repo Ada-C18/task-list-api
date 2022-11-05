@@ -9,10 +9,17 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
 
-    def task_dictify(self):
+    def to_dict(self):
         return {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": True if self.completed_at is not None else False
         }
+
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                        description=task_data["description"])
+
+        return new_task
