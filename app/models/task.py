@@ -12,7 +12,7 @@ class Task(db.Model):
         task_as_dict["title"] = self.title
         task_as_dict["description"] = self.description
         task_as_dict["is_complete"] = self.task_complete() 
-    
+        
         return task_as_dict
 
     def task_complete(self):
@@ -25,6 +25,7 @@ class Task(db.Model):
         new_task = Task(
             title = task_data["title"],
             description = task_data["description"], 
-            is_complete = task_data["completed_at"] 
-        )
+            completed_at = None)
         return new_task 
+
+    
