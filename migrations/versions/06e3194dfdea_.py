@@ -1,8 +1,8 @@
-"""added Task model and some routes
+"""empty message
 
-Revision ID: a216ea2a6977
+Revision ID: 06e3194dfdea
 Revises: 
-Create Date: 2022-11-03 15:40:23.892667
+Create Date: 2022-11-04 22:09:26.006060
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a216ea2a6977'
+revision = '06e3194dfdea'
 down_revision = None
 branch_labels = None
 depends_on = None
