@@ -4,20 +4,8 @@ from app.models.task import Task
 from app import db
 
 from sqlalchemy import asc, desc
-# query.order_by(desc(SpreadsheetCells.y_index))
-# query.order_by(asc(SpreadsheetCells.y_index))
-
-# sorted_title = query.order_by(desc(Task.title))
-
-# #task_query = request.args.get("sort")
-
-# Task.query.filter(Task.title).order_by(Task.title.desc()).all()
-# Task.query.filter(Task.title).order_by(Task.title.asc()).all()
-
-# Task.query.filter(Task.title.order_by(Task.title.desc()))
-
-
-
+import time
+from datetime import date
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -28,8 +16,8 @@ def create_one_task():
     if "title" not in request_body or "description" not in request_body:
         return jsonify({
             "details": "Invalid data"
-            }), 400
-    
+            }), 400    
+
     new_task = Task( 
         title=request_body["title"],
         description=request_body["description"],)
@@ -48,10 +36,9 @@ def create_one_task():
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
     task_response = []
+    
     task_query = request.args.get("title")
-
     sorting_query =request.args.get("sort")
-
 
     if task_query is not None:
         tasks = Task.query.filter_by(title=task_query) #do the sort by asc and desc
@@ -70,12 +57,6 @@ def get_all_tasks():
             "is_complete": False
         })
     return jsonify(task_response)
-   
-
-
-
-
-
 
 
 @task_bp.route('/<task_id>', methods=['GET'])
@@ -115,6 +96,47 @@ def update_task(task_id):
 
     })
 
+#wave 3 creating a custom endpoint--mark a task as complete = True 
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def patch_a_complete_task(task_id):
+    # a task is_complete=True when there is a datemine for the task's completed_at value.
+    
+    task = get_task_from_id(task_id)
+    
+    task.is_complete = True
+    task.completed_at = date.today()
+
+    db.session.add(task)
+    db.session.commit()
+
+    return jsonify({
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete
+        }
+
+    }), 200
+
+#wave 3 creating a custom endpoint--mark a task as incomplete = False
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def patch_an_uncomplete_task(task_id):
+    # a task is_complete=True when there is a datemine for the task's completed_at value.
+    task = get_task_from_id(task_id)
+    task.is_complete = False
+    task.completed_at = None #date.today()
+    db.session.add(task)
+    db.session.commit()
+    return jsonify({
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete
+        }
+    }),200
+
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
 
@@ -126,8 +148,6 @@ def delete_one_task(task_id):
     return jsonify({
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
         })
-    
-
 
 
 #helper function to get task by id:
