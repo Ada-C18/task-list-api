@@ -86,9 +86,7 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_model_from_id(Task,task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
-    # message = chosen_task.to_dict()
-    # return jsonify(chosen_task.to_dict()), 200
-    # return jsonify([message]), 200
+
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
@@ -173,16 +171,9 @@ def mark_incomplete_one_task(task_id):
 def get_all_goals():
     result = get_all_objects(Goal)
     return jsonify(result), 200
-    # title_query_value = request.args.get("title")
-    # if title_query_value is not None:
-    #     goals = Goal.query.filter_by(title=title_query_value)
+
+@goal_bp.route('/<goal_id>', methods=["GET"])
+def get_one_goal(goal_id):
+    chosen_goal = get_model_from_id(Goal,goal_id)
+    return jsonify({"goal":chosen_goal.to_dict()}), 200
     
-    # else:
-    #     goals = Goal.query.all()
-    
-    # result = []
-    
-    # for goal in goals:
-    #     result.append(goal.to_dict())
-    
-    # return jsonify(result), 200    
