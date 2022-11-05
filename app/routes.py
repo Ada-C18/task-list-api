@@ -28,9 +28,7 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(
-        f"Task {new_task.title} successfully created", 201
-    )
+    return {"task":new_task.to_dict()}, 201
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -46,3 +44,16 @@ def read_all_tasks():
 def read_one_task(model_id):
     task = validate_model(Task, model_id)
     return {"task":task.to_dict()}
+
+@tasks_bp.route("/<model_id>", methods= ["PUT"])
+def update_task(model_id):
+    task = validate_model(Task, model_id)
+
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+
+    db.session.commit()
+
+    return {"task":task.to_dict()}, 200
