@@ -4,19 +4,6 @@ from app.models.task import Task
 
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 
-# def validate_id_input(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"message":f"id {task_id} invalid"}, 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response({"message":f"book {task_id} not found"}, 404))
-
-#     return task
-
 def get_one_task_or_abort(task_id):
     try:
         task_id = int(task_id)
@@ -112,3 +99,13 @@ def update_task(task_id):
                 }}
     
     return jsonify(response_body), 200
+
+
+@task_bp.route("/<task_id>",methods=["DELETE"])
+def delete_one_task(task_id):
+    task_to_delete = get_one_task_or_abort(task_id)
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"})
