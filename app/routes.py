@@ -3,7 +3,6 @@ from app import db
 from app.models.task import Task
 from datetime import date
 import os #newly added for wave4
-# from slack import SlackClient #newly added for wave4
 import requests #newly added for wave4
 
 
@@ -44,7 +43,9 @@ def get_task_from_id(task_id):
 
 ##WAVE 2 - updating get end point with sort features##
 @task_bp.route('', methods=['GET'])
-def get_all_tasks():
+def get_all_tasks():    
+    '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
+    
     title_query_sort = request.args.get("sort")
     if title_query_sort == "asc":
         tasks = Task.query.order_by(Task.title.asc())

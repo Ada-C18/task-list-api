@@ -23,4 +23,4 @@ class Task(db.Model):
         # "is_complete": True if self.completed_at else False}                               
         # }
         
-    #note for improvement: we can create another function that call to_dict as value and task as key.
+    
