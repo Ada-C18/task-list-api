@@ -45,9 +45,3 @@ class Task(db.Model):
             self.description = req_body["description"]
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"}, 400))
-    
-    # def mark_complete(self):
-    #     try:
-    #         self.completed_at = datetime.datetime.now()
-    #     except KeyError as error:
-    #         abort(make_response({"message": f"Missing attribute: {error}"}, 400))
