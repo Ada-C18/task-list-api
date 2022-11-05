@@ -21,7 +21,7 @@ def validate_id(id):
 
 
 
-
+#################CREATE_TASK############
 
 
 @tasks_bp.route("", methods=["POST"])
@@ -35,7 +35,7 @@ def create_tasks():
    
     return {"task":task_dictionary}, 201
 
-#####################################
+##############GET_ALL_TASK####################
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     title_param = request.args.get("title")
@@ -55,7 +55,7 @@ def get_all_tasks():
 
     return   jsonify(result_list), 200
 
-##########################################
+###############Get_one_task######################
 @tasks_bp.route("/<id>", methods=["GET"])
 def get_one_task(id):
     task = validate_id(id)
@@ -63,3 +63,13 @@ def get_one_task(id):
 
     return jsonify({"task":task.to_dict()}), 200
 
+################ UPDATE_TASK ########################
+@tasks_bp.route("/<id>", methods=["PUT"])
+def update_task(id):
+    task = validate_id(id)
+    request_body = request.get_json()
+    task.title=request_body["title"]
+    task.description=request_body["description"]
+    task.completed_at=None
+    db.session.commit()
+    return jsonify({"task":task.to_dict()}), 200
