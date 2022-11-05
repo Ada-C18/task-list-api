@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request, make_response, request
+from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from app.models.helper import get_one_obj_or_abort
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -13,7 +14,6 @@ def add_task():
     db.session.commit()
 
     task_dict = new_task.to_dict()
-
     response_body = {
         "task": task_dict
     }
@@ -28,6 +28,17 @@ def get_all_tasks():
     response = [task.to_dict() for task in tasks]
 
     return make_response(jsonify(response), 200)
+
+@task_bp.route("/<task_id>", methods=["GET"])
+def get_one_task(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+
+    task_dict = chosen_task.to_dict()
+    response_body = {
+        "task": task_dict
+    }
+
+    return make_response(jsonify(response_body), 200)
 
 
 
