@@ -1,6 +1,6 @@
 from app import db
 from app.models.task import Task
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, jsonify
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -19,3 +19,13 @@ def create_task():
     return make_response(
         f"Task {new_task.title} successfully created, 201"
     )
+
+@tasks_bp.route("", methods=["GET"])
+def read_all_tasks():
+    tasks = Task.query.all()
+
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append(task.to_dict())
+        
+    return jsonify(tasks_response)

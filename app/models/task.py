@@ -16,3 +16,11 @@ class Task(db.Model):
         )
 
         return new_task
+
+    def to_dict(self):
+        return {
+            "task_id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "completed_at": self.completed_at,
+        }
