@@ -11,7 +11,7 @@ def test_get_goals_no_saved_goals(client):
     assert response.status_code == 200
     assert response_body == []
 
-
+@pytest.fixture
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goals_one_saved_goal(client, one_goal):
     # Act
@@ -28,7 +28,7 @@ def test_get_goals_one_saved_goal(client, one_goal):
         }
     ]
 
-
+@pytest.fixture
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goal(client, one_goal):
     # Act
@@ -44,7 +44,6 @@ def test_get_goal(client, one_goal):
             "title": "Build a habit of going outside daily"
         }
     }
-
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_get_goal_not_found(client):
@@ -108,7 +107,6 @@ def test_update_goal(client, one_goal):
     # assertion 3 goes here
     # ---- Complete Assertions Here ----
 
-
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
     
@@ -128,7 +126,7 @@ def test_update_goal_not_found(client):
     # assertion 2 goes here
     # ---- Complete Assertions Here ----
 
-
+@pytest.fixture
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_goal(client, one_goal):
     # Act
@@ -150,7 +148,7 @@ def test_delete_goal(client, one_goal):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
-
+@pytest.fixture
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
     # raise Exception("Complete test")
@@ -169,7 +167,7 @@ def test_delete_goal_not_found(client):
     assert Goal.query.all() == []
     # ---- Complete Assertions Here ----
 
-
+@pytest.fixture
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal_missing_title(client):
     # Act
