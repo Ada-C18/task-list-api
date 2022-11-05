@@ -64,7 +64,7 @@ def test_get_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "message" in response_body
-    assert response_body["message"] == "Could not find task item with id: 1"
+    assert response_body["message"] == "Could not find Task item with id: 1"
     # *****************************************************************
 
 
@@ -137,7 +137,7 @@ def test_update_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "message" in response_body
-    assert response_body["message"] == "Could not find task item with id: 1"
+    assert response_body["message"] == "Could not find Task item with id: 1"
     # *****************************************************************
 
 
@@ -169,7 +169,7 @@ def test_delete_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "message" in response_body
-    assert response_body["message"] == "Could not find task item with id: 1"
+    assert response_body["message"] == "Could not find Task item with id: 1"
     # *****************************************************************
 
     assert Task.query.all() == []

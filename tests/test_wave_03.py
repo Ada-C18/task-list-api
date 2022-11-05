@@ -132,7 +132,7 @@ def test_mark_complete_missing_task(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "message" in response_body
-    assert response_body["message"] == "Could not find task item with id: 1"
+    assert response_body["message"] == "Could not find Task item with id: 1"
     # *****************************************************************
 
 
@@ -149,5 +149,5 @@ def test_mark_incomplete_missing_task(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     assert "message" in response_body
-    assert response_body["message"] == "Could not find task item with id: 1"
+    assert response_body["message"] == "Could not find Task item with id: 1"
     # *****************************************************************
