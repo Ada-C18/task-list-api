@@ -39,12 +39,16 @@ def create_one_task():
     return jsonify({"task":new_task.to_dict()}), 201
 
 @tasks_bp.route('', methods=['GET'])
-def get_all_planets():
-    name_query_value = request.args.get('name')
-    if name_query_value is not None:
-        tasks = Task.query.filter_by(name=name_query_value)
+def get_all_tasks():
+
+    sort_query_value = request.args.get('sort')
+    if sort_query_value == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all() 
     else:
-        tasks = Task.query.all()
+    # title_query_value is not None:
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    # else:
+    # tasks = Task.query.all()
 
     result = []
 
@@ -52,6 +56,18 @@ def get_all_planets():
         result.append(task.to_dict())
     
     return jsonify(result), 200
+
+# @tasks_bp.route('/task?sort=asc', methods=['GET'])
+# def get_taks_asc():
+#     tasks = Task.query.order_by(Task.title.asc()).all()
+
+#     result = []
+
+#     for task in tasks:
+#         result.append(task.to_dict())
+    
+#     return jsonify(result), 200
+
 
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
