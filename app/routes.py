@@ -4,7 +4,7 @@ from app.models.task import Task
 from datetime import date
 import os #newly added for wave4
 import requests #newly added for wave4
-
+from app.models.goal import Goal
 
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -45,16 +45,16 @@ def get_all_objects(cls):
     
     title_query_sort = request.args.get("sort")
     if title_query_sort == "asc":
-        tasks = cls.query.order_by(cls.title.asc())
+        objects = cls.query.order_by(cls.title.asc())
     elif title_query_sort == "desc":
-        tasks = cls.query.order_by(cls.title.desc())    
+        objects = cls.query.order_by(cls.title.desc())    
     else:
-        tasks = cls.query.all()
+        objects = cls.query.all()
     
     result = []
     
-    for task in tasks:
-        result.append(task.to_dict())
+    for object in objects:
+        result.append(object.to_dict())
     return result
     # return jsonify(result), 200
 
@@ -170,5 +170,19 @@ def mark_incomplete_one_task(task_id):
     
 
 @goal_bp.route('', methods=["GET"])
-def get_al_goals():
-    pass
+def get_all_goals():
+    result = get_all_objects(Goal)
+    return jsonify(result), 200
+    # title_query_value = request.args.get("title")
+    # if title_query_value is not None:
+    #     goals = Goal.query.filter_by(title=title_query_value)
+    
+    # else:
+    #     goals = Goal.query.all()
+    
+    # result = []
+    
+    # for goal in goals:
+    #     result.append(goal.to_dict())
+    
+    # return jsonify(result), 200    
