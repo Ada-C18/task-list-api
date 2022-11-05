@@ -15,7 +15,7 @@ def get_one_task_or_abort(task_id):
 
     if not matching_task:
         response_str = f"Task with id {task_id} not found in database"
-        abort(make_response(jsonify({"message: response_str"}),404))
+        abort(make_response(jsonify({"message": response_str}),404))
 
     return matching_task
 

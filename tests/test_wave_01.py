@@ -121,16 +121,17 @@ def test_update_task(client, one_task):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_update_task_not_found(client):
-#     # Act
-#     response = client.put("/tasks/1", json={
-#         "title": "Updated Task Title",
-#         "description": "Updated Test Description",
-#     })
-#     response_body = response.get_json()
+def test_update_task_not_found(client):
+    # Act
+    response = client.put("/tasks/1", json={
+        "title": "Updated Task Title",
+        "description": "Updated Test Description",
+    })
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 404
+    # Assert
+    assert response.status_code == 404
+    assert response_body == {"message": "Task with id 1 not found in database"}
 
 #     raise Exception("Complete test with assertion about response body")
 #     # *****************************************************************
