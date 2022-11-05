@@ -3,6 +3,7 @@ from app.models import task
 from app.models.task import Task
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, request, abort
+import requests
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 #------------------------------------WAVE 1----------------------------------
@@ -101,7 +102,7 @@ def delete_task(task_id):
     return jsonify({"details":f'Task {task_id} "{task.title}" successfully deleted'}),200
 
 #------------------------------------WAVE 3----------------------------------
-#Mark Complete on an Incompleted Task
+ #Mark Complete on an Incompleted Task
 @tasks_bp.route('/<task_id>/mark_complete', methods =["PATCH"])   
 def mark_complete(task_id):
     task = check_valid_id(task_id)
@@ -134,3 +135,29 @@ def mark_incomplete(task_id):
         }},200)
     
 #------------------------------------WAVE 4----------------------------------
+path = "https://slack.com/api/chat.postMessage"
+
+API_KEY = "Bearer xoxb-4322366913714-4329055226708-TtJkcqC3mtHvIObvrYCzHZSg"
+
+@tasks_bp.route('/<task_id>/mark_complete_in_slack', methods =["PATCH"])   
+def mark_complete1(task_id):
+    task = Task.query.get(task_id)
+    if task:
+        query_params = {
+            "channel": "task-notifications",
+            "text": f"Someone just completed the task {task.title}",
+            "format": "json"
+        }
+    else:
+        query_params = {
+            "channel": "task-notifications",
+            "text": f"No this No. {task_id} task",
+            "format": "json"
+        }
+    headers = {"Authorization": API_KEY}
+
+    response = requests.post(path, data=query_params, headers=headers)
+
+    return(response.json())
+
+#------------------------------------WAVE 5----------------------------------
