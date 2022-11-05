@@ -137,7 +137,7 @@ def mark_incomplete(task_id):
 #------------------------------------WAVE 4----------------------------------
 path = "https://slack.com/api/chat.postMessage"
 
-API_KEY = "Bearer xoxb-4322366913714-4329055226708-TtJkcqC3mtHvIObvrYCzHZSg"
+# API_KEY = "Bearer key_token"
 
 @tasks_bp.route('/<task_id>/mark_complete_in_slack', methods =["PATCH"])   
 def mark_complete1(task_id):
