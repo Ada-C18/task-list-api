@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -17,7 +18,6 @@ def validate_tasks(task_id):
         abort(make_response({"message":f"task {task_id} not found"}, 404))
     
     return task 
-
 
 
 @tasks_bp.route("", methods=["POST"])
@@ -79,3 +79,29 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response(f"Task# {task_id} successfully deleted"), 200
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    task = validate_tasks(task_id)
+
+    task.completed_at = datetime.today()
+
+    db.session.commit()
+    response_body = {}
+    response_body["task"] = task.to_dict()
+    
+    return jsonify(response_body), 200
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_tasks(task_id)
+
+    task.completed_at = None
+
+    db.session.commit()
+    response_body = {}
+    response_body["task"] = task.to_dict()
+    
+    return jsonify(response_body), 200
+
+
