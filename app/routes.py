@@ -135,8 +135,7 @@ def mark_complete_one_task(task_id):
 
     data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
     
-    requests.post(SLACK_URL, data)
-        
+    requests.post(SLACK_URL, data)        
     
     return jsonify({"task":chosen_task.to_dict()}), 200
 
