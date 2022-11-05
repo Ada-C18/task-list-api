@@ -4,9 +4,19 @@ from app.models.task import Task
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
-# def validate_taks(task_id):
+
+# def get_one_task_or_error(task_id):
 #     try:
-#         task = int(task_id)
+#         task_id = int(task_id)
+#     except ValueError:
+#         response_body = "Invalid data"
+#         return make_response(jsonify({"details": response_body}), 400)
+
+#     task_found = Task.query.get(task_id)
+
+#     if task_found is None:
+#         response_body = "Task id not found"
+#         return make_response(jsonify({"details": response_body}), 404)
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @tasks_bp.route("", methods=["POST"])
@@ -54,9 +64,8 @@ def get_one_task(task_id):
 
     task = Task.query.get(task_id)
 
-    if task is not None:
-
-        response = {
+    if task:
+        response_dict = {
             "task": {
                 "id": task.task_id,
                 "title": task.title,
@@ -64,11 +73,11 @@ def get_one_task(task_id):
                 "is_complete": False
                 }
             }
+        return jsonify(response_dict), 200
 
-        return jsonify(response), 200
-
-    else:
-        return "Task id does not exist", 404
+    if task is None:
+        response_body = "Nice try! Don't have that one"
+        return jsonify(response_body), 404
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @tasks_bp.route("/<task_id>", methods=["PUT"])
