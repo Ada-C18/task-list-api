@@ -10,7 +10,8 @@ def validate_id(cls, id):
     except:
         abort(make_response({"message": f"{cls} {id} is an invalid id"}, 400))
 
-    query_result = cls.query.get(id)
+    query_result = Task.query.get(id)
+
     if not query_result:
         abort(make_response({"message": f"{cls}{id} is an invalid id"}), 404)
 
@@ -34,7 +35,7 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
     
-    results_list = [task.to_dict() for task in tasks]
+    results_list = [t.to_dict() for t in tasks]
     
     return jsonify(results_list), 200
 

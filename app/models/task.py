@@ -12,7 +12,7 @@ class Task(db.Model):
             "description" : self.description,
             "completed at" : self.completed_at
         }
-
+    
     @classmethod
     def from_dict(cls, req_body):
         return cls(
