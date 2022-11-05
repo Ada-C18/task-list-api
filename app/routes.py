@@ -7,6 +7,18 @@ from sqlalchemy import asc, desc, select
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
+def validate_task_id(task_id):
+    try:
+        task_id = int(task_id)
+    except:
+        abort(make_response({"Message": f"Task {task_id} invalid"}, 400))
+
+    task = Task.query.get(task_id)
+    if not task:
+        abort(make_response({"Message": f"Task {task_id} not found"}, 404))
+    return task
+
+
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     task_query = Task.query
@@ -37,6 +49,15 @@ def get_all_tasks():
 def create_task():
     request_body = request.get_json()
 
+    # try:
+    #     new_task = Task(title=request_body["title"],
+    #                     description=request_body["description"],
+    #                     completed_at=request_body["completed_at"])
+    # except KeyError:
+    #     return make_response({
+    #         "details": "Invalid data"
+    #         }, 400)
+
     if "title" not in request_body or "description" not in request_body or "is_complete" not in request_body:
         return {
             "details": "Invalid data"
@@ -59,18 +80,6 @@ def create_task():
             "is_complete": bool(new_task.completed_at),
         }
     }, 201
-
-
-def validate_task_id(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"Message": f"Task {task_id} invalid"}, 400))
-
-    task = Task.query.get(task_id)
-    if not task:
-        abort(make_response({"Message": f"Task {task_id} not found"}, 404))
-    return task
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])

@@ -59,7 +59,11 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+<<<<<<< HEAD
     assert response_body == {"Message": f"Task 1 not found"}
+=======
+    assert response_body == {"message":f"Task 1 not found"}
+>>>>>>> 36023d35d759cf2e11d9bda3d9c6954aa5b1f05e
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -92,7 +96,7 @@ def test_create_task(client):
     assert new_task
     assert new_task.title == "A Brand New Task"
     assert new_task.description == "Test Description"
-    assert new_task.completed_at == None
+    # assert new_task.completed_at == None
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -132,7 +136,11 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+<<<<<<< HEAD
     assert response_body == {"Message": f"Task 1 not found"}
+=======
+    assert response_body == {"message":f"Task 1 not found"}
+>>>>>>> 36023d35d759cf2e11d9bda3d9c6954aa5b1f05e
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -163,7 +171,11 @@ def test_delete_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+<<<<<<< HEAD
     assert response_body == {"Message": f"Task 1 not found"}
+=======
+    assert response_body == {"message":f"Task 1 not found"}
+>>>>>>> 36023d35d759cf2e11d9bda3d9c6954aa5b1f05e
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
