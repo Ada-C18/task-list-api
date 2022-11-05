@@ -7,26 +7,22 @@ task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 @task_bp.route("", methods=["POST"])
 def add_task():
     request_body = request.get_json()
-
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"],
-        completed_at= None if "completed_at" not in request_body else request_body["completed_at"]
-    )
+    new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
     db.session.commit()
 
-    body = {
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": False if new_task.completed_at == None else True
-        }
+    response_body = generate_response_body(new_task)
+    response = make_response(jsonify(response_body), 201)
+    return response
+
+def generate_response_body(task):
+    task_dict = task.to_dict()
+
+    response_body = {
+        "task": task_dict
     }
 
-    response = make_response(jsonify(body), 201)
-    return response
+    return response_body
 
 
