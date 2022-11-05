@@ -1,8 +1,15 @@
+#Does the api have to only work with the following: A completed_at attribute with a null value
+#Can it not work on a task that has already been marked complete/doesn't have a null value?
+
 from flask import Blueprint, request, jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
 from operator import itemgetter
 from datetime import date
+import requests
+import os
+
+api_key = os.environ.get("SLACK_API")
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -131,6 +138,10 @@ def mark_complete_status(task_id_input, complete_status):
     #     new_descrip = chosen_task.description
     if complete_status == "mark_complete":
         chosen_task.completed_at = date.today()
+        url = 'https://slack.com/api/chat.postMessage'
+        payload = {'channel': 'task-notifications', 'text': f'Someone just completed the task {chosen_task.title}'} #what are we supposed to put again?
+        header = {'Authorization': f'Bearer {api_key}'}
+        slack_request = requests.post(url, params=payload, headers=header)
     elif complete_status == "mark_incomplete":
         chosen_task.completed_at = None
     db.session.commit()
