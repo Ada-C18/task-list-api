@@ -17,7 +17,7 @@ def get_model_from_id(cls,model_id):
     except ValueError:
         abort(make_response({"message":f"data type {model_id} is invalid"},400))
 
-    chosen_object = Task.query.get(model_id)
+    chosen_object = cls.query.get(model_id)
     
     if chosen_object is None:
         abort(make_response({"message":f"Could not find {cls.__name__} item with id: {model_id}"},404))
@@ -65,7 +65,7 @@ def get_all_tasks():
 ##End route to get one task
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
-    chosen_task = get_model_from_id(task_id)
+    chosen_task = get_model_from_id(Task,task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
     # message = chosen_task.to_dict()
     # return jsonify(chosen_task.to_dict()), 200
@@ -91,7 +91,7 @@ def create_one_task():
 
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_task(task_id):
-    update_task = get_model_from_id(task_id)
+    update_task = get_model_from_id(Task,task_id)
     request_body = request.get_json()
     
     task_attributes = ["title","description"]
@@ -117,7 +117,7 @@ def update_task(task_id):
 
 @task_bp.route('/<task_id>', methods=['DELETE'])
 def delete_one_task(task_id):
-    task_to_delete = get_model_from_id(task_id)
+    task_to_delete = get_model_from_id(Task,task_id)
     
     db.session.delete(task_to_delete)
     db.session.commit()
@@ -127,7 +127,7 @@ def delete_one_task(task_id):
 ########################## WAVE 3 ##########################
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_one_task(task_id):
-    chosen_task = get_model_from_id(task_id)      
+    chosen_task = get_model_from_id(Task,task_id)      
     chosen_task.completed_at = date.today()    
     db.session.commit()
     
@@ -142,7 +142,7 @@ def mark_complete_one_task(task_id):
 
 @task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
 def mark_incomplete_one_task(task_id):
-    chosen_task = get_model_from_id(task_id)
+    chosen_task = get_model_from_id(Task,task_id)
     chosen_task.completed_at = None
     db.session.commit()
     
