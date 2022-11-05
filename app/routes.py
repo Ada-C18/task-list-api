@@ -9,12 +9,16 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
+    
+    if "title" not in request_body or "description" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+    
     new_task = Task(title=request_body["title"],
                     description=request_body["description"])
 
     db.session.add(new_task)
     db.session.commit()
-
+    
     task_response = {
         "task": {
             "id": new_task.task_id,
@@ -23,6 +27,7 @@ def create_task():
             "is_complete": new_task.is_complete
         }
     }
+        
     return make_response(task_response, 201)
 
 
@@ -35,12 +40,12 @@ def get_all_tasks():
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": task.is_complete
+            "is_complete": task.is_complete # bool(task.completed_at) 
         })
-
+    
     return make_response(jsonify(tasks_response), 200)
-
-
+    
+        
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_id(task_id)
@@ -66,3 +71,37 @@ def validate_id(task_id):
         abort(make_response({"message": f"task {task_id} not found"}, 404))
     else:
         return task
+    
+    
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_id(task_id)   
+    
+    db.session.delete(task)
+    db.session.commit()
+    
+    return make_response(jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}))
+
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_id(task_id) 
+    request_body = request.get_json()    
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    # # we never want to update an id. It's covered by postgreSQL
+    
+    db.session.commit() 
+    
+    task_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete
+        }
+    }
+    
+    return make_response(task_response, 200)
+
