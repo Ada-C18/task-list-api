@@ -109,8 +109,8 @@ def create_new_goal():
     request_body = request.get_json()
     if "title" not in request_body:
         abort(make_response({"details": "Invalid data"}, 400))
-        new_goal = Goal.from_dict(request_body)
 
+    new_goal = Goal.from_dict(request_body)
     db.session.add(new_goal)
     db.session.commit()
 
@@ -168,7 +168,7 @@ def validate_model_id(cls, model_id):
     chosen_object = cls.query.get(model_id)
 
     if not chosen_object:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+        abort(make_response({"message": f"{cls.__name__.lower()} {model_id} not found"}, 404))
 
     return chosen_object
 
