@@ -6,9 +6,6 @@ from flask import Blueprint, jsonify, abort, make_response, request
 #use it to group routes(endpoints) that start with /tasks
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
-#Creating helper function validate_task to handle errors foe get a task by id
-# Checks for valid data type (int)
-# Checks that id provided exists in records
 
 
 # Defining Endpoint and Creating Route Function to CREATE a task
@@ -54,12 +51,28 @@ def read_all_tasks():
         )
     return jsonify(tasks_response)
 
-# Defining Endpoint and Creating Route Function to GET(read) One Task
-# 
-@tasks_bp.route("/<task_id>", methods=["GET"])
-def get_one_task(task_id):
+#Creating helper function validate_task to handle errors foe get a task by id
+# Checks for valid data type (int)
+# Checks that id provided exists in records
+def validate_task(task_id):
+    try:
+        task_id = int(task_id)
+    except:
+        abort(make_response({"message":f"task {task_id} invalid"}, 400))
+
     task = Task.query.get(task_id)
 
+    if not task:
+        abort(make_response({"message":f"task {task_id} not found"}, 404))
+
+    return task
+
+# Defining Endpoint and Creating Route Function to GET(read) One Task
+#Refactored to define task as return value of helper function validate_task
+    #task = Task.query.get(task_id) how task is defined without helper function
+@tasks_bp.route("/<task_id>", methods=["GET"])
+def get_one_task(task_id):
+    task = validate_task(task_id)
     return {
         "task": {
             "id": task.task_id,
