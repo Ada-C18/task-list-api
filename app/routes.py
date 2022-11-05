@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request, make_response, abort
 from app import db 
 from app.models.task import Task
 from sqlalchemy import desc, asc
+from datetime import datetime
 
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
@@ -19,6 +20,7 @@ def validate_task(task_id):
         response = f"task not found"
         abort(make_response(jsonify({"message":response}), 404))
 
+    
     return task
 
 
@@ -129,8 +131,38 @@ def delete_task(task_id):
 
 
 
-# @tasks_bp.route("/<task_id>/<mark_complete_or_not>", methods=["PATCH"])
-# def task_is_complete():
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"]) 
+def update_task_is_complete(task_id):
+    task = validate_task(task_id)
+   
+    task.completed_at=datetime.utcnow() 
+    
+    response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }
+    }
+    
+    db.session.commit()
+  
+    if task.completed_at:
+        
+        return make_response(jsonify(response)), 200
+    
+
+    
+
+
+
+
+    
+    
+    
+    
+
     
 
 
