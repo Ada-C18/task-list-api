@@ -31,3 +31,47 @@ def create_task():
     "is_complete": new_task.completed_at
     },201)
 
+@task_bp.route("", methods=["GET"])
+# Change name to handle dogs
+def get_all_tasks():
+    task_query = Task.query
+
+    # breed_query = request.args.get("breed")
+    # if breed_query:
+    #     # exact string matching - case sensitive
+    #     # dog_query = dog_query.filter_by(breed=breed_query)
+    #     # partial filters - case sensitive
+    #     # dog_query = dog_query.filter(Dog.breed.contains(breed_query))
+    #     # partial filter - case insensitive
+    #     dog_query = dog_query.filter(Dog.breed.ilike(f"%{breed_query}%"))
+
+    # age_query = request.args.get("age")
+    # if age_query:
+    #     dog_query = dog_query.filter_by(age=age_query)
+
+    tasks = Task.query.all()
+
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append({
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.completed_at
+        })
+
+# Path/Endpoint to get a single dog
+# Include the id of the record to retrieve as a part of the endpoint
+@task_bp.route("/<task_id>", methods=["GET"])
+# GET /dog/id
+def get_one_task(task_id):
+    # Query our db to grab the dog that has the id we want:
+    task = Task.query.get(task_id)
+
+    # Send back a single JSON object (dictionary):
+    return {
+        "id": task.id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": task.completed_at
+    }
