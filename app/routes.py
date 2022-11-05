@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
+from sqlalchemy import asc
 
 
 
@@ -18,9 +19,16 @@ def validate_model(cls, model_id):
 
 @task_bp.route("", methods = ["GET"])
 def read_all_tasks():
-    tasks = Task.query.all()
-    tasks_data=[task.to_dict() for task in tasks]
+    query_sort= request.args.get("sort")
+    if query_sort:
+        if query_sort == "asc":
+            tasks = Task.query.order_by(Task.title.asc())
+        elif query_sort == "desc":
+            tasks = Task.query.order_by(Task.title.desc())
+    else:
+        tasks = Task.query.all()
 
+    tasks_data=[task.to_dict() for task in tasks]
     return jsonify(tasks_data)
 
 @task_bp.route("/<task_id>", methods = ["GET"])
@@ -56,4 +64,14 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return make_response(jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}),200)
+
+    #Sorting Query Params, Wave 2
+
+# def order_by_title_asc(sort):
+#     order = Task.query.order_by(Task.title).asc()
+#     tasks_data=[task.to_dict() for task in order]
+#     return jsonify(tasks_data)
+
+# SELECT user.user_id AS user_user_id FROM user ORDER BY case when ifnull(nickname, '') = '' then 0 else 1 end desc LIMIT 1
+
     
