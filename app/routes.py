@@ -22,18 +22,18 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    rating_query_value = request.args.get("title")
-
-    if rating_query_value is not None:
-        tasks = Task.query.filter_by(rating=rating_query_value)
+    sort_query_value = request.args.get("sort")
+    
+    if sort_query_value == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif sort_query_value == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
     else:
         tasks = Task.query.all()
     
     result = []
-
     for item in tasks:
         result.append(item.to_dict())
-    
     return jsonify(result), 200
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
