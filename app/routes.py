@@ -52,7 +52,7 @@ def create_new_task():
     return jsonify(response_body), 201
 
 
-#UPDATE task
+#PUT update task
 @task_list_bp.route("/<task_id>", methods = ["PUT"])
 def update_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -109,7 +109,7 @@ def create_new_goal():
     request_body = request.get_json()
     if "title" not in request_body:
         abort(make_response({"details": "Invalid data"}, 400))
-    new_goal = Goal.from_dict(request_body)
+        new_goal = Goal.from_dict(request_body)
 
     db.session.add(new_goal)
     db.session.commit()
@@ -134,7 +134,29 @@ def get_one_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
     response = {"goal": goal.to_dict()}
     return jsonify(response), 200
+    
+#PUT update goal
+@goals_bp.route("/<goal_id>", methods = ["PUT"])
+def update_goal(goal_id):
+    goal = validate_model_id(Goal, goal_id)
+    request_body = request.get_json()
 
+    goal.title = request_body["title"]
+
+    db.session.commit()
+    response_body = {"goal": goal.to_dict()}
+
+    return jsonify(response_body)
+
+#DELETE a goal
+@goals_bp.route("/<goal_id>", methods = ["DELETE"])
+def delete_one_goal(goal_id):
+    goal = validate_model_id(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
 
 #================== Helper Functions=================
 def validate_model_id(cls, model_id):
