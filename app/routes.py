@@ -14,3 +14,18 @@ def create_a_task():
 
     return make_response(jsonify({
             "task": Task.to_dict(new_task)})), 201
+
+@bp.route("", methods=["GET"])
+def get_saved_tasks():
+    title_query = request.args.get("title")
+    if title_query:
+        tasks = Task.query.filter_by(title=title_query)
+    else:
+        tasks = Task.query.all()
+    
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append(task.to_dict())
+    return jsonify(tasks_response)
+
+    
