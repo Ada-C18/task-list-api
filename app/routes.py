@@ -65,9 +65,14 @@ def get_one_task(task_id):
     }}
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
-def update_task():
+def update_task(task_id):
     pass
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
-def delete_task():
-    pass
+def delete_task(task_id):
+    task = validate_model(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return {'details': f'Task {task.task_id} "{task.title}" successfully deleted'}
