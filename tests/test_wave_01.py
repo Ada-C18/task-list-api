@@ -76,6 +76,7 @@ def test_get_task_invalid_id(client):
 
     assert response.status_code == 400
     assert response_body == {"message": "Task cat invalid"}
+    assert Task.query.all() == []
 
 
 def test_create_task(client):
@@ -149,6 +150,7 @@ def test_update_task_invalid_id(client):
 
     assert response.status_code == 400
     assert response_body == {"message": "Task cat invalid"}
+    assert Task.query.all() == []
 
 
 def test_delete_task(client, one_task):
@@ -182,6 +184,7 @@ def test_delete_task_invalid_id(client):
 
     assert response.status_code == 400
     assert response_body == {"message": "Task cat invalid"}
+    assert Task.query.all() == []
 
 
 def test_create_task_must_contain_title(client):
