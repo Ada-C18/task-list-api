@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from datetime import datetime
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -74,6 +75,33 @@ def get_all_tasks():
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     selected_task = get_one_task_or_abort(task_id)
+
+    task_dict = Task.to_dict(selected_task)
+
+    return jsonify({"task": task_dict}), 200
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    selected_task = get_one_task_or_abort(task_id)
+    
+    selected_task.completed_at = datetime.today()
+
+    db.session.add(selected_task)
+    db.session.commit()
+
+    task_dict = Task.to_dict(selected_task)
+
+
+    return jsonify({"task": task_dict}), 200
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    selected_task = get_one_task_or_abort(task_id)
+
+    selected_task.completed_at = None
+
+    db.session.add(selected_task)
+    db.session.commit()
 
     task_dict = Task.to_dict(selected_task)
 

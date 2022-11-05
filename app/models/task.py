@@ -20,15 +20,21 @@ class Task(db.Model):
                 "id": self.task_id,
                 "title": self.title,
                 "description": self.description,
-                "completed_at": self.completed_at
+                "is_complete": True
             }
         return task_dict
     
     @classmethod
     def from_dict(cls, data_dict):
         if "title" in data_dict and "description" in data_dict:
-            new_task = cls(title=data_dict["title"],
-            description=data_dict["description"]
+            if "completed_at" in data_dict:
+                new_task = cls(title=data_dict["title"],
+                description=data_dict["description"],
+                completed_at=data_dict["completed_at"]
             )
+            else:
+                new_task = cls(title=data_dict["title"],
+                description=data_dict["description"]
+                )
             return new_task
     
