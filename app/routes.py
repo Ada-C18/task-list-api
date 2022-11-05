@@ -1,6 +1,22 @@
+from os import abort
 from flask import Blueprint, jsonify, request, abort, make_response
 from app.models.task import Task
 from app import db
+
+from sqlalchemy import asc, desc
+# query.order_by(desc(SpreadsheetCells.y_index))
+# query.order_by(asc(SpreadsheetCells.y_index))
+
+# sorted_title = query.order_by(desc(Task.title))
+
+# #task_query = request.args.get("sort")
+
+# Task.query.filter(Task.title).order_by(Task.title.desc()).all()
+# Task.query.filter(Task.title).order_by(Task.title.asc()).all()
+
+# Task.query.filter(Task.title.order_by(Task.title.desc()))
+
+
 
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -31,8 +47,21 @@ def create_one_task():
 
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
-    tasks = Task.query.all()
     task_response = []
+    task_query = request.args.get("title")
+
+    sorting_query =request.args.get("sort")
+
+
+    if task_query is not None:
+        tasks = Task.query.filter_by(title=task_query) #do the sort by asc and desc
+    elif sorting_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif sorting_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    else:
+        tasks = Task.query.all()
+        
     for task in tasks:
         task_response.append({
             "id":task.task_id,
@@ -42,6 +71,13 @@ def get_all_tasks():
         })
     return jsonify(task_response)
    
+
+
+
+
+
+
+
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
