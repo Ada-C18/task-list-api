@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks", __name__,url_prefix="/tasks")
 
@@ -57,18 +58,6 @@ def get_all_tasks():
     
     return jsonify(result), 200
 
-# @tasks_bp.route('/task?sort=asc', methods=['GET'])
-# def get_taks_asc():
-#     tasks = Task.query.order_by(Task.title.asc()).all()
-
-#     result = []
-
-#     for task in tasks:
-#         result.append(task.to_dict())
-    
-#     return jsonify(result), 200
-
-
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
 
@@ -103,6 +92,18 @@ def delete_one_task(task_id):
 
     return jsonify({"details": f'Task {task_id} "{title_task_to_delete}" successfully deleted'}), 200
         
+@tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+def mark_complete_on_an_incompleted_task(task_id):
+    current_time = datetime.now()
+    patch_task = get_task_from_id(task_id)
+    patch_task.completed_at = current_time
+
+    db.session.commit()
+
+    return jsonify({"task":patch_task.to_dict()}), 200
+
+
+
 
 
 
