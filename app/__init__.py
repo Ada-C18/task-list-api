@@ -8,7 +8,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 load_dotenv()
 
-
 def create_app(test_config=None):
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -22,17 +21,19 @@ def create_app(test_config=None):
             "SQLALCHEMY_TEST_DATABASE_URI")
 
     # Import models here for Alembic setup
-    from app.models.task import Task
-    from app.models.goal import Goal
+    from app.models.task import Task # What the heck is happening? 
+    from app.models.goal import Goal 
 
     db.init_app(app)
     migrate.init_app(app, db)
 
     # Register Blueprints here
+    from app.models.task import Task # accessed here but not on l 25 -26 ??
     from .routes import tasks_bp
     app.register_blueprint(tasks_bp)
 
+    from app.models.goal import Goal 
     from .routes import goals_bp
     app.register_blueprint(goals_bp)
-
+    
     return app
