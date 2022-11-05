@@ -15,6 +15,7 @@ class Task(db.Model):
             "is_complete": True if self.completed_at else False
             
         }
+    
 
 
 
