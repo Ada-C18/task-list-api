@@ -8,6 +8,13 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True, default=None)
     
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                    description=task_data["description"])
+        return new_task
+
+    
     def to_dict(self):
         if not self.completed_at:
             self.completed_at = False
