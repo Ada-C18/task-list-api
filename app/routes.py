@@ -2,6 +2,11 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from datetime import date
+import os #newly added for wave4
+# from slack import SlackClient #newly added for wave4
+import requests #newly added for wave4
+
+
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -121,12 +126,17 @@ def delete_one_task(task_id):
 ########################## WAVE 3 ##########################
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_one_task(task_id):
-    chosen_task = get_task_from_id(task_id)
-    # request_body = request.get_json()    
-    
-    chosen_task.completed_at = date.today()
-    
+    chosen_task = get_task_from_id(task_id)      
+    chosen_task.completed_at = date.today()    
     db.session.commit()
+    
+
+    SLACK_URL = os.environ.get("SLACK_URL")
+
+    data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
+    
+    requests.post(SLACK_URL, data)
+        
     
     return jsonify({"task":chosen_task.to_dict()}), 200
 
@@ -136,5 +146,8 @@ def mark_incomplete_one_task(task_id):
     chosen_task.completed_at = None
     db.session.commit()
     
+    
     return jsonify({"task":chosen_task.to_dict()}), 200
     
+
+
