@@ -12,33 +12,21 @@ class Task(db.Model):
         return cls(
             title=response_dict["title"],
             description=response_dict["description"],
-            completed_at=response_dict["completed_at"]
+            completed_at=None
+        )
+    
+    def to_dict(self):
+        return dict(
+            id=self.task_id,
+            title=self.title,
+            description=self.description,
+            is_complete=False
         )
 
-    # @classmethod
-    # def response_dict(cls, data_dict):
-    #     return cls(
-    #     id=self.task_id,
-    #     title=data_dict["title"],
-    #     description=data_dict["description"],
-    #     is_complete=data_dict["completed_at"],
-    #     )
+    # def is_complete(self):
+    #     if self.completed_at:
+    #         self.is_complete = True
+    #     else:
+    #         self.is_complete = False
 
-    def to_dict(self):
-        return_dict = {
-            "task": {  # how to separate this out?
-                "id": self.task_id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": self.completed_at
-            }}  # how to get T/F here?
-        return return_dict
-
-    def resp_all_dict(self):
-        return_dict = {
-            "id": self.task_id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": self.completed_at
-        }  # how to get T/F here?
-        return return_dict
+   
