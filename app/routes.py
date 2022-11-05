@@ -11,6 +11,10 @@ def create_task():
     # Feel free to add a guard clause
     if "title" not in request_body or "description" not in request_body:
         return make_response("Invalid Request", 400)
+    # if "completed_at":
+    #     return True
+    # else:
+    #     return False
     # How we know about Dog
     new_task = Task(
         # You're looking for this key and assign it to name, breed, gender, age
@@ -25,7 +29,7 @@ def create_task():
 
     # Successful response
     return ({
-    # "task": f'{id}',  need to figure out how to return id
+    "task": new_task.task_id,
     "title": new_task.title,
     "description": new_task.description,
     "is_complete": new_task.completed_at
