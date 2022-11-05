@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
 from sqlalchemy import asc
+from datetime import datetime
+from datetime import timezone
 
 
 
@@ -74,4 +76,21 @@ def delete_task(task_id):
 
 # SELECT user.user_id AS user_user_id FROM user ORDER BY case when ifnull(nickname, '') = '' then 0 else 1 end desc LIMIT 1
 
+# Wave 3 mark complete 
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_as_complete(task_id):
+
+    task = validate_model(Task, task_id)
+    task.completed_at = datetime.now(timezone.utc)
+    db.session.commit()
+    return {"task":task.to_dict()}, 200
+    
+
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_as_incomplete(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = None
+    db.session.commit()
+    return {"task":task.to_dict()}, 200
     
