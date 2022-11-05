@@ -2,6 +2,15 @@ from flask import Blueprint, request, jsonify, make_response, abort
 from app import db 
 from app.models.task import Task 
 from datetime import date
+import logging
+import os
+import requests
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+logger = logging.getLogger(__name__)
+
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
@@ -73,13 +82,15 @@ def delete_task(task_id):
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def mark_complete(task_id):
     task = validate_task(task_id)
-
     task.completed_at = date.today()
     response = {"task": task.to_dict()}
     response['task']['is_complete'] = True 
 
     db.session.commit()
+    send_completed_msg(task)
+
     return jsonify(response), 200
+
 
 #PATCH mark incomplete
 @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
@@ -115,3 +126,13 @@ def get_tasks_sorted(sort_query):
         tasks = Task.query.order_by(Task.title).all()
 
     return(tasks)
+
+#PATCH slackbot for mark complete
+def send_completed_msg(task):
+    try:
+        result = client.chat_postMessage(
+            channel = os.environ.get("channel_id"),
+            text= f"Someone just completed the task {task.title}"
+        )
+    except SlackApiError as error:
+        logger.error(f"Error posting message: {error}")
