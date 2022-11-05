@@ -94,29 +94,29 @@ def test_create_task(client):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_update_task(client, one_task):
-#     # Act
-#     response = client.put("/tasks/1", json={
-#         "title": "Updated Task Title",
-#         "description": "Updated Test Description",
-#     })
-#     response_body = response.get_json()
+def test_update_task(client, one_task):
+    # Act
+    response = client.put("/tasks/1", json={
+        "title": "Updated Task Title",
+        "description": "Updated Test Description",
+    })
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 200
-#     assert "task" in response_body
-    # assert response_body == {
-    #     "task": {
-    #         "id": 1,
-    #         "title": "Updated Task Title",
-    #         "description": "Updated Test Description",
-    #         "is_complete": False
-    #     }
-    # }
-    # task = Task.query.get(1)
-    # assert task.title == "Updated Task Title"
-    # assert task.description == "Updated Test Description"
-    # assert task.completed_at == None
+    # Assert
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert response_body == {
+        "task": {
+            "id": 1,
+            "title": "Updated Task Title",
+            "description": "Updated Test Description",
+            "is_complete": False
+        }
+    }
+    task = Task.query.get(1)
+    assert task.title == "Updated Task Title"
+    assert task.description == "Updated Test Description"
+    assert task.completed_at == None
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
