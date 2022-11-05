@@ -70,6 +70,14 @@ def test_get_task_not_found(client):
     assert Task.query.all() == []
 
 
+def test_get_task_invalid_id(client):
+    response = client.get("/tasks/cat")
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body == {"message": "Task cat invalid"}
+
+
 def test_create_task(client):
     # Act
     response = client.post("/tasks", json={
@@ -135,6 +143,14 @@ def test_update_task_not_found(client):
     assert Task.query.all() == []
 
 
+def test_update_task_invalid_id(client):
+    response = client.get("/tasks/cat")
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body == {"message": "Task cat invalid"}
+
+
 def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
@@ -158,6 +174,14 @@ def test_delete_task_not_found(client):
     assert response.status_code == 404
     assert response_body == {"message": "Task 1 not found"}
     assert Task.query.all() == []
+
+
+def test_delete_task_invalid_id(client):
+    response = client.get("/tasks/cat")
+    response_body = response.get_json()
+
+    assert response.status_code == 400
+    assert response_body == {"message": "Task cat invalid"}
 
 
 def test_create_task_must_contain_title(client):
