@@ -4,7 +4,7 @@ from flask import Blueprint, jsonify, make_response, request, abort
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
-#helper function
+
 def validate_tasks(task_id):
     try:
         task_id = int(task_id)
@@ -19,7 +19,7 @@ def validate_tasks(task_id):
     return task 
 
 
-#route functions
+
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
     title = request.json.get("title", None)
@@ -38,7 +38,14 @@ def create_tasks():
 
 @tasks_bp.route("", methods=["GET"])
 def get_tasks():
-    tasks = Task.query.all()
+    task_param = request.args.get("sort")
+
+    if task_param == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    elif task_param == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    else:
+        tasks = Task.query.all()
     request_body = []
     result_list = [task.to_dict() for task in tasks]
 
