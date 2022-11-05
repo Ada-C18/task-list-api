@@ -1,8 +1,20 @@
 from app import db
 from app.models.task import Task
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request, make_response, jsonify, abort
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+
+def validate_model(cls, model_id):
+    try:
+        model_id = int(model_id)
+    except:
+        abort(make_response({"message": f"{cls.__name__} {model_id} is invalid"}, 400))
+
+    task = cls.query.get(model_id)
+    if not task:
+        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+
+    return task
 
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -17,7 +29,7 @@ def create_task():
     db.session.commit()
 
     return make_response(
-        f"Task {new_task.title} successfully created, 201"
+        f"Task {new_task.title} successfully created", 201
     )
 
 @tasks_bp.route("", methods=["GET"])
@@ -29,3 +41,8 @@ def read_all_tasks():
         tasks_response.append(task.to_dict())
         
     return jsonify(tasks_response)
+
+@tasks_bp.route("/<model_id>", methods= ["GET"])
+def read_one_task(model_id):
+    task = validate_model(Task, model_id)
+    return {"task":task.to_dict()}
