@@ -1,4 +1,5 @@
 from os import abort
+from datetime import datetime
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, request, abort, make_response
@@ -22,7 +23,7 @@ def create_one_task():
     new_task = Task(
         title=title,
         description=description,
-        completed_at=None
+        completed_at=request_body["completed_at"] if request_body["completed_at"] is not None else None
         )
 
     db.session.add(new_task)
@@ -90,17 +91,38 @@ def delete_one_task(task_id):
     rsp = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
     return jsonify(rsp), 200
 
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    task = validate_task(task_id)
+    task.completed_at = datetime.now()
+
+    db.session.commit()
+
+    rsp = {"task": task.get_dict()}
+    return jsonify(rsp), 200
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    task = validate_task(task_id)
+    task.completed_at = None
+
+    db.session.commit()
+
+    rsp = {"task": task.get_dict()}
+    return jsonify(rsp), 200
+
 
 def validate_task(task_id):
     try:
         task_id = int(task_id)
     except:
-        rsp = {"msg" : f"Task with id #{task_id} is invalid."}
+        rsp = {"msg": f"Task with id #{task_id} is invalid."}
         abort(make_response(rsp, 400))
     
     task = Task.query.get(task_id)
 
     if not task:
-        rsp = {"msg" : f"Task with id #{task_id} is not found!"}
+        rsp = {"msg": f"Task with id #{task_id} is not found!"}
         abort(make_response(rsp, 404))
     return task
