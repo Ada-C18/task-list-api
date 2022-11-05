@@ -1,4 +1,4 @@
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, jsonify
 from app import db
 from app.models.task import Task
 
@@ -34,7 +34,7 @@ def create_task():
 @task_bp.route("", methods=["GET"])
 # Change name to handle dogs
 def get_all_tasks():
-    task_query = Task.query
+    # task_query = Task.query
 
     # breed_query = request.args.get("breed")
     # if breed_query:
@@ -54,11 +54,13 @@ def get_all_tasks():
     tasks_response = []
     for task in tasks:
         tasks_response.append({
-            "id": task.id,
+            "id": task.task_id,
             "title": task.title,
             "description": task.description,
             "is_complete": task.completed_at
         })
+    return jsonify(tasks_response), 200
+
 
 # Path/Endpoint to get a single dog
 # Include the id of the record to retrieve as a part of the endpoint
@@ -70,7 +72,7 @@ def get_one_task(task_id):
 
     # Send back a single JSON object (dictionary):
     return {
-        "id": task.id,
+        "id": task.task_id,
         "title": task.title,
         "description": task.description,
         "is_complete": task.completed_at
