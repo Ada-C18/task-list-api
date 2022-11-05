@@ -21,7 +21,7 @@ def create_task():
     request_body = request.get_json()
 
     if "title" not in request_body or "description" not in request_body:
-        return make_response(f"Invalid Request", 400)
+        return make_response({"details": "Invalid data"}, 400)
     
     new_task = Task.from_dict(request_body)
 
