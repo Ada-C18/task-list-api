@@ -3,6 +3,8 @@
 from app import db
 from flask import Blueprint,jsonify,request,abort,make_response
 from app.models.task import Task
+import os,requests
+from datetime import datetime
    
 
 
@@ -54,9 +56,9 @@ def get_one_task(task_id):
     return make_response(jsonify({"task":chosen_task.to_dict()}),200)
 
 
-@task_bp.route('/<breakfast_id>', methods = ["PUT"])
-def update_task(breakfast_id):
-    update_task = get_task_from_id(breakfast_id)
+@task_bp.route('/<task_id>', methods = ["PUT"])
+def update_task(task_id):
+    update_task = get_task_from_id(task_id)
 
     request_body = request.get_json()
     
@@ -85,8 +87,6 @@ def delete_one_task(task_id):
     return make_response(jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}),200)
 
 
-
-
 def get_task_from_id(task_id):
     try:
         task_id = int(task_id)
@@ -94,13 +94,46 @@ def get_task_from_id(task_id):
         return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400 ))
 
     chosen_task = Task.query.get(task_id)
-
     
     if chosen_task is None:
         return abort(make_response({"msg": f" Could not find task item with id : {task_id}"} , 404 ))
             
-   
     return chosen_task    
+
+
+@task_bp.route('/<task_id>/mark_complete', methods =['PATCH'])
+def mark_complete(task_id):
+    task= get_task_from_id(task_id)
+
+    task.completed_at = datetime.utcnow()
+ 
+    db.session.commit()
+
+    path = "https://slack.com/api/chat.postMessage"
+    slack_api_key = os.environ.get("SLACK_TOKEN")
+
+    request_headers = {"Authorization": f"Bearer {slack_api_key}"}
+    request_body = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+
+    }
+
+    requests.post(path, headers=request_headers,json=request_body)
+
+    return jsonify({'task':task.to_dict()}), 200
+
+@task_bp.route('/<task_id>/mark_incomplete', methods =['PATCH'])
+def mark_incomplete(task_id):
+    task= get_task_from_id(task_id)
+
+    task.completed_at = None
+    
+    db.session.commit()
+    
+    return jsonify({'task':task.to_dict()}), 200    
+
+
 
 
 
