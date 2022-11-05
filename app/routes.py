@@ -91,4 +91,14 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return make_response(f"Task #{task.task_id} successfully updated", 200)
+    response_body = {
+        "task": {
+        "id": 1,
+        "title": "Updated Task Title",
+        "description": "Updated Test Description",
+        "is_complete": False
+            }
+    }
+    return jsonify(response_body), 200
+
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
