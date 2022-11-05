@@ -37,6 +37,36 @@ def create_tasks():
 
 
 
-# Defining Endpoint
-# Creating Route Function to Get one tasks
+# Defining Endpoint and Creating Route Function to GET(read) All Tasks
+# Task.query.all() is SQLAlchemy is syntax tells Task to query for all() tasks. This method returns a list of instances of task
+@tasks_bp.route("", methods=["GET"])
+def read_all_tasks():
+    tasks_response = []
+    tasks = Task.query.all()
+    for task in tasks:
+        tasks_response.append( 
+            {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": False
+            }
+        )
+    return jsonify(tasks_response)
+
+# Defining Endpoint and Creating Route Function to GET(read) One Task
+# 
+@tasks_bp.route("/<task_id>", methods=["GET"])
+def get_one_task(task_id):
+    task = Task.query.get(task_id)
+
+    return {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }
+        }
+
 
