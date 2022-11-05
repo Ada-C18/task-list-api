@@ -21,7 +21,11 @@ def validate_model(cls, model_id):
 @bp.route("", methods = ["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
+    if len(request_body.keys()) < 2:
+        return make_response({"details":"Invalid data"},400)
+
+    else:
+        new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
     db.session.commit()
@@ -34,24 +38,35 @@ def create_task():
 def read_all_tasks():
 
     title_query = request.args.get("title")
-    color_query = request.args.get("color")
+    completed_at_query = request.args.get("completed_at")
     description_query = request.args.get("description")
     id_query = request.args.get("id")
+    sort_query = request.args.get("sort")
+    
+    
 
     task_query = Task.query
 
     if title_query:
-        task_query = task_query.filter_by(title=title_query) 
+        task_query = task_query.filter_by(title=title_query)
 
-    if color_query:
-        task_query = task_query.filter_by(color=color_query)
+    if completed_at_query:
+        task_query = task_query.filter_by(completed_at=completed_at_query)
 
     if description_query:
         task_query = task_query.filter_by(description = description_query)
 
     if id_query:
         task_query = task_query.filter_by(id= id_query)
-   
+
+    if sort_query == "desc" :
+        task_query = Task.query.order_by(Task.title.desc())
+    
+    if sort_query == "asc":
+        task_query = task_query.order_by(Task.title)
+
+
+
     tasks = task_query.all()
     
     all_tasks = [task.to_dict() for task in tasks]
@@ -87,4 +102,4 @@ def delete_task_by_id(id):
     db.session.commit()
 
 
-    return make_response({"details":f'Task {deleted_task.id} \"{deleted_task.description}\" successfully deleted'}), 200
+    return make_response({"details":f'Task {deleted_task.id} \"{deleted_task.title}\" successfully deleted'}), 200
