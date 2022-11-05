@@ -18,22 +18,27 @@ def validate_id(id):
     return query_result
 
 
-
-
-
 #################CREATE_TASK############
 
 
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
-    request_body = request.get_json()
-    new_task = Task(title=request_body["title"],description=request_body["description"])
-
-    db.session.add(new_task)
-    db.session.commit()
-    task_dictionary=new_task.to_dict()
-   
-    return {"task":task_dictionary}, 201
+    #request_body = request.get_json()
+    #new_task = Task(title=request_body["title"],description=request_body["description"])
+    
+    if not 'title' in request.get_json() or not 'description' in request.get_json()\
+        or  not 'completed_at' in request.get_json() :
+            return {"details":"Invalid data"},400
+    else:
+            
+            #raise Exception('Not a valid task!', status_code=400)
+        request_body = request.get_json()
+        new_task = Task(title=request_body["title"],description=request_body["description"])
+        
+        db.session.add(new_task)
+        db.session.commit()
+        task_dictionary=new_task.to_dict()
+        return {"task":task_dictionary}, 201
 
 ##############GET_ALL_TASK####################
 @tasks_bp.route("", methods=["GET"])
