@@ -4,15 +4,15 @@ from app.models.task import Task
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
-def validate_id(class_obj, id):
+def validate_id(cls, id):
     try:
         id = int(id)
     except:
-        abort(make_response({"message": f"{class_obj} {id} is an invalid id"}, 400))
+        abort(make_response({"message": f"{cls} {id} is an invalid id"}, 400))
 
-    query_result = class_obj.query.get(id)
+    query_result = cls.query.get(id)
     if not query_result:
-        abort(make_response({"message": f"{class_obj}{id} is an invalid id"}), 400)
+        abort(make_response({"message": f"{cls}{id} is an invalid id"}), 404)
 
     return query_result
 
@@ -20,6 +20,7 @@ def validate_id(class_obj, id):
 def create_task():
     request_body = request.get_json()
     new_task = Task.from_dict(request_body)
+    
     db.session.add(new_task)
     db.session.commit()
 
@@ -46,13 +47,14 @@ def get_one_task(id):
 @tasks_bp.route("/<id>", methods = ["PUT"])
 def update_task(id):
     task = validate_id(Task, id)
+    
     request_body = request.get_json()
 
     task.update(request_body)
 
     db.session.commit()
 
-    return make_response(f"task {id} sucessfully updated")
+    return make_response(jsonify(f"task {id} sucessfully updated"))
 
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_cat(id):
@@ -62,5 +64,5 @@ def delete_cat(id):
 
     db.session.commit()
 
-    return make_response(f"task {id} successfully deleted")
+    return make_response(jsonify(f"task {id} successfully deleted"))
 
