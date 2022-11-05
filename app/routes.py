@@ -11,7 +11,7 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
 ########################## WAVE 1 ##########################
 #helper function to validate task id
-def get_model_from_id(model_id):
+def get_model_from_id(cls,model_id):
     try:
         model_id = int(model_id)
     except ValueError:
