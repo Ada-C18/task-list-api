@@ -37,7 +37,7 @@ def read_task_by_id(task_id):
     task = validate_task(task_id)
     return jsonify({"task":task.to_dict()}), 200
 
-#Helper function for use in READ route: read_task_by_id
+#Helper function for use in READ route: read_task_by_id and UPDATE route: update_task
 def validate_task(id):
     try:
         task_id = int(id)
@@ -51,7 +51,7 @@ def validate_task(id):
 
     return task
 
-
+#UPDATE Routes
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
 
@@ -70,4 +70,12 @@ def update_task(task_id):
             "description": task.description,
             "is_complete": False if task.completed_at is None else True
         }}), 200
+
+# DELETE Routes    
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_route(task_id):
+    task = validate_task(task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200
 
