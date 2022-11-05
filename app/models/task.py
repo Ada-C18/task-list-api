@@ -14,3 +14,10 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": False
         }
+
+    @classmethod
+    def from_dict(cls, cls_dict):
+        return cls(
+            title = cls_dict["title"],
+            description = cls_dict["description"]
+        )
