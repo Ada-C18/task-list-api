@@ -66,5 +66,4 @@ def delete_cat(id):
 
     db.session.commit()
 
-    return make_response(jsonify(f"Task {id} '{task.title}' successfully deleted"))
-
+    return make_response({'details': f'Task {id} "{task.title}" successfully deleted'})
