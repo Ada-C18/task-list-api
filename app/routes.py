@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, make_response, abort
 from app import db
 from app.models.task import Task
+from datetime import date
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -69,19 +70,29 @@ def update_one_task_id(task_id):
     try:
         update_task.title = request_body["title"]
         update_task.description = request_body["description"]
-        completed_at = None
     except KeyError:
         return jsonify({"details":f"Invalid data"}), 400
 
     db.session.commit()
     return jsonify(update_task.to_dict()), 200
 
-# @task_bp.route("/<task_id>",methods=["PATCH"])
-# def update_one_mark_complete(task_id):
-#     update_mark_complete = get_task_from_id(task_id)
-#     request_body = request.get_json()
+@task_bp.route("/<task_id>/mark_complete",methods=["PATCH"])
+def update_one_task_complete(task_id):
+    update_task_mark_complete = get_task_from_id(task_id)
 
+    update_task_mark_complete.completed_at = date.today()
+    
+    db.session.commit()
+    return jsonify(update_task_mark_complete.to_dict()), 200
 
+@task_bp.route("/<task_id>/mark_incomplete",methods=["PATCH"])
+def update_one_task_incomplete(task_id):
+    update_task_mark_incomplete = get_task_from_id(task_id)
+
+    update_task_mark_incomplete.completed_at = None
+
+    db.session.commit()
+    return jsonify(update_task_mark_incomplete.to_dict()), 200
 
 @task_bp.route("/<task_id>",methods=["DELETE"])
 def delete_one_task(task_id):
