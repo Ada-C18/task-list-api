@@ -112,4 +112,7 @@ def mark_task_complete(task_id):
 
     if not task_to_complete.completed_at:
         task_to_complete.completed_at = datetime.today()
+    
+    db.session.commit()
+    
     return jsonify({"task": task_to_complete.to_dict()}), 200
