@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
@@ -76,6 +77,18 @@ def update_task(task_id):
             "description": task.description,
             "is_complete": False if task.completed_at is None else True
         }}), 200
+        
+#UPDATE Routes (Wave 3: PATCH Routes)
+@tasks_bp.route("/<task_id>/<mark>", methods=["PATCH"])
+def update_task_mark_complete_or_incomplete(task_id, mark):
+    task = validate_task(task_id)
+    if mark == "mark_complete":
+        task.completed_at = datetime.utcnow().date()
+    #Source: https://stackoverflow.com/questions/27587127/how-to-convert-datetime-date-today-to-utc-time
+    elif mark == "mark_incomplete":
+        task.completed_at = None
+    db.session.commit()
+    return jsonify({"task":task.to_dict()}), 200
 
 # DELETE Routes (Wave 1: CRUD Routes)
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
