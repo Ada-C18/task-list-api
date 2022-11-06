@@ -3,8 +3,7 @@ from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import datetime
-import logging
-import os
+import logging, os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
@@ -53,6 +52,7 @@ def mark_one_task_as_complete(task_id):
 
     db.session.commit()
 
+    # call Slack API
     try:
         result = client.chat_postMessage(
             channel=task_notifications_channel_id, 
@@ -103,6 +103,45 @@ def update_one_goal(goal_id):
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_one_goal(goal_id):
     return delete_one_model(Goal, goal_id)
+
+#***********************************************#
+#**************** Nested Routes ****************#
+#***********************************************#
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_tasks_to_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    tasks = request.get_json()["task_ids"]
+
+    for task_id in tasks:
+        task = Task.query.get(task_id)
+        goal.tasks.append(task)
+    
+    db.session.commit()
+
+    response_body = {
+        "id": goal.id,
+        "task_ids": tasks
+    }
+
+    return jsonify(response_body), 200
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def all_tasks_of_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    response_body = {
+            "id": goal.id,
+            "title": goal.title,
+            "tasks":[]
+        }
+
+    for task in goal.tasks:
+        response_body["tasks"].append(Task.to_dict(task))
+    
+    return jsonify(response_body), 200
 
 #************************************************#
 #*************** Helper Functions ***************#
