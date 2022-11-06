@@ -162,7 +162,7 @@ def delete_one_task(task_id):
     db.session.delete(task_to_delete)
     db.session.commit()
     
-    return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"})
+    return jsonify({"details":f"Task {task_id} \"{task_to_delete.title}\" successfully deleted"}), 200
 
 ########################## WAVE 3 ##########################
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
@@ -222,4 +222,11 @@ def update_one_goal(goal_id):
     
     db.session.commit()
     return jsonify({"goal":update_goal.to_dict()}),200
+
+@goal_bp.route('/<goal_id>', methods=["DELETE"])
+def delete_one_goal(goal_id):
+    goal_to_delete = get_model_from_id(Goal,goal_id)
     
+    db.session.delete(goal_to_delete)
+    db.session.commit()
+    return jsonify({"details":f"Goal {goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
