@@ -9,6 +9,9 @@ task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 def add_task():
     request_body = request.get_json()
     new_task = Task.from_dict(request_body)
+    if new_task.title is None or new_task.description is None:
+        response_str = f"Invalid data"
+        abort(make_response(jsonify({"details":response_str}), 400))
 
     db.session.add(new_task)
     db.session.commit()
@@ -71,6 +74,3 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({"details": f"Task {task_id} \"{chosen_task.title}\" successfully deleted"}), 200)
-
-
-

@@ -20,8 +20,8 @@ class Task(db.Model):
     def from_dict(cls, data_dict):
         new_obj = cls()
         new_obj.task_id = None if "id" not in data_dict else data_dict["id"]
-        new_obj.title = data_dict["title"]
-        new_obj.description=data_dict["description"]
+        new_obj.title = None if "title" not in data_dict else data_dict["title"]
+        new_obj.description= None if "description" not in data_dict else data_dict["description"]
         new_obj.completed_at= None if "completed_at" not in data_dict else data_dict["completed_at"]
         
         return new_obj
