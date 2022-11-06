@@ -24,12 +24,12 @@ def create_task():
     db.session.commit()
 
     # Successful response
-    return ({
-    "task": new_task.task_id,
+    return ({ "task":{
+    "id": new_task.task_id,
     "title": new_task.title,
     "description": new_task.description,
     "is_complete": bool(new_task.completed_at)
-    },201)
+    }},201)
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
@@ -37,7 +37,7 @@ def get_all_tasks():
 
     tasks = Task.query.all()
 
-    tasks_response = [{"id": task.task_id, "title": task.title, "description": task.description, "is_complete": bool(task.completed_at)} for task in tasks]
+    tasks_response = [{"id": task.task_id, "title": task.title, "description": task.description, "is_complete": bool(task.completed_at)}for task in tasks]
 
     return jsonify(tasks_response), 200
 
@@ -51,9 +51,9 @@ def get_one_task(task_id):
     task = Task.query.get(task_id)
 
     # Send back a single JSON object (dictionary):
-    return {
+    return { "task":{
         "id": task.task_id,
         "title": task.title,
         "description": task.description,
-        "is_complete": task.completed_at
-    }
+        "is_complete": bool(task.completed_at)
+    }},200

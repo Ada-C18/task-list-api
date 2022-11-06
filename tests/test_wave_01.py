@@ -2,7 +2,7 @@ from app.models.task import Task
 import pytest
 
 
-# @pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_no_saved_tasks(client):
     # Act
     response = client.get("/tasks")
@@ -187,7 +187,7 @@ def test_create_task_must_contain_title(client):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-def test_create_task_must_contain_description(client):
+#def test_create_task_must_contain_description(client):
     # Act
     response = client.post("/tasks", json={
         "title": "A Brand New Task"
