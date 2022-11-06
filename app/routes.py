@@ -11,13 +11,20 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
-    request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"],
-        
-        )
-    
+    try:
+        request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"],
+
+            )
+    # if missing atribute title, description, or completed_at
+    # KeyError
+     
+    except KeyError:
+        return {"details": "Invalid data"}, 400
+
+
     #communicating to the db to collect and commit the changes made in this function
     #saying we want the database to add new_task
     db.session.add(new_task)
