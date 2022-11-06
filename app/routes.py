@@ -81,8 +81,8 @@ def delete_task(task_id):
 def mark_complete(task_id):
     task = validate_model_id(Task, task_id)
     task.completed_at = date.today()
+    task.is_complete = True
     response = {"task": task.to_dict()}
-    response['task']['is_complete'] = True 
 
     db.session.commit()
     send_completed_msg(task)
@@ -185,7 +185,7 @@ def get_tasks_sorted(sort_query):
 def send_completed_msg(task):
     try:
         result = client.chat_postMessage(
-            channel = os.environ.get("channel_id"),
+            channel = os.environ.get("CHANNEL_ID"),
             text= f"Someone just completed the task {task.title}"
         )
     except SlackApiError as error:
