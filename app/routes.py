@@ -27,50 +27,42 @@ def add_task():
 
     if "title" not in request_body or \
         "description" not in request_body:
-        # or \
-        # "completed_at" not in request_body:
         return jsonify({"details": "Invalid data"}), 400
 
-    new_task = Task(
-        title = request_body["title"],
-        description = request_body["description"],
-        completed_at = None
-    )
+    new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
     db.session.commit()
 
-    response = {
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": False
-            }
-        }
+    response = Task.to_dict(new_task)
 
-    return jsonify(response), 201 
+    return jsonify({"task": response}), 201 
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
+
+    sort_params = request.args.get("sort")
 
     tasks = Task.query.all()
 
     response = []
 
     for task in tasks:
-        if task is None:
-            response_body = "Whoopsie daisy! Task id is lost and was not found"
-            return jsonify(response_body), 404
-        else:
-            task_dict = {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": False
-            }
-            response.append(task_dict)
+        task_dict = {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }
+        response.append(task_dict)
+
+    if sort_params == "asc":
+        response = sorted(response, key=lambda task: task['title'])
+        #give client list of titles in ascending order by alphabet 
+    elif sort_params == "desc":
+        response = sorted(response, key=lambda task: task['title'], reverse=True)
+        #give client list of titles in descending order by alphabet, reverse=True
     return jsonify(response), 200
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -78,15 +70,9 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_one_task_or_error(task_id)
 
-    response_dict = {
-        "task": {
-            "id": chosen_task.task_id,
-            "title": chosen_task.title,
-            "description": chosen_task.description,
-            "is_complete": False
-            }
-        }
-    return jsonify(response_dict), 200
+    response = Task.to_dict(chosen_task)
+
+    return jsonify({"task": response}), 200
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -100,15 +86,9 @@ def update_task_title_and_description(task_id):
 
     db.session.commit()
 
-    response_body = {       
-        "task": {
-            "id": task_to_update.task_id,
-            "title": task_to_update.title,
-            "description": task_to_update.description,
-            "is_complete": False
-            }
-        }
-    return jsonify(response_body), 200
+    response_body = Task.to_dict(task_to_update)
+
+    return jsonify({"task": response_body}), 200
 
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
