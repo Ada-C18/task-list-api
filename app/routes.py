@@ -26,15 +26,11 @@ def create_tasks():
     #request_body = request.get_json()
     #new_task = Task(title=request_body["title"],description=request_body["description"])
     
-    if not 'title' in request.get_json() or not 'description' in request.get_json()\
-        or  not 'completed_at' in request.get_json() :
+    if not 'title' in request.get_json() or not 'description' in request.get_json() :
             return {"details":"Invalid data"},400
     else:
-            
-            #raise Exception('Not a valid task!', status_code=400)
         request_body = request.get_json()
         new_task = Task(title=request_body["title"],description=request_body["description"])
-        
         db.session.add(new_task)
         db.session.commit()
         task_dictionary=new_task.to_dict()
