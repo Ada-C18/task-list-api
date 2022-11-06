@@ -11,15 +11,15 @@ class Task(db.Model):
     @classmethod
     def from_dict(cls, data_dict):
         return cls(title=data_dict["title"],
-        description=data_dict["description"]
-        )
+        description=data_dict["description"],
+    )
 
     def to_dict(self):
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "is_complete": False if self.completed_at == None else self.completed_at,    
+            "is_complete": False if self.completed_at == None else True    
         }
     
 

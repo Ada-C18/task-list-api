@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
@@ -85,10 +85,20 @@ def update_task(id):
 # not required- might not be correct, but hopefully helps CRUD
 # when I send a `PATCH` request to `/tasks/1/mark_complete`
 @tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
-def patch_task(id):
+def mark_complete_task(id):
     task = validate_model(Task, id)
 
-    task.completed_at = datetime.utcnow
+    task.completed_at = date.today()
+
+    db.session.commit()
+   
+    return jsonify({"task": task.to_dict()}), 200
+
+@tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+def mark_incomple_task(id):
+    task = validate_model(Task, id)
+
+    task.completed_at = None
 
     db.session.commit()
    
