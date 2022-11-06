@@ -19,9 +19,10 @@ def validate_model(cls, model_id):
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 @tasks_bp.route("", methods =["GET"])
-def read_all_tasks():
-    tasks_response = []
+def read_all_tasks(): 
     tasks = Task.query.all()
+    tasks_response = []
+    
     for task in tasks:
         tasks_response.append(
             {
@@ -31,16 +32,27 @@ def read_all_tasks():
                 "is_complete": False
             }
         )
-    return jsonify(tasks_response)
+
+    # dealing with Query Params (Wave 2):
+    sorting_type = request.args.get("sort")
+    if not sorting_type: #no sorting
+        return jsonify(tasks_response)
+    elif sorting_type == "asc":
+        sorted_tasks_response = sorted(tasks_response, key = lambda task: task["title"])
+    elif sorting_type == "desc":
+        sorted_tasks_response = sorted(tasks_response, key = lambda task: task["title"], reverse=True)
+    return jsonify(sorted_tasks_response)
 
 @tasks_bp.route("", methods =["POST"])
 def create_task():
     request_body = request.get_json()
     try: 
         new_task = Task(title=request_body["title"], 
-                    description=request_body["description"])
+                    description=request_body["description"],
+                    completed_at=request_body["completed_at"])
     except KeyError:
         abort(make_response({"details":"Invalid data"}, 400))
+    
 
     db.session.add(new_task)
     db.session.commit()
