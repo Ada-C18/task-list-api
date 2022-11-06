@@ -116,6 +116,10 @@ def delete_one_task(task_id):
 ########################## WAVE 3 ##########################
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_one_task(task_id):
+    '''
+    See : assets/minh_slackbot_proof.png
+    '''
+    
     chosen_task = get_model_from_id(Task,task_id)      
     chosen_task.completed_at = date.today()    
     db.session.commit()
