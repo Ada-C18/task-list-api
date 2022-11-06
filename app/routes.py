@@ -116,3 +116,14 @@ def mark_task_complete(task_id):
     db.session.commit()
     
     return jsonify({"task": task_to_complete.to_dict()}), 200
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    incomplete_task = get_one_task_or_error(task_id)
+
+    if incomplete_task.completed_at:
+        incomplete_task.completed_at = None
+
+    db.session.commit()
+
+    return jsonify({"task": incomplete_task.to_dict()}), 200
