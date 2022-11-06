@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 934eb7bb2cdf
+Revision ID: 0d1f454e628e
 Revises: 
-Create Date: 2022-11-03 14:19:47.149861
+Create Date: 2022-11-06 15:33:15.391445
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '934eb7bb2cdf'
+revision = '0d1f454e628e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,12 +23,12 @@ def upgrade():
     sa.PrimaryKeyConstraint('goal_id')
     )
     op.create_table('task',
-    sa.Column('task_id', sa.Integer(), nullable=False),
-    sa.Column('task_title', sa.String(), nullable=False),
-    sa.Column('task_description', sa.String(), nullable=True),
-    sa.Column('task_completed_at', sa.DateTime(), nullable=True),
-    sa.Column('task_is_completed', sa.Boolean(), nullable=False),
-    sa.PrimaryKeyConstraint('task_id')
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('title', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=True),
+    sa.Column('completed_at', sa.DateTime(), nullable=True),
+    sa.Column('is_complete', sa.Boolean(), nullable=False),
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
