@@ -10,7 +10,7 @@ goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
 ########################## WAVE 1 ##########################
-#helper function to validate task id
+#HELPER FUNCTIONS
 def get_model_from_id(cls,model_id):
     try:
         model_id = int(model_id)
@@ -24,22 +24,6 @@ def get_model_from_id(cls,model_id):
 
     return chosen_object
 
-# ##WAVE 1 ##End route to get all tasks
-# @task_bp.route('', methods=['GET'])
-# def get_all_tasks():
-#     title_query_value = request.args.get("title")
-#     if title_query_value is not None:
-#         tasks = Task.query.filter_by(title=title_query_value)
-    
-#     else:
-#         tasks = Task.query.all()
-    
-#     result = []
-    
-#     for task in tasks:
-#         result.append(task.to_dict())
-    
-#     return jsonify(result), 200
 def get_all_objects(cls):    
     '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
     
@@ -57,19 +41,6 @@ def get_all_objects(cls):
         result.append(object.to_dict())
     return result
 
-
-# def create_one_object(cls):
-#     request_body = request.get_json()
-    
-#     try:
-#         new_object = cls.from_dict(request_body)
-#     except KeyError:
-#         return jsonify({"details": "Invalid data"}),400
-    
-#     return new_object
-    
-##WAVE 2 - updating get end point with sort features##
-
 def update_one_object(cls, model_id):
     update_object = get_model_from_id(cls,model_id)
     request_body = request.get_json()
@@ -80,36 +51,17 @@ def update_one_object(cls, model_id):
     elif cls == Goal:
         update_object.title = request_body["title"]
     return update_object
-
-
+ 
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():    
-    # '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
-    
-    # title_query_sort = request.args.get("sort")
-    # if title_query_sort == "asc":
-    #     tasks = Task.query.order_by(Task.title.asc())
-    # elif title_query_sort == "desc":
-    #     tasks = Task.query.order_by(Task.title.desc())    
-    # else:
-    #     tasks = Task.query.all()
-    
-    # result = []
-    
-    # for task in tasks:
-    #     result.append(task.to_dict())
-    
-    # return jsonify(result), 200
     result = get_all_objects(Task)
     return jsonify(result), 200
-
 
 ##End route to get one task
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
     chosen_task = get_model_from_id(Task,task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
-
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
@@ -123,7 +75,6 @@ def create_one_task():
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"task":new_task.to_dict()}), 201
-
 
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_task(task_id):    
@@ -152,9 +103,7 @@ def update_task(task_id):
     
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200
-
     
-
 @task_bp.route('/<task_id>', methods=['DELETE'])
 def delete_one_task(task_id):
     task_to_delete = get_model_from_id(Task,task_id)
@@ -189,7 +138,7 @@ def mark_incomplete_one_task(task_id):
     
     return jsonify({"task":chosen_task.to_dict()}), 200
     
-
+########################## WAVE 5 ##########################
 @goal_bp.route('', methods=["GET"])
 def get_all_goals():
     result = get_all_objects(Goal)
@@ -202,8 +151,7 @@ def get_one_goal(goal_id):
 
 @goal_bp.route('', methods=["POST"])
 def create_one_goal():
-    request_body = request.get_json()
-    
+    request_body = request.get_json()    
     try:
         new_goal = Goal.from_dict(request_body)
     except KeyError:
