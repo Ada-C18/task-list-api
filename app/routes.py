@@ -44,8 +44,19 @@ def create_tasks():
 #       This method returns a list of instances of task
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
-    tasks_response = []
+
     tasks = Task.query.all()
+
+    # helps the client to search by title and sort
+    tasks_sort = request.args.get("sort")
+    title_query = request.args.get("title")
+    if title_query:
+        tasks = Task.query.filter_by(title=title_query)
+    else:
+        tasks = Task.query.all()
+        
+    tasks_response = []
+    # tasks = Task.query.all()
     for task in tasks:
         tasks_response.append( 
             {
@@ -56,7 +67,16 @@ def read_all_tasks():
             }
         )
     
-    return jsonify(tasks_response)
+    # call the filter from the test ex. asc & desc
+    if tasks_sort == "asc":
+        sorted_tasks = sorted(tasks_response, key=lambda x: x['title'])
+        return jsonify(sorted_tasks)
+    elif tasks_sort == "desc":
+        reverse_tasks = sorted(tasks_response, key=lambda x: x['title'],reverse=True)
+        return jsonify(reverse_tasks)
+    else:
+        return jsonify(tasks_response)
+    # return jsonify(tasks_response)
 
 #Creating helper function validate_task to handle errors foe get a task by id
 # Checks for valid data type (int)
