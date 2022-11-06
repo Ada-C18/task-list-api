@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from datetime import datetime
+import requests
+import os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -40,7 +42,7 @@ def get_completed_task(task):
 @task_bp.route("", methods=["POST"])
 def add_task():
     request_body = request.get_json()
-
+    
     if "title" not in request_body or \
         "description" not in request_body:
             return jsonify({"details": "Invalid data"}), 400
@@ -51,7 +53,7 @@ def add_task():
     db.session.commit()
 
     task_dict = Task.to_dict(new_task)
-
+    
     return jsonify({"task": task_dict}), 201
 
 @task_bp.route("", methods=["GET"])
@@ -85,12 +87,22 @@ def mark_task_complete(task_id):
     selected_task = get_one_task_or_abort(task_id)
     
     selected_task.completed_at = datetime.today()
-
     db.session.add(selected_task)
     db.session.commit()
 
     task_dict = Task.to_dict(selected_task)
 
+    slack_path = "https://slack.com/api/chat.postMessage"
+    SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
+    headers = {
+        "Authorization": f"Bearer {SLACK_BOT_TOKEN}"
+    }
+    paramaters = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {selected_task.title}"
+    }
+    
+    requests.get(url=slack_path, headers=headers, params=paramaters)
 
     return jsonify({"task": task_dict}), 200
 
