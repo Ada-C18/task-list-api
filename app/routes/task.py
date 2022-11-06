@@ -8,12 +8,12 @@ def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
     except:
-        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
+        abort(make_response({"details":f"{cls.__name__} {model_id} invalid"}, 400))
 
     model = cls.query.get(model_id)
 
     if not model:
-        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
+        abort(make_response({"details":f"{cls.__name__} {model_id} not found"}, 404))
 
     return model
 
@@ -42,4 +42,20 @@ def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
     return make_response(jsonify({
-            "task": task.to_dict()}))
+            "task": task.to_dict()
+    }))
+
+@bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_model(Task, task_id)
+
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    
+    db.session.commit()
+
+    return make_response(jsonify({
+        "task": task.to_dict()
+    }))
