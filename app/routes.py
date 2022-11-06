@@ -43,7 +43,7 @@ def get_all_tasks():
         tasks = task_query.order_by(Task.title).all()
         # Task.query.order_by(Task.title.all()) is a list of title objects for all records in the task db table in that order
         # The default for order_by() is ascending. For descending, need to import "from sqlalchemy import desc"
- 
+
     elif sort_query == "desc":
         tasks = task_query.order_by(desc(Task.title)).all()
 
