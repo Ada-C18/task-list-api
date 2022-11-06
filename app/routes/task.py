@@ -108,7 +108,7 @@ def use_slack_api(task):
         "text": f"Someone just completed the task {task.title}!"
     }
 
-    r = requests.post(url, params=body, headers={"Authorization": API_KEY})
+    requests.post(url, params=body, headers={"Authorization": API_KEY})
 
 @bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def update_task_to_incomplete(task_id):
