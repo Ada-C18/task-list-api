@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from sqlalchemy import desc
 
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 
@@ -22,20 +23,17 @@ def get_one_task_or_abort(task_id):
 
 @task_bp.route("",methods=["GET"])
 def get_all_tasks():
-    tasks_response = []
-    tasks = Task.query.all()
+    sort_param = request.args.get("sort")
+    if sort_param is None:
+        tasks = Task.query.all()
+    elif sort_param == "asc":
+        tasks = Task.query.order_by("title")
+    elif sort_param == "desc":
+        tasks = Task.query.order_by(desc("title"))
 
-    for task in tasks:
-        tasks_response.append(
-            {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        )
+    response = [task.to_dict() for task in tasks]
 
-    return make_response(jsonify(tasks_response), 200)
+    return make_response(jsonify(response), 200)
 
 @task_bp.route("/<task_id>",methods=["GET"])
 def get_task_by_id(task_id):
@@ -113,3 +111,5 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"})
+
+
