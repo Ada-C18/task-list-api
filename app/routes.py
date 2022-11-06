@@ -3,13 +3,14 @@ from sqlalchemy import desc
 from app import db
 from app.models.task import Task
 from app.models.helper import get_one_obj_or_abort
+from datetime import datetime
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
 @task_bp.route("", methods=["POST"])
 def add_task():
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
+    new_task = Task.from_request_dict(request_body)
     if new_task.title is None or new_task.description is None:
         response_str = f"Invalid data"
         abort(make_response(jsonify({"details":response_str}), 400))
@@ -17,7 +18,7 @@ def add_task():
     db.session.add(new_task)
     db.session.commit()
 
-    task_dict = new_task.to_dict()
+    task_dict = new_task.to_response_dict()
     response_body = {
         "task": task_dict
     }
@@ -36,7 +37,7 @@ def get_all_tasks():
     elif sort_type == "asc":
         tasks = Task.query.order_by(Task.title).all()
 
-    response = [task.to_dict() for task in tasks]
+    response = [task.to_response_dict() for task in tasks]
     
     return make_response(jsonify(response), 200)
 
@@ -44,7 +45,7 @@ def get_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_one_obj_or_abort(Task, task_id)
 
-    task_dict = chosen_task.to_dict()
+    task_dict = chosen_task.to_response_dict()
     response_body = {
         "task": task_dict
     }
@@ -67,7 +68,7 @@ def update_task_with_new_vals(task_id):
 
     db.session.commit()
 
-    task_dict = chosen_task.to_dict()
+    task_dict = chosen_task.to_response_dict()
     response_body = {
         "task": task_dict
     }
@@ -82,3 +83,39 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({"details": f"Task {task_id} \"{chosen_task.title}\" successfully deleted"}), 200)
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+    current_date = datetime.now()
+
+    chosen_task.completed_at = current_date
+    db.session.commit()
+
+    task_dict = chosen_task.to_response_dict()
+    response_body = {
+        "task": task_dict
+    }
+
+    response = make_response(jsonify(response_body), 200)
+    return response
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+
+    chosen_task.completed_at = None
+    db.session.commit()
+
+    task_dict = chosen_task.to_response_dict()
+    response_body = {
+        "task": task_dict
+    }
+
+    response = make_response(jsonify(response_body), 200)
+    return response
+
+
+
+
+

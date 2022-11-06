@@ -7,7 +7,7 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)
 
-    def to_dict(self):
+    def to_response_dict(self):
         task_dict = {
             "id": self.task_id,
             "title": self.title,
@@ -17,7 +17,7 @@ class Task(db.Model):
         return task_dict
 
     @classmethod
-    def from_dict(cls, data_dict):
+    def from_request_dict(cls, data_dict):
         new_obj = cls()
         new_obj.task_id = None if "id" not in data_dict else data_dict["id"]
         new_obj.title = None if "title" not in data_dict else data_dict["title"]
