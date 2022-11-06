@@ -1,25 +1,11 @@
 from flask import Blueprint, request, jsonify, abort, make_response, request
 from app import db
 from app.models.goal import Goal
-from operator import itemgetter
-from datetime import date
-import requests
-import os
+from .task_routes import validate_object
+
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 #-------------------------------------------HELPERS----------------------------------
-def validate_goal(input_goal_id):
-    try:
-        input_goal_id = int(input_goal_id)
-    except:
-        abort(make_response({"message": f"Goal {input_goal_id} is not a valid id"}, 400))
-
-    goal = Goal.query.get(input_goal_id)
-
-    if not goal:
-        abort(make_response({"message": f"Goal {input_goal_id} does not exist"}, 404))
-
-    return goal
 
 #-------------------------------------------POST----------------------------------
 @goal_bp.route("", methods=["POST"])
@@ -37,10 +23,7 @@ def create_goal():
     db.session.commit()
 
     return {
-        "goal": {
-        "id": new_goal.goal_id,
-        "title": new_goal.title
-    }}, 201
+        "goal": new_goal.to_dict()}, 201
 
 #-------------------------------------------GET----------------------------------
 @goal_bp.route("", methods=["GET"])
@@ -49,28 +32,40 @@ def get_all_goals():
 
     response  = []
     for goal in goals:
-        goal_dict = {
-            "id": goal.goal_id,
-            "title": goal.title
-    }
+        goal_dict = goal.to_dict()
         response.append(goal_dict)
 
     return jsonify(response), 200
 
 @goal_bp.route("/<input_goal_id>", methods=["GET"])
 def get_one_goal(input_goal_id):
-    goal = validate_goal(input_goal_id)
+    chosen_goal = validate_object(Goal, input_goal_id)
 
     return {
-        "goal": {
-            "id": goal.goal_id,
-            "title": goal.title
-        }
-  }
+        "goal": chosen_goal.to_dict()
+}
 #-------------------------------------------PUT----------------------------------
+@goal_bp.route("/<input_goal_id>", methods=["PUT"])
+def update_one_goal(input_goal_id):
+    chosen_goal = validate_object(Goal, input_goal_id) #current goal in db
+    request_body = request.get_json() #what client wants to change
 
+    chosen_goal.title = request_body["title"]
+
+    db.session.commit()
+    
+    return {"goal": chosen_goal.to_dict()}
 
 #-------------------------------------------PATCH----------------------------------
 
-
 #-------------------------------------------DELETE----------------------------------
+@goal_bp.route("/<input_goal_id>", methods=["DELETE"])
+def delete_goal(input_goal_id):
+    chosen_goal = validate_object(Goal, input_goal_id)
+
+    db.session.delete(chosen_goal)
+    db.session.commit()
+
+    return {
+        "details": f"Goal {input_goal_id} \"{chosen_goal.title}\" successfully deleted"
+}
