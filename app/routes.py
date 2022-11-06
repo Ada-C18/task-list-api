@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
+from sqlalchemy import asc, desc
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -20,8 +21,21 @@ def validate_model(cls, model_id):
 
 @task_list_bp.route("", methods=["GET"])
 def read_all_tasks():
-    tasks = Task.query.all()
-
+    title_query = request.args.get("title")
+    sort_query = request.args.get("sort")
+    task_query = Task.query
+    
+    if title_query:
+        task_query = task_query.filter_by(title=title_query)
+        
+    if sort_query == "asc":
+        task_query = task_query.order_by(Task.title.asc())
+        
+    if sort_query == "desc":
+        task_query = task_query.order_by(Task.title.desc())
+            
+    tasks = task_query.all()
+    
     tasks_response = []
     for task in tasks:
         tasks_response.append(
@@ -32,7 +46,14 @@ def read_all_tasks():
                 "is_complete": False 
             }
         )
+        
     return jsonify(tasks_response)
+    
+    # tasks_response = [task.to_dict() for task in tasks]
+    
+    # return jsonify(tasks_response)
+    
+    # tasks = Task.query.all()
 
 
 @task_list_bp.route("/<task_id>", methods=["GET"])
@@ -80,6 +101,7 @@ def delete_task(task_id):
     db.session.commit()
     
     return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200
+
 
 
 
