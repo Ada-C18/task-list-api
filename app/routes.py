@@ -70,22 +70,16 @@ def get_all_objects(cls):
     
 ##WAVE 2 - updating get end point with sort features##
 
-def update_one_object(Task, task_id):
-    update_task = get_model_from_id(Task,task_id)
+def update_one_object(cls, model_id):
+    update_object = get_model_from_id(cls,model_id)
     request_body = request.get_json()
-    
-    
-    # try:
-    update_task.title = request_body["title"]
-    update_task.description = request_body["description"]
-    # except KeyError:
-        # return jsonify({"details": "Invalid data"}),400
-        # for attribute in task_attributes:            
-        #     if attribute not in request_body:
-        #         response_message += attribute +", "
-        # return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
-    
-    return update_task
+
+    if cls == Task:
+        update_object.title = request_body["title"]
+        update_object.description = request_body["description"]
+    elif cls == Goal:
+        update_object.title = request_body["title"]
+    return update_object
 
 
 @task_bp.route('', methods=['GET'])
@@ -158,7 +152,7 @@ def update_task(task_id):
     
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200
-    # return jsonify(update_task.to_dict()), 200
+
     
 
 @task_bp.route('/<task_id>', methods=['DELETE'])
@@ -218,3 +212,14 @@ def create_one_goal():
     db.session.add(new_goal)
     db.session.commit()
     return jsonify({"goal":new_goal.to_dict()}), 201
+
+@goal_bp.route('/<goal_id>', methods=["PUT"])
+def update_one_goal(goal_id):
+    try:
+        update_goal = update_one_object(Goal,goal_id)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}),400
+    
+    db.session.commit()
+    return jsonify({"goal":update_goal.to_dict()}),200
+    

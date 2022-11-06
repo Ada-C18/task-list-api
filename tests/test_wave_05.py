@@ -1,5 +1,5 @@
 import pytest
-
+from app.models.goal import Goal
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goals_no_saved_goals(client):
@@ -82,30 +82,42 @@ def test_create_goal(client):
     }
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal(client, one_goal):
-    raise Exception("Complete test")
+    # raise Exception("Complete test")
     # Act
     # ---- Complete Act Here ----
+    response = client.put("/goals/1",json={
+        "title": "Do a crow pose ✨"
+    })
+    response_body = response.get_json()
 
     # Assert
     # ---- Complete Assertions Here ----
     # assertion 1 goes here
+    assert response.status_code == 200
     # assertion 2 goes here
+    assert "goal" in response_body
     # assertion 3 goes here
+    goal = Goal.query.get(1)
+    assert goal.title == "Do a crow pose ✨"
     # ---- Complete Assertions Here ----
 
 
 @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
-    raise Exception("Complete test")
+    # raise Exception("Complete test")
     # Act
     # ---- Complete Act Here ----
+    pass
+    
 
     # Assert
     # ---- Complete Assertions Here ----
     # assertion 1 goes here
+
     # assertion 2 goes here
+
     # ---- Complete Assertions Here ----
 
 
