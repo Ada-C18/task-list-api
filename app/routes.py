@@ -1,12 +1,10 @@
 from app import db
 from app.models.task import Task
-from flask import Blueprint, jsonify, abort, make_response, request
+from flask import Blueprint, jsonify, abort, make_response, request, requests
 from sqlalchemy import asc, desc
 from datetime import datetime
-
-# today_date = datetime.date.today()
-# date_time = datetime.datetime.strptime(date_time_string, '%Y-%m-%d %H:%M')
-
+import os
+from dotenv import load_dotenv
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -86,6 +84,17 @@ def mark_complete(task_id):
     task.completed_at = datetime.now()
 
     db.session.commit()
+
+    #Send to SlackBot
+    load_dotenv()
+    PATH = os.environ.get("COMPLETE_PATH")
+    PASS = os.environ.get("API_TOKEN")
+    query_params = {'text': f"Someone just completed the task {task.title}", 'channel': 'U03QGU0M6K1'} # My DM for now
+    r = requests.get(PATH, auth=('user', 'pass'), params=query_params)
+    r.headers['Content-Type'] = 'application/json'
+    r.headers['Authorization'] = PASS
+    
+    
 
     return jsonify({"task": task.to_dict()}), 200
 
