@@ -19,16 +19,20 @@ def validate_model(cls, model_id):
 
 @bp.route("", methods=["POST"])
 def create_task():
-    request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
+    try:
+        request_body = request.get_json()
+        new_task = Task.from_dict(request_body)
 
-    db.session.add(new_task)
-    db.session.commit()
+        db.session.add(new_task)
+        db.session.commit()
 
-    task_dict = new_task.to_dict()
+        task_dict = new_task.to_dict()
 
-    return make_response(jsonify({
-        "task": task_dict}), 201)
+        return make_response(jsonify({
+            "task": task_dict}), 201)
+            
+    except:
+        abort(make_response({"details": "Invalid data"}, 400))
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -58,4 +62,15 @@ def update_task(task_id):
 
     return make_response(jsonify({
         "task": task.to_dict()
+    }))
+
+@bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_model(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response(jsonify({
+        "details": f'Task {task_id} "{task.title}" successfully deleted'
     }))
