@@ -29,11 +29,7 @@ def test_get_tasks_sorted_asc(client, three_tasks):
     ]
 
 
-<<<<<<< HEAD
 # @pytest.mark.skip(reason="No way to test this feature yet")
-=======
-#@pytest.mark.skip(reason="No way to test this feature yet")
->>>>>>> 737efae6503d37fba203f98f6d99f9b2afe85867
 def test_get_tasks_sorted_desc(client, three_tasks):
     # Act
     response = client.get("/tasks?sort=desc")
