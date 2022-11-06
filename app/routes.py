@@ -27,7 +27,7 @@ def add_task():
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
-    sort_type = request.args.get("sort") # asc | desc | None
+    sort_type = request.args.get("sort")
 
     if sort_type is None: 
         tasks = Task.query.all() 
