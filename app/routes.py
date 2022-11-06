@@ -2,9 +2,13 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 import datetime as dt
+import requests
+import os
+
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+#Helper Functions 
 def validate_task(task_id):
     try:
         task_id = int(task_id)
@@ -17,6 +21,19 @@ def validate_task(task_id):
         abort(make_response({"message":f"Task {task_id} not found"}, 404))
 
     return task
+
+def slack_bot_msg(task_title):
+
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+    my_headers = {'Authorization' : 'Bearer '+SLACK_TOKEN}
+    query_params ={
+        "channel": "task-notifications",
+        "text": (f"Someone just completed the task {task_title}.")
+    }
+
+    requests.post(PATH, params=query_params, headers=my_headers)
+
 
 #route functions
 @tasks_bp.route("", methods=["GET"])
@@ -58,6 +75,7 @@ def create_task():
             "details": "Invalid data"
         }), 400
     else:
+        request_body = request.get_json()
         new_task = Task(title=request_body["title"],
                 description=request_body["description"])
         db.session.add(new_task)
@@ -95,11 +113,14 @@ def delete_task(task_id):
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
         }), 200)
 
+
+
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
     task = validate_task(task_id)
     task.completed_at = (dt.date.today())
     db.session.commit()
+    slack_bot_msg(task.title)
     return jsonify ({
         "task": {
             "id": task.task_id,
@@ -120,3 +141,5 @@ def mark_incomplete(task_id):
             "description": task.description,
             "is_complete": bool(task.completed_at)
         }}), 200
+
+
