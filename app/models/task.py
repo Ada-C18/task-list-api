@@ -16,15 +16,12 @@ class Task(db.Model):
 
     
     def to_dict(self):
-        if not self.completed_at:
-            self.completed_at = False
-        elif self.completed_at:
-            self.completed_at=True
+
         return dict(
             id = self.task_id,
             title = self.title, 
             description = self.description, 
-            is_complete=self.completed_at
+            is_complete=False if self.completed_at is None else True
             )
 
 #"is_complete": True if self.completed_at == True else False

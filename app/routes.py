@@ -4,8 +4,10 @@ from app import db
 from sqlalchemy import asc
 from datetime import datetime
 from datetime import timezone
-
-
+import requests
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -77,12 +79,25 @@ def delete_task(task_id):
 # SELECT user.user_id AS user_user_id FROM user ORDER BY case when ifnull(nickname, '') = '' then 0 else 1 end desc LIMIT 1
 
 # Wave 3 mark complete 
+def send_task_to_slack_api(task):
+    text = f"Someone just completed the task {task.title}"
+    SLACK_API_KEY =  os.environ.get("SLACKAPI_TOKEN")
+    headers = {"Authorization":SLACK_API_KEY}
+    query_params = {
+        "channel": "task-notifications",
+        "text": text
+    }
+    path = "https://slack.com/api/chat.postMessage"
+    response = requests.post(path, params=query_params, headers=headers)
+    
+
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_as_complete(task_id):
 
     task = validate_model(Task, task_id)
     task.completed_at = datetime.now(timezone.utc)
     db.session.commit()
+    send_task_to_slack_api(task)
     return {"task":task.to_dict()}, 200
     
 
