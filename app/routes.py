@@ -11,7 +11,10 @@ tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
+    try:
+        new_task = Task.from_dict(request_body)
+    except:
+        return jsonify({"details": "Invalid data"}), 400
 
     db.session.add(new_task)
     db.session.commit()
@@ -32,6 +35,7 @@ def get_all_tasks():
     task_query = request.args.get("title")
     if task_query:
         tasks = request.args.filter_by(title=task_query)
+
     else:
         tasks = Task.query.all()
 
@@ -44,8 +48,30 @@ def get_all_tasks():
 def get_one_task(obj_id):
     chosen_task = get_one_obj_or_abort(Task, obj_id)
     task_dict = chosen_task.to_dict()
-    return jsonify(task_dict), 200
+    return jsonify({"task": task_dict}), 200
 
 
-# @tasks_bp.route("", methods=["PUT"])
-# def update_task_with_new_value(task_id)
+@tasks_bp.route("/<obj_id>", methods=["PUT"])
+def update_task_with_new_value(obj_id):
+
+    update_task = get_one_obj_or_abort(Task, obj_id)
+    request_body = request.get_json()
+
+    update_task.title = request_body.get("title", update_task.title)
+    update_task.description = request_body.get(
+        "description", update_task.description)
+    update_task.completed_at = request_body.get(
+        "completed_at", update_task.completed_at)
+
+    db.session.commit()
+    return jsonify({"task": update_task.to_dict()}), 200
+
+
+@tasks_bp.route("/<obj_id>", methods=["DELETE"])
+def delete_one_task(obj_id):
+    task_to_delete = get_one_obj_or_abort(Task, obj_id)
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return jsonify({"details": f'Task {obj_id} "{task_to_delete.title}" successfully deleted'})

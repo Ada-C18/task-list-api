@@ -10,7 +10,7 @@ class Task(db.Model):
     def to_dict(self):
         task_dict = {"id": self.task_id, "title": self.title,
                      "description": self.description,
-                     "is_compelet": self.completed_at is not None
+                     "is_complete": self.completed_at is not None
                      }
         return task_dict
 
@@ -18,6 +18,6 @@ class Task(db.Model):
     def from_dict(cls, data_dic):
         new_obj = cls(title=data_dic["title"],
                       description=data_dic["description"],
-                      completed_at = data_dic.get("completed_at"))
+                      completed_at=data_dic.get("completed_at"))
 
         return new_obj
