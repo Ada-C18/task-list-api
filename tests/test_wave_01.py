@@ -49,7 +49,6 @@ def test_get_task(client, one_task):
         }
     }
 
-
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_not_found(client):
     # Act
@@ -60,7 +59,7 @@ def test_get_task_not_found(client):
     assert response.status_code == 404
     assert "msg" in response_body
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task(client):
     # Act
     response = client.post("/tasks", json={

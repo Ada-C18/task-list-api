@@ -23,3 +23,14 @@ class Task(db.Model):
                 "description":self.description,
                 "is_complete": self.is_complete
             }
+
+    @classmethod
+    def from_dict(cls, task_dict):
+        if not "is_complete" in task_dict:
+            task_dict["is_complete"] = False
+        
+        return cls(
+            title=task_dict["title"],
+            description=task_dict["description"],
+            is_complete=task_dict["is_complete"]
+        )

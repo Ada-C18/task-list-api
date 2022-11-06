@@ -24,19 +24,16 @@ def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
     return jsonify({"task": chosen_task.to_dict()}), 200
 
-#@task_bp.route('', methods=['POST'])
-#def create_one_task():
-#    request_body = request.get_json()
-#
-#    #new_task = Task.from_dict(request_body)
-#    new_task = Task(title = request_body['title'], 
-#                    description = request_body['description'], 
-#                    is_complete = request_body['is_complete'])
-#
-#    db.session.add(new_task)
-#    db.session.commit()
-#
-#    return jsonify({"msg": f"Successfully created Task with id={new_task.task_id}"}), 201
+@task_bp.route('', methods=['POST'])
+def create_one_task():
+    request_body = request.get_json()
+
+    new_task = Task.from_dict(request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify({"task": new_task.to_dict()}), 201
 
 #@task_bp.route('/<task_id>', methods=['PUT'])
 #def update_one_task(task_id):
