@@ -1,6 +1,8 @@
 from flask import Blueprint,request,jsonify,abort, make_response
 from app import db
 from app.models.task import Task
+from sqlalchemy import asc
+from sqlalchemy import desc
 
 task_bp = Blueprint("task_bp", __name__, url_prefix ="/tasks")
 
@@ -50,8 +52,16 @@ def create_task():
     return jsonify({"task":task_dict}), 201
 
 @task_bp.route("", methods = ["GET"])
-def get_task():
-    tasks = Task.query.all()
+def get_task_all():
+    title_query = request.args.get("sort") #this will give asc
+    print(title_query)
+    if title_query is not None and title_query=="asc":
+        tasks = Task.query.order_by(Task.title).all()
+    # elif title_query is not None and title_query==desc:
+    #     tasks = Task.query.order_by(Task.title).all()
+    else:
+        tasks = Task.query.all()
+    
     response= []
     
     for task in tasks:
@@ -123,12 +133,5 @@ def delete_one_task(task_id):
     db.session.delete(chosen_task)
     db.session.commit()
     return jsonify({"details": f'Task {task_id} "Go on my daily walk 🏞" successfully deleted'}),200
-
-
-
-
-#titles should be in ascending order, sort by title and get array of tasks sorted bu title
-
-    
 
 
