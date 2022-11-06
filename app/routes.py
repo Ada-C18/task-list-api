@@ -58,7 +58,7 @@ def validate_task(task_id):
     try:
         task_id = int(task_id)
     except:
-        abort(make_response({"message":f"task {task_id} invalid"}, 400))
+        abort(make_response({"details": "Invalid data"}, 400))
 
     task = Task.query.get(task_id)
 
