@@ -75,3 +75,36 @@ def get_one_task(task_id):
     }
         
     return jsonify(task_dict), 200
+
+@task_bp.route("/<task_id>", methods=["PUT"])
+def update_one_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
+    request_body = request.get_json()
+
+    if "title" not in request_body or \
+        "description" not in request_body:
+            return jsonify({"message": "request must include name, description, type "}), 400
+
+    chosen_task.title = request_body["title"]
+    chosen_task.description = request_body["description"] 
+
+    db.session.commit()
+
+    return {
+        "task":{
+            "id" : chosen_task.id,
+            "title" : chosen_task.title,
+            "description" : chosen_task.description,
+            "is_complete" : chosen_task.is_complete
+        }
+    }, 200
+
+@task_bp.route("/<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
+
+    db.session.delete(chosen_task)
+
+    db.session.commit()
+
+    return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
