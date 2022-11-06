@@ -28,14 +28,7 @@ def create_task():
         db.session.add(new_task)
         db.session.commit()
 
-        return {
-                "task": {
-                    "id": new_task.id,
-                    "title": new_task.title,
-                    "description": new_task.description,
-                    "is_complete": new_task.is_complete
-                }
-            },201
+        return {"task": new_task.to_dict()}, 201
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -51,28 +44,14 @@ def read_all_tasks():
     tasks = tasks.all()
     tasks_response = []
     for task in tasks:
-        tasks_response.append(
-            {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        )
+        tasks_response.append(task.to_dict())
     return jsonify(tasks_response)
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_task(task_id)
-    return {
-            "task": {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        }
-
+    return {"task": task.to_dict()}
+ 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_task(task_id)
@@ -84,15 +63,8 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return {
-            "task": {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        }
-
+    return {"task": task.to_dict()}
+ 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_task(task_id)
@@ -109,15 +81,8 @@ def mark_complete(task_id):
     task.mark_complete()
     db.session.commit()
 
-    return {
-            "task": {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        }
-
+    return {"task": task.to_dict()}
+ 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
     task = validate_task(task_id)
@@ -125,11 +90,5 @@ def mark_incomplete(task_id):
     task.mark_incomplete()
     db.session.commit()
 
-    return {
-            "task": {
-                "id": task.id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete
-            }
-        }
+    return {"task": task.to_dict()}
+ 
