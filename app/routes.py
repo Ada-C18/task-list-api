@@ -24,12 +24,11 @@ def validate_input_data(data_dict):
     except KeyError:
         abort(make_response(jsonify(dict(details="Invalid data")), 400))
 
-# ---------------------------------
+
 # create a task (POST)
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    # new_task = Task.from_dict(request_body)
     new_task = validate_input_data(request_body)
 
     if not new_task.title or not new_task.description:
@@ -40,7 +39,6 @@ def create_task():
 
     return jsonify({"task": new_task.to_dict()}), 201
 
-# ---------------------------------
 # read one task (GET)
 @tasks_bp.route("/<id>", methods=["GET"])
 def read_one_task(id):
@@ -48,8 +46,6 @@ def read_one_task(id):
 
     return jsonify({"task": task.to_dict()}), 200
     
-
-# ---------------------------------
 # read all tasks (GET)
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -66,7 +62,7 @@ def read_all_tasks():
     tasks_response = [task.to_dict() for task in tasks]
     return jsonify(tasks_response)
 
-# ---------------------------------
+
 # replace a task (PUT)
 @tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
@@ -84,8 +80,6 @@ def update_task(id):
 
 
 # update a task (PATCH)
-# not required- might not be correct, but hopefully helps CRUD
-# when I send a `PATCH` request to `/tasks/1/mark_complete`
 @tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
 def mark_complete_task(id):
     task = validate_model(Task, id)
@@ -114,7 +108,6 @@ def delete_task(id):
     db.session.delete(task)
     db.session.commit()
 
-    # Return error because we referenced to task.id after it has been deleted!!
     response = make_response({"details": f"Task {task.id} {task.description} successfully deleted"}, 200)
     return response
 
