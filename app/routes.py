@@ -8,6 +8,7 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
 
+
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
@@ -16,11 +17,10 @@ def create_tasks():
         new_task = Task(
             title=request_body["title"],
             description=request_body["description"],
-
+            completed_at=request_body["completed_at"]
             )
     # if missing atribute title, description, or completed_at
     # KeyError
-     
     except KeyError:
         return {"details": "Invalid data"}, 400
 
@@ -39,10 +39,9 @@ def create_tasks():
         }
         }, 201
 
-
-
 # Defining Endpoint and Creating Route Function to GET(read) All Tasks
-# Task.query.all() is SQLAlchemy is syntax tells Task to query for all() tasks. This method returns a list of instances of task
+# Task.query.all() is SQLAlchemy syntax that tells Task to query for all() tasks. 
+#       This method returns a list of instances of task
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
     tasks_response = []
@@ -56,6 +55,7 @@ def read_all_tasks():
                 "is_complete": False
             }
         )
+    
     return jsonify(tasks_response)
 
 #Creating helper function validate_task to handle errors foe get a task by id
@@ -121,3 +121,12 @@ def delete_task(task_id):
     return {
         "details": f'Task {task.task_id} "{task.title}" successfully deleted'
     }
+
+# Defining Endpoint and Creating Route Function to retrieve sort query param
+@tasks_bp.route("", methods=["GET"])
+def get_sorted_asc():
+    tasks = Task.query.all()
+    asc_list = (sorted(tasks, key=lambda dict: dict['title']))
+
+    return(asc_list)
+    
