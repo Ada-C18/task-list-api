@@ -17,6 +17,5 @@ class Task(db.Model):
             task_dict["is_complete"] = False
         else:
             task_dict["is_complete"] = True
-            # task_dict["completed_at"] = task.completed_at
         
         return task_dict
