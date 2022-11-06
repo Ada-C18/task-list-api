@@ -1,14 +1,17 @@
 from app import db
 from app.models.task import Task
-from flask import Blueprint, jsonify, abort, make_response, request, requests
+from flask import Blueprint, jsonify, abort, make_response, request
 from sqlalchemy import asc, desc
 from datetime import datetime
+import requests
 import os
 from dotenv import load_dotenv
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 # Validate
+
+
 def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
@@ -32,7 +35,7 @@ def create_task():
         new_task = Task.from_dict(request_body)
     except:
         abort(make_response(jsonify({
-                        "details": "Invalid data"}), 400))
+            "details": "Invalid data"}), 400))
 
     db.session.add(new_task)
     db.session.commit()
@@ -62,9 +65,11 @@ def read_all_tasks():
 @bp.route("/<task_id>", methods=["GET"], strict_slashes=False)
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
-    return jsonify({"task":task.to_dict()}), 200
+    return jsonify({"task": task.to_dict()}), 200
 
 # UPDATE ALL ONE TASK
+
+
 @bp.route("/<task_id>", methods=["PUT"], strict_slashes=False)
 def update_one_task(task_id):
     task = validate_model(Task, task_id)
@@ -76,7 +81,9 @@ def update_one_task(task_id):
     db.session.commit()
     return jsonify({"task": task.to_dict()}), 200
 
-#UPDATE PART OF ONE TASK - COMPLETE
+# UPDATE PART OF ONE TASK - COMPLETE
+
+
 @bp.route("/<task_id>/mark_complete", methods=["PATCH"], strict_slashes=False)
 def mark_complete(task_id):
     task = validate_model(Task, task_id)
@@ -85,20 +92,22 @@ def mark_complete(task_id):
 
     db.session.commit()
 
-    #Send to SlackBot
+    # Send to SlackBot - consider using a helper function here
     load_dotenv()
     PATH = os.environ.get("COMPLETE_PATH")
     PASS = os.environ.get("API_TOKEN")
-    query_params = {'text': f"Someone just completed the task {task.title}", 'channel': 'U03QGU0M6K1'} # My DM for now
-    r = requests.get(PATH, auth=('user', 'pass'), params=query_params)
-    r.headers['Content-Type'] = 'application/json'
-    r.headers['Authorization'] = PASS
-    
-    
+    query_params = {'text': f"Someone just completed the task {task.title}",
+                    'channel': 'U03QGU0M6K'}  # My DM for now
+    requests.post(PATH,
+                  json=query_params,
+                  headers={
+                      'Content-type': 'application/json',
+                      'Authorization': PASS
+                  })
 
     return jsonify({"task": task.to_dict()}), 200
 
-#UPDATE PART OF ONE TASK - IMCOMPLETE
+# UPDATE PART OF ONE TASK - IMCOMPLETE
 @bp.route("/<task_id>/mark_incomplete", methods=["PATCH"], strict_slashes=False)
 def mark_incomplete(task_id):
     task = validate_model(Task, task_id)
@@ -118,4 +127,4 @@ def delete_one_task(task_id):
     db.session.commit()
     return {
         "details": "Task 1 \"Go on my daily walk 🏞\" successfully deleted"
-            }
+    }
