@@ -27,12 +27,6 @@ def create_task():
     
     return make_response(f"Task {new_task.title} has been successfully created!", 201)
 
-
-
-
-
-
-
 @tasks_bp.route('/<task_id>',methods=['PUT'])
 def edit_task(task_id):
     task = Task.query.get(task_id)
@@ -104,9 +98,6 @@ def get_task():
     if not tasks_response:
         return make_response(jsonify(f"There are no {task_query} tasks"))
     return jsonify(tasks_response)
-
-
-
 
 @tasks_bp.route('/<task_id>',methods=['DELETE'])
 def delete_task(task_id):
