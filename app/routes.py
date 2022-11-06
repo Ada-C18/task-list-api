@@ -159,10 +159,24 @@ def read_all_goals():
     
     return jsonify(response), 200
 
+
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal_by_id(goal_id):
     goal = validate_goal_id(goal_id)
     return {"goal": goal.to_dict()}
+
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_one_goal_by_id(goal_id):
+    request_body = request.get_json()
+    goal = validate_goal_id(goal_id)
+
+    goal.title = request_body["title"]
+
+    db.session.commit()
+
+    return {"goal": goal.to_dict()}, 200
+
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal_by_id(goal_id):
@@ -172,3 +186,33 @@ def delete_goal_by_id(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
+
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_existing_tasks_to_goal_id(goal_id):
+    request_body = request.get_json()
+    goal = validate_goal_id(goal_id)
+
+    provided_task_ids = request_body["tasks"]
+
+    tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
+    
+    task_ids = [task.task_id for task in tasks]
+    # goal.tasks = task_ids
+    
+    for task in tasks:
+        task.goal_id = goal_id
+
+    db.session.commit()
+    
+    return jsonify({
+        "id": goal.goal_id,
+        "task_id": task_ids
+        })
+
+@goals_bp.route(""/<goal_id>/tasks"", methods=["GET"])
+def read_all_tasks_by_goal_id():
+    goal = validate_goal_id
+
+
