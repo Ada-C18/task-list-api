@@ -72,4 +72,20 @@ def delete_goal(goal_id):
 
     return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'})
 
+# @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def post_task_ids_to_goal(goal_id):
+    
+#     goal_id = validate_goal(goal_id)
+#     request_body = request.get_json()
+
+#     for id in Task.goal_id.get.all():
+#         print(id)
+
+    
+#     # task_id.goal_id = goal_id
+
+#     # db.session.add(task_id)
+#     # db.session.commit()
+    
+#     # return make_response({"task": task_id.to_dict()},201)
 

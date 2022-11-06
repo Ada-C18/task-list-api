@@ -2,9 +2,11 @@ from flask import Blueprint, request, make_response, jsonify, abort
 from app.models.task import Task
 from sqlalchemy import text
 from app import db
+import os
+import requests
 import datetime
 
-task_db = Blueprint("tasks", __name__, url_prefix="/tasks")
+task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 def validate_task(task_id):
     try:
@@ -20,7 +22,7 @@ def validate_task(task_id):
     
     return task
     
-@task_db.route("", methods=["POST"])
+@task_bp.route("", methods=["POST"])
 def create_tasks():
     
     request_body = request.get_json()
@@ -37,13 +39,13 @@ def create_tasks():
     
     return make_response({"task": new_task.to_dict()},201)
 
-@task_db.route("/<task_id>", methods=["GET"])
+@task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_task(task_id)
 
     return make_response({"task": task.to_dict()})
 
-@task_db.route("", methods=["GET"])
+@task_bp.route("", methods=["GET"])
 def get_tasks():
     
     sort_query = request.args.get("sort")
@@ -61,7 +63,7 @@ def get_tasks():
     
     return jsonify(task_list)
 
-@task_db.route("/<task_id>", methods=["PUT"])
+@task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_task(task_id)
 
@@ -74,7 +76,7 @@ def update_task(task_id):
 
     return make_response({"task": task.to_dict()})
 
-@task_db.route("/<task_id>", methods=["DELETE"])
+@task_bp.route("/<task_id>", methods=["DELETE"])
 def delete(task_id):
     task = validate_task(task_id)
 
@@ -83,17 +85,34 @@ def delete(task_id):
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'})
 
-@task_db.route("/<task_id>/mark_complete", methods=["PATCH"])
-def mark_complete(task_id) :
+def post_message_to_slack(message):
+    
+    path = "https://slack.com/api/chat.postMessage"
+    data = {
+        "channel": '#task-notifications',
+        "text": message, 
+    }
+    header_key = os.environ.get("authorization")
+
+    response = requests.post(
+        url=path, data=data,
+        headers={"Authorization": header_key})
+
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
     task_id = validate_task(task_id)
 
     task_id.completed_at = datetime.datetime.now()
+
+    post_message_to_slack(f"{task_id.title} was completed at {task_id.completed_at}")
 
     db.session.commit()
 
     return make_response({"task": task_id.to_dict()})
 
-@task_db.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
 
     task_id = validate_task(task_id)
