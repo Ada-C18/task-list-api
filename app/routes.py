@@ -58,15 +58,15 @@ def get_all_objects(cls):
     return result
     # return jsonify(result), 200
 
-def create_one_object(cls):
-    request_body = request.get_json()
+# def create_one_object(cls):
+#     request_body = request.get_json()
     
-    try:
-        new_object = cls.from_dict(request_body)
-    except KeyError:
-        return jsonify({"details": "Invalid data"}),400
+#     try:
+#         new_object = cls.from_dict(request_body)
+#     except KeyError:
+#         return jsonify({"details": "Invalid data"}),400
     
-    return new_object
+#     return new_object
     
 ##WAVE 2 - updating get end point with sort features##
 @task_bp.route('', methods=['GET'])
@@ -182,4 +182,16 @@ def get_all_goals():
 def get_one_goal(goal_id):
     chosen_goal = get_model_from_id(Goal,goal_id)
     return jsonify({"goal":chosen_goal.to_dict()}), 200
+
+@goal_bp.route('', methods=["POST"])
+def create_one_goal():
+    request_body = request.get_json()
     
+    try:
+        new_goal = Goal.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}),400
+    
+    db.session.add(new_goal)
+    db.session.commit()
+    return jsonify({"goal":new_goal.to_dict()}), 201
