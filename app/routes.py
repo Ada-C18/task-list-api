@@ -39,17 +39,12 @@ def create_task():
 def get_all_tasks():
     tasks_response = []
     task_query = Task.query
-
-    sort_query = request.args.get("sort")  # query param key
+    sort_query = request.args.get("sort") 
 
     if sort_query == "asc":
         tasks = task_query.order_by(Task.title).all()
-        # Task.query.order_by(Task.title.all()) is a list of title objects for all records in the task db table in that order
-        # The default for order_by() is ascending. For descending, need to import "from sqlalchemy import desc"
-
     elif sort_query == "desc":
         tasks = task_query.order_by(desc(Task.title)).all()
-
     else:
         tasks = task_query.all()
 
@@ -108,7 +103,6 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    # # we never want to update an id. It's covered by postgreSQL
 
     db.session.commit()
 
@@ -122,7 +116,6 @@ def update_task(task_id):
     }
 
     return make_response(task_response, 200)
-
 
 
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
@@ -147,6 +140,7 @@ def update_complete(task_id, complete):
         }
     }
     return make_response(task_response, 200)
+
 
 @goals_bp.route("", methods=["POST"])
 def create_goal():
@@ -183,6 +177,7 @@ def get_all_goal():
 
     return make_response(jsonify(goal_response), 200)
 
+
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
@@ -190,7 +185,7 @@ def get_one_goal(goal_id):
     return {"goal": {
             "id": goal.goal_id,
             "title": goal.title,
-        }}
+            }}
 
 
 def validate_goal_id(goal_id):
@@ -204,6 +199,7 @@ def validate_goal_id(goal_id):
         abort(make_response({"message": f"goal {goal_id} not found"}, 404))
     else:
         return goal
+
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
@@ -222,3 +218,13 @@ def update_goal(goal_id):
     }
 
     return make_response(goal_response, 200)
+
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_task(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return make_response(jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200)
