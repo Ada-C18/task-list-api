@@ -6,7 +6,14 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)
+
     
+    @classmethod
+    def from_dict(cls, data_dict):
+        return cls(title=data_dict["title"],
+        description=data_dict["description"]
+        )
+
     def to_dict(self):
         return {
             "id": self.id,
