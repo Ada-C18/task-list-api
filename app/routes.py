@@ -237,3 +237,51 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}),200
+
+#------------------------------------WAVE 6----------------------------------
+# Sending a List of Task IDs to a Goal
+@goals_bp.route('/<goal_id>/tasks', methods =["POST"])
+def goal_add_into_task_by_id(goal_id):
+    goal = check_valid_goal_id(goal_id)
+    request_body = request.get_json()
+    for task_id in request_body["task_ids"]:
+        task = Task.query.get(task_id)
+        task.goal_id = goal_id
+        db.session.add(task)
+        db.session.commit()
+    return make_response({
+            "id": goal.goal_id,
+            "task_ids": request_body["task_ids"]
+            }, 200)
+# Getting Tasks of One Goal
+@goals_bp.route('/<goal_id>/tasks', methods =["GET"])
+def get_tasks_one_goal(goal_id):
+    goal = check_valid_goal_id(goal_id)
+    tasks = Task.query.filter_by(goal_id = int(goal_id)).all()
+    tasks_goal_response = []
+    
+    for task in tasks:
+        # if task.goal_id == int(goal_id):
+        tasks_goal_response.append({
+            "id": task.task_id,
+            "goal_id": int(goal_id),
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        })
+    return make_response(jsonify({
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks":tasks_goal_response
+        }),200)
+    
+@goals_bp.route('/tasks/<task_id>', methods =["GET"])
+def get_task_includes_goal_id(task_id):
+    task = check_valid_id(task_id)
+    return make_response({"task":{
+            "id": task.task_id,
+            "goal_id": task.goal_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete":False
+        }}, 200)
