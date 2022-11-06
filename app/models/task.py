@@ -8,11 +8,15 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime, nullable = True)
 
     def to_dict(self):
+        if self.completed_at is not None:
+            completed = True
+        elif self.completed_at is None:
+            completed = False
         return {"task": {
         "id":self.task_id, 
         "title":self.title, 
         "description": self.description,
-        "is_complete": False}}
+        "is_complete": completed}}
 
     def to_dict_all_tasks(self):
         return {
