@@ -18,15 +18,20 @@ def validate_task(cls, task_id):
 
     return task
 
+
 @bp.route("", methods=["POST"])
 def create_a_task():
-    request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
-    db.session.add(new_task)
-    db.session.commit()
+    try: 
+        request_body = request.get_json()
 
-    return make_response(jsonify({
-            "task": Task.to_dict(new_task)})), 201
+        new_task = Task.from_dict(request_body)
+        db.session.add(new_task)
+        db.session.commit()
+
+        return make_response(jsonify({
+                "task": Task.to_dict(new_task)})), 201
+    except:
+        abort(make_response({"details": "Invalid data"}, 400))
 
 @bp.route("", methods=["GET"])
 def get_saved_tasks():
@@ -46,3 +51,33 @@ def get_one_task(task_id):
     task = validate_task(Task, task_id)
     return make_response(jsonify({
         "task": Task.to_dict(task)})), 200
+
+@bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_task(Task, task_id)
+
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+
+    db.session.commit()
+
+    return make_response(jsonify({
+        "task": Task.to_dict(task)})), 200
+
+@bp.route("<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_task(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response(jsonify({
+        "details" : f"Task {task_id} \"{task.title}\" successfully deleted"}))
+
+
+
+
+
+
