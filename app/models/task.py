@@ -7,19 +7,20 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default=None)
 
-    # def to_dict(self):
-    #     task_as_dict = {}
-    #     task_as_dict["id"] = self.task_id
-    #     task_as_dict["title"] = self.title
-    #     task_as_dict["description"] = self.description
-    #     task_as_dict["is_complete"] = self.completed_at
+    def to_dict(self):
+        task = {
+            "id" : self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": self.completed_at is not None
+        }
 
-        # return task_as_dict
+        return task
 
     def update(self, request_body):
         self.title = request_body["title"]
         self.description = request_body["description"]
-        self.completed_at = request_body["completed_at"]
+        # self.completed_at = request_body["completed_at"]
 
     @classmethod
     def from_dict(cls, task_data):
