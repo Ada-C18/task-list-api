@@ -4,8 +4,7 @@ from app import db
 from datetime import datetime
 import os
 import requests
-# import logging
-# from slack_logger import SlackHandler, SlackFormatter, SlackLogFilter
+
 
 
 task_bp = Blueprint("task", __name__, url_prefix = "/tasks")
