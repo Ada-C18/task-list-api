@@ -17,7 +17,7 @@ def create_task():
         # You're looking for this key and assign it to name, breed, gender, age
         title=request_body["title"],
         description=request_body["description"],
-        completed_at=request_body["completed_at"]
+        #completed_at=request_body["completed_at"]
     )
     # Add this new instance of dog to the database
     db.session.add(new_task)
@@ -57,3 +57,35 @@ def get_one_task(task_id):
         "description": task.description,
         "is_complete": bool(task.completed_at)
     }},200
+@task_bp.route("/<task_id>", methods=["PUT"])
+
+def edit_task(task_id):
+    task = Task.query.get(task_id)
+    request_body = request.get_json(task_id)
+
+    task.title = request_body["title"],
+    task.description = request_body["description"]
+
+    db.session.commit()
+
+    return make_response({ "task":{
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": bool(task.completed_at)
+    }},200)
+
+
+task_bp.route("/<task_id>", methods=["DELETE"])
+
+def delete_task(task_id):
+    task = Task.query.get(task_id)
+    #request_body = request.get_json(task_id)
+
+    db.session.delete(task)
+    db.session.commit
+
+    return make_response(f"details:" 'Task {task_id} \"{task.title}\" successfully deleted'),200
+
+
+
