@@ -24,6 +24,9 @@ def get_one_task_or_abort(task_id):
 def create_task():
     
     request_body = request.get_json()
+    if "title" not in request_body or \
+        "description" not in request_body:
+            return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task(
         title = request_body["title"],
@@ -113,13 +116,13 @@ def update_task(task_id):
     return jsonify({"task":task_dict}), 200
     
 
-# @task_bp.route("<task_id>", methods=["DELETE"])
-# def delete_one_task(task_id):
-#     chosen_task = get_one_task_or_abort(task_id)
+@task_bp.route("<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
 
-#     db.session.delete(chosen_task)
-#     db.session.commit()
-#     return jsonify({"details": f"`{chosen_task}` Go on my daily walk successfully deleted"}),200
+    db.session.delete(chosen_task)
+    db.session.commit()
+    return jsonify({"details": f'Task {task_id} "Go on my daily walk 🏞" successfully deleted'}),200
 
 
 
