@@ -1,7 +1,7 @@
-from flask import Blueprint
+from flask import abort, Blueprint, jsonify, make_response, request
 from app import db
 from app.models.task import Task
-from flask import abort, Blueprint, jsonify, make_response, request
+
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -12,8 +12,12 @@ def create_task():
     POST method - allows client to post tasks to the tasks record
     '''
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
 
+    try:
+        new_task = Task.from_dict(request_body)
+    except:
+        return make_response({"details": "Invalid data"}, 400)
+    
     db.session.add(new_task)
     db.session.commit()
 
@@ -42,8 +46,18 @@ def validate_model(cls, model_id):
 def view_all_tasks():
     '''
     GET method - allows client to view all tasks
+    allows client to sort tasks alphabetically by title, in ascending and descending order
     '''
-    all_tasks = Task.query.all()
+    sorted_query = request.args.get("sort")
+    if sorted_query:
+        if sorted_query == "asc":
+            all_tasks = Task.query.order_by(Task.title.asc()).all()
+        
+        elif sorted_query == "desc":
+            all_tasks = Task.query.order_by(Task.title.desc()).all()
+
+    else:
+        all_tasks = Task.query.all()
 
     request_body = []
     for task in all_tasks:
@@ -77,3 +91,17 @@ def update_one_task(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
+
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    '''
+    DELETE method - allows user to remove specified task record
+    '''
+    task = validate_model(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return {"details": f"Task {task.task_id} \"{task.title}\" successfully deleted"}
+    
