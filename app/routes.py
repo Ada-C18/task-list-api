@@ -2,6 +2,7 @@ from app import db
 from flask import Blueprint, request, jsonify, make_response, abort
 from app.models.task import Task
 from sqlalchemy import desc
+from datetime import date
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -120,8 +121,26 @@ def update_task(task_id):
 
     return make_response(task_response, 200)
 
-## completed_at -> date time column
-## is_complete -> boolean column
-@tasks_bp.route("", methods=["PATCH"])
-def update_complete():
-    complete_query = request.args.get("mark_complete") 
+# completed_at -> date time column
+# is_complete -> boolean column
+
+
+@tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
+def update_complete(task_id, complete):
+    #complete_query = request.args.get("mark_complete")
+    task = validate_id(task_id)
+    if complete == "mark_complete":
+        task.is_complete = True
+        task.completed_at = date.today()
+
+    db.session.commit()
+
+    task_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete
+        }
+    }
+    return make_response(task_response, 200)
