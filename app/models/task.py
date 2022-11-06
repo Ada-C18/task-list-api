@@ -2,7 +2,7 @@ from app import db
 # import json
 
 class Task(db.Model):
-    task_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
     # confirm null is default if task has not been completed
@@ -12,7 +12,7 @@ class Task(db.Model):
 
     def to_dict(self):
         task_dict = {}
-        task_dict["id"] = self.task_id
+        task_dict["id"] = self.id
         task_dict["title"] = self.title
         task_dict["description"] = self.description
         task_dict["is_complete"] = False
@@ -22,3 +22,10 @@ class Task(db.Model):
         # return json.dumps(task_dict)
         return task_dict
         # task_dict["completed_at"] = self.completed_at
+
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                        description=task_data["description"])
+
+        return new_task
