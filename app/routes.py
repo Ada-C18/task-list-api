@@ -211,8 +211,24 @@ def post_existing_tasks_to_goal_id(goal_id):
         "task_id": task_ids
         })
 
-@goals_bp.route(""/<goal_id>/tasks"", methods=["GET"])
-def read_all_tasks_by_goal_id():
-    goal = validate_goal_id
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_all_tasks_by_goal_id(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    tasks = []
+    for task in goal.tasks:
+        tasks.append({
+            "task_id": task.task_id,
+            "goal_id": goal.goal_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete()
+            })
 
 
+    return {
+        "goal_id": goal.goal_id,
+        "title": "Build a habit of going outside daily",
+        "tasks": tasks
+    }
