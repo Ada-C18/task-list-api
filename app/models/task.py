@@ -1,5 +1,5 @@
 from app import db
-from flask import abort, make_response
+# from flask import abort, make_response
 
 
 class Task(db.Model):
@@ -23,8 +23,7 @@ class Task(db.Model):
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "is_complete": self.task_complete(),
-        }
+            "is_complete": self.task_complete()}
     
     
     def task_complete(self):
