@@ -101,3 +101,35 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response({"details": f"Task {task.id} \"{task.title}\" successfully deleted"})
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    task = validate_task(task_id)
+
+    task.mark_complete()
+    db.session.commit()
+
+    return {
+            "task": {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": task.is_complete
+            }
+        }
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_task(task_id)
+
+    task.mark_incomplete()
+    db.session.commit()
+
+    return {
+            "task": {
+                "id": task.id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": task.is_complete
+            }
+        }
