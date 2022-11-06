@@ -2,8 +2,8 @@ from flask import Blueprint
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
-from sqlalchemy import asc 
-from sqlalchemy import desc
+import datetime as dt
+import requests
 
 
 
@@ -152,3 +152,36 @@ def delete_book(task_id):
 
     return {"details":f'Task {task.task_id} "{task.title}" successfully deleted'}
 
+########################################
+#         PRACTICE  patch tasks/<task_id>mark_complete
+########################################
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def updated_incomplete_task_to_complete(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = (dt.date.today())
+
+    db.session.commit()
+    return {"task":task.to_dict()}, 200
+
+
+########################################
+#   CORRECT OLD W/O API patch tasks/<task_id>mark_complete
+########################################
+
+# Patch Task: Mark Complete on an Incompleted Task
+# @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+# def updated_incomplete_task_to_complete(task_id):
+#     task = validate_model(Task, task_id)
+#     task.completed_at = (dt.date.today())
+
+#     db.session.commit()
+#     return {"task":task.to_dict()}, 200
+
+# Mark Incomplete on a Completed Task
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def updated_complete_task_to_incomplete(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = None
+
+    db.session.commit()
+    return {"task":task.to_dict()}, 200
