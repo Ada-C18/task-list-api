@@ -2,6 +2,8 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, request, jsonify, make_response, abort
 from datetime import datetime
+import requests
+import os
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -32,7 +34,7 @@ def create_task():
 
         return jsonify({"task":new_task.to_dict()}), 201
     
-    except KeyError :
+    except KeyError:
         return jsonify({"details":"Invalid data"}), 400
 
 @tasks_bp.route("", methods=["GET"])
@@ -87,8 +89,20 @@ def mark_one_task_complete(task_id):
     task_to_mark_complete.completed_at = datetime.today()
     db.session.commit()
     
-    return jsonify({"task":task_to_mark_complete.to_dict()}), 200
+    #send a POST request to https://slack.com/api/chat.postMessage
+    #Headers needs a new key-value pair of "Authorization: Bearer {SLACK_TOKEN}"
+    #params need to include "channel:task-notifications and 
+    # "text: Someone just completed the task {task_to_mark_as_complete.title}""
+    SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+    path = "https://slack.com/api/chat.postMessage"
+    headers = {"Authorization":f"Bearer {SLACK_TOKEN}"}
+    query_params = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task_to_mark_complete.title}"
+    }
+    requests.post(path, params=query_params, headers=headers)
 
+    return jsonify({"task":task_to_mark_complete.to_dict()}), 200
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_one_task_incomplete(task_id):  
