@@ -7,8 +7,6 @@ from flask import Blueprint, jsonify, abort, make_response, request
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
-
-
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
@@ -35,7 +33,7 @@ def create_tasks():
             "id": new_task.task_id,
             "title": new_task.title,
             "description": new_task.description,
-            "is_complete": False
+            "is_complete": bool(new_task.completed_at)
         }
         }, 201
 
@@ -63,7 +61,7 @@ def read_all_tasks():
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": False
+                "is_complete": bool(task.completed_at)
             }
         )
     
@@ -105,7 +103,7 @@ def get_one_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False
+            "is_complete": bool(task.completed_at)
         }
         }
 
@@ -126,11 +124,11 @@ def update_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False
+            "is_complete": bool(task.completed_at)
         }
         }
 
-# Defining Endpoint and Creating Route Function to UPDATE a Task
+# Defining Endpoint and Creating Route Function to DELETE a Task
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_task(task_id)
@@ -142,11 +140,46 @@ def delete_task(task_id):
         "details": f'Task {task.task_id} "{task.title}" successfully deleted'
     }
 
-# Defining Endpoint and Creating Route Function to retrieve sort query param
-@tasks_bp.route("", methods=["GET"])
-def get_sorted_asc():
-    tasks = Task.query.all()
-    asc_list = (sorted(tasks, key=lambda dict: dict['title']))
 
-    return(asc_list)
     
+# Defining Endpoint and Creating Route Function to PATCH a Task
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def patch_task_complete(task_id):
+    task = validate_task(task_id)
+
+    request_body = request.get_json()
+
+
+    task.completed_at = request_body["completed_at"]
+
+    db.session.commit()
+
+    if task.completed_at == None:
+        return {
+            "task": {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": True
+            }
+            }
+
+# # Defining Endpoint and Creating Route Function to PATCH a Task
+# @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+# def patch_task_incomplete(task_id):
+#     task = validate_task(task_id)
+
+#     request_body = request.get_json()
+
+#     task.completed_at = request_body["completed_at"]
+
+#     db.session.commit()
+
+#     return {
+#         "task": {
+#             "id": task.task_id,
+#             "title": task.title,
+#             "description": task.description,
+#             "is_complete": task.completed_at
+#         }
+#         }
