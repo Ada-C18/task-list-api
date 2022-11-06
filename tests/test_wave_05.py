@@ -58,8 +58,8 @@ def test_get_goal_not_found(client):
     # ---- Complete Test ----
     # assertion 1 goes here
     assert "message" in response_body
-    assert response_body["message"] == "Could not find Goal item with id: 1"
     # assertion 2 goes here
+    assert response_body["message"] == "Could not find Goal item with id: 1"
     # ---- Complete Test ----
 
 

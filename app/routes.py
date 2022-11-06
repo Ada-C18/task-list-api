@@ -56,7 +56,7 @@ def get_all_objects(cls):
     for object in objects:
         result.append(object.to_dict())
     return result
-    # return jsonify(result), 200
+
 
 # def create_one_object(cls):
 #     request_body = request.get_json()
@@ -69,6 +69,25 @@ def get_all_objects(cls):
 #     return new_object
     
 ##WAVE 2 - updating get end point with sort features##
+
+def update_one_object(Task, task_id):
+    update_task = get_model_from_id(Task,task_id)
+    request_body = request.get_json()
+    
+    
+    # try:
+    update_task.title = request_body["title"]
+    update_task.description = request_body["description"]
+    # except KeyError:
+        # return jsonify({"details": "Invalid data"}),400
+        # for attribute in task_attributes:            
+        #     if attribute not in request_body:
+        #         response_message += attribute +", "
+        # return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
+    
+    return update_task
+
+
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():    
     # '''source: https://riptutorial.com/sqlalchemy/example/12146/order-by'''
@@ -113,23 +132,27 @@ def create_one_task():
 
 
 @task_bp.route('/<task_id>', methods=['PUT'])
-def update_task(task_id):
-    update_task = get_model_from_id(Task,task_id)
-    request_body = request.get_json()
-    
-    task_attributes = ["title","description"]
-    response_message = ""
-    
-    try:
-        update_task.title = request_body["title"]
-        update_task.description = request_body["description"]
+def update_task(task_id):    
+    try:        
+        update_task = update_one_object(Task, task_id)        
     except KeyError:
-        # return jsonify({"details": "Invalid data"}),400
-        for attribute in task_attributes:
-            
-            if attribute not in request_body:
-                response_message += attribute +", "
-        return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
+        return jsonify({"details": "Invalid data"}),400
+        
+    # update_task = get_model_from_id(Task,task_id)
+    # request_body = request.get_json()
+    
+    # task_attributes = ["title","description"]
+    # response_message = ""
+    
+    # try:
+    #     update_task.title = request_body["title"]
+    #     update_task.description = request_body["description"]
+    # except KeyError:
+    #     # return jsonify({"details": "Invalid data"}),400
+    #     for attribute in task_attributes:            
+    #         if attribute not in request_body:
+    #             response_message += attribute +", "
+    #     return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
     
 
     
