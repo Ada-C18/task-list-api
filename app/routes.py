@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
 from sqlalchemy import asc, desc
+import datetime 
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -23,18 +24,20 @@ def validate_model(cls, model_id):
 def read_all_tasks():
     title_query = request.args.get("title")
     sort_query = request.args.get("sort")
-    task_query = Task.query
     
     if title_query:
-        task_query = task_query.filter_by(title=title_query)
+        tasks = Task.query.filter_by(title=title_query)
         
     if sort_query == "asc":
-        task_query = task_query.order_by(Task.title.asc())
+        tasks = Task.query.order_by(Task.title.asc())
         
     if sort_query == "desc":
-        task_query = task_query.order_by(Task.title.desc())
+        tasks = Task.query.order_by(Task.title.desc())
+        
+    if not title_query and not sort_query:
             
-    tasks = task_query.all()
+        tasks = Task.query.all()
+    
     
     tasks_response = []
     for task in tasks:
@@ -52,9 +55,6 @@ def read_all_tasks():
     # tasks_response = [task.to_dict() for task in tasks]
     
     # return jsonify(tasks_response)
-    
-    # tasks = Task.query.all()
-
 
 @task_list_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
@@ -103,31 +103,22 @@ def delete_task(task_id):
     return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200
 
 
-
-
-
-
-# @task_list_bp.route("", methods=["GET"])   
-# def get_all_tasks():
-#     title_param = request.args.get("title")
-#     description_param = request.args.get("description")
+@task_list_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete_on_incomplete_task(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = datetime.datetime.today()
     
-#     if title_param:
-#         tasks = Task.query.filter_by(title=title_param)
-#     elif description_param:
-#         tasks = Task.query.filter_by(description=description_param)
-#     else:
-#         tasks = Task.query.all()
-        
-#     results_list = [task.to_dict() for task in tasks]
-#     return jsonify(results_list), 200
-
-
-    # (title=request_body["title"],
-    #                 description=request_body["description"],
-    #                 completed_at=request_body["completed_at"])
-
-    # db.session.add(new_task)
-    # db.session.commit()
-
-    # return make_response(f"Book {new_task.title} successfully created", 200)
+    db.session.commit()
+    
+    return jsonify({"task": task.to_dict()})
+    
+    
+@task_list_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete_on_complete_task(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = None
+    
+    db.session.commit()
+    
+    return jsonify({"task": task.to_dict()}) 
+    
