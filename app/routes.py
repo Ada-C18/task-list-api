@@ -1,6 +1,7 @@
 from flask import abort, Blueprint, jsonify, make_response, request
 from app import db
 from app.models.task import Task
+import datetime
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -104,4 +105,32 @@ def delete_task(task_id):
     db.session.commit()
 
     return {"details": f"Task {task.task_id} \"{task.title}\" successfully deleted"}
-    
+
+
+#### is_complete endpoints ####
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    '''
+    PATCH method - allows client to update task is_complete
+    '''
+    task = validate_model(Task, task_id)
+
+    task.completed_at = datetime.datetime.now()
+
+    db.session.commit()
+
+    return {"task": task.to_dict()}
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    '''
+    PATCH method - allows client to mark completed task as incompmplete
+    '''
+    task = validate_model(Task, task_id)
+
+    task.completed_at = None
+
+    db.session.commit()
+
+    return {"task": task.to_dict()}
