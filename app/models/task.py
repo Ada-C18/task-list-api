@@ -16,11 +16,12 @@ class Task(db.Model):
             "is_complete": True if self.completed_at else False                                  
         }
         
-        # return {"task":{
-        # "id": self.task_id,
-        # "title": self.title,
-        # "description": self.description,
-        # "is_complete": True if self.completed_at else False}                               
-        # }
+    @classmethod
+    def from_dict(cls, task_dict):
+        return cls(
+            title=task_dict["title"],
+            description=task_dict["description"]            
+            
+        )
         
     

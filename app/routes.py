@@ -93,11 +93,11 @@ def create_one_task():
     request_body = request.get_json()
     
     try:
-        new_task = Task(title=request_body["title"],
-                    description=request_body["description"]
-                    # completed_at=request_body['completed_at']
-                    )
-    
+        # new_task = Task(title=request_body["title"],
+        #             description=request_body["description"]
+        #             # completed_at=request_body['completed_at']
+        #             )
+        new_task = Task.from_dict(request_body)
     except KeyError:
         return jsonify({"details": "Invalid data"}),400
         
