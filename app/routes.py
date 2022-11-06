@@ -36,23 +36,13 @@ def return_all_tasks():
     tasks_response = []
     tasks = Task.query.all()
     for task in tasks:
-        tasks_response.append(
-            {
-                "task_id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "completed_at": task.completed_at
-            }
-        )
+        tasks_response.append(task.to_dict())
     return make_response(jsonify(tasks_response),200)
 
 # Gets one specific task
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_task(task_id)
-    return {
-            "task_id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "completed_at": task.completed_at
-        }
+    task_response = {task: task.to_dict()}
+    return jsonify(task_response), 200
+        
