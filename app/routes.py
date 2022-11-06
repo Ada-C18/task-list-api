@@ -28,8 +28,9 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(f"Task {new_task.title} successfully created", 201)
+    return make_response(jsonify(f"Task {new_task.title} successfully created", 201))
 
+# Returns all tasks
 @tasks_bp.route("", methods=["GET"])
 def return_all_tasks():
     tasks_response = []
@@ -43,8 +44,9 @@ def return_all_tasks():
                 "completed_at": task.completed_at
             }
         )
-    return jsonify(tasks_response),200
+    return make_response(jsonify(tasks_response),200)
 
+# Gets one specific task
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_task(task_id)
