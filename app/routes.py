@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request, abort, make_response
-from app import db
+from app import db, Key
 from app.models.task import Task
 import datetime
+import requests
 
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 # helper function to structure request response json
 def make_task_dict(task):
@@ -19,6 +21,7 @@ def make_task_dict(task):
             # task_dict["completed_at"] = task.completed_at
         
         return task_dict
+
 
 @task_bp.route("", methods=["POST"])
 def add_task():
@@ -112,7 +115,14 @@ def mark_task_complete(task_id):
     selected_task.completed_at = datetime.date.today()
 
     db.session.commit()
-    
+
+    #Slack Patch Request
+    slack_message = f"Someone just completed the task {selected_task.title}"
+    payload = {"channel":"task-notifications", "text":slack_message}
+    headers = {"Authorization":f'Bearer {Key}'}
+    requests.patch("https://slack.com/api/chat.postMessage", data=payload, headers=headers)
+
+
     task_dict = make_task_dict(selected_task)
     response_dict = {"task": task_dict}
     return response_dict, 200
@@ -120,6 +130,7 @@ def mark_task_complete(task_id):
 @task_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_task_incomplete(task_id):
     selected_task = validate_id(task_id)
+
     selected_task.completed_at = None
     db.session.commit()
 

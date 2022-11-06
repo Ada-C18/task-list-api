@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 db = SQLAlchemy()
 migrate = Migrate()
 load_dotenv()
+Key = os.environ.get("SLACK_TOKEN")    
 
 
 def create_app(test_config=None):
@@ -21,6 +22,7 @@ def create_app(test_config=None):
         app.config["TESTING"] = True
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
             "SQLALCHEMY_TEST_DATABASE_URI")
+        
 
     # Import models here for Alembic setup
     from app.models.task import Task
@@ -31,6 +33,10 @@ def create_app(test_config=None):
 
     # Register Blueprints here
     from .routes import task_bp
+    from .routes import goal_bp
+    
     app.register_blueprint(task_bp)
+    app.register_blueprint(goal_bp)
+
 
     return app
