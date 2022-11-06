@@ -54,12 +54,11 @@ def create_task():
 @task_bp.route("", methods = ["GET"])
 def get_task_all():
     title_query = request.args.get("sort") #this will give asc
-    print(title_query)
     if title_query is not None and title_query=="asc":
         tasks = Task.query.order_by(Task.title).all()
-    # elif title_query is not None and title_query==desc:
-    #     tasks = Task.query.order_by(Task.title).all()
-    else:
+    elif title_query is not None and title_query=="desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    elif title_query is None:
         tasks = Task.query.all()
     
     response= []
