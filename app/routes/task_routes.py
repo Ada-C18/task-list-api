@@ -76,10 +76,15 @@ def get_all_tasks():
 def get_one_task(task_id_input):
     chosen_task = validate_object(Task, task_id_input)
 
-    task_info = {
-        "task": chosen_task.to_dict(determine_completion)
-    }
+    if chosen_task.goal_id:
 
+        task_info = {
+            "task": chosen_task.to_dict_with_goal(determine_completion)
+        }
+    else:
+        task_info = {
+            "task": chosen_task.to_dict(determine_completion)
+        }
     return jsonify(task_info), 200
 # -------------------------------------------PUT----------------------------------
 @task_bp.route("/<task_id_input>", methods=["PUT"])
