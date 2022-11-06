@@ -2,6 +2,8 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 from datetime import datetime
+import os  
+import requests
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -22,18 +24,23 @@ def validate_tasks(task_id):
 
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
-    title = request.json.get("title", None)
-    description = request.json.get("description")
-    if not title or not description:
-        return jsonify({"details": "Invalid data"}), 400
 
+    # request_body = request.get_json()
+    # title = request.json.get("title", None)
+    # description = request.json.get("description", None)
+    
+    try:
+        request_body = request.get_json()
         new_task = Task(
             title=request_body["title"],
             description=request_body["description"]
             )
+    except KeyError:
+        return jsonify({"details": "Invalid data"}), 400
+
     db.session.add(new_task)
     db.session.commit()
-
+    
     return jsonify({"task": new_task.to_dict()}), 201
 
 @tasks_bp.route("", methods=["GET"])
@@ -89,6 +96,14 @@ def mark_complete(task_id):
     db.session.commit()
     response_body = {}
     response_body["task"] = task.to_dict()
+    SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+    path = "https://slack.com/api/chat.postMessage"
+    headers = {"Authorization":f"Bearer {SLACK_TOKEN}"}
+    query_param = {
+    "channel": "task-notifications",
+    "text": f"Someone just completed the task {task.title}"
+    }
+    requests.post(path, params=query_param, headers=headers)
     
     return jsonify(response_body), 200
 
