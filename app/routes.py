@@ -1,7 +1,9 @@
 from os import abort
 from flask import Blueprint, jsonify, request, abort, make_response
+import requests
 from app.models.task import Task
 from app import db
+import os
 
 from sqlalchemy import asc, desc
 import time
@@ -96,6 +98,21 @@ def update_task(task_id):
 
     })
 
+
+def get_task_from_id(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400))
+    chosen_task = Task.query.get(task_id)
+
+    if chosen_task is None:
+        return abort(make_response({"msg": f"Could not find task item with id: {task_id}"}, 404))
+    return chosen_task
+
+
+
+
 #wave 3 creating a custom endpoint--mark a task as complete = True 
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def patch_a_complete_task(task_id):
@@ -108,6 +125,15 @@ def patch_a_complete_task(task_id):
 
     db.session.add(task)
     db.session.commit()
+
+    SLACK_TOKEN = os.environ.get("MY_SLACK_TOKEN")
+    message = f"Someone just completed the task {task.title}"
+    headers = {"Authorization": "Bearer" + SLACK_TOKEN}
+    params = {"Channel": "task-notifications", "text": message}
+
+    request_to_slack = requests.post('url=https://slack.com/api/chat.postMessage',data=params,headers=headers)
+    print(request_to_slack)
+    print(request_to_slack.status_code)
 
     return jsonify({
         "task": {
@@ -151,13 +177,13 @@ def delete_one_task(task_id):
 
 
 #helper function to get task by id:
-def get_task_from_id(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400))
-    chosen_task = Task.query.get(task_id)
+# def get_task_from_id(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except ValueError:
+#         return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400))
+#     chosen_task = Task.query.get(task_id)
 
-    if chosen_task is None:
-        return abort(make_response({"msg": f"Could not find task item with id: {task_id}"}, 404))
-    return chosen_task
+#     if chosen_task is None:
+#         return abort(make_response({"msg": f"Could not find task item with id: {task_id}"}, 404))
+#     return chosen_task
