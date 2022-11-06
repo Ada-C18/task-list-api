@@ -34,17 +34,19 @@ def create_a_task():
         abort(make_response({"details": "Invalid data"}, 400))
 
 @bp.route("", methods=["GET"])
-def get_saved_tasks():
-    title_query = request.args.get("title")
-    if title_query:
-        tasks = Task.query.filter_by(title=title_query)
-    else:
-        tasks = Task.query.all()
-    
+def get_all_tasks():
     tasks_response = []
+    sort_query = request.args.get("sort")
+    if sort_query=="desc":
+        tasks = Task.query.order_by(Task.title.desc())
+    else:
+        tasks = Task.query.order_by(Task.title.asc())
+    
+    
     for task in tasks:
         tasks_response.append(task.to_dict())
     return jsonify(tasks_response)
+
 
 @bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
