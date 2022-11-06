@@ -58,6 +58,16 @@ def get_all_objects(cls):
     return result
     # return jsonify(result), 200
 
+def create_one_object(cls):
+    request_body = request.get_json()
+    
+    try:
+        new_object = cls.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}),400
+    
+    return new_object
+    
 ##WAVE 2 - updating get end point with sort features##
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():    
@@ -93,18 +103,14 @@ def create_one_task():
     request_body = request.get_json()
     
     try:
-        # new_task = Task(title=request_body["title"],
-        #             description=request_body["description"]
-        #             # completed_at=request_body['completed_at']
-        #             )
         new_task = Task.from_dict(request_body)
     except KeyError:
         return jsonify({"details": "Invalid data"}),400
-        
+
     db.session.add(new_task)
     db.session.commit()
     return jsonify({"task":new_task.to_dict()}), 201
-    # return jsonify(new_task.to_dict()), 201
+
 
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_task(task_id):
