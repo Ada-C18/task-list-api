@@ -108,11 +108,11 @@ def delete_task_data_from_db(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
-    task_to_complete = get_one_task_or_error(task_id)
+    task_to_complete = get_one_task_or_error(task_id) # 1, whatever title, description and complete?
 
-    if not task_to_complete.completed_at:
-        task_to_complete.completed_at = datetime.today()
+    task_to_complete.completed_at = datetime.today()
     
+    db.session.add(task_to_complete)
     db.session.commit()
     
     return jsonify({"task": task_to_complete.to_dict()}), 200
@@ -121,9 +121,9 @@ def mark_task_complete(task_id):
 def mark_task_incomplete(task_id):
     incomplete_task = get_one_task_or_error(task_id)
 
-    if incomplete_task.completed_at:
-        incomplete_task.completed_at = None
+    incomplete_task.completed_at = None
 
+    db.session.add(incomplete_task)
     db.session.commit()
 
     return jsonify({"task": incomplete_task.to_dict()}), 200
