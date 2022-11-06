@@ -7,13 +7,14 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
+    is_complete = db.Column(db.Boolean, default = False)
 
     def to_dict(self):
         task_as_dict = {
         "id": self.task_id,
         "title": self.title,
         "description": self.description,
-        "is_complete": False,
+        "is_complete": self.is_complete
         }
 
         return task_as_dict
@@ -21,7 +22,8 @@ class Task(db.Model):
     @classmethod
     def from_dict(cls, task_data):
         new_task = cls(title=task_data["title"],
-                        description=task_data["description"]
+                        description=task_data["description"],
+                        # completed_at=None,
                         )
 
         return new_task
