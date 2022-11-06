@@ -19,3 +19,13 @@ class Task(db.Model):
             is_complete=False
             
     )
+     
+    def from_dict(self):
+        
+        return dict(
+            id= self.id,
+            title= self.title,
+            description= self.description,
+            is_complete=True
+            
+    )   

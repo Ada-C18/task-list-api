@@ -3,6 +3,7 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import desc, asc
+import datetime as dt
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 def validate_id(id):
@@ -37,11 +38,10 @@ def create_tasks():
         return {"task":task_dictionary}, 201
 
 ##############GET_ALL_TASK####################
+
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    # title_param = request.args.get("title" )
-    # description_param = request.args.get("description")
-    # completed_param=request.args.get("completed_at")
+   #/tasks?sort=desc
     sort_query = request.args.get("sort")
     
     if sort_query=="asc":
@@ -49,18 +49,9 @@ def get_all_tasks():
     elif sort_query=="desc":
         tasks=Task.query.order_by(Task.title.desc())
 
-
-    # #if title_param:
-    #     tasks = Task.query.order_by(title=title_param)
-    # elif description_param:
-    #     tasks = Task.query.order_by(asc(Task.description)).all()
-    # elif completed_param:
-    #     tasks=Task.query.filter_by(asc(Task.completed_at)).all()
     else:
         tasks = Task.query.all()
-
     result_list = [task.to_dict() for task in tasks]
-    
     return   jsonify(result_list), 200
 
 
@@ -95,4 +86,25 @@ def delete_task(id):
 
     db.session.commit()
     return  make_response({"details": f"Task {id} \"{task.title}\" successfully deleted"}), 200
+    
+################# UPDATE-PATCH##################
+@tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
+def mark_complete(id):
+    task = validate_id(id)
+    
+    task.completed_at=dt.datetime.utcnow()
+    task.is_completed=True
+   
+    db.session.commit()
+    return jsonify({"task":task.to_dict}),200
+
+@tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+def mark_icomplete(id):
+    task = validate_id(id)
+    
+    task.completed_at=None
+    task.is_completed=False
+    
+    db.session.commit()
+    return jsonify({"task":task.to_dict()})   
     
