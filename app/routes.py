@@ -47,9 +47,18 @@ def edit_task(task_id):
     return make_response(f"task {task.title} succesfully updated",200)
 
 
-    
+@tasks_bp.route("/<task_id>", methods=["GET"])
+# GET /dog/id
+def handle_task(task_id):
+    # Query our db to grab the task that has the id we want:
+    task = Task.query.get(task_id)
 
-
+    return {
+                "id": task.id,
+                "name": task.name,
+                "is_complete": task.is_complete,
+                "description": task.description
+            }
 
 
 
