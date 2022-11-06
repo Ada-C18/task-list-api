@@ -144,7 +144,7 @@ def test_delete_task(client, one_task):
     response_body = response.get_json()
 
     # Assert
-    #assert response.status_code == 200
+    assert response.status_code == 200
     assert "details" in response_body
     assert response_body == {
         "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'

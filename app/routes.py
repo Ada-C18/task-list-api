@@ -76,16 +76,16 @@ def edit_task(task_id):
     }},200)
 
 
-task_bp.route("/<task_id>", methods=["DELETE"])
+@task_bp.route("/<task_id>", methods=["DELETE"])
 
 def delete_task(task_id):
     task = Task.query.get(task_id)
     #request_body = request.get_json(task_id)
 
     db.session.delete(task)
-    db.session.commit
+    db.session.commit()
 
-    return make_response(f"details:" 'Task {task_id} \"{task.title}\" successfully deleted'),200
+    return make_response({f"details": f'Task {task_id} \"{task.title}\" successfully deleted'}),200
 
 
 
