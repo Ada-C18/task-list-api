@@ -2,13 +2,11 @@ from app import db
 from flask import Blueprint, request, jsonify, make_response, abort
 from app.models.task import Task
 from app.models.goal import Goal
-from app.models.goal import Goal
 from sqlalchemy import desc
 from datetime import date
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
@@ -137,9 +135,6 @@ def update_complete(task_id, complete):
     elif complete == "mark_incomplete":
         task.is_complete = False
         task.completed_at = None
-    elif complete == "mark_incomplete":
-        task.is_complete = False
-        task.completed_at = None
 
     db.session.commit()
 
@@ -222,51 +217,8 @@ def update_goal(goal_id):
     goal_response = {
         "goal": {
             "id": goal.goal_id,
-          "title": goal.title
+            "title": goal.title
         }
     }
 
     return make_response(goal_response, 200)
-@goals_bp.route("", methods=["POST"])
-def create_goal():
-    request_body = request.get_json()
-
-    if "title" not in request_body:
-        return make_response({"details": "Invalid data"}, 400)
-
-    new_goal = Goal(title=request_body["title"])
-
-    db.session.add(new_goal)
-    db.session.commit()
-
-    goal_response = {
-        "goal": {
-            "id": new_goal.goal_id,
-            "title": new_goal.title
-        }
-    }
-
-    return make_response(goal_response, 201)
-
-
-@goals_bp.route("/<goal_id>", methods=["GET"])
-def get_one_goal(goal_id):
-    goal = validate_goal_id(goal_id)
-
-    return {
-            "id": goal.goal_id,
-            "title": goal.title,
-        }
-
-
-def validate_goal_id(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        abort(make_response({"message": f"goal {goal_id} invalid"}, 400))
-
-    goal = Goal.query.get(goal_id)
-    if not goal:
-        abort(make_response({"message": f"goal {goal_id} not found"}, 404))
-    else:
-        return goal
