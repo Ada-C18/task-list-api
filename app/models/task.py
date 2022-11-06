@@ -17,3 +17,12 @@ class Task(db.Model):
 
     def mark_incomplete(self):
         self.completed_at = None
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": self.is_complete
+        }
+
