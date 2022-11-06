@@ -1,13 +1,19 @@
 from app import db
+from datetime import datetime
 
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    # take a look at this - is this ok or need to use nullable=True?
     completed_at = db.Column(db.DateTime, default=None)
 
     @property
     def is_complete(self):
         return bool(self.completed_at)
+
+    def mark_complete(self):
+        self.completed_at = datetime.now()
+
+    def mark_incomplete(self):
+        self.completed_at = None
