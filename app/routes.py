@@ -26,4 +26,4 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(new_task.from_dict(), 201)
+    return make_response(f'"task": {new_task.from_dict()}', 201)
