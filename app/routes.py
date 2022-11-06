@@ -1,4 +1,4 @@
-from app import db
+from app import db  # why isn't this importing correctly? 
 from app.models.task import Task 
 from app.models.goal import Goal # Why isn't this accesable?? 
 from flask import Blueprint, jsonify, abort, make_response, request
@@ -21,7 +21,11 @@ def validate_model(cls, model_id):
 
 @tasks_bp.route("", methods=["POST"])
 def create_one_task(): 
-    request_body = request.get_json()
+    request_body = request.get_json()   
+
+    if "title" not in request_body or "description" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+    
     new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
@@ -29,11 +33,12 @@ def create_one_task():
 
     return {"task" : new_task.to_dict()}, 201
 
+
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    name_query = request.args.get("name")
-    if name_query:
-        task = Task.query.filter_by(name=name_query)
+    title_query = request.args.get("title")
+    if title_query:
+        task = Task.query.filter_by(title=title_query)
     else:
         tasks = Task.query.all()
 
