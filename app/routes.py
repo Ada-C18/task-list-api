@@ -10,7 +10,7 @@ def create_task():
 
     # Feel free to add a guard clause
     if "title" not in request_body or "description" not in request_body:
-        return make_response("Invalid Request", 400)
+        return make_response({"details":"Invalid data"}), 400
 
     # How we know about Dog
     new_task = Task(
@@ -47,8 +47,12 @@ def get_all_tasks():
 @task_bp.route("/<task_id>", methods=["GET"])
 # GET /dog/id
 def get_one_task(task_id):
+    
     # Query our db to grab the dog that has the id we want:
     task = Task.query.get(task_id)
+    if not task:
+        return make_response({"details":"Id not found"}), 404
+
 
     # Send back a single JSON object (dictionary):
     return { "task":{
@@ -57,10 +61,13 @@ def get_one_task(task_id):
         "description": task.description,
         "is_complete": bool(task.completed_at)
     }},200
-@task_bp.route("/<task_id>", methods=["PUT"])
 
+
+@task_bp.route("/<task_id>", methods=["PUT"])
 def edit_task(task_id):
     task = Task.query.get(task_id)
+    if not task:
+        return make_response({"details":"Id not found"}), 404
     request_body = request.get_json(task_id)
 
     task.title = request_body["title"],
@@ -80,7 +87,8 @@ def edit_task(task_id):
 
 def delete_task(task_id):
     task = Task.query.get(task_id)
-    #request_body = request.get_json(task_id)
+    if not task:
+        return make_response({"details":"Id not found"}), 404
 
     db.session.delete(task)
     db.session.commit()
