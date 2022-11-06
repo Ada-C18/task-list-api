@@ -42,7 +42,11 @@ def create_goal():
 
 @goal_bp.route("", methods=["GET"])
 def read_all_goals():
-    goals = Goal.query.all()
+    title_query = request.args.get("title")
+    if title_query:
+        goals = Goal.query.filter_by(title=title_query)
+    else:
+        goals = Goal.query.all()
 
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
@@ -110,12 +114,24 @@ def create_task():
 
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
-    sort_query = request.args.get("sort")
-    if sort_query:
-        if sort_query == "asc":
-            tasks = Task.query.order_by(Task.title.asc())    #STOPPED HERE
-        elif sort_query == "desc":
-            tasks = Task.query.order_by(Task.title.desc())    #STOPPED HERE
+    sort_by_title_query = request.args.get("sort")
+    title_query = request.args.get("title")
+    sort_by_id_query = request.args.get("sort_id")
+
+    if sort_by_title_query:
+        if sort_by_title_query == "asc":
+            tasks = Task.query.order_by(Task.title.asc())    
+        elif sort_by_title_query == "desc":
+            tasks = Task.query.order_by(Task.title.desc())
+        else:
+            abort(make_response({"message":f"Invalid sort query: {sort_by_title_query}. Use 'asc' or 'desc'."}, 400))
+    elif title_query:
+        tasks = Task.query.filter_by(title=title_query)
+    elif sort_by_id_query:
+        if sort_by_id_query == "asc":
+            tasks = Task.query.order_by(Task.task_id.asc())    
+        elif sort_by_id_query == "desc":
+            tasks = Task.query.order_by(Task.task_id.desc())
     else:
         tasks = Task.query.all()
 

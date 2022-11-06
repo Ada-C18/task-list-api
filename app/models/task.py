@@ -1,5 +1,6 @@
 from app import db
 from flask import make_response, abort
+import datetime
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -13,9 +14,12 @@ class Task(db.Model):
     def instance_from_json(cls, task_req_body):
         try:
             if "is_complete" in task_req_body:
+                completed_at_datetime = task_req_body["is_complete"]
+                if not type(completed_at_datetime) == type(datetime.datetime.now()):
+                    abort(make_response({"message":f"Invalid datetime format: {completed_at_datetime}"}, 400))
                 new_task = Task(title=task_req_body["title"],
                             description=task_req_body["description"],
-                            completed_at = task_req_body["is_complete"])
+                            completed_at = completed_at_datetime)
             else:
                 new_task = Task(title=task_req_body["title"],
                             description=task_req_body["description"],
@@ -54,7 +58,19 @@ class Task(db.Model):
 
     def update(self, req_body):
         try:
-            self.title = req_body["title"]
-            self.description = req_body["description"]
+            if "is_complete" in req_body:
+                completed_at_datetime = req_body["is_complete"]
+                if not type(completed_at_datetime) == type(datetime.datetime.now()):
+                    abort(make_response({"message":f"Invalid datetime format: {completed_at_datetime}"}, 400))
+                self.title = req_body["title"]
+                self.description = req_body["description"]
+                self.completed_at = req_body["is_complete"]
+            else:
+                self.title = req_body["title"]
+                self.description = req_body["description"]
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"}, 400))
+
+    def validate_datetime(self):
+        if not type(self.completed_at) == type(datetime.datetime.now()):
+            abort(make_response({"message":f"Invalid datetime format: {self.completed_at}"}, 400))

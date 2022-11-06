@@ -163,3 +163,27 @@ def test_create_goal_missing_title(client):
     assert response_body == {
         "details": "Invalid data"
     }
+
+def test_get_goals_by_title(client, one_goal):
+    # Act
+    response = client.get("/goals?title=Build a habit of going outside daily")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 1
+    assert response_body == [
+        {
+            "id": 1,
+            "title": "Build a habit of going outside daily"}
+    ]
+
+def test_get_goals_by_title_no_title(client, one_goal):
+    # Act
+    response = client.get("/goals?title=Eat healthy")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 0
+    assert response_body == []

@@ -148,3 +148,29 @@ def test_mark_incomplete_missing_task(client):
     # **Complete test with assertion about response body***************
     # *****************************************************************
     assert response_body == {"message":"Task 1 not found"}
+
+def test_create_task_invalid_datetime(client):
+    # Act
+    response = client.post("/tasks", json={
+        "title": "A Brand New Task",
+        "description": "Test Description",
+        "is_complete": "foo"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message": f"Invalid datetime format: foo"}
+
+def test_update_task_invalid_datetime(client, one_task):
+    # Act
+    response = client.put("/tasks/1", json={
+        "title": "A Brand New Task",
+        "description": "Test Description",
+        "is_complete": "foo"
+    })
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message": f"Invalid datetime format: foo"}
