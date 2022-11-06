@@ -27,7 +27,8 @@ def create_task():
 
     task_dict = new_task.to_dict()
 
-    return make_response(jsonify(f"task: {task_dict}"), 201)
+    return make_response(jsonify({
+        "task": task_dict}), 201)
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -37,5 +38,8 @@ def read_all_tasks():
     return jsonify(tasks_response), 200
 
 @bp.route("/<task_id>", methods=["GET"])
-def read_one_task():
-    pass
+def read_one_task(task_id):
+    task = validate_model(Task, task_id)
+
+    return make_response(jsonify({
+            "task": task.to_dict()}))
