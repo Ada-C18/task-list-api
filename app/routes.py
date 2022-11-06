@@ -196,11 +196,11 @@ def replace_goal_vals(goal_id):
     return jsonify(response_dict), 200
 
 
-# @goal_bp.route("</goal_id>", methods = ["DELETE"])
-# def delete_goal(goal_id):
-#     chosen_goal = validate_id(Goal, id)
-#     db.session.delete(chosen_goal)
-#     db.session.commit()
+@goal_bp.route("/<goal_id>", methods = ["DELETE"])
+def delete_goal(goal_id):
+    chosen_goal = validate_id(Goal, goal_id)
+    db.session.delete(chosen_goal)
+    db.session.commit()
 
-#     return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
+    return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
     
