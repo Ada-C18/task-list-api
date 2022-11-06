@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
@@ -32,11 +32,13 @@ def create_task():
     # new_task = Task.from_dict(request_body)
     new_task = validate_input_data(request_body)
 
+    if not new_task.title or not new_task.description:
+        return make_response({"details": f"Invalid data"})
+
     db.session.add(new_task)
     db.session.commit()
 
-   
-    return make_response({"task": new_task.to_dict()}, 201)
+    return jsonify({"task": new_task.to_dict()}), 201
 
 # ---------------------------------
 # read one task (GET)
@@ -88,7 +90,7 @@ def update_task(id):
 def mark_complete_task(id):
     task = validate_model(Task, id)
 
-    task.completed_at = date.today()
+    task.completed_at = datetime.utcnow()
 
     db.session.commit()
    
