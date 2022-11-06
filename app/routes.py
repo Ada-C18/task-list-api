@@ -8,12 +8,12 @@ def validate_id(cls, id):
     try:
         id = int(id)
     except:
-        abort(make_response({"message": f"{cls} {id} is an invalid id"}, 400))
+        abort(make_response({"message": f"{cls.__name__} {id} invalid"}, 400))
 
     query_result = Task.query.get(id)
 
-    if not query_result:
-        abort(make_response({"message": f"{cls}{id} is an invalid id"}), 404)
+    if query_result is None:
+        abort(make_response({"message": f"{cls.__name__} {id} not found."}, 404))
 
     return query_result
 
@@ -25,7 +25,7 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(f"Task {new_task} has been created", 201)
+    return make_response(jsonify(new_task.to_task_dict())), 201
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
@@ -35,27 +35,28 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
     
-    results_list = [t.to_dict() for t in tasks]
+    task_list = [t.to_dict() for t in tasks]
     
-    return jsonify(results_list), 200
+    return jsonify(task_list), 200
 
 @tasks_bp.route("/<id>", methods=["GET"])
 def get_one_task(id):
     task = validate_id(Task, id)
 
-    return jsonify(task.to_dict()), 200
+    return jsonify(task.to_task_dict()), 200
     
-@tasks_bp.route("/<id>", methods = ["PUT"])
+@tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
     task = validate_id(Task, id)
     
     request_body = request.get_json()
 
-    task.update(request_body)
+    task.title = request_body["title"]
+    task.description = request_body["description"]
 
     db.session.commit()
 
-    return make_response(jsonify(f"task {id} sucessfully updated"))
+    return make_response(jsonify(task.to_task_dict())), 200
 
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_cat(id):
@@ -65,5 +66,5 @@ def delete_cat(id):
 
     db.session.commit()
 
-    return make_response(jsonify(f"task {id} successfully deleted"))
+    return make_response(jsonify(f"Task {id} '{task.title}' successfully deleted"))
 
