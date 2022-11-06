@@ -96,3 +96,16 @@ def update_task_to_complete(task_id):
     return make_response(jsonify({
         "task": task.to_dict()
     }))
+
+@bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def update_task_to_incomplete(task_id):
+    task = validate_model(Task, task_id)
+
+    task.completed_at = None
+    task.is_complete = False
+
+    db.session.commit()
+
+    return make_response(jsonify({
+        "task": task.to_dict()
+    }))
