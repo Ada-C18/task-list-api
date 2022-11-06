@@ -2,6 +2,10 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 from sqlalchemy import asc, desc
+from datetime import datetime
+
+# today_date = datetime.date.today()
+# date_time = datetime.datetime.strptime(date_time_string, '%Y-%m-%d %H:%M')
 
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -20,6 +24,7 @@ def validate_model(cls, model_id):
             {"message": f"{cls.__name__} {model_id} not found"}, 404))
 
     return model
+
 
 # CREATE
 @bp.route("", methods=["POST"], strict_slashes=False)
@@ -61,7 +66,7 @@ def read_one_task(task_id):
     task = validate_model(Task, task_id)
     return jsonify({"task":task.to_dict()}), 200
 
-# UPDATE ONE TASK
+# UPDATE ALL ONE TASK
 @bp.route("/<task_id>", methods=["PUT"], strict_slashes=False)
 def update_one_task(task_id):
     task = validate_model(Task, task_id)
@@ -72,6 +77,29 @@ def update_one_task(task_id):
 
     db.session.commit()
     return jsonify({"task": task.to_dict()}), 200
+
+#UPDATE PART OF ONE TASK - COMPLETE
+@bp.route("/<task_id>/mark_complete", methods=["PATCH"], strict_slashes=False)
+def mark_complete(task_id):
+    task = validate_model(Task, task_id)
+
+    task.completed_at = datetime.now()
+
+    db.session.commit()
+
+    return jsonify({"task": task.to_dict()}), 200
+
+#UPDATE PART OF ONE TASK - IMCOMPLETE
+@bp.route("/<task_id>/mark_incomplete", methods=["PATCH"], strict_slashes=False)
+def mark_incomplete(task_id):
+    task = validate_model(Task, task_id)
+
+    task.completed_at = None
+
+    db.session.commit()
+
+    return jsonify({"task": task.to_dict()}), 200
+
 
 # #DELETE ONE TASK
 @bp.route("/<task_id>", methods=["DELETE"], strict_slashes=False)

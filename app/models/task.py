@@ -5,7 +5,7 @@ class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
-    completed_at = db.Column(db.DateTime, nullable=True)
+    completed_at = db.Column(db.DateTime, nullable=True, default=None)
 
     @classmethod
     def from_dict(cls, response_dict):
@@ -20,13 +20,13 @@ class Task(db.Model):
             id=self.task_id,
             title=self.title,
             description=self.description,
-            is_complete=False
+            is_complete=self.is_complete()
         )
 
-    # def is_complete(self):
-    #     if self.completed_at:
-    #         self.is_complete = True
-    #     else:
-    #         self.is_complete = False
+    def is_complete(self):
+        if self.completed_at:
+            return True
+        else:
+            return False
 
    
