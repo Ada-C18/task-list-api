@@ -80,6 +80,7 @@ def delete_task(task_id):
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def mark_complete(task_id):
     task = validate_model_id(Task, task_id)
+
     task.completed_at = date.today()
     task.is_complete = True
     response = {"task": task.to_dict()}
@@ -88,6 +89,7 @@ def mark_complete(task_id):
     send_completed_msg(task)
 
     return jsonify(response), 200
+
 
 
 #PATCH mark incomplete
