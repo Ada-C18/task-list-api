@@ -2,11 +2,13 @@ from app import db
 from flask import Blueprint, request, jsonify, make_response, abort
 from app.models.task import Task
 from app.models.goal import Goal
+from app.models.goal import Goal
 from sqlalchemy import desc
 from datetime import date
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
@@ -66,7 +68,7 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_id(task_id)
+    task = validate_task_id(task_id)
 
     return {
         "task": {
@@ -78,7 +80,7 @@ def get_one_task(task_id):
     }
 
 
-def validate_id(task_id):
+def validate_task_id(task_id):
     try:
         task_id = int(task_id)
     except:
@@ -93,7 +95,7 @@ def validate_id(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_id(task_id)
+    task = validate_task_id(task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -103,7 +105,7 @@ def delete_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_id(task_id)
+    task = validate_task_id(task_id)
     request_body = request.get_json()
 
     task.title = request_body["title"]
@@ -123,16 +125,18 @@ def update_task(task_id):
 
     return make_response(task_response, 200)
 
-# completed_at -> date time column
-# is_complete -> boolean column
 
 
-@tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"]) # variable names that will be replaced with values of the variables
+@tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def update_complete(task_id, complete):
-    task = validate_id(task_id)
+    task = validate_task_id(task_id)
+
     if complete == "mark_complete":
         task.is_complete = True
         task.completed_at = date.today()
+    elif complete == "mark_incomplete":
+        task.is_complete = False
+        task.completed_at = None
     elif complete == "mark_incomplete":
         task.is_complete = False
         task.completed_at = None
@@ -149,6 +153,80 @@ def update_complete(task_id, complete):
     }
     return make_response(task_response, 200)
 
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
+
+    if "title" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+
+    new_goal = Goal(title=request_body["title"])
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    goal_response = {
+        "goal": {
+            "id": new_goal.goal_id,
+            "title": new_goal.title
+        }
+    }
+
+    return make_response(goal_response, 201)
+
+
+@goals_bp.route("", methods=["GET"])
+def get_all_goal():
+    goal_response = []
+    goals = Goal.query.all()
+
+    for goal in goals:
+        goal_response.append({
+            "id": goal.goal_id,
+            "title": goal.title
+        })
+
+    return make_response(jsonify(goal_response), 200)
+
+@goals_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    return {"goal": {
+            "id": goal.goal_id,
+            "title": goal.title,
+        }}
+
+
+def validate_goal_id(goal_id):
+    try:
+        goal_id = int(goal_id)
+    except:
+        abort(make_response({"message": f"goal {goal_id} invalid"}, 400))
+
+    goal = Goal.query.get(goal_id)
+    if not goal:
+        abort(make_response({"message": f"goal {goal_id} not found"}, 404))
+    else:
+        return goal
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+    request_body = request.get_json()
+
+    goal.title = request_body["title"]
+
+    db.session.commit()
+
+    goal_response = {
+        "goal": {
+            "id": goal.goal_id,
+          "title": goal.title
+        }
+    }
+
+    return make_response(goal_response, 200)
 @goals_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
