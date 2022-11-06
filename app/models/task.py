@@ -1,6 +1,4 @@
 from app import db
-from flask import make_response, abort
-
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
