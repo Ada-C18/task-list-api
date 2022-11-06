@@ -2,7 +2,7 @@ from flask import Blueprint
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
-
+from sqlalchemy import desc, asc
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 def validate_id(id):
@@ -39,22 +39,32 @@ def create_tasks():
 ##############GET_ALL_TASK####################
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    title_param = request.args.get("title")
-    description_param = request.args.get("description")
-    completed_param=request.args.get("completed_at")
+    # title_param = request.args.get("title" )
+    # description_param = request.args.get("description")
+    # completed_param=request.args.get("completed_at")
+    sort_query = request.args.get("sort")
+    
+    if sort_query=="asc":
+        tasks=Task.query.order_by(Task.title)
+    elif sort_query=="desc":
+        tasks=Task.query.order_by(Task.title.desc())
 
-    if title_param:
-        tasks = Task.query.filter_by(title=title_param)
-    elif description_param:
-        tasks = Task.query.filter_by(description=description_param)
-    elif completed_param:
-        tasks=Task.query.filter_by(completed_at=completed_param)
+
+    # #if title_param:
+    #     tasks = Task.query.order_by(title=title_param)
+    # elif description_param:
+    #     tasks = Task.query.order_by(asc(Task.description)).all()
+    # elif completed_param:
+    #     tasks=Task.query.filter_by(asc(Task.completed_at)).all()
     else:
         tasks = Task.query.all()
 
     result_list = [task.to_dict() for task in tasks]
-
+    
     return   jsonify(result_list), 200
+
+
+
 
 ###############Get_one_task######################
 @tasks_bp.route("/<id>", methods=["GET"])
