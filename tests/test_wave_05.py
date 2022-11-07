@@ -1,3 +1,4 @@
+from app.models.goal import Goal
 import pytest
 
 
@@ -156,10 +157,10 @@ def test_delete_goal_not_found(client):
 
     # Assert
     # ---- Complete Assertions Here ----
-    response = client.delete("/goals/1")
-    response_body = response.get_json()
     # ---- Complete Assertions Here ----
-
+    assert response.status_code == 404
+    assert response_body == {'message': 'Goal 1 not found'}
+    assert Goal.query.all() == []
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal_missing_title(client):

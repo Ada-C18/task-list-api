@@ -149,7 +149,7 @@ def test_delete_task(client, one_task):
     assert response.status_code == 200
     assert "details" in response_body
     assert response_body == {
-        "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
+        "details": 'Task 1 "Notice something new every day" successfully deleted'
     }
     assert Task.query.get(1) == None
 

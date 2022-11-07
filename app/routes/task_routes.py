@@ -125,6 +125,6 @@ def delete_one_task(task_id):
     task = validate_model(Task, task_id)
     db.session.delete(task)
     db.session.commit()
-    return {
-        "details": "Task 1 \"Go on my daily walk 🏞\" successfully deleted"
-    }
+    return make_response(jsonify({
+            "details": f"Task {task.task_id} \"{task.description}\" successfully deleted"}), 
+            200)
