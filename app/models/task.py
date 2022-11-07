@@ -2,17 +2,17 @@ from app import db
 
 
 class Task(db.Model):
-    task_id = db.Column(db.Integer, primary_key=True)
+    task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    completed_at = db.Column(db.DateTime)
-    is_completed = db.Column(db.String)
+    completed_at = db.Column(db.DateTime, default=None)
+    is_complete = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
         return {
-            "id": self.id,
+            "id": self.task_id,
             "title": self.title,
-            "is_completed": self.is_completed,
+            "is_complete": self.is_complete,
             "description": self.description
         
         }
