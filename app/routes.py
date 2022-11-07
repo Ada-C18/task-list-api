@@ -3,6 +3,8 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from datetime import datetime
+import requests
+import os
 
 tasks_bp = Blueprint("tasks", __name__,url_prefix="/tasks")
 
@@ -99,6 +101,14 @@ def mark_complete_on_an_incompleted_task(task_id):
     patch_task.completed_at = current_time
 
     db.session.commit()
+
+    TOKEN_SLACK = os.environ.get("GIVEN_TOKEN_SLACK")
+    query_params = {"text": f"Someone just completed the task {patch_task.title}",
+                    "channel": "task-notifications"}
+    
+    headers = {"Authorization": "Bearer "+ TOKEN_SLACK}
+
+    slack = requests.post(url='https://slack.com/api/chat.postMessage',json=query_params, headers=headers)
 
     return jsonify({"task":patch_task.to_dict()}), 200
 
