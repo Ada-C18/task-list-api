@@ -1,8 +1,8 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 from sqlalchemy import asc, desc
-import requests
 
 
 bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -88,11 +88,23 @@ def delete_one_goal(goal_id):
             200)
 
 # GOALS AND TASKS
-@bp.route("/goals/<goal_id>/tasks", methods=["??"], strict_slashes=False)
-def handle_goals():
-    pass
-
 #Sending a List of Task IDs to a Goal
+@bp.route("/goals/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
+def send_tasks_to_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json() 
+    new_task = Task.from_dict(request_body) # maybe new_tasks = [==]? 
+    new_task.goal = goal
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return make_response(jsonify({"id":{goal.goal_id}, "task_ids":{new_task}}), 200) #change this
+
+# GOALS AND TASKS
 #Getting Tasks of One Goal
 #Getting Tasks of One Goal: No Matching Tasks
 #Getting Tasks of One Goal: No Matching Goal
+@bp.route("/goals/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
+def get_tasks_from_goal(goal_id):
+    pass
