@@ -16,3 +16,27 @@ def validate_model(cls, model_id):
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
     
     return model
+
+@tasks_bp.route("", methods=["GET"])
+def read_all_tasks():
+
+    title_query = request.args.get("title")
+    description_query = request.args.get("description")
+    completed_at_query = request.args.get("completed_by")
+
+    task_query = Task.query
+
+    if title_query:
+        tasks = Task.query.filter_by(title=title_query)
+    
+    if description_query:
+        tasks = Task.query.filter_by(description=description_query)
+    
+    if completed_at_query:
+        tasks = Task.query.filter_by(completed_by=completed_at_query)
+
+    tasks = task_query.all()
+
+    tasks_response = [task.to_dict() for task in tasks]
+
+    return jsonify(tasks_response)
