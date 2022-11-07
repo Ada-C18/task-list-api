@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
+from datetime import date
 
 #Creating Task Blueprint (instantiating new Blueprint instance)
 #use it to group routes(endpoints) that start with /tasks
@@ -15,7 +16,7 @@ def create_tasks():
         new_task = Task(
             title=request_body["title"],
             description=request_body["description"],
-            completed_at=request_body["completed_at"]
+            completed_at=None
             )
     # if missing atribute title, description, or completed_at
     # KeyError
@@ -33,7 +34,7 @@ def create_tasks():
             "id": new_task.task_id,
             "title": new_task.title,
             "description": new_task.description,
-            "is_complete": bool(new_task.completed_at)
+            "is_complete": False
         }
         }, 201
 
@@ -61,7 +62,7 @@ def read_all_tasks():
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": bool(task.completed_at)
+                "is_complete": False
             }
         )
     
@@ -103,7 +104,7 @@ def get_one_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": bool(task.completed_at)
+            "is_complete": False
         }
         }
 
@@ -124,7 +125,7 @@ def update_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": bool(task.completed_at)
+            "is_complete": False 
         }
         }
 
@@ -143,26 +144,35 @@ def delete_task(task_id):
 
     
 # Defining Endpoint and Creating Route Function to PATCH a Task
-@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def patch_task_complete(task_id):
+@tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
+def patch_task_complete(task_id,complete):
     task = validate_task(task_id)
 
-    request_body = request.get_json()
 
-
-    task.completed_at = request_body["completed_at"]
+    if complete == "mark_complete":
+        task.completed_at = date.today()
+        task_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": True
+        }
+        }
+    elif complete == "mark_incomplete":
+        task.completed_at = None
+        task_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }
+        }
 
     db.session.commit()
 
-    if task.completed_at == None:
-        return {
-            "task": {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": True
-            }
-            }
+    return make_response(task_response, 200)
 
 # # Defining Endpoint and Creating Route Function to PATCH a Task
 # @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
