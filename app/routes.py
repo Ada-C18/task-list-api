@@ -34,7 +34,7 @@ def create_slack_bot_message(task):
         "Authorization": SLACK_API_KEY
     }
 
-    requests.post(URL, json=slack_params, headers=slack_headers)
+    requests.post(URL, data=slack_params, headers=slack_headers)
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
