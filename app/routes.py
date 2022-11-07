@@ -8,7 +8,15 @@ tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 @tasks_bp.route("", methods=["GET", "POST"])
 def handle_tasks():
     if request.method == "GET":
-        tasks = Task.query.all()
+        task_query = Task.query
+
+        sort = request.args.get("sort")
+        if sort == "desc":
+            task_query = task_query.order_by(Task.title.desc())
+        elif sort == "asc":
+            task_query = task_query.order_by(Task.title.asc())
+
+        tasks = task_query.all()
         tasks_response = [task.to_json() for task in tasks]
 
         if not tasks_response:
@@ -19,12 +27,8 @@ def handle_tasks():
         request_body = request.get_json()
 
         try:
-            new_task = Task(
-                title = request_body['title'],
-                description = request_body['description'],
-                completed_at = request_body['completed_at']
-            )
-        except KeyError:
+            new_task = Task.from_dict(request_body)
+        except KeyError as err:
             return (f"Invalid data", 400)
 
         # Add this new instance of task to the database
