@@ -166,3 +166,17 @@ def create_goal():
     db.session.commit()
 
     return make_response(jsonify({'goal': new_goal.to_dict()}), 201)
+
+
+@goals_bp.route("/<id>", methods=["PUT"])
+def edit_goal(id):
+    
+    goal = validate_goal(id)
+    request_body = request.get_json()
+
+    goal.title=request_body["title"]
+    
+
+    db.session.commit()
+
+    return make_response(jsonify({'goal': goal.to_dict()}), 200)
