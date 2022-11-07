@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
+from datetime import date
 
 #Creating Task Blueprint (instantiating new Blueprint instance)
 #use it to group routes(endpoints) that start with /tasks
@@ -124,7 +125,7 @@ def update_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False
+            "is_complete": False 
         }
         }
 
@@ -143,15 +144,14 @@ def delete_task(task_id):
 
     
 # Defining Endpoint and Creating Route Function to PATCH a Task
-@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def patch_task_complete(task_id):
+@tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
+def patch_task_complete(task_id,complete):
     task = validate_task(task_id)
 
-    request_body = request.get_json()
-    request_body["complete_at"] == True
 
-
-    return {
+    if complete == "mark_complete":
+        task.completed_at = date.today()
+        task_response = {
         "task": {
             "id": task.task_id,
             "title": task.title,
@@ -159,6 +159,20 @@ def patch_task_complete(task_id):
             "is_complete": True
         }
         }
+    elif complete == "mark_incomplete":
+        task.completed_at = None
+        task_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": False
+        }
+        }
+
+    db.session.commit()
+
+    return make_response(task_response, 200)
 
 # # Defining Endpoint and Creating Route Function to PATCH a Task
 # @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
