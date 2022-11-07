@@ -21,14 +21,3 @@ def create_task():
 
     task_response = Task.query.get(1)
     return make_response(task_response.to_dict(), 201)
-    # return make_response(
-    #     {
-    #         "task": {
-    #             "id": task_response.id,
-    #             "title": task_response.title,
-    #             "description": task_response.description,
-    #             "is_complete": False
-    #             }
-    #         },
-    #     201
-    # )
