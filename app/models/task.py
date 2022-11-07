@@ -1,12 +1,10 @@
 from app import db
-# from flask import abort, make_response
 
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
-    # optional
     completed_at = db.Column(db.DateTime, nullable=True)
     
     @classmethod
@@ -29,3 +27,5 @@ class Task(db.Model):
     def task_complete(self):
         if self.completed_at is None:
             return False
+        else:
+            return True
