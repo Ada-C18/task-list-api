@@ -126,6 +126,8 @@ def mark_task_complete(task_id):
     task_to_mark_complete.is_complete = True
     task_to_mark_complete.completed_at = datetime.today()
 
+    db.session.commit()
+
     response_body = {
         "task": {
             "id": task_to_mark_complete.task_id,
@@ -138,13 +140,10 @@ def mark_task_complete(task_id):
     client = WebClient(token=os.environ["SLACK_TOKEN"])
     logger = logging.getLogger(__name__)
     channel_id = "C04AJ78HYC8"
-    result = ""
     result = client.chat_postMessage(
         channel=channel_id,
         text=f"Someone just completed the task {task_to_mark_complete.title}")
 
-    # db.session.commit()
-    
     return jsonify(response_body), 200
 
 @task_bp.route("/<task_id>/mark_incomplete",methods=["PATCH"])
