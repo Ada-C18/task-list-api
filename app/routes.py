@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -33,10 +34,10 @@ def create_task():
 
     except:
         if not (request_body.get("title") is None):
-            abort(make_response({ "details": "Invalid data"}, 400))
+            abort(make_response({"details": "Invalid data"}, 400))
 
         if not (request_body.get("description") is None):
-            abort(make_response({ "details": "Invalid data"}, 400))
+            abort(make_response({"details": "Invalid data"}, 400))
 
 
 @tasks_bp.route("", methods=["GET"])
@@ -73,6 +74,16 @@ def update_task(id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
+    
+    db.session.commit()
+
+    return make_response(jsonify(task.to_task_dict())), 200
+
+@tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
+def update_completed_task(id):
+    task = validate_id(Task, id)
+
+    task.completed_at = datetime.utcnow()
 
     db.session.commit()
 
