@@ -7,6 +7,10 @@ from datetime import datetime
 import os
 import requests
 
+tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+# -------- Helper functions ---------
 def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
@@ -47,8 +51,7 @@ def create_slack_bot_message(task):
     }
     requests.post(URL, data=slack_params, headers=slack_headers)
 
-tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-
+# --------- TASK ENDPOINTS --------------
 @tasks_bp.route("", methods =["GET"])
 def read_all_tasks(): 
     tasks_response = [task.to_dict() for task in Task.query.all()]
@@ -96,8 +99,7 @@ def mark_task_incomplete(task_id):
     db.session.commit()
     return {"task":task.to_dict()}
 
-# ---------- GOALS ROUTES (Wave 5) --------------
-goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+# ---------- GOALS ENDPOINTS --------------
 
 @goals_bp.route("", methods =["POST"])
 def create_goal():
