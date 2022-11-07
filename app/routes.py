@@ -3,6 +3,7 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import asc
 from sqlalchemy import desc
+from datetime import date
 
 task_bp = Blueprint("task_bp", __name__, url_prefix ="/tasks")
 
@@ -25,7 +26,7 @@ def get_one_task_or_abort(task_id):
 @task_bp.route("", methods=["POST"])
 def create_task():
     
-    request_body = request.get_json()
+    request_body = request.get_json() # when we are requesting something like sending something extra
     if "title" not in request_body or \
         "description" not in request_body:
             return jsonify({"details": "Invalid data"}), 400
@@ -123,6 +124,23 @@ def update_task(task_id):
     }
 
     return jsonify({"task":task_dict}), 200
+
+@task_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
+def update_task_completed_at(task_id):
+    task = get_one_task_or_abort(task_id) #validated task_id = 1
+    task.completed_at = date.today()
+    is_completed = True
+    db.session.commit()
+    task_dict = {
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": is_completed
+    }
+    return jsonify({"task":task_dict}),200
+    # lessons- 1) Always chk blueprint. Path will start after that
+    #2) call request body only if there are extra params other than url directly
+
     
 
 @task_bp.route("<task_id>", methods=["DELETE"])
