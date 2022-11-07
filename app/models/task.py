@@ -34,8 +34,18 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, data_dict):
+        #make the following a helper function:
+        if "completed_at" in data_dict:
+            completed_at = data_dict["completed_at"]
+            if not completed_at:
+                is_complete = False
+            else:
+                is_complete = True
+        else: is_complete = False
+        #end helper function.
+
         new_object = cls(
             title = data_dict["title"],
             description = data_dict["description"],
-            is_complete = data_dict["is_complete"])
+            is_complete = is_complete)
         return new_object
