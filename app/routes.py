@@ -51,15 +51,15 @@ def update_one_task(task_id):
     db.session.commit()
     return jsonify({"task": update_task.to_dict()}), 200
 
-#@task_bp.route('/<task_id>', methods=['DELETE'])
-#def delete_one_task(task_id):
-#    task_to_delete = get_task_from_id(Task, task_id)
-#
-#    db.session.delete(task_to_delete)
-#    db.session.commit()
-#
-#    return jsonify({"msg": f"Successfully deleted task with id {task_to_delete.id}"}), 200
-#
+@task_bp.route('/<task_id>', methods=['DELETE'])
+def delete_one_task(task_id):
+    task_to_delete = get_task_from_id(Task, task_id)
+
+    db.session.delete(task_to_delete)
+    db.session.commit()
+
+    return jsonify({"details": f"Task {task_to_delete.task_id} '{task_to_delete.description}' successfully deleted"}), 200
+
 def get_task_from_id(cls, model_id):
     try:
         model_id = int(model_id)
