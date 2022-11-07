@@ -5,6 +5,7 @@ from app.models.task import Task
 from sqlalchemy import desc, asc
 from datetime import datetime
 import os
+import requests
 
 
 
@@ -161,13 +162,13 @@ def update_task_is_complete(task_id):
     
     db.session.commit()
 
-    # SLACK_TOKEN =os.environ.get('SLACK_API_KEY')
-    # slack_app_request = request.post("https://api.slack.com/methods/chat.postMessage", json = {"chanel": channel_id, "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": f"Bearer {SLACK_TOKEN}"})
+    SLACK_TOKEN =os.environ.get('SLACK_API_KEY')
+    slack_app_request = requests.patch("https://api.slack.com/methods/chat.postMessage", json = {"chanel": channel_id, "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": f"Bearer {SLACK_TOKEN}"})
 
     
     if task.completed_at:
         return make_response(jsonify(response)), 200
-    
+    x
 
     
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"]) 
