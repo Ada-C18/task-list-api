@@ -98,9 +98,16 @@ Visit https://api.slack.com/methods/chat.postMessage to read about the Slack API
 Answer the following questions. These questions will help you become familiar with the API, and make working with it easier.
 
 - What is the responsibility of this endpoint?
+to send a message to the channel "task notifications" whenever a user marks a task as complete
 - What is the URL and HTTP method for this endpoint?
+POST
+https://slack.com/api/chat.postMessage
+
 - What are the _two_ _required_ arguments for this endpoint?
+token and channel
+
 - How does this endpoint relate to the Slackbot API key (token) we just created?
+
 
 Now, visit https://api.slack.com/methods/chat.postMessage/test.
 
@@ -119,8 +126,11 @@ Press the "Test Method" button!
 Scroll down to see the HTTP response. Answer the following questions:
 
 - Did we get a success message? If so, did we see the message in our actual Slack workspace?
+Yes and yes!
 - Did we get an error emssage? If so, why?
 - What is the shape of this JSON? Is it a JSON object or array? What keys and values are there?
+JSON
+ok, channel, ts, message (which is a dictionary)
 
 ### Verify with Postman
 

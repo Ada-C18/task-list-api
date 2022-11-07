@@ -3,6 +3,11 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+import requests
+
+load_dotenv()
 
 def validate_model(cls, model_id):
     try:
@@ -16,6 +21,21 @@ def validate_model(cls, model_id):
         abort(make_response({"Message":f"{cls.__name__} {model_id} not found"}, 404))
 
     return model
+
+def create_slack_bot_message(task):
+    URL = 'https://slack.com/api/chat.postMessage'
+    SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
+
+    slack_params = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+    }
+    slack_headers ={
+        "Authorization": SLACK_API_KEY
+    }
+
+    requests.post(URL, json=slack_params, headers=slack_headers)
+
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -77,6 +97,7 @@ def mark_task_complete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = datetime.now()
     db.session.commit()
+    create_slack_bot_message(task)
     return {"task":task.to_dict()}
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
