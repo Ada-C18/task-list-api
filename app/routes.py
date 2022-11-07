@@ -104,8 +104,8 @@ def patch_a_complete_task(task_id):
     headers = {"Authorization": "Bearer "+ SLACK_TOKEN }
 
     request_to_slack = requests.post(url='https://slack.com/api/chat.postMessage',json=query_params, headers=headers)
-    print(request_to_slack)
-    print(request_to_slack.status_code)
+    # print(request_to_slack)
+    # print(request_to_slack.status_code)
 
     return jsonify({
         "task": task.to_dict()
@@ -147,3 +147,5 @@ def delete_one_task(task_id):
 #     if chosen_task is None:
 #         return abort(make_response({"msg": f"Could not find task item with id: {task_id}"}, 404))
 #     return chosen_task
+
+
