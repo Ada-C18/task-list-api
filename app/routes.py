@@ -2,7 +2,14 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from sqlalchemy import desc
-import datetime
+from datetime import datetime
+
+import sys
+import logging
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+import os
+from dotenv import load_dotenv
 
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 
@@ -117,18 +124,26 @@ def delete_one_task(task_id):
 def mark_task_complete(task_id):
     task_to_mark_complete = get_one_task_or_abort(task_id)
     task_to_mark_complete.is_complete = True
-    task_to_mark_complete.completed_at = datetime.datetime.now()
+    task_to_mark_complete.completed_at = datetime.today()
 
     response_body = {
         "task": {
             "id": task_to_mark_complete.task_id,
             "title": task_to_mark_complete.title,
             "description": task_to_mark_complete.description,
-            "is_complete": task_to_mark_complete.is_complete
+            "is_complete": task_to_mark_complete.is_complete,
         }
     }
 
-    db.session.commit()
+    client = WebClient(token=os.environ["SLACK_TOKEN"])
+    logger = logging.getLogger(__name__)
+    channel_id = "C04AJ78HYC8"
+    result = ""
+    result = client.chat_postMessage(
+        channel=channel_id,
+        text=f"Someone just completed the task {task_to_mark_complete.title}")
+
+    # db.session.commit()
     
     return jsonify(response_body), 200
 
@@ -148,5 +163,5 @@ def mark_task_incomplete(task_id):
     }
 
     db.session.commit()
-    
+
     return jsonify(response_body), 200
