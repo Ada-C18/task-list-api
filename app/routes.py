@@ -129,17 +129,14 @@ def add_tasks_to_one_goal(goal_id):
 
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
-def all_tasks_of_one_goal(goal_id):
+def get_all_tasks_of_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     response_body = {
             "id": goal.id,
             "title": goal.title,
-            "tasks":[]
+            "tasks":[Task.to_dict(task) for task in goal.tasks]
         }
-
-    for task in goal.tasks:
-        response_body["tasks"].append(Task.to_dict(task))
     
     return jsonify(response_body), 200
 
@@ -153,12 +150,7 @@ def generate_response_body(cls, models):
     Return a single dictionary {"model": model-detail} if @param models is a Model object
     """
     if isinstance(models, list):
-        response = []
-
-        for model in models:
-            response.append(cls.to_dict(model))
-
-        return response
+        return [cls.to_dict(model) for model in models]
     
     else:
         return {
