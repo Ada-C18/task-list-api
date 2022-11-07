@@ -53,3 +53,17 @@ def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
     return make_response(f'"task": {task.create_dict()}', 200)
+
+#==============================
+#          UPDATE TASK
+#==============================
+@task_bp.route("/<task_id>", methods=["PUT"])
+def update_one_task(task_id):
+    task = validate_model(Task, task_id)
+    request_body = request.get_json()
+
+    task.update(request_body)
+    db.session.commit()
+
+    return make_response(f'"task": {task.create_dict()}', 200)
+
