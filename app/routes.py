@@ -89,15 +89,25 @@ def get_task():
         response_body = []
         if sort_query == "asc":
             sorted_tasks = sorted(task_titles)
-            while len(response_body) < len(task_response):
+            while len(response_body) < len(task_titles):
                 for task in task_response:
+                    if len(sorted_tasks) == 0:
+                        break
                     if task["title"] == sorted_tasks[0]:
                         response_body.append(task)
                         sorted_tasks.pop(0)
             return make_response(jsonify(response_body), 200)
 
         if sort_query == "desc":
-            pass
+            sorted_tasks = sorted(task_titles, reverse=True)
+            while len(response_body) < len(task_titles):
+                for task in task_response:
+                    if len(sorted_tasks) == 0:
+                        break
+                    if task["title"] == sorted_tasks[0]:
+                        response_body.append(task)
+                        sorted_tasks.pop(0)
+            return make_response(jsonify(response_body), 200)
 
     descripiton_query = request.args.get("description")
     if descripiton_query:
