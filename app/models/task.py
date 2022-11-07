@@ -20,3 +20,11 @@ class Task(db.Model):
         if self.goal_id is not None:
             return_dict["goal_id"]=self.goal_id
         return return_dict
+    
+    @classmethod
+    def objectfy(cls,request_body):
+        new_task = Task(
+            title=request_body['title'],
+            description=request_body['description']
+        )
+        return new_task

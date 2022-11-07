@@ -3,7 +3,7 @@ from app.models.task import Task
 from app.models.goal import Goal
 from app import db
 from datetime import datetime
-from app.goal_routes import validate_model, sort_query_helper
+from app.helper_functions import validate_model, post_one_model, get_one_model, get_all_models, delete_one_model
 import requests
 import os
 
@@ -15,30 +15,19 @@ task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 """Routes for Task"""
 @task_bp.route("", methods=['POST'])
 def make_new_task():
-    response_body = request.get_json()
-    
-    try:
-        new_task = Task(
-            title=response_body["title"],
-            description=response_body["description"])
-    except KeyError:
-        return make_response({
-        "details": "Invalid data"
-    },400)
-    db.session.add(new_task)
-    db.session.commit()
-
-    return make_response(jsonify({f"task":new_task.dictionfy()}),201)
-
+    return post_one_model(Task)
 
 
 @task_bp.route("", methods=['GET'])
 def get_all_tasks():
+    return get_all_models(Task)
+    """
+    This is the previous code used that is common between tasks and goals
+
     return_list=[]
     
     match_command = [(key,value) for key,value in request.args.items()]
     specific_title = request.args.get('title')
-    mCase = specific_title or match_command or "I'm a teapot"
     
     #currently can query: specific name, order by id or title, all
     if specific_title:
@@ -54,13 +43,12 @@ def get_all_tasks():
     for task in tasks:
         return_list.append(task.dictionfy())
     
-    return make_response(jsonify(return_list),200)
+    return make_response(jsonify(return_list),200)"""
 
 
 @task_bp.route("/<task_id>", methods=['GET'])
 def get_one_task(task_id):
-    task = validate_model(Task,task_id)
-    return make_response(jsonify({"task":task.dictionfy()}),200)
+    return get_one_model(Task,task_id)
 
 
 @task_bp.route("/<task_id>", methods=['PUT'])
@@ -139,11 +127,4 @@ def mark_task_as_incomplete(task_id):
 
 @task_bp.route("/<task_id>", methods=['DELETE'])
 def delete_a_task(task_id):
-    task = validate_model(Task,task_id)
-
-    db.session.delete(task)
-    db.session.commit()
-
-    return make_response(jsonify({'details':f'Task {task_id} \"{task.title}\" successfully deleted'}),200)
-
-
+    return delete_one_model(Task,task_id)

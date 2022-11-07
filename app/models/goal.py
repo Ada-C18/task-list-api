@@ -6,7 +6,14 @@ class Goal(db.Model):
     title = db.Column(db.String, nullable=False)
     tasks = db.relationship("Task", back_populates="goal")
 
-    def goal_dictionfy(self):
+    def dictionfy(self):
         return{
             "id":self.goal_id,
             "title":self.title}
+    
+    @classmethod
+    def objectfy(cls,request_body):
+        new_object = Goal(
+            title=request_body['title']
+        )
+        return new_object
