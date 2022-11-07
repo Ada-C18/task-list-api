@@ -25,8 +25,21 @@ def handle_tasks():
             response_body.append(task.to_dict())
         return make_response(jsonify(response_body), 200)
 
-@tasks_bp.route("/<task_id>", methods=["GET"])
+@tasks_bp.route("/<task_id>", methods=["GET", "PUT"])
 def handle_task(task_id):
-    task = Task.query.get(task_id)
+    if request.method == "GET":
+        task = Task.query.get(task_id)
 
-    return make_response(jsonify(task.to_dict()))
+        return make_response(jsonify(task.to_dict()), 200)
+
+    elif request.method == "PUT":
+        task = Task.query.get(task_id)
+        
+        request_body = request.get_json()
+
+        task.title = request_body["title"]
+        task.description = request_body["description"]
+
+        db.session.commit()
+
+        return make_response(jsonify(task.to_dict()), 200)
