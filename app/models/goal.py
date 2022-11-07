@@ -15,7 +15,7 @@ class Goal(db.Model):
 
     @classmethod
     def from_dict(cls, task_data):
-        new_task = cls(title=task_data["title"],
+        new_goal = cls(title=task_data["title"],
                         )
 
-        return new_task
+        return new_goal
