@@ -1,4 +1,5 @@
 from app import db
+from datetime import date
 from app.models.task import Task
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request
@@ -28,7 +29,7 @@ def handle_tasks():
 
         try:
             new_task = Task.from_dict(request_body)
-        except KeyError as err:
+        except KeyError:
             return (f"Invalid data", 400)
 
         # Add this new instance of task to the database
@@ -36,7 +37,9 @@ def handle_tasks():
         db.session.commit()
 
         # Successful response
-        return make_response(f"Task {new_task.title} has been successfully created!", 201)
+        return {
+            "task": new_task.to_json()
+        }, 201
 
 # Path/Endpoint to get a single task
 # Include the id of the record to retrieve as a part of the endpoint
@@ -52,18 +55,43 @@ def handle_task(task_id):
     elif request.method == "PUT":
         request_body = request.get_json()
 
-        # Updated task attributes are set:
-        task.title = request_body['title']
-        task.description = request_body['description']
-        task.completed_at = request_body['completed_at']
+        task.update(request_body)
 
         # Update this task in the database
         db.session.commit()
 
-        # Sucessful response
-        return make_response(f"task {task.title} has been successfully updated!", 200)
+        # Successful response
+        return {
+            "task": task.to_json()
+        }, 200
+
     elif request.method == "DELETE":
         db.session.delete(task)
         db.session.commit()
 
-        return make_response(f"task {task.title} successfully deleted", 202)
+    return {
+        "details": f'Task {task.task_id} \"{task.title}\" successfully deleted',
+    }, 202
+
+@tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
+def mark_complete_task(task_id):
+    task = Task.query.get(task_id)
+    task.completed_at = date.today()
+
+    db.session.commit()
+
+    return {
+        "task": task.to_json()
+    }
+
+
+@tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete_task(task_id):
+    task = Task.query.get(task_id)
+    task.completed_at = None
+
+    db.session.commit()
+
+    return {
+        "task": task.to_json()
+    }
