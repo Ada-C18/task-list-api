@@ -3,15 +3,10 @@ from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import datetime
-import logging, os
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
+import os, requests
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
-
-client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
-logger = logging.getLogger(__name__)
 
 #***********************************************#
 #***************** Task Routes *****************#
@@ -50,16 +45,7 @@ def mark_one_task_as_complete(task_id):
 
     db.session.commit()
 
-    # call Slack API
-    try:
-        result = client.chat_postMessage(
-            channel=os.environ.get("CHANNEL_ID"), 
-            text=f"Someone just completed the task {task.title}"
-        )
-        logger.info(result)
-
-    except SlackApiError as e:
-        logger.error(f"Error posting message: {e}")
+    post_notification_on_slack(task.title)
 
     return jsonify(generate_response_body(Task, task)), 200
 
@@ -241,3 +227,18 @@ def get_all_models(cls, order=None):
         models = cls.query.all()
     
     return jsonify(generate_response_body(cls, models)), 200
+
+
+def post_notification_on_slack(task_title):
+    slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
+
+    URL = "https://slack.com/api/chat.postMessage"
+
+    headers = {"Authorization": f'Bearer {slack_bot_token}'}
+    
+    params = {
+        "channel":'task-notifications',
+        "text":f"Someone just completed the task {task_title}"
+    }
+
+    requests.put(URL,params=params,headers=headers)
