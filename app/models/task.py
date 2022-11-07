@@ -8,6 +8,13 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default=None, nullable=True)
 
+    # adding FK for parent Goal
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
+    # define database relation with back_populates
+    goal = db.relationship("Goal", back_populates="tasks")
+    # Recommendation: Setting the nullable to True
+    # nullable=True
+
     # converts Task object into Dict
     def to_dict(self):
         task_dict = {
