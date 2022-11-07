@@ -128,22 +128,22 @@ def get_all_goals():
 
     return make_response(jsonify(goal_response), 200)
 
-def validate_goal(goal_id):
+def validate_goal(id):
     try:
-        goal_id = int(goal_id)
+        id = int(id)
     except:
-        abort(make_response({"message":f"goal {goal_id} invalid"}, 400))
+        abort(make_response({"message":f"goal {id} invalid"}, 400))
 
-    goal = Goal.query.get(goal_id)
+    goal = Goal.query.get(id)
 
     if not goal:
-        abort(make_response({"message":f"Goal {goal_id} not found"}, 404))
+        abort(make_response({"message":f"Goal {id} not found"}, 404))
 
     return goal
 
-@goals_bp.route("/<goal_id>", methods=["GET"])
-def handle_goal(goal_id):
-    goal = validate_goal(goal_id)
+@goals_bp.route("/<id>", methods=["GET"])
+def handle_goal(id):
+    goal = validate_goal(id)
 
     return {"goal": {
     "id": goal.id,
@@ -180,3 +180,12 @@ def edit_goal(id):
     db.session.commit()
 
     return make_response(jsonify({'goal': goal.to_dict()}), 200)
+
+@goals_bp.route("/<id>", methods=["DELETE"])
+def delete_task(id):
+    goal = validate_task(id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return {"details": f'Goal {goal.id} "{goal.title}" successfully deleted'}, 200
