@@ -56,4 +56,4 @@ def update_task(task_id):
         db.session.commit()
         return {"task": task.as_dict()}, 200
     else:
-        abort(make_response({"ERROR": "Task requires at least name and description"}, 404))
+        return {"ERROR": "Task requires at least name and description"}, 404
