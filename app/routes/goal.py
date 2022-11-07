@@ -33,5 +33,26 @@ def read_all_goals():
 
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
-    
 
+# replace a goal (PUT)
+@goals_bp.route("/<id>", methods=["PUT"])
+def update_goal(id):
+    goal = validate_model(Goal, id)
+    request_body = request.get_json()
+
+    goal.update(request_body)
+    db.session.commit()
+    
+    response = {"goal": goal.to_dict()}
+    return response
+
+
+@goals_bp.route("/<id>", methods=["DELETE"])
+def delete_goal(id):
+    goal = validate_model(Goal, id)
+    title = str(goal.title)
+    db.session.delete(goal)
+    db.session.commit()
+
+    # Returns error 
+    return(make_response({"details": f"Goal {id} \"{title}\" successfully deleted"}), 200)
