@@ -4,6 +4,7 @@ from app.models.task import Task
 from flask import Blueprint, jsonify, request
 
 from app.route_helper import get_one_obj_or_abort
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -32,10 +33,11 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    task_query = request.args.get("title")
-    if task_query:
-        tasks = request.args.filter_by(title=task_query)
-
+    sort_filter = request.args.get("sort")
+    if sort_filter == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif sort_filter == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
     else:
         tasks = Task.query.all()
 
@@ -75,3 +77,23 @@ def delete_one_task(obj_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {obj_id} "{task_to_delete.title}" successfully deleted'})
+
+
+@tasks_bp.route("/<obj_id>/mark_complete", methods=["PATCH"])
+def complete_task(obj_id):
+
+    update_task = get_one_obj_or_abort(Task, obj_id)
+    update_task.completed_at = datetime.utcnow()
+
+    db.session.commit()
+    return jsonify({"task": update_task.to_dict()}), 200
+
+
+@tasks_bp.route("/<obj_id>/mark_incomplete", methods=["PATCH"])
+def uncomplete_task(obj_id):
+
+    update_task = get_one_obj_or_abort(Task, obj_id)
+    update_task.completed_at = None
+
+    db.session.commit()
+    return jsonify({"task": update_task.to_dict()}), 200
