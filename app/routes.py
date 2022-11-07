@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from datetime import datetime
 
 
@@ -131,3 +132,61 @@ def is_incomplete(id):
     db.session.commit()
 
     return jsonify({"task":final_task}), 200
+
+
+goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+@goal_bp.route("", methods =["POST"])
+def create_goal():
+    request_body = request.get_json()
+
+    if len(request_body.keys()) == 0:
+        return make_response({"details":"Invalid data"},400)
+    else:
+        new_goal = Goal.from_goal_dict(request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+
+    return make_response({"goal":(new_goal.to_goal_dict())}, 201)
+
+@goal_bp.route("", methods = ["GET"])
+def read_all_goals():
+    task_query = Goal.query
+    goals = task_query.all()
+    
+    all_goals = [goal.to_goal_dict() for goal in goals]
+
+    return jsonify(all_goals), 200
+
+
+@goal_bp.route("/<id>", methods = ["GET"])
+def read_a_goals(id):
+    goal = validate_model(Goal,id)
+    return jsonify({"goal":goal.to_goal_dict()}), 200
+
+
+@goal_bp.route("/<id>", methods = ["PUT"])
+def update_a_goal(id):
+    
+    goal = validate_model(Goal,id)
+    request_body = request.get_json()
+    
+    goal.title = request_body["title"]
+
+    db.session.commit()
+
+    return jsonify({"goal":goal.to_goal_dict()}), 200
+
+@goal_bp.route("/<id>", methods = ["DELETE"])
+def delete_goal(id):
+    deleted_goal = validate_model(Goal, id)
+
+    db.session.delete(deleted_goal)
+    db.session.commit()
+
+    return make_response({"details":f'Goal {deleted_goal.id} \"{deleted_goal.title}\" successfully deleted'}), 200
+
+
+
