@@ -15,7 +15,7 @@ def get_one_task_or_abort(task_id):
     matching_task = Task.query.get(task_id)
 
     if not matching_task:
-        response_str = f"Task with '{task_id}' was not found in the dataabase"
+        response_str = f"Task with ID '{task_id}' was not found in the database"
         abort(make_response(jsonify({"message":response_str}), 404))
 
     return matching_task
