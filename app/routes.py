@@ -10,17 +10,17 @@ tasks_bp = Blueprint("tasks", __name__,url_prefix="/tasks")
 
 
 # Helper function
-def get_task_from_id(task_id):
+def get_model_from_id(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except ValueError:
-        return abort(make_response({"msg": f"invalid data type: {task_id}"}, 200))
+        return abort(make_response({"msg": f"invalid data type: {model_id}"}, 200))
 
 
-    chosen_task = Task.query.get(task_id)
+    chosen_task = Task.query.get(model_id)
 
     if chosen_task is None:
-        return abort(make_response({"msg": f"Could not find the task with id: {task_id}"}, 404))
+        return abort(make_response({"msg": f"Could not find the task with id: {model_id}"}, 404))
     
     return chosen_task
 
@@ -63,13 +63,13 @@ def get_all_tasks():
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
 
-    chosen_task = get_task_from_id(task_id)
+    chosen_task = get_model_from_id(Task, task_id)
 
     return jsonify({"task":chosen_task.to_dict()}), 200
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
 def update_one_task(task_id):
-    update_task = get_task_from_id(task_id)
+    update_task = get_model_from_id(Task, task_id)
 
     request_body = request.get_json()
 
@@ -85,9 +85,9 @@ def update_one_task(task_id):
 
 @tasks_bp.route('/<task_id>', methods=['DELETE'])
 def delete_one_task(task_id):
-    task_to_delete = get_task_from_id(task_id)
+    task_to_delete = get_model_from_id(Task, task_id)
 
-    title_task_to_delete= get_task_from_id(task_id).to_dict()["title"]
+    title_task_to_delete= get_model_from_id(task_id).to_dict()["title"]
 
     db.session.delete(task_to_delete)
     db.session.commit()
@@ -97,7 +97,7 @@ def delete_one_task(task_id):
 @tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_on_an_incompleted_task(task_id):
     current_time = datetime.now()
-    patch_task = get_task_from_id(task_id)
+    patch_task = get_model_from_id(Task, task_id)
     patch_task.completed_at = current_time
 
     db.session.commit()
@@ -115,7 +115,7 @@ def mark_complete_on_an_incompleted_task(task_id):
 @tasks_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
 def mark_incomplete_on_an_completed_task(task_id):
     current_time = None 
-    patch_task = get_task_from_id(task_id)
+    patch_task = get_model_from_id(Task, task_id)
     patch_task.completed_at = current_time
 
     db.session.commit()
