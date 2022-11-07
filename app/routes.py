@@ -19,26 +19,40 @@ def validate_model(cls, model_id):
 
     return model
 
+def validate_request(cls, data):
+
+    try:
+        model = cls(title=data["title"],
+                description=data["discription"])
+    except:
+        abort(make_response(
+            {"details": "Invalid data"}, 400))
+    return model
+
 
 @bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = Task(title=request_body["title"],
-                    description=request_body["description"],
-                    completed_at=request_body["completed_at"])
-
+    new_task = validate_request(Task, request_body)
 
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(f"The task {new_task.title} successfully created", 201)
+    return make_response({
+            "task": {
+            "id":new_task.task_id,
+            "title": new_task.title,
+            "description": new_task.description,
+            "is_complete": bool(new_task.completed_at)
+        }}
+    , 201)
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
     tasks_response = []
     tasks = Task.query.all()
     for task in tasks:
-        tasks_response.append( "task",
+        tasks_response.append(
             {
             "id": task.task_id,
             "title": task.title,
@@ -47,37 +61,55 @@ def read_all_tasks():
             }
         )
         
-    return jsonify(tasks_response)
+    return tasks_response
 
 @bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
-    task = validate_model(Task, task_id)
+    task = validate_model(Task,task_id)
 
-    return jsonify("task",
-        {
+
+    get_response ={
+        f"task": {
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": bool(task.completed_at)
-            }
-    )
+            "is_complete":  bool(task.completed_at)
+        }}
 
-@bp.route("/<id>", methods=["PUT"])
-def update_task(id):
-    task = validate_model(Task, id)
+    return get_response, 200
+
+    
+    
+
+@bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_model(Task, task_id)
+
     request_body = request.get_json()
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"]
 
     db.session.commit()
-    return make_response(f"The task {task.title} successfully updated"), 200
+
+    update_response = {
+        "task": {
+            "id": task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }
+    }
+
+    return make_response(update_response), 200
 
 @bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_model(Task, task_id)
     db.session.delete(task)
     db.session.commit()
-    return make_response(f"The task {task.title}successfully deleted"), 200
+    task_response =  {
+        "details": f'Task {task_id} "{task.title}" successfully deleted'
+    }
+    return make_response(task_response), 200
 
