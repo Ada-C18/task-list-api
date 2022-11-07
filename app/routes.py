@@ -28,7 +28,10 @@ def get_one_task(task_id):
 def create_one_task():
     request_body = request.get_json()
 
-    new_task = Task.from_dict(request_body)
+    try:
+        new_task = Task.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}), 400
 
     db.session.add(new_task)
     db.session.commit()
