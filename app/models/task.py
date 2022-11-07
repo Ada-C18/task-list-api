@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
@@ -11,9 +12,11 @@ class Task(db.Model):
         new_task = Task(
             title = task_data["title"],
             description = task_data["description"], 
-            completed_at = None,
+            completed_at =  None  
         )
         return new_task 
+
+
 
     def to_dict(self):
         return {
@@ -26,3 +29,8 @@ class Task(db.Model):
     def task_complete(self):
         if self.completed_at is None:
             return False 
+        else:
+            return True
+            
+    
+        

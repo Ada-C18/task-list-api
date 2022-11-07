@@ -1,7 +1,9 @@
-from app import db  # why isn't this importing correctly? 
+from app import db
 from app.models.task import Task 
-from app.models.goal import Goal # Why isn't this accesable?? 
+from app.models.goal import Goal 
+from datetime import datetime
 from flask import Blueprint, jsonify, abort, make_response, request
+from sqlalchemy import asc 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -31,17 +33,15 @@ def create_one_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return {"task" : new_task.to_dict()}, 201
-
+    return {"task": new_task.to_dict()}, 201
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    title_query = request.args.get("title")
-    if title_query:
-        task = Task.query.filter_by(title=title_query)
-    else:
-        tasks = Task.query.all()
-
+    sort_query = request.args.get("sort")
+    if sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    else: # "asc" or None
+        tasks = Task.query.order_by(Task.title).all() 
     task_response = []
     for task in tasks:
         task_response.append(task.to_dict())
@@ -72,5 +72,17 @@ def delete_task(model_id):
 
     return {"details" :f'Task {model_id} "{task.title}" successfully deleted'}, 200
 
+@tasks_bp.route("/<model_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(model_id):
+    task = validate_model(Task, model_id)
+    task.completed_at = datetime.now()
+    db.session.commit() 
+    return {"task":task.to_dict()}, 200
 
+@tasks_bp.route("/<model_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(model_id):
+    task = validate_model(Task, model_id)
+    task.completed_at = None 
+    db.session.commit()
+    return {"task":task.to_dict()}, 200
     
