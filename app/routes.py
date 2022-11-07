@@ -2,6 +2,7 @@ from flask import Blueprint, request, make_response, jsonify
 from app import db
 from app.models.task import Task
 from sqlalchemy import asc,desc
+from datetime import date
 
 task_bp = Blueprint('task_bp', __name__, url_prefix='/tasks')
 
@@ -101,33 +102,27 @@ def delete_task(task_id):
     return make_response({f"details": f'Task {task_id} \"{task.title}\" successfully deleted'}),200
 
 
-@task_bp.route("/<task_id>/<completed_at>", methods=["PATCH"])
-def patch_task_complete(task_id, completed_at):
+@task_bp.route("/<task_id>/<complete>", methods=["PATCH"])
+def patch_task_complete(task_id, complete):
     task = Task.query.get(task_id)
-    # completed = Task.query.get(complete)
     if not task:
-        return make_response({"details":"Id not found"}), 404
-    
-    request_body = request.get_json(task_id)
-    # request_body = request.get_json(completed_at)
+        return make_response({"details":"Id not found"}), 404 
 
-    task.title = request_body["title"],
-    task.description = request_body["description"]
-    # task.completed_at = request_body["is_complete"]
-
-    if completed_at == "mark_complete":
-        task.completed_at == True
-    elif completed_at == "mark_incomplete":
-        task.completed_at == False
+    if complete == "mark_complete":
+        is_complete = True
+        task.completed_at = date.today()
+    elif complete == "mark_incomplete":
+        is_complete = False
+        task.completed_at = None
 
     db.session.commit()
 
-    return make_response({ "task":{
+    test_response = { "task":{
         "id": task.task_id,
         "title": task.title,
         "description": task.description,
-        "is_complete": task.completed_at
-    }},200)
+        "is_complete": is_complete
+    }
+    },200
 
-
-
+    return make_response(test_response)

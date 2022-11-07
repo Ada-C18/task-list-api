@@ -24,7 +24,7 @@ def test_mark_complete_on_incomplete_task(client, one_task):
         mock_get.return_value.status_code = 200
 
     # Act
-    response = client.patch("/tasks/1/mark_complete")
+        response = client.patch("/tasks/1/mark_complete")
     response_body = response.get_json()
 
     # Assert
@@ -49,7 +49,7 @@ def test_mark_incomplete_on_complete_task(client, completed_task):
     response_body = response.get_json()
 
     # Assert
-    # assert response.status_code == 200
+    assert response.status_code == 200
     assert response_body["task"]["is_complete"] == False
     assert response_body == {
         "task": {
