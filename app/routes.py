@@ -141,6 +141,22 @@ def update_task_completed_at(task_id):
     # lessons- 1) Always chk blueprint. Path will start after that
     #2) call request body only if there are extra params other than url directly
 
+@task_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
+def update_task_mark_incomplete_on_completed_task(task_id):
+    task = get_one_task_or_abort(task_id) #validated task_id = 1
+    task.completed_at = None
+    is_completed = False
+    db.session.commit()
+    task_dict = {
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description,
+        "is_complete": is_completed
+    }
+    return jsonify({"task":task_dict}),200
+    # lessons- 1) Always chk blueprint. Path will start after that
+    #2) call request body only if there are extra params other than url directly
+
     
 
 @task_bp.route("<task_id>", methods=["DELETE"])
