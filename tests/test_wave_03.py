@@ -136,13 +136,14 @@ def test_mark_complete_missing_task(client):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_mark_incomplete_missing_task(client):
-#     # Act
-#     response = client.patch("/tasks/1/mark_incomplete")
-#     response_body = response.get_json()
+def test_mark_incomplete_missing_task(client):
+    # Act
+    response = client.patch("/tasks/1/mark_incomplete")
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 404
+    # Assert
+    assert response.status_code == 404
+    assert response_body == {"message":"Task with id 1 not found in database"}
 
 #     raise Exception("Complete test with assertion about response body")
 #     # *****************************************************************
