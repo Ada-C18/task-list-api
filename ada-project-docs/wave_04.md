@@ -31,7 +31,7 @@ In your independent Slack workspace, create a public channel named `task-notific
 
 Ensure that you are able to log into Slack's API/Apps dashboard:
 
-- Visit https://api.slack.com/apps, which is the dashboard for all Slack API things
+- Visit https://api.sla ck.com/apps, which is the dashboard for all Slack API things
   - This may redirect you to Slack. If so, sign in and then visit https://api.slack.com/apps again.
 
 ![](assets/slack_app_splash.png)
@@ -98,10 +98,13 @@ Visit https://api.slack.com/methods/chat.postMessage to read about the Slack API
 Answer the following questions. These questions will help you become familiar with the API, and make working with it easier.
 
 - What is the responsibility of this endpoint?
+<!-- - send a message to a channel -->
 - What is the URL and HTTP method for this endpoint?
+<!-- - https://slack.com/api/chat.postMessage -->
 - What are the _two_ _required_ arguments for this endpoint?
+<!-- - token and channel -->
 - How does this endpoint relate to the Slackbot API key (token) we just created?
-
+<!-- we need the token to access this endpoint -->
 Now, visit https://api.slack.com/methods/chat.postMessage/test.
 
 ![](assets/api_test.png)
@@ -119,8 +122,10 @@ Press the "Test Method" button!
 Scroll down to see the HTTP response. Answer the following questions:
 
 - Did we get a success message? If so, did we see the message in our actual Slack workspace?
+<!-- - yes and yes -->
 - Did we get an error emssage? If so, why?
 - What is the shape of this JSON? Is it a JSON object or array? What keys and values are there?
+<!-- json object lots of keys and values including success code -->
 
 ### Verify with Postman
 
