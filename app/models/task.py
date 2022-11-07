@@ -14,10 +14,18 @@ class Task(db.Model):
                         completed_at=None)
         return new_task
     
-    # def to_dict(self):
-    #     return {
-    #         "id": self.task_id,
-    #         "title": self.title,
-    #         "description": self.description,
-    #         "completed_at": self.completed_at
-    #     }
+    def is_complete(task_data):
+        if task_data.completed_at == None:
+            return False
+        else:
+            return True
+    
+    def to_dict(self):
+        return {"task": 
+            {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": self.is_complete()
+            }
+                }

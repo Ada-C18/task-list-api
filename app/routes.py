@@ -13,9 +13,6 @@ def create_task():
     if (("title") not in request_body
         or ("description") not in request_body):
         return make_response({"details": "Invalid data"}, 400)
-
-    # new_task = Task(title=request_body["title"],
-    #                 description=request_body["description"])
     
     new_task = Task.from_dict(request_body)
     
@@ -23,14 +20,15 @@ def create_task():
     db.session.commit()
 
     task_response = Task.query.get(1)
-    return make_response(
-        {
-            "task": {
-                "id": task_response.id,
-                "title": task_response.title,
-                "description": task_response.description,
-                "is_complete": False
-                }
-            },
-        201
-    )
+    return make_response(task_response.to_dict(), 201)
+    # return make_response(
+    #     {
+    #         "task": {
+    #             "id": task_response.id,
+    #             "title": task_response.title,
+    #             "description": task_response.description,
+    #             "is_complete": False
+    #             }
+    #         },
+    #     201
+    # )
