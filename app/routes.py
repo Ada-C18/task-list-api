@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from sqlalchemy import desc
+import datetime
 
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 
@@ -112,4 +113,40 @@ def delete_one_task(task_id):
 
     return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"})
 
+@task_bp.route("/<task_id>/mark_complete",methods=["PATCH"])
+def mark_task_complete(task_id):
+    task_to_mark_complete = get_one_task_or_abort(task_id)
+    task_to_mark_complete.is_complete = True
+    task_to_mark_complete.completed_at = datetime.datetime.now()
 
+    response_body = {
+        "task": {
+            "id": task_to_mark_complete.task_id,
+            "title": task_to_mark_complete.title,
+            "description": task_to_mark_complete.description,
+            "is_complete": task_to_mark_complete.is_complete
+        }
+    }
+
+    db.session.commit()
+    
+    return jsonify(response_body), 200
+
+@task_bp.route("/<task_id>/mark_incomplete",methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    task_to_mark_incomplete = get_one_task_or_abort(task_id)
+    task_to_mark_incomplete.is_complete = False
+    task_to_mark_incomplete.completed_at = None
+
+    response_body = {
+        "task": {
+            "id": task_to_mark_incomplete.task_id,
+            "title": task_to_mark_incomplete.title,
+            "description": task_to_mark_incomplete.description,
+            "is_complete": task_to_mark_incomplete.is_complete
+        }
+    }
+
+    db.session.commit()
+    
+    return jsonify(response_body), 200
