@@ -19,8 +19,8 @@ class Task(db.Model):
     def update(self, req_body):
         self.title=req_body["title"],
         self.description=req_body["description"],
-        self.completed_at=req_body["completed_at"],
-        self.is_complete=req_body["is_complete"]
+        # self.completed_at=req_body["completed_at"],
+        # self.is_complete=req_body["is_complete"]
 
     @classmethod
     def from_dict(cls, task_data):

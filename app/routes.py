@@ -40,6 +40,12 @@ def read_all_tasks():
         # or we need to exclude COMPLETED_AT????
         # I've removed completed_at from to_dict
         # for now, commented it out
+    
+    sorting_query = request.args.get("sort")
+    if sorting_query == "asc":
+        tasks_response = sorted(tasks_response, key=lambda dict: dict["title"])
+    elif sorting_query == "desc":
+        tasks_response = sorted(tasks_response, key=lambda dict: dict["title"], reverse=True) 
             
     return jsonify(tasks_response), 200
     
@@ -47,15 +53,18 @@ def read_all_tasks():
 def create_task():
     #need to validate task
     request_body = request.get_json()
-    if request_body["title"] and request_body["description"]:
+    print(request_body)
+    # if request_body["title"] and request_body["description"]:
+    if "title" in request_body and "description" in request_body:
         new_task = Task.from_dict(request_body)
         db.session.add(new_task)
         db.session.commit()
+        response_one_task = {}
+        response_one_task["task"] = Task.to_dict(new_task)
+        return jsonify(response_one_task), 201
     else:
-        abort(make_response(jsonify({"details": "invalid data"}), 400))
-    response_one_task = {}
-    response_one_task["task"] = Task.to_dict(new_task)
-    return jsonify(response_one_task), 201
+        abort(make_response(jsonify({"details": "Invalid data"}), 400))
+
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -76,8 +85,9 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
-
-    return jsonify(task), 200
+    response_updated_task = {}
+    response_updated_task["task"] = Task.to_dict(task)
+    return jsonify(response_updated_task), 200
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -86,4 +96,4 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
 
-    return make_response(f"task #{task.id} \"{task.description}\"successfully deleted")
+    return make_response({"details": f"Task {task.id} \"{task.title}\" successfully deleted"})
