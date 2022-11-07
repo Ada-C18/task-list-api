@@ -57,3 +57,11 @@ def update_task(task_id):
         return {"task": task.as_dict()}, 200
     else:
         return {"ERROR": "Task requires at least name and description"}, 404
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_model(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+    return {"details":f'Task {task_id} "{task.title}" successfully deleted'}, 200
