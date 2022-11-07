@@ -24,10 +24,10 @@ def validate_model(cls, model_id):
 
 def create_slack_bot_message(task):
     URL = 'https://slack.com/api/chat.postMessage'
-    SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
+    SLACK_API_KEY = os.environ.get("SLACK_TOKEN")
 
     slack_params = {
-        "channel": "task-notifications",
+        "channel": "C0499FWAQ5D",
         "text": f"Someone just completed the task {task.title}"
     }
     slack_headers ={
@@ -35,7 +35,6 @@ def create_slack_bot_message(task):
     }
 
     requests.post(URL, data=slack_params, headers=slack_headers)
-
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -95,9 +94,9 @@ def delete_task(task_id):
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
     task = validate_model(Task, task_id)
+    create_slack_bot_message(task)
     task.completed_at = datetime.now()
     db.session.commit()
-    create_slack_bot_message(task)
     return {"task":task.to_dict()}
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
