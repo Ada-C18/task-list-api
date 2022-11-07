@@ -3,6 +3,11 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 from datetime import datetime
+import requests
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -79,26 +84,45 @@ def delete_task(task_id):
     return make_response(jsonify({
         "details" : f"Task {task_id} \"{task.title}\" successfully deleted"}))
 
+
+def use_slack_bot(task):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("API_KEY")
+    
+    query_params = {
+        "channel": "#task-notifications",
+        "text" : f"Someone just completed the task {task.title}"
+        }
+
+    requests.post(PATH, params=query_params, headers={
+        "Authorization": SLACK_API_KEY
+    })
+
 @bp.route("<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_on_incompleted_task(task_id):
-    try:
-        task = validate_task(Task, task_id)
+    task = validate_task(Task, task_id)
 
-        task.completed_at = datetime.utcnow()
-        task.is_complete = True
-        db.session.commit()
+    task.completed_at = datetime.utcnow()
+    db.session.commit()
 
-        return make_response(jsonify({
-            "task": Task.to_dict(task)}))
-    except:
-        abort(make_response({"message" : f"task {task_id} not found"}, 404))
+    use_slack_bot(task)
+
+    return make_response(jsonify({
+        "task": Task.to_dict(task)}))
+
+
+
+
+
+
+
 
 @bp.route("<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete_on_completed_task(task_id):
     try:
         task = validate_task(Task, task_id)
     
-        task.is_complete = False
+        # task.is_complete = False
         task.completed_at = None
 
         db.session.commit()
