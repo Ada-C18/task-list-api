@@ -1,4 +1,5 @@
 from app.models.task import Task
+from app.models.goal import Goal
 from app import db
 from flask import Blueprint, request, make_response, jsonify, abort
 from datetime import date
@@ -11,6 +12,8 @@ load_dotenv()
 
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix = "/tasks")
+goals_bp = Blueprint("goals_bp", __name__, url_prefix = "/goals")
+
 
 @tasks_bp.route("", methods=["POST", "GET"])
 def handle_tasks():
@@ -97,3 +100,59 @@ def mark_task(id, mark):
         task.completed_at = None
         db.session.commit()
         return make_response({"task":task.to_dict()},200)
+
+
+@goals_bp.route("", methods=["POST", "GET"])
+def handle_goals():
+    if request.method == "POST":
+        goal = Goal.from_dict(request.get_json())
+        
+        if goal == False:
+            return make_response({"details": "Invalid data"}, 400)
+        
+        db.session.add(goal)
+        db.session.commit()
+
+        db.session.refresh(goal)
+        goal = goal.to_dict()
+        response = {"goal":goal}
+        return make_response(response,201)
+
+    elif request.method == "GET":
+        goals = Goal.query.all()
+        response_body = [goal.to_dict() for goal in goals]
+        return make_response(jsonify(response_body), 200)
+
+@goals_bp.route("/<id>", methods=["POST", "GET", "PUT", "DELETE"])
+def handle_individual_goal(id):
+    goal = validate_id(Goal, id)
+    if request.method == "GET":
+        return make_response({"goal":goal.to_dict()}, 200)
+
+    elif request.method == "DELETE":
+        db.session.delete(goal)
+        db.session.commit()
+        return make_response({'details': f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}, 200)
+    
+    elif request.method == "PUT":
+        new_goal = request.get_json()
+        goal.title= new_goal["title"]
+        db.session.commit()
+
+        return make_response({"goal":goal.to_dict()}, 200)
+
+@goals_bp.route("/<id>/tasks", methods=["POST", "GET", "PUT", "DELETE"])
+def goals_tasks(id):
+    goal = validate_id(Goal, id)
+    if request.method == "POST":
+        task_ids = request.get_json()["task_ids"]
+        for id in task_ids:
+            task = validate_id(Task, id)
+            task.goal = goal
+            db.session.commit()
+        return make_response(jsonify({"id":goal.goal_id, "task_ids":task_ids}), 200)
+    elif request.method == "GET":
+        response = goal.to_dict()
+        response["tasks"] = [task.to_dict() for task in goal.tasks]
+        return make_response(jsonify(response), 200)
+
