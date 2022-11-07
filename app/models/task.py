@@ -1,6 +1,5 @@
 from app import db
-from flask import abort, make_response
-from flask import jsonify
+from flask import abort, make_response, jsonify
 
 
 class Task(db.Model):
@@ -28,6 +27,6 @@ class Task(db.Model):
         try:
             self.title = req_body["title"]
             self.description = req_body["description"]
-        except KeyError as error:
+        except KeyError:
             abort(make_response(jsonify(dict(details="Invalid data")), 400))
     
