@@ -10,7 +10,6 @@ tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 def create_task():
     request_body = request.get_json()
 
-
     # if "title" not in request_body or "description" not in request_body:
     #     return make_response("Invalid Request, Title & description Can't Be Empty", 400)
 
@@ -20,7 +19,6 @@ def create_task():
         is_completed = request_body["is_completed"]
     )
 
-    
     db.session.add(new_task)
     db.session.commit()
 
@@ -55,35 +53,25 @@ def handle_task(task_id):
             }
 
 
-
-
 @tasks_bp.route('',methods=['GET'])
 def get_task():
     task_query = Task.query
 
-    descripiton_query = request.arg.get("description")
+    descripiton_query = request.args.get("description")
     if descripiton_query:
         task_query = task_query.filter_by(description = descripiton_query)
-    else:
-        task = Task.query.all()
 
-    title_query = request.arg.get("title")
+    title_query = request.args.get("title")
     if title_query:
         task_query = task_query.filter_by(title = title_query)
-    else:
-        task = Task.query.all()
     
-    is_complete_query = request.arg.get("is_complete")
+    is_complete_query = request.args.get("is_complete")
     if is_complete_query:
         task_query = task_query.filter_by(is_complete = is_complete_query)
-    else:
-        task = Task.query.all()
 
-    by_id_query = request.arg.get(id)
+    by_id_query = request.args.get(id)
     if by_id_query:
         by_id_query = by_id_query.filter_by(by_id = by_id_query)
-    else:
-        task = Task.query.all()
 
     tasks = task_query.all()
 
@@ -95,8 +83,7 @@ def get_task():
             "is_complete": task.is_complete,
             "description": task.description
         })
-    if not tasks_response:
-        return make_response(jsonify(f"There are no {task_query} tasks"))
+
     return jsonify(tasks_response)
 
 @tasks_bp.route('/<task_id>',methods=['DELETE'])
