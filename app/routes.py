@@ -101,21 +101,22 @@ def delete_task(task_id):
     return make_response({f"details": f'Task {task_id} \"{task.title}\" successfully deleted'}),200
 
 
-@task_bp.route("/<task_id>/<complete>", methods=["PATCH"])
-def patch_task_complete(task_id, complete):
+@task_bp.route("/<task_id>/<completed_at>", methods=["PATCH"])
+def patch_task_complete(task_id, completed_at):
     task = Task.query.get(task_id)
+    completed = Task.query.get(completed_at)
     if not task:
         return make_response({"details":"Id not found"}), 404
     
     request_body = request.get_json(task_id)
-    request_body = request.get_json(complete)
+    request_body = request.get_json(completed_at)
 
     task.title = request_body["title"],
     task.description = request_body["description"]
 
-    if complete == "mark_complete":
+    if completed_at == "mark_complete":
         task.completed_at == True
-    elif complete == "mark_incomplete":
+    elif completed_at == "mark_incomplete":
         task.completed_at == False
 
     db.session.commit()
