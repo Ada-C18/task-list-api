@@ -18,7 +18,7 @@ class Task(db.Model):
         # task_dict["is_complete"] = False
         if self.completed_at == None:
             task_dict["is_complete"] = False #if not needed, retun is_complete = True
-
+    
         # return json.dumps(task_dict)
         return task_dict
         # task_dict["completed_at"] = self.completed_at
