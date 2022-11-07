@@ -8,7 +8,6 @@ asgiref==3.5.2
 asttokens==2.0.8
 async-timeout==3.0.1
 attrs==21.2.0
-autopep8==1.5.7
 backcall==0.2.0
 beautifulsoup4==4.11.1
 big-O-calculator==0.0.9.8.4
@@ -83,7 +82,7 @@ Pygments==2.13.0
 pyparsing==2.4.7
 pyrsistent==0.18.1
 pytest==6.2.5
-python-dateutil==2.8.1
+python-dateutil==2.8.2
 python-dotenv==0.15.0
 python-editor==1.0.4
 pyzmq==23.2.1

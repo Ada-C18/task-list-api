@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
-import slack
 
 
 
@@ -29,9 +28,6 @@ def create_app(test_config=None):
     # Import models here for Alembic setup
     from app.models.task import Task
     from app.models.goal import Goal
-    slack_client = SlackClient(os.environ.get('SLACK_TOKEN'))
-    slack_client.chat_postMessage(channel='#slack-bot-test-channel',text='Hello')
-
     db.init_app(app)
     migrate.init_app(app, db)
 
