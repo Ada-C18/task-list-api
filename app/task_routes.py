@@ -161,7 +161,7 @@ def delete_task(task_id):
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def updated_incomplete_task_to_complete(task_id):
     task = validate_model(Task, task_id)
-    task.completed_at = (dt.date.today())
+    task.completed_at = dt.date.today()
 
     db.session.commit()
 
@@ -173,7 +173,7 @@ def updated_incomplete_task_to_complete(task_id):
     query_params = {
     "channel": slack_channel,
     "text": task_text
-}
+    }
 
     response = requests.post(path, params=query_params, headers={"Authorization" : slack_token})
 
