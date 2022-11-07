@@ -17,6 +17,8 @@ def create_task():
     new_task = Task(title=request_body["title"],
                     description=request_body["description"])
     
+    # new_task = Task.from_dict(request_body)
+    
     db.session.add(new_task)
     db.session.commit()
 
