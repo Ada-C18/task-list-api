@@ -23,10 +23,10 @@ class Task(db.Model):
         self.description = request_body["description"]
 
     def mark_complete(self, completion_time=None):
-        if completion_time is False:
-            self.completed_at = None
-        else:
+        if completion_time is not False:
             self.completed_at = datetime.utcnow()
+        else:
+            self.completed_at = None
 
     @classmethod
     def from_dict(cls, task_data):
