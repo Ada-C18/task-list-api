@@ -3,6 +3,7 @@ from app.models.task import Task
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
+from datetime import date
 
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
@@ -80,33 +81,32 @@ def edit_task(task_id):
     return make_response(jsonify({'task': task.to_dict()}), 200)
 
 #******
-
-@tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
-def task_is_complete(task_id):
-
-    task = validate_task(task_id)
-    request_body = request.get_json()
-
-
-    task.completed_at = request_body["completed_at"]
-
-    db.session.commit()
-
-    return make_response(jsonify({'task': task.to_dict()}), 200)
-
-
-@tasks_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
-def task_is_incomplete(task_id):
+@tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
+def patch_task_complete(task_id,complete):
 
     task = validate_task(task_id)
-    request_body = request.get_json()
 
-    task.completed_at = None
-
+    if complete == "mark_complete":
+        task.completed_at = date.today()
+        is_complete = True
+    elif complete == "mark_incomplete":
+        task.completed_at = None
+        is_complete = False
+    # given our conditional in task model, why isn't it reading is_complete = False, 
+    # if completed_at is none
+    # can't use to_dict() in model folder and have to create response from scratch
     db.session.commit()
 
-    return make_response(jsonify({'task': task.to_dict()}), 200)
-
+    task_response = {
+        "task": {
+            "id": task.id,
+            "title":task.title,
+            "description":task.description,
+            "is_complete": is_complete
+        }
+    }
+    return make_response(task_response), 200
+    # return make_response({'task': task.to_dict()}), 200
 # ********
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])

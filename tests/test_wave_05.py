@@ -110,7 +110,7 @@ def test_update_goal(client, one_goal):
     # ---- Complete Assertions Here ----
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
     #raise Exception("Complete test")
     # Act

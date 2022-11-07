@@ -8,7 +8,6 @@ class Task(db.Model):
     # confirm null is default if task has not been completed
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean) # check if needed
-# pretend code to push something up 
 
     def to_dict(self):
         task_dict = {}
@@ -17,16 +16,13 @@ class Task(db.Model):
         task_dict["description"] = self.description
         # task_dict["is_complete"] = False
         if self.completed_at == None:
-            task_dict["is_complete"] = False #if not needed, retun is_complete = True
-    
-        # return json.dumps(task_dict)
+            task_dict["is_complete"] = False
         return task_dict
-        # task_dict["completed_at"] = self.completed_at
 
-    @classmethod
-    def from_dict(cls, task_data):
-        new_task = Task(title=task_data["title"],
-                        description=task_data["description"],
-                        completed_at=task_data["completed_at"])
+    # @classmethod
+    # def from_dict(cls, task_data):
+    #     new_task = Task(title=task_data["title"],
+    #                     description=task_data["description"],
+    #                     completed_at=task_data["completed_at"])
 
-        return new_task
+    #     return new_task
