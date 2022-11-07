@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 
 class Task(db.Model):
@@ -20,7 +21,12 @@ class Task(db.Model):
     def update(self, request_body):
         self.title = request_body["title"]
         self.description = request_body["description"]
-        # self.completed_at = request_body["completed_at"]
+
+    def mark_complete(self, completion_time=None):
+        if completion_time is False:
+            self.completed_at = None
+        else:
+            self.completed_at = datetime.utcnow()
 
     @classmethod
     def from_dict(cls, task_data):

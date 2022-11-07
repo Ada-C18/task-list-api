@@ -4,6 +4,7 @@ from app import db
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+
 def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
@@ -55,6 +56,26 @@ def update_task(task_id):
     task.update(request_body)
     db.session.commit()
 
+    return {"task": task.to_dict()}
+
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    validated_task = validate_model(Task, task_id)
+    task = Task.query.get(validated_task.task_id)
+
+    task.mark_complete()
+    db.session.commit()
+    return {"task": task.to_dict()}
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    validated_task = validate_model(Task, task_id)
+    task = Task.query.get(validated_task.task_id)
+
+    task.mark_complete(False)
+    db.session.commit()
     return {"task": task.to_dict()}
 
 
