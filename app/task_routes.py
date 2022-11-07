@@ -41,18 +41,6 @@ def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
     return task.to_dict_one()
-    # completed = None
-    # if not task.completed_at:
-    #     completed = False
-    # else:
-    #     completed = True 
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": completed }
-    #     }
 
 # create new task
 @task_bp.route("", methods=["POST"])
@@ -67,18 +55,6 @@ def create_task():
     db.session.commit()
 
     return new_task.to_dict_one(), 201
-    # completed = None
-    # if not new_task.completed_at:
-    #     completed = False
-    # else:
-    #     completed = True 
-    # return {
-    #     "task": {
-    #         "id": new_task.task_id,
-    #         "title": new_task.title,
-    #         "description": new_task.description,
-    #         "is_complete": completed }
-    #     }, 201
 
 # update task
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -92,18 +68,6 @@ def update_task(task_id):
     db.session.commit()
     
     return task.to_dict_one()
-    # completed = None
-    # if not task.completed_at:
-    #     completed = False
-    # else:
-    #     completed = True 
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": completed }
-    #     }
 
 # delete task
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -119,9 +83,7 @@ def delete_task(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
     task = validate_model(Task, task_id)
-    # request_body = request.get_json()
 
-    # then the task is updated, so that its completed_at value is the current date, and I get this response:
     task.completed_at = datetime.now()
 
     db.session.commit()
@@ -140,18 +102,6 @@ def mark_complete(task_id):
     requests.post(url, params=params, headers=headers)
 
     return task.to_dict_one()
-    # completed = None
-    # if not task.completed_at:
-    #     completed = False
-    # else:
-    #     completed = True 
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": completed }
-    #     }
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
