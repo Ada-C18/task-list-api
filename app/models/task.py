@@ -1,4 +1,5 @@
 from app import db
+from flask import abort, make_response
 
 class Task(db.Model):
     id =           db.Column(db.Integer, primary_key=True)
@@ -24,9 +25,12 @@ class Task(db.Model):
 
     @classmethod
     def new_instance_from_dict(cls, req_body):
-        new_dict = cls(
-                        title = req_body["title"],
-                        description = req_body["description"],
-                        completed_at = req_body["completed_at"]
-                        )
-        return new_dict
+        try:
+            new_dict = cls(
+                            title = req_body["title"],
+                            description = req_body["description"],
+                            completed_at = req_body["completed_at"]
+                            )
+            return new_dict
+        except:
+            abort(make_response({"details":"Invalid data"}, 400)) 
