@@ -1,5 +1,5 @@
 from app.models.task import Task
-from app.routes import validate_model
+from app.routes.task import validate_model
 import pytest
 
 

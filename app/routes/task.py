@@ -1,42 +1,18 @@
 from datetime import datetime
 from app import db
 from app.models.task import Task
-from app.models.goal import Goal
+from app.routes.routes_helper import validate_model, validate_input_data, error_message
 from flask import Blueprint, jsonify, make_response, request, abort
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
-goals_bp = Blueprint('goals_bp', __name__, url_prefix='/goals')
 
 
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response(jsonify({"message":f"{cls.__name__} {model_id} not found"}), 400))
-    
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response(jsonify({"message":f"{cls.__name__} {model_id} not found"}), 404))
-    else:
-        return model
-
-def validate_input_data(data_dict):
-    try:
-        return Task.from_dict(data_dict)
-    except KeyError:
-        abort(make_response(jsonify(dict(details="Invalid data")), 400))
-
-# TASK MODEL
 # create a task (POST)
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
 
-    new_task = validate_input_data(request_body)
-
-    if not new_task.title or not new_task.description:
-        return make_response({"details": f"Invalid data"})
+    new_task = validate_input_data(Task, request_body)
 
     db.session.add(new_task)
     db.session.commit()
@@ -116,37 +92,4 @@ def delete_task(id):
     # Returns error 
     return(make_response({"details": f"Task {int_id} {description} successfully deleted"}), 200)
 
-
-# GOAL MODEL 
-# create a goal (POST)
-@tasks_bp.route("", methods=["POST"])
-def create_goal():
-    request_body = request.get_json()
-
-    new_goal = validate_input_data(request_body)
-
-    if not new_goal.title:
-        return make_response({"details": f"Invalid data"})
-
-    db.session.add(new_goal)
-    db.session.commit()
-
-    return jsonify({"goal": new_goal.to_dict()}), 201
-
-# read one goal (GET)
-@goals_bp.route("/<id>", methods=["GET"])
-def read_one_goal(id):
-    goal = validate_model(Goal, id)
-
-    return jsonify({"goal": goal.to_dict()}), 200
-    
-# read all goals (GET)
-@goals_bp.route("", methods=["GET"])
-def read_all_goals():
-
-    goals = Goal.query.all()
-
-    goals_response = [goal.to_dict() for goal in goals]
-    return jsonify(goals_response)
-    
 

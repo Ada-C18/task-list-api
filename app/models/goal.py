@@ -3,7 +3,7 @@ from flask import abort, make_response, jsonify
 
 
 class Goal(db.Model):
-    goal_id = db.Column(db.Integer, primary_key=True)
+    goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
 
 
