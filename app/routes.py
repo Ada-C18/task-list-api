@@ -188,5 +188,14 @@ def delete_goal(id):
 
     return make_response({"details":f'Goal {deleted_goal.id} \"{deleted_goal.title}\" successfully deleted'}), 200
 
+@goal_bp.route("/<id>/tasks", methods = ["POST"])
+def goal_task(id):
+    goal = validate_model(Task, id)
 
+    request_body = request.get_json()
+    goal.tasks = request_body["task_ids"]
+    
+    db.session.add(goal)
+    db.session.commit()
+    return make_response({"id":goal.id, "task_ids": goal.tasks}, 200 )
 
