@@ -6,15 +6,20 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True, default=None)
-
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'),  nullable=True)
+    
     def to_dict(self):
-        tasks_as_dict = {}
-        tasks_as_dict["id"] = self.task_id
-        tasks_as_dict["title"] = self.title
-        tasks_as_dict["description"] = self.description
+        task_as_dict = {}
+        task_as_dict["id"] = self.task_id
+        task_as_dict["title"] = self.title
+        task_as_dict["description"] = self.description
         if self.completed_at:
-            tasks_as_dict["is_complete"] = True
+            task_as_dict["is_complete"] = True
         else:
-            tasks_as_dict["is_complete"] = False
+            task_as_dict["is_complete"] = False
+        
+        if self.goal_id:
+            task_as_dict["goal_id"] = self.goal_id 
 
-        return tasks_as_dict
+
+        return task_as_dict
