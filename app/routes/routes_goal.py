@@ -53,7 +53,7 @@ def delete_one_goal(goal_id):
     return {"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-def assoc_tasks_with_goal(goal_id):
+def assign_task_to_goal(goal_id):
     goal = validate_id(Goal, goal_id)
     request_body = request.get_json()
     
@@ -67,7 +67,7 @@ def assoc_tasks_with_goal(goal_id):
     #     task.goal_id = goal_id
     
     response = {
-        "id": goal.goal_id, 
+        "id": int(goal_id), 
         "task_ids": [task.task_id for task in goal.tasks]
     }
 
