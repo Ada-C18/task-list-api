@@ -1,11 +1,9 @@
-from flask import Blueprint, jsonify, abort, make_response, request
+from flask import Blueprint, jsonify, make_response, request
 from app.models.task import Task
-from app.models.goal import Goal
 from app import db
 from datetime import datetime
-from app.helper_functions import validate_model, post_one_model, get_one_model, get_all_models, delete_one_model
-import requests
-import os
+from app.helper_functions import validate_model, post_one_model, get_one_model, get_all_models, delete_one_model, slack_call, patch_helper
+
 
 task_bp = Blueprint("task_bp",__name__,url_prefix="/tasks")
 
@@ -78,12 +76,6 @@ def patch_one_task(task_id):
 
     return make_response(jsonify({f"task":task.dictionfy()}),202)
 
-def patch_helper(object, value, request_body):
-    try:
-        setattr(object, value, request_body[value])
-    except KeyError:
-        return None
-    return True
 
 @task_bp.route("/<task_id>/mark_complete", methods=['PATCH'])
 def mark_task_as_complete(task_id):
@@ -101,16 +93,6 @@ def mark_task_as_complete(task_id):
     slack_call(task.title)
     
     return make_response(jsonify({f"task":task.dictionfy()}),200)
-
-def slack_call(task_title):
-    slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
-    URL = 'https://slack.com/api/chat.postMessage'
-    headers = {'Authorization': f'Bearer {slack_bot_token}'}
-    params = {
-        "channel":'task-notifications',
-        'text':f'Someone just completed the task {task_title}'
-    }
-    requests.put(URL,params=params,headers=headers)
     
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=['PATCH'])

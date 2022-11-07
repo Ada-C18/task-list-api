@@ -1,6 +1,8 @@
 from flask import abort,make_response,request, jsonify
 from app.models.task import Task
 from app import db
+import os
+import requests
 
 def post_one_model(cls):
     response_body = request.get_json()
@@ -88,3 +90,21 @@ def sort_query_helper(cls,request_dict):
         case other:
             raise ValueError
     return cls.query.order_by(order_object).all()
+
+
+def slack_call(task_title):
+    slack_bot_token = os.environ.get('SLACKBOT_API_TOKEN')
+    URL = 'https://slack.com/api/chat.postMessage'
+    headers = {'Authorization': f'Bearer {slack_bot_token}'}
+    params = {
+        "channel":'task-notifications',
+        'text':f'Someone just completed the task {task_title}'
+    }
+    requests.put(URL,params=params,headers=headers)
+
+def patch_helper(object, value, request_body):
+    try:
+        setattr(object, value, request_body[value])
+    except KeyError:
+        return None
+    return True

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, abort, make_response, request
+from flask import Blueprint, jsonify, make_response, request
 from app.models.task import Task
 from app.models.goal import Goal
 from app.helper_functions import validate_model, post_one_model, get_one_model, get_all_models, delete_one_model
