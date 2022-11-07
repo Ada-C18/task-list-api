@@ -137,13 +137,16 @@ def test_delete_goal(client, one_goal):
 
     # Check that the goal was deleted
     response = client.get("/goals/1")
+    response_body = response.get_json()
     assert response.status_code == 404
+    
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
-    assert "details" in response_body
-    assert response_body["details"] == 'Goal 1 "Build a habit of going outside daily" successfully deleted'
+    # assert "details" in response_body
+    # assert response_body["details"] == 'Goal 1 "Build a habit of going outside daily" successfully deleted'
+    assert response_body["message"] == "Could not find Goal item with id: 1"
     # *****************************************************************
 
 

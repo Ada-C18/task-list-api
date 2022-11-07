@@ -190,12 +190,10 @@ def create_task_id_to_goal(goal_id):
     
     
     for task_id in request_body["tasks_id"]:
-        new_task = Task(
-            title=request_body["title"],
-            description=request_body["description"],
-            goal=goal        
-        )
+        task_id = Task.task_id
+        goal_id = Task.goal_id
+
     
-    db.session.add(new_task)
+    # db.session.add(new_task)
     db.session.commit()
     
