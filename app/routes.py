@@ -9,7 +9,7 @@ tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 def handle_tasks():
     if request.method == "GET":
         tasks = Task.query.all()
-        tasks_response = [task.to_dict() for task in tasks]
+        tasks_response = [task.to_json() for task in tasks]
 
         if not tasks_response:
             return make_response(jsonify(f"There are no tasks"))
@@ -18,11 +18,14 @@ def handle_tasks():
     elif request.method == "POST":
         request_body = request.get_json()
 
-        new_task = Task(
-            title = request_body['title'],
-            description = request_body['description'],
-            completed_at = request_body['completed_at']
-        )
+        try:
+            new_task = Task(
+                title = request_body['title'],
+                description = request_body['description'],
+                completed_at = request_body['completed_at']
+            )
+        except KeyError:
+            return (f"Invalid data", 400)
 
         # Add this new instance of task to the database
         db.session.add(new_task)
@@ -38,15 +41,10 @@ def handle_tasks():
 # GET /task/id
 def handle_task(task_id):
     # Query our db to grab the task that has the id we want:
-    task = task.query.get(task_id)
+    task = Task.query.get(task_id)
 
     if request.method == "GET":
-        return {
-            "id": task.id,
-            "title": task.title,
-            "description": task.description,
-            "completed_at": task.completed_at
-        }
+        return task.to_json(), 200
     elif request.method == "PUT":
         request_body = request.get_json()
 
