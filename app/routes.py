@@ -8,11 +8,11 @@ def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
     except:
-        abort(make_response({"ERROR":f"{cls.__name__} {model_id} invalid"}, 400))
+        abort(make_response({"details":f"{cls.__name__} {model_id} invalid"}, 400))
 
     model = cls.query.get(model_id)
     if not model:
-        abort(make_response({"ERROR":f"No {cls.__name__} with ID {model_id} in database"}, 404))
+        abort(make_response({"details":f"No {cls.__name__} with ID {model_id} in database"}, 404))
 
     return model
 
@@ -20,11 +20,14 @@ def validate_model(cls, model_id):
 # Creates a new task and returns it as a json
 def create_new_task():
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
+    if "title" in request_body and "description" in request_body:
+        new_task = Task.from_dict(request_body)
 
-    db.session.add(new_task)
-    db.session.commit()
-    return {"task": new_task.as_dict()}, 201
+        db.session.add(new_task)
+        db.session.commit()
+        return {"task": new_task.as_dict()}, 201
+    else:
+        return {"details": "Invalid data"}, 400
 
 @tasks_bp.route("", methods=["GET"])
 # Get every task in the task list
@@ -56,7 +59,7 @@ def update_task(task_id):
         db.session.commit()
         return {"task": task.as_dict()}, 200
     else:
-        return {"ERROR": "Task requires at least name and description"}, 404
+        return {"details": "Invalid data"}, 404
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
