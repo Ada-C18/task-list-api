@@ -7,8 +7,6 @@ import logging, os
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-task_notifications_channel_id = "C049LSP26LB"
-
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
@@ -55,7 +53,7 @@ def mark_one_task_as_complete(task_id):
     # call Slack API
     try:
         result = client.chat_postMessage(
-            channel=task_notifications_channel_id, 
+            channel=os.environ.get("CHANNEL_ID"), 
             text=f"Someone just completed the task {task.title}"
         )
         logger.info(result)
