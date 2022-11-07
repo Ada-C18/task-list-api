@@ -52,7 +52,7 @@ def test_get_task(client, one_task):
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_not_found(client):
     # Act
     response = client.get("/tasks/1")
@@ -60,7 +60,7 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == ({"message": f"task {id} not found"}, 404)
+    assert response_body == {"message": f"task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -120,8 +120,8 @@ def test_update_task(client, one_task):
     assert task.description == "Updated Test Description"
     assert task.completed_at == None
 
-
-@pytest.mark.skip(reason="No way to test this feature yet")
+# where are we looking at to reference that task_id 1 does not exists?
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_update_task_not_found(client):
     # Act
     response = client.put("/tasks/1", json={
@@ -132,6 +132,7 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+    assert response_body == {"message": f"task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -139,8 +140,8 @@ def test_update_task_not_found(client):
     # *****************************************************************
 
 # Ask how to reference to a task.id that has been removed
-# @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_delete_task(client, one_task):
+@pytest.mark.skip(reason="No way to test this feature yet")
+def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
     response_body = response.get_json()
@@ -155,13 +156,14 @@ def test_update_task_not_found(client):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-def test_delete_task_not_found(client):
+# def test_delete_task_not_found(client):
     # Act
     response = client.delete("/tasks/1")
     response_body = response.get_json()
 
     # Assert
     assert response.status_code == 404
+    assert response_body == {"message": f"task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************

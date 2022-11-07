@@ -13,10 +13,11 @@ def validate_model(cls, model_id):
          abort(make_response(jsonify({"message":f"task {model_id} not found"}), 400))
     
     model = cls.query.get(model_id)
+
     if not model:
-        # getting error about built-in function {model_id}
         abort(make_response(jsonify({"message":f"task {model_id} not found"}), 404))
-    return model
+    else:
+        return model
 
 def validate_input_data(data_dict):
     try:
@@ -29,6 +30,7 @@ def validate_input_data(data_dict):
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
+
     new_task = validate_input_data(request_body)
 
     if not new_task.title or not new_task.description:
@@ -70,8 +72,10 @@ def update_task(id):
 
     request_body = request.get_json()
 
-    task.title = request_body["title"]
-    task.description = request_body["description"]
+    task.update(request_body)
+
+    # task.title = request_body["title"]
+    # task.description = request_body["description"]
 
     db.session.commit()
     
@@ -102,12 +106,15 @@ def mark_incomple_task(id):
 
 
 # delete a task (DELETE)
-@tasks_bp.route("/<id>", methods=["DELETE"])
+# @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_model(Task, id)
+    description = task.description 
     db.session.delete(task)
     db.session.commit()
 
-    response = make_response({"details": f"Task {task.id} {task.description} successfully deleted"}, 200)
-    return response
+    # Returns error 
+    return(make_response({"details": f"Task {id} {task.description} successfully deleted"}), 200)
+    
+    
 

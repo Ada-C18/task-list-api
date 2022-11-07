@@ -1,4 +1,6 @@
 from app import db
+from flask import abort, make_response
+from flask import jsonify
 
 
 class Task(db.Model):
@@ -22,5 +24,10 @@ class Task(db.Model):
             "is_complete": False if not self.completed_at else True    
         }
     
-
+    def update(self,req_body):
+        try:
+            self.title = req_body["title"]
+            self.description = req_body["description"]
+        except KeyError as error:
+            abort(make_response(jsonify(dict(details="Invalid data")), 400))
     
