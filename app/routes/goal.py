@@ -23,3 +23,11 @@ def create_goal():
     
     except:
         abort(make_response({"details": "Invalid data"}, 400))
+
+@bp.route("", methods=["GET"])
+def read_all_goals():
+    goals = Goal.query.all()
+
+    goals_response = [goal.to_dict() for goal in goals]
+
+    return jsonify(goals_response), 200
