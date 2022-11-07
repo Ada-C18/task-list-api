@@ -5,12 +5,14 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True) #add autoincrement=True?
     title = db.Column(db.Text)
     description = db.Column(db.Text)
-    completed_at = db.Column(db.DateTime, nullable=True, default=None)
+    completed_at = db.Column(db.DateTime, nullable=True)
     
-    # @classmethod
-    # def from_dict(cls, task_data):
-    #     new_task = Task(title=task_data["title"],
-    #                     description=task_data["description"])
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                        description=task_data["description"],
+                        completed_at=None)
+        return new_task
     
     # def to_dict(self):
     #     return {

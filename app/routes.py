@@ -14,10 +14,10 @@ def create_task():
         or ("description") not in request_body):
         return make_response({"details": "Invalid data"}, 400)
 
-    new_task = Task(title=request_body["title"],
-                    description=request_body["description"])
+    # new_task = Task(title=request_body["title"],
+    #                 description=request_body["description"])
     
-    # new_task = Task.from_dict(request_body)
+    new_task = Task.from_dict(request_body)
     
     db.session.add(new_task)
     db.session.commit()
