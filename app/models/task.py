@@ -34,3 +34,5 @@ class Task(db.Model):
             return new_dict
         except:
             abort(make_response({"details":"Invalid data"}, 400)) 
+        
+        

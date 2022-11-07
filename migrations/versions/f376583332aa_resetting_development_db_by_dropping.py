@@ -1,8 +1,8 @@
-"""empty message
+"""resetting development db by dropping
 
-Revision ID: 0d1f454e628e
+Revision ID: f376583332aa
 Revises: 
-Create Date: 2022-11-06 15:33:15.391445
+Create Date: 2022-11-07 09:42:06.005452
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0d1f454e628e'
+revision = 'f376583332aa'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,7 +27,7 @@ def upgrade():
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
-    sa.Column('is_complete', sa.Boolean(), nullable=False),
+    sa.Column('is_complete', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
