@@ -16,7 +16,7 @@ def validate_id(id):
 
 
 #==============================
-#       CREATE RESOURCE
+#         CREATE TASK
 #==============================
 @task_bp.route("", methods=["POST"])
 def create_task():
@@ -26,4 +26,16 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(f'"task": {new_task.from_dict()}', 201)
+    return make_response(f'"task": {new_task.create_dict()}', 201)
+
+
+#==============================
+#        READ ALL TASKS
+#==============================
+@task_bp.route("", methods=["GET"])
+def read_all_tasks():
+    tasks = Task.query.all()
+    tasks_response = [task.create_dict() for task in tasks]
+
+    return make_response(jsonify(tasks_response), 200)
+

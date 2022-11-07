@@ -2,13 +2,13 @@ from app import db
 
 
 class Task(db.Model):
-    id =      db.Column(db.Integer, primary_key=True)
+    id =           db.Column(db.Integer, primary_key=True)
     title =        db.Column(db.String,    nullable=False)
     description =  db.Column(db.String,    nullable=True)
     completed_at = db.Column(db.DateTime,  nullable=True,  default=None)
     is_complete =  db.Column(db.Boolean,   nullable=False, default=False)
 
-    def from_dict(self):
+    def create_dict(self):
         task_as_dict = {}
         task_as_dict["id"] = self.id  
         task_as_dict["title"] = self.title
