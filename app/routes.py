@@ -55,7 +55,7 @@ def read_one_task(task_id):
     return make_response(f'"task": {task.create_dict()}', 200)
 
 #==============================
-#          UPDATE TASK
+#         UPDATE TASK
 #==============================
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
@@ -67,3 +67,14 @@ def update_one_task(task_id):
 
     return make_response(f'"task": {task.create_dict()}', 200)
 
+#==============================
+#         DELETE TASK
+#==============================
+@task_bp.route("/<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    task = validate_model(Task, task_id)
+    
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response(f'"details": "Task {task.id} "{task.title}" successfully deleted"', 200)
