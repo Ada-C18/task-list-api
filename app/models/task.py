@@ -20,6 +20,10 @@ class Task(db.Model):
         
         if self.goal_id:
             task_as_dict["goal_id"] = self.goal_id 
-
-
         return task_as_dict
+
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"], 
+                description=task_data["description"])
+        return new_task
