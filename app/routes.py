@@ -2,6 +2,10 @@ from app import db
 from app.models.task import Task
 from flask import abort, Blueprint, jsonify, make_response, request
 from datetime import date
+import os, requests 
+# from slack_sdk import WebClient
+# from slack_sdk.errors import SlackApiError
+
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -79,11 +83,19 @@ def update_task(task_id):
 
     return jsonify({"task":task.to_dict()}), 200
 
+# modify to call the SLACK API BOT
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_task_completed(task_id):
     task = validate_task(task_id)
     task.completed_at = date.today()
     db.session.commit()
+
+    SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+    slack_request = requests.post(
+        'https://slack.com/api/chat.postMessage', 
+        json={'channel': 'task-notifications', 'text': f'Someone just completed the task {task.title}'}, 
+        headers={'Authorization': f'Bearer {SLACK_TOKEN}'}
+        )
 
     return jsonify({"task":task.to_dict()}), 200
 
@@ -104,3 +116,15 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{task_title}" successfully deleted'}), 200
+
+    # slack_token = os.environ.get('SLACK_TOKEN')
+    # client = WebClient(token=slack_token)
+
+    # try:
+    #     response = client.chat_postMessage(
+    #     channel="task-notifications",
+    #     text=f"Someone just completed the task {task.title}"
+    #     )
+    # except SlackApiError as e:
+    # # You will get a SlackApiError if "ok" is False
+    #     assert e.response["error"]
