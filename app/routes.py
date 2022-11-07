@@ -144,6 +144,7 @@ def delete_task(task_id):
 
     
 # Defining Endpoint and Creating Route Function to PATCH a Task
+# Made complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def patch_task_complete(task_id,complete):
     task = validate_task(task_id)
@@ -151,45 +152,23 @@ def patch_task_complete(task_id,complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
-        task_response = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True
-        }
-        }
+        is_complete = True
+        
+        
     elif complete == "mark_incomplete":
         task.completed_at = None
-        task_response = {
+        is_complete = False
+        
+
+    db.session.commit()
+    task_response = {
         "task": {
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False
+            "is_complete": is_complete
         }
         }
-
-    db.session.commit()
-
     return make_response(task_response, 200)
 
-# # Defining Endpoint and Creating Route Function to PATCH a Task
-# @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-# def patch_task_incomplete(task_id):
-#     task = validate_task(task_id)
 
-#     request_body = request.get_json()
-
-#     task.completed_at = request_body["completed_at"]
-
-#     db.session.commit()
-
-#     return {
-#         "task": {
-#             "id": task.task_id,
-#             "title": task.title,
-#             "description": task.description,
-#             "is_complete": task.completed_at
-#         }
-#         }
