@@ -2,6 +2,7 @@ from app import db
 from datetime import date
 from app.models.task import Task
 from app.models.goal import Goal
+from app.routes.routes_helpers import *
 from flask import Blueprint, jsonify, make_response, request
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
@@ -73,25 +74,23 @@ def handle_task(task_id):
         "details": f'Task {task.task_id} \"{task.title}\" successfully deleted',
     }, 202
 
-@tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
+# PATCH /task/id/mark_complete
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_task(task_id):
-    task = Task.query.get(task_id)
+    task = get_record_by_id(Task, task_id)
     task.completed_at = date.today()
 
     db.session.commit()
 
-    return {
-        "task": task.to_json()
-    }
+    return task.to_json(), 200
 
 
-@tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+# PATCH /task/id/mark_incomplete
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete_task(task_id):
-    task = Task.query.get(task_id)
+    task = get_record_by_id(Task, task_id)
     task.completed_at = None
 
     db.session.commit()
 
-    return {
-        "task": task.to_json()
-    }
+    return task.to_json(), 200
