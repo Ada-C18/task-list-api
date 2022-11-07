@@ -204,14 +204,11 @@ def send_goal_ids_to_task(goal_id):
     
     for task_id in request_body["task_ids"]:
         valid_task = validate_model(Task, task_id)
-        valid_task.goal = selected_goal
-        valid_task.goal_id = selected_goal.goal_id
+        valid_task.goals = selected_goal
         db.session.commit()
     
-    task_id_list = []
-    tasks = Goal.query.get(selected_goal.goal_id).tasks
-    for task in tasks:
-        task_id_list.append(task.task_id)
+    task_id_list = [task.task_id for task in selected_goal.tasks]
+    
     response_body = {
         "id": selected_goal.goal_id,
         "task_ids": task_id_list
