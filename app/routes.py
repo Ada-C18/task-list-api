@@ -8,12 +8,18 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 #==============================
 #       HELPER FUNCTIONS
 #==============================
-def validate_id(id):
+def validate_model(cls, model_id):
     try:
-        id = int(id)
+        model_id = int(model_id)
     except:
-        abort(make_response(jsonify({"message":f"{id} invalid."}), 400))
+        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
+    
+    model = cls.query.get(model_id)
 
+    if not model: 
+        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
+
+    return model
 
 #==============================
 #         CREATE TASK
@@ -39,3 +45,11 @@ def read_all_tasks():
 
     return make_response(jsonify(tasks_response), 200)
 
+#==============================
+#        READ ONE TASKS
+#==============================
+@task_bp.route("/<task_id>", methods=["GET"])
+def read_one_task(task_id):
+    task = validate_model(Task, task_id)
+
+    return make_response(f'"task": {task.create_dict()}', 200)
