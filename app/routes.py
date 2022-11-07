@@ -66,7 +66,7 @@ def create_task():
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def edit_task(task_id):
-
+    
     task = validate_task(task_id)
     request_body = request.get_json()
 
@@ -76,6 +76,31 @@ def edit_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({'task': task.to_dict()}), 200)
+
+#******
+
+@tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+def task_is_complete(task_id):
+
+    task = validate_task(task_id)
+    request_body = request.get_json()
+
+    task.completed_at = request_body["completed_at"]
+
+    return make_response(jsonify({'task': task.to_dict()}), 200)
+
+
+@tasks_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
+def task_is_incomplete(task_id):
+
+    task = validate_task(task_id)
+    request_body = request.get_json()
+
+    task.completed_at = None
+
+    return make_response(jsonify({'task': task.to_dict()}), 200)
+
+# ********
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
