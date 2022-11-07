@@ -148,19 +148,15 @@ def patch_task_complete(task_id):
     task = validate_task(task_id)
 
     request_body = request.get_json()
+    request_body["complete_at"] == True
 
-
-    request_body["task"]["is_complete"] == True
-    
-    
-    db.session.commit()
 
     return {
         "task": {
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": task.complete
+            "is_complete": True
         }
         }
 
