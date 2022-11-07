@@ -104,7 +104,7 @@ def delete_task(task_id):
 @task_bp.route("/<task_id>/<completed_at>", methods=["PATCH"])
 def patch_task_complete(task_id, completed_at):
     task = Task.query.get(task_id)
-    # completed = Task.query.get(completed_at)
+    # completed = Task.query.get(complete)
     if not task:
         return make_response({"details":"Id not found"}), 404
     
@@ -113,11 +113,12 @@ def patch_task_complete(task_id, completed_at):
 
     task.title = request_body["title"],
     task.description = request_body["description"]
+    # task.completed_at = request_body["is_complete"]
 
     if completed_at == "mark_complete":
-        completed_at == True
+        task.completed_at == True
     elif completed_at == "mark_incomplete":
-        completed_at == False
+        task.completed_at == False
 
     db.session.commit()
 
@@ -125,7 +126,7 @@ def patch_task_complete(task_id, completed_at):
         "id": task.task_id,
         "title": task.title,
         "description": task.description,
-        "is_complete": completed_at
+        "is_complete": task.completed_at
     }},200)
 
 
