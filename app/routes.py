@@ -1,6 +1,7 @@
 from flask import Blueprint, request, make_response, jsonify, abort
 from app import db
 from app.models.task import Task
+from sqlalchemy import asc, desc
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -49,13 +50,27 @@ def create_task():
 # Get Tasks: Getting Saved Tasks
 @task_bp.route("", methods=["GET"])
 def read_task():
-    tasks = Task.query.all()
+    # tasks = Task.query.all()
     
-    read_task_result = []
-    # for task in tasks:
-    #     read_task_result.append(task.return_body())
-    read_task_result = [task.return_body() for task in tasks]
-    return jsonify(read_task_result), 200
+    # read_task_result = []
+    # # for task in tasks:
+    # #     read_task_result.append(task.return_body())
+    # read_task_result = [task.return_body() for task in tasks]
+    # return jsonify(read_task_result), 200
+
+    sort_query = request.args.get("sort")
+
+    if sort_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
+    else:
+        tasks = Task.query.all()
+    
+    response = []
+    response = [task.return_body() for task in tasks]
+    return jsonify(response), 200   
+
 
 
 # Get One Task: One Saved Task
@@ -92,3 +107,28 @@ def delete_one_task(task_id):
 
     # mistakes in the return sentence trapped me for some time 
     return jsonify({"details": f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'}), 200
+
+
+
+# Sorting Tasks By Title, Ascending/Descending
+# @task_bp.route("", methods=["GET"])
+# def sorting_tasks():
+#     # query
+#     sort_query = request.args.get("sort")
+
+#     if sort_query == "asc":
+#         tasks = Task.query.order_by(Task.title.aec())
+#     elif sort_query == "desc":
+#         tasks = Task.query.order_by(Task.title.desc())
+#     elif sort_query is None:
+#         tasks = Task.query.all()
+
+#     response = []
+#     response = [task.return_body() for task in tasks]
+#     return jsonify(response), 200   
+
+
+    
+
+
+    
