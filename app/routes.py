@@ -17,3 +17,10 @@ def validate_model(cls, model_id):
         abort(make_response(
             {"message": f"{cls.name} {model_id} not found"}, 404))
 
+@bp.route("", methods=["GET"])
+def read_all_tasks():
+    all_tasks = []
+    tasks = Task.query.all()
+    for task in tasks:
+        all_tasks.append(task.to_dict())
+    return jsonify(all_tasks)
