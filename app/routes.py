@@ -40,4 +40,20 @@ def get_all_tasks():
 # Get one specific task from the task list
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
-    return {"task": task.as_dict()}
+    return {"task": task.as_dict()}, 200
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+# Updates specified task's name, description, and completion
+def update_task(task_id):
+    request_body = request.get_json()
+    task = validate_model(Task, task_id)
+
+    if "title" in request_body and "description" in request_body:
+        task.title = request_body["title"]
+        task.description = request_body["description"]
+        task.completed_at = task.completed_at # Will be adjusted in Wave 03
+        
+        db.session.commit()
+        return {"task": task.as_dict()}, 200
+    else:
+        abort(make_response({"ERROR": "Task requires at least name and description"}, 404))
