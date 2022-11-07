@@ -12,12 +12,12 @@ def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
     except:
-        abort(make_response(jsonify({"message":f"task {model_id} not found"}), 400))
+        abort(make_response(jsonify({"message":f"{cls.__name__} {model_id} not found"}), 400))
     
     model = cls.query.get(model_id)
 
     if not model:
-        abort(make_response(jsonify({"message":f"task {model_id} not found"}), 404))
+        abort(make_response(jsonify({"message":f"{cls.__name__} {model_id} not found"}), 404))
     else:
         return model
 
@@ -131,14 +131,14 @@ def create_goal():
     db.session.add(new_goal)
     db.session.commit()
 
-    return jsonify({"task": new_goal.to_dict()}), 201
+    return jsonify({"goal": new_goal.to_dict()}), 201
 
 # read one goal (GET)
 @goals_bp.route("/<id>", methods=["GET"])
 def read_one_goal(id):
     goal = validate_model(Goal, id)
 
-    return jsonify([goal.to_dict()]), 200
+    return jsonify({"goal": goal.to_dict()}), 200
     
 # read all goals (GET)
 @goals_bp.route("", methods=["GET"])
