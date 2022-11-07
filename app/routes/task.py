@@ -84,11 +84,11 @@ def mark_incomple_task(id):
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_model(Task, id)
-    description = str(task.description )
+    title = str(task.title )
     db.session.delete(task)
     db.session.commit()
 
     # Returns error 
-    return(make_response({"details": f"Task {id} \"{description}\" successfully deleted"}), 200)
+    return(make_response({"details": f"Task {id} \"{title}\" successfully deleted"}), 200)
 
 
