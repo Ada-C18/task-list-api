@@ -62,7 +62,15 @@ def create_one_task():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task_by_id(task_id):
     task = validate_task_id(task_id)
-    return {"task": task.to_dict()}
+    return {"task": 
+        {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": task.is_complete(),
+            "goal_id": task.goal_id
+            }
+        }
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -103,7 +111,7 @@ def mark_complete(task_id):
 
     headers = {"Authorization": f"Bearer {slack_oauth_token}"}
 
-    response = requests.patch(url=url, params=params, headers=headers)
+    requests.patch(url=url, params=params, headers=headers)
 
     return {"task": task.to_dict()}
 
@@ -221,7 +229,7 @@ def read_all_tasks_by_goal_id(goal_id):
     tasks = []
     for task in goal.tasks:
         tasks.append({
-            "task_id": task.task_id,
+            "id": task.task_id,
             "goal_id": goal.goal_id,
             "title": task.title,
             "description": task.description,
@@ -230,7 +238,7 @@ def read_all_tasks_by_goal_id(goal_id):
 
 
     return {
-        "goal_id": goal.goal_id,
+        "id": goal.goal_id,
         "title": "Build a habit of going outside daily",
         "tasks": tasks
     }
