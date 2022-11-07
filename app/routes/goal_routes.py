@@ -11,7 +11,8 @@ def validate_goal(goal_id):
     try:
         goal_id = int(goal_id)
     except ValueError:
-        abort(make_response({"details": "Invalid data"}, 400))
+        response_str = f"Invalid goal id {goal_id}. ID must be a integer."
+        abort(make_response({"message": response_str}, 400))
 
     goal = Goal.query.get(goal_id)
 
@@ -41,3 +42,24 @@ def get_one_goal(goal_id):
     }
 
     return jsonify(response)
+
+
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
+
+    if request_body == {}:
+        return jsonify({"details": "Invalid data"}), 400
+
+    new_goal = Goal(
+        title=request_body["title"],
+    )
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    response = {
+        "goal": new_goal.to_dict()
+    }
+
+    return response, 201
