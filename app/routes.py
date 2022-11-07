@@ -204,3 +204,31 @@ def delete_goal(goal_id):
 
     return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
     
+"""
+NESTED ROUTES
+"""
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def assign_tasks_to_a_goal(goal_id):
+    chosen_goal = validate_id(Goal, goal_id) 
+    request_body = request.get_json()
+
+    for task in request_body["task_ids"]:
+        selected_task = validate_id(Task, task)
+        selected_task.goal = chosen_goal
+    
+        db.session.add(selected_task)
+        db.session.commit()
+
+    return jsonify({"id": int(goal_id), "task_ids": request_body["task_ids"]}), 200
+
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_all_tasks_for_goal(goal_id):
+    chosen_goal = validate_id(Goal, goal_id)
+
+    tasks_response = []
+    for task in chosen_goal.tasks:
+        tasks_response.append(task.make_task_dict())
+
+    return jsonify(tasks_response), 200
