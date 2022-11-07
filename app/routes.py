@@ -3,6 +3,7 @@ from app.models.goal import Goal
 from app.models.task import Task
 from datetime import datetime
 from flask import Blueprint, jsonify, make_response, request, abort
+from .routes_helper import get_one_valid_id
 import requests
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -50,20 +51,21 @@ def get_all_task():
     return make_response(jsonify(tasks_response),200)
 
 #Get One Task: One Saved Task
-def check_valid_id(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"message": f"invalid task id {task_id}"}, 400))
+# Route Helper Methods
+# def check_valid_id(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except:
+#         abort(make_response({"message": f"invalid task id {task_id}"}, 400))
     
-    task = Task.query.get(task_id)
-    if not task:
-        return abort(make_response({"message": f"No id {task_id} task"}, 404))
-    return task
+#     task = Task.query.get(task_id)
+#     if not task:
+#         return abort(make_response({"message": f"No id {task_id} task"}, 404))
+#     return task
     
 @tasks_bp.route('/<task_id>', methods =["GET"])
 def get_task_by_id(task_id):
-    task = check_valid_id(task_id)
+    task = get_one_valid_id(Task,task_id)
     return make_response({"task":{
         "id":task.task_id,
         "title":task.title,
@@ -74,7 +76,7 @@ def get_task_by_id(task_id):
 #Update Task
 @tasks_bp.route('/<task_id>', methods =["PUT"])
 def update_one_task(task_id):
-    task = check_valid_id(task_id)
+    task = get_one_valid_id(Task,task_id)
     request_body = request.get_json()
     if "title" not in request_body or\
         "description" not in request_body:
@@ -95,7 +97,7 @@ def update_one_task(task_id):
 #Delete Task: Deleting a Task
 @tasks_bp.route('/<task_id>', methods =["DELETE"])
 def delete_task(task_id):
-    task = check_valid_id(task_id)
+    task = get_one_valid_id(Task, task_id)
     
     db.session.delete(task)
     db.session.commit()
@@ -105,7 +107,7 @@ def delete_task(task_id):
  #Mark Complete on an Incompleted Task
 @tasks_bp.route('/<task_id>/mark_complete', methods =["PATCH"])   
 def mark_complete(task_id):
-    task = check_valid_id(task_id)
+    task = get_one_valid_id(Task, task_id)
     if task.completed_at is None:
         task.completed_at = datetime.now()
 
@@ -121,7 +123,7 @@ def mark_complete(task_id):
 #Mark Incomplete on a Completed Task
 @tasks_bp.route('/<task_id>/mark_incomplete', methods =["PATCH"])     
 def mark_incomplete(task_id):
-    task =  check_valid_id(task_id)
+    task =  get_one_valid_id(Task, task_id)
     if task.completed_at:
         task.completed_at = None
         
@@ -164,33 +166,47 @@ def mark_complete1(task_id):
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 #Create a Goal: Valid Goal
-@goals_bp.route("", methods=["POST"])
-def create_goal():
-    request_body = request.get_json()
-    #Create a Task: Invalid Task With Missing Data
-    if  "title" not in request_body:
-            abort(make_response({"details": "Invalid data"},400))
+@goals_bp.route("", methods=["POST", "GET"])
+def create_and_read_all_goal():
+    if request.method == "GET":
+        goals = Goal.query.all()
+        # Use List Comprehensions
+        goals_response = []
+        goals_response = [goal.to_json() for goal in goals]
+        # for goal in goals:
+        #     goals_response.append({
+        #         "id": goal.goal_id,
+        #         "title":goal.title
+        #     })
+        return make_response(jsonify(goals_response),200)
+    elif request.method == "POST":
+        request_body = request.get_json()
+        #Create a Task: Invalid Task With Missing Data
+        if  "title" not in request_body:
+                abort(make_response({"details": "Invalid data"},400))
   
-    new_goal = Goal(title=request_body["title"])
+        new_goal = Goal.from_json(request_body)
     
-    db.session.add(new_goal)
-    db.session.commit()
-    return make_response({"goal":{
-        "id":new_goal.goal_id,
-        "title":new_goal.title,
-    }},201)
+        db.session.add(new_goal)
+        db.session.commit()
+        return make_response({"goal":{
+            "id":new_goal.goal_id,
+            "title":new_goal.title,
+        }},201)
+     
+    
     
 # Get Goals: Getting Saved Goals
-@goals_bp.route("", methods=["GET"])
-def get_all_goal():
-    goals = Goal.query.all()
-    goals_response = []
-    for goal in goals:
-        goals_response.append({
-            "id": goal.goal_id,
-            "title":goal.title
-        })
-    return make_response(jsonify(goals_response),200)
+# @goals_bp.route("", methods=["GET"])
+# def get_all_goal():
+#     goals = Goal.query.all()
+#     goals_response = []
+#     for goal in goals:
+#         goals_response.append({
+#             "id": goal.goal_id,
+#             "title":goal.title
+#         })
+#     return make_response(jsonify(goals_response),200)
 
 # Get One Goal: One Saved Goal
 def check_valid_goal_id(goal_id):
@@ -277,7 +293,7 @@ def get_tasks_one_goal(goal_id):
     
 @goals_bp.route('/tasks/<task_id>', methods =["GET"])
 def get_task_includes_goal_id(task_id):
-    task = check_valid_id(task_id)
+    task = get_one_valid_id(Task, task_id)
     return make_response({"task":{
             "id": task.task_id,
             "goal_id": task.goal_id,
