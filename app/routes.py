@@ -3,6 +3,9 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request,abort
 from sqlalchemy import desc, asc
+import datetime
+import os 
+
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -128,25 +131,34 @@ def delete_task(task_id):
     
     return {'details': f'Task {task.task_id} "{task.title}" successfully deleted'}
 
-@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def patch_task(task_id):
-    task = validate_model(Task,task_id)
-    request_body = request.get_json()
-    
-    if "completed_at" not in request_body:
-        request_body["completed_at"]= None
-    
-    task.title = request_body["title"]
-    task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"] 
-    
-    db.session.commit()
 
-    response_body = {"task":
-        {
-            "id":task.task_id,
-            "title":task.title,
-            "description":task.description,
-            "is_complete":validate_is_complete()
-        } }
-    return response_body
+
+def slack_bot(text):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_KEY = os.environ.get("SLACK_API_KEY")
+
+    query_params = {
+        "channel": "task-notifications",
+        "text": text
+    }
+    # request.post(PATH, params=query_params, headers={"Authorization":SLACK_KEY})
+    
+    
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def update_task_complete(task_id):
+    task = validate_model(Task,task_id)
+    
+    task.completed_at = datetime.datetime.utcnow()
+    db.session.commit()
+    
+    
+    return {"task":task.to_dict()}
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def update_task_incomplete(task_id):
+    task = validate_model(Task,task_id)
+    
+    task.completed_at = None
+    db.session.commit()
+    
+    return {"task":task.to_dict()}
