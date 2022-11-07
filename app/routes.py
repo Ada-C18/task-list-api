@@ -42,20 +42,28 @@ def create_task():
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     title_query = request.args.get("title")
-    if title_query:
+    sort_type = request.args.get("sort")    
+
+    if title_query is not None:
         tasks = Task.query.filter_by(title=title_query)
+    elif sort_type == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif sort_type == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
     else:
         tasks = Task.query.all()
-    
+
     task_list = [t.to_dict() for t in tasks]
     
     return jsonify(task_list), 200
+
 
 @tasks_bp.route("/<id>", methods=["GET"])
 def get_one_task(id):
     task = validate_id(Task, id)
 
     return jsonify(task.to_task_dict()), 200
+
     
 @tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
