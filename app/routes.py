@@ -195,7 +195,8 @@ def post_existing_tasks_to_goal_id(goal_id):
     request_body = request.get_json()
     goal = validate_goal_id(goal_id)
 
-    provided_task_ids = request_body["tasks"]
+    # provided_task_ids = request_body["tasks"]
+    provided_task_ids = request_body["task_ids"]
 
     tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
     
@@ -209,7 +210,7 @@ def post_existing_tasks_to_goal_id(goal_id):
     
     return jsonify({
         "id": goal.goal_id,
-        "task_id": task_ids
+        "task_ids": task_ids
         })
 
 
