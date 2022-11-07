@@ -1,4 +1,3 @@
-import json
 from app import db
 from app.models.task import Task
 from datetime import datetime
@@ -11,10 +10,7 @@ from sqlalchemy import desc, asc
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
-# TODO: Debug => 400 error not working
-# error handling
 def validate_task(task_id):
-    # invalid task id
     try:
         task_id = int(task_id)
     except ValueError:
@@ -23,7 +19,6 @@ def validate_task(task_id):
 
     task = Task.query.get(task_id)
 
-    # task not found
     if not task:
         response_str = f"Task {task_id} not found."
         abort(make_response({"message": response_str}, 404))
@@ -37,7 +32,7 @@ def send_slack_message(message):
         PATH = "https://slack.com/api/chat.postMessage"
         API_KEY = os.environ.get("SLACK_API_KEY")
 
-        # key: API_KEY in "Authorization" request header
+        # API_KEY in "Authorization" request header
         headers = {"Authorization": f"Bearer {API_KEY}"}
 
         post_body = {
@@ -77,8 +72,7 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
-    # ADDING FUNCTIONALITY
-    # functionality: sort task by title -> Add title query param
+    # add functionality: sort task by title -> Add title query param
     order_param = request.args.get("sort")
 
     if order_param is None:
@@ -88,12 +82,6 @@ def read_all_tasks():
     elif order_param == "asc":
         tasks = Task.query.order_by(Task.title.asc())
 
-    # tasks_response = []
-    # for task in tasks:
-    #     task_dict = task.to_dict()
-    #     tasks_response.append(task_dict)
-
-    # list comprehension syntax
     tasks_response = [task.to_dict() for task in tasks]
 
     return jsonify(tasks_response)
@@ -130,7 +118,6 @@ def update_task(task_id):
     # return response, 200 # jsonify needed here?
 
 
-# fix delete ROUTE -> 400 not working
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_task(task_id)
