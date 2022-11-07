@@ -19,21 +19,20 @@ def validate_model(cls, model_id):
 
     return model
 
-def validate_request(cls, data):
-
+def validate_request(data):
     try:
-        model = cls(title=data["title"],
-                description=data["discription"])
+        new_task = Task(title =data["title"],
+                description =data["description"])
     except:
         abort(make_response(
             {"details": "Invalid data"}, 400))
-    return model
+    return new_task
 
 
 @bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = validate_request(Task, request_body)
+    new_task = validate_request(request_body)
 
     db.session.add(new_task)
     db.session.commit()
@@ -49,19 +48,19 @@ def create_task():
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
-    tasks_response = []
+
     tasks = Task.query.all()
+
+    get_response = []
     for task in tasks:
-        tasks_response.append(
-            {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": bool(task.completed_at)
-            }
-        )
+        get_response.append(dict(
+            id=task.task_id,
+            title=task.title,
+            description=task.description,
+            is_complete=bool(task.completed_at)
+        ))
         
-    return tasks_response
+    return jsonify(get_response)
 
 @bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
@@ -94,7 +93,7 @@ def update_task(task_id):
 
     update_response = {
         "task": {
-            "id": task_id,
+            "id": task.task_id,
             "title": task.title,
             "description": task.description,
             "is_complete": bool(task.completed_at)
