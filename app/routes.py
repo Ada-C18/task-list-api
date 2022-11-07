@@ -4,6 +4,7 @@ from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
+goals_bp = Blueprint('goals_bp', __name__, url_prefix='/goals')
 
 
 def validate_model(cls, model_id):
@@ -25,7 +26,7 @@ def validate_input_data(data_dict):
     except KeyError:
         abort(make_response(jsonify(dict(details="Invalid data")), 400))
 
-
+# TASK MODEL
 # create a task (POST)
 @tasks_bp.route("", methods=["POST"])
 def create_task():
