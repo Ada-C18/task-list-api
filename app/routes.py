@@ -4,6 +4,8 @@ from app.models.task import Task
 from sqlalchemy import asc,desc
 from datetime import date
 
+
+
 task_bp = Blueprint('task_bp', __name__, url_prefix='/tasks')
 
 @task_bp.route("", methods=["POST"])
@@ -109,20 +111,19 @@ def patch_task_complete(task_id, complete):
         return make_response({"details":"Id not found"}), 404 
 
     if complete == "mark_complete":
-        is_complete = True
         task.completed_at = date.today()
+
     elif complete == "mark_incomplete":
-        is_complete = False
         task.completed_at = None
 
     db.session.commit()
 
-    test_response = { "task":{
+    return make_response({ "task":{
         "id": task.task_id,
         "title": task.title,
         "description": task.description,
-        "is_complete": is_complete
+        "is_complete": bool(task.completed_at)
     }
-    },200
+    },200)
 
-    return make_response(test_response)
+
