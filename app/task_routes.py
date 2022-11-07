@@ -79,16 +79,8 @@ def delete_task(task_id):
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
 
-# mark complete with patch
-@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def mark_complete(task_id):
-    task = validate_model(Task, task_id)
-
-    task.completed_at = datetime.now()
-
-    db.session.commit()
-
-    # post message to slack
+# slack bot helper
+def post_slack(task):
     url = 'https://slack.com/api/chat.postMessage'
     params = {
         "channel": "task-notifications",
@@ -100,6 +92,14 @@ def mark_complete(task_id):
     }
 
     requests.post(url, params=params, headers=headers)
+
+# mark complete with patch
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    task = validate_model(Task, task_id)
+    task.completed_at = datetime.now()
+    db.session.commit()
+    post_slack(task)
 
     return task.to_dict_one()
 
