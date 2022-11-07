@@ -1,16 +1,33 @@
 from app import db
+from flask import abort, make_response
+from flask import jsonify
 
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
+    completed_at = db.Column(db.DateTime)
 
-    # not sure if this should be a column- we will
-    # want to calculate this ourselves given completed_at
-    # is_complete = db.Column(db.Boolean)
+    
+    @classmethod
+    def from_dict(cls, data_dict):
+        return cls(title=data_dict["title"],
+        description=data_dict["description"],
+    )
 
-    # not sure if this should be a column- we need the data
-    # behind the scenes, but don't want to share it with the client
-    completed_at = db.Column(db.DateTime, nullable=True)
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": False if not self.completed_at else True    
+        }
+    
+    def update(self,req_body):
+        try:
+            self.title = req_body["title"]
+            self.description = req_body["description"]
+        except KeyError as error:
+            abort(make_response(jsonify(dict(details="Invalid data")), 400))
     
