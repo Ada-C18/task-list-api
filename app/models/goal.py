@@ -9,8 +9,11 @@ class Goal(db.Model):
     # "lazy" - how the data for relationship is loaded
 
     def to_dict(self):
+        tasks_list = [task.to_dict() for task in self.tasks]
+
         goal_dict = {
             "id": self.goal_id,
-            "title": self.title}
+            "title": self.title,
+            "tasks": tasks_list}
 
         return goal_dict
