@@ -227,8 +227,12 @@ def assign_tasks_to_a_goal(goal_id):
 def get_all_tasks_for_goal(goal_id):
     chosen_goal = validate_id(Goal, goal_id)
 
-    tasks_response = []
+    tasks_list = []
     for task in chosen_goal.tasks:
-        tasks_response.append(task.make_task_dict())
+        tasks_list.append(task.make_task_dict())
 
-    return jsonify(tasks_response), 200
+    response_dict = chosen_goal.make_goal_dict()
+    response_dict["tasks"] = tasks_list
+    
+
+    return jsonify(response_dict), 200
