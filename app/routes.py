@@ -4,8 +4,10 @@ from app import db
 from app.models.task import Task
 from app.models.helper import get_one_obj_or_abort
 from datetime import datetime
+from app.slackClient import SlackClient
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+slackClient = SlackClient()
 
 @task_bp.route("", methods=["POST"])
 def add_task():
@@ -92,6 +94,9 @@ def mark_complete(task_id):
     chosen_task.completed_at = current_date
     db.session.commit()
 
+    message=f"Someone just completed the task {chosen_task.title}"
+    slackClient.post_message_to_my_channel(message)
+
     task_dict = chosen_task.to_response_dict()
     response_body = {
         "task": task_dict
@@ -106,6 +111,9 @@ def mark_incomplete(task_id):
 
     chosen_task.completed_at = None
     db.session.commit()
+
+    # message = f"Someone just marked the task {chosen_task.title} incomplete"
+    # slackClient.post_message_to_my_channel(message)
 
     task_dict = chosen_task.to_response_dict()
     response_body = {
