@@ -17,18 +17,26 @@ def create_one_task():
     try:
         title = request_body["title"]
         description = request_body["description"]
+        completed_at = request_body["completed_at"]
+
     except KeyError:
         return {"details": "Invalid data"}, 400
+        
+        # if "title" not in request_body or "description" not in request_body or
 
     new_task = Task(
         title=title,
+        # request_body["title"],
         description=description,
-        completed_at=request_body["completed_at"] if request_body["completed_at"] is not None else None
-        )
+        # request_body["description"],
+        # request_body["completed_at"]
+        completed_at=completed_at
+        if request_body["completed_at"] is not None else None
+    )
 
     db.session.add(new_task)
     db.session.commit()
-    
+
     rsp = {"task": new_task.get_dict()}
 
     return jsonify(rsp), 201
@@ -95,6 +103,10 @@ def delete_one_task(task_id):
 def mark_task_complete(task_id):
     task = validate_task(task_id)
     task.completed_at = datetime.now()
+    
+    # channel_id = "C049FQLJTBN"
+    # SlackUrl = 'https://slack.com/api/chat.postMessage'
+    
 
     db.session.commit()
 
