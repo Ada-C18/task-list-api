@@ -80,7 +80,6 @@ def edit_task(task_id):
 
     return make_response(jsonify({'task': task.to_dict()}), 200)
 
-#******
 @tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
 def patch_task_complete(task_id,complete):
 
@@ -88,26 +87,14 @@ def patch_task_complete(task_id,complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
-        is_complete = True
+
     elif complete == "mark_incomplete":
         task.completed_at = None
-        is_complete = False
-    # given our conditional in task model, why isn't it reading is_complete = False, 
-    # if completed_at is none
-    # can't use to_dict() in model folder and have to create response from scratch
+
     db.session.commit()
 
-    task_response = {
-        "task": {
-            "id": task.id,
-            "title":task.title,
-            "description":task.description,
-            "is_complete": is_complete
-        }
-    }
-    return make_response(task_response), 200
-    # return make_response({'task': task.to_dict()}), 200
-# ********
+    return make_response({'task': task.to_dict()}), 200
+
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
