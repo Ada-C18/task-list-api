@@ -9,13 +9,17 @@ bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 @bp.route("", methods=["POST"])
 def create_goal():
-    request_body = request.get_json()
-    new_goal = Goal.from_dict(request_body)
+    try:
+        request_body = request.get_json()
+        new_goal = Goal.from_dict(request_body)
 
-    db.session.add(new_goal)
-    db.session.commit()
+        db.session.add(new_goal)
+        db.session.commit()
 
-    goal_dict = new_goal.to_dict()
+        goal_dict = new_goal.to_dict()
 
-    return make_response(jsonify({
-        "goal": goal_dict}), 201)
+        return make_response(jsonify({
+            "goal": goal_dict}), 201)
+    
+    except:
+        abort(make_response({"details": "Invalid data"}, 400))
