@@ -46,3 +46,9 @@ def update_task(task_id):
     db.session.commit()
     return make_response(jsonify({"task": task.to_dict()}), 200)
 
+@tasks_bp.route("/<task_id>", methods = ["DELETE"])
+def delete_task(task_id):
+    task = validate_model(Task, task_id)
+    db.session.delete(task)
+    db.session.commit()
+    return make_response(jsonify({"details": f"Task {task_id} \"{task.title}\" successfully deleted"}), 200)
