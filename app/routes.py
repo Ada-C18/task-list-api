@@ -23,10 +23,14 @@ def get_one_task_or_abort(task_id):
 def add_task():
     request_body = request.get_json()
 
+    if "title" not in request_body or \
+        "description" not in request_body:
+            return jsonify({"details": "Invalid data"}), 400
+
     new_task = Task(
         title = request_body["title"],
-        description = request_body["description"]
-        )
+        description = request_body["description"],
+    )
 
     db.session.add(new_task)
 
@@ -51,16 +55,9 @@ def get_all_tasks():
     else:
         tasks = Task.query.filter_by(title=tasks_query)
 
-    response = []
-    for task in tasks:
-        task_dict = {
-            "id":task.id,
-            "title":task.title,
-            "description":task.description,
-            "is_complete":task.is_complete
-        }
-        response.append(task_dict)
+    response = [task.to_dict() for task in tasks]
     return jsonify(response), 200
+
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
@@ -108,3 +105,13 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
+
+@task_bp.route("", methods=["GET"])
+def get_tasks_sorted(task_id):
+    tasks_query = request.args.get("title")
+
+    tasks = Task.query.order_by("title=tasks_query")
+
+    response = [task.to_dict() for task in tasks]
+    return jsonify(response), 200
+
