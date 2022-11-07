@@ -27,11 +27,21 @@ def read_one_task(task_id):
 @bp.route("", methods=["GET"])
 def read_all_planets():
 
-    tasks = Task.query.all()
+    sort_query = request.args.get('sort')
+
+    tasks = Task.query
+
+    if sort_query == 'asc':
+        tasks = tasks.order_by(Task.title.asc())
+
+    if sort_query == 'desc':
+        tasks = tasks.order_by(Task.title.desc())
+
+    tasks = tasks.all()
 
     tasks_response = [task.to_dict() for task in tasks]
 
-    return jsonify(tasks_response)
+    return jsonify(tasks_response), 200
 
 @bp.route("", methods=["POST"])
 def create_task():
@@ -80,3 +90,11 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()  
     return make_response({'details': f'Task {task.task_id} "{task.title}" successfully deleted'}, 200)
+
+# @bp.route("/<task_id>", methods=["PATCH"])
+# def delete_task(task_id):
+#     task = validate_model(Task, task_id)
+
+
+#     db.session.commit()  
+#     return make_response(dict(task = task.to_dict()), 200)
