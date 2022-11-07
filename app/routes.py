@@ -8,36 +8,17 @@ import os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
-
-def get_one_task_or_abort(task_id):
+def validate_model(cls, model_id):
     try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task_id: `{task_id}`. ID must be an integer."
-        abort(make_response(jsonify({"message":response_str}), 400))
-
-    matching_task = Task.query.get(task_id)
-
-    if matching_task is None:
-        response_str = f"Task with id `{task_id}` was not found in the database."
-        abort(make_response(jsonify({"message":response_str}), 404))
+        model_id = int(model_id)
+    except:
+        abort(make_response({"message":f"Invalid {cls.__name__}: `{model_id}`. ID must be an integer"}, 400))
     
-    return matching_task
+    model = cls.query.get(model_id)
+    if not model:
+        abort(make_response({"message":f"{cls.__name__} with id `{model_id}` was not found in the database."}, 404))
+    return model
 
-def get_one_goal_or_abort(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except ValueError:
-        response_str = f"Invalid task_id: `{goal_id}`. ID must be an integer."
-        abort(make_response(jsonify({"message":response_str}), 400))
-
-    matching_goal = Goal.query.get(goal_id)
-
-    if matching_goal is None:
-        response_str = f"Task with id `{goal_id}` was not found in the database."
-        abort(make_response(jsonify({"message":response_str}), 404))
-    
-    return matching_goal
 
 @task_bp.route("", methods=["POST"])
 def add_task():
@@ -79,7 +60,7 @@ def get_all_tasks():
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    selected_task = get_one_task_or_abort(task_id)
+    selected_task = validate_model(Task, task_id)
 
     task_dict = Task.to_dict(selected_task)
 
@@ -87,7 +68,7 @@ def get_one_task(task_id):
 
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
-    selected_task = get_one_task_or_abort(task_id)
+    selected_task = validate_model(Task, task_id)
     
     selected_task.completed_at = datetime.today()
     db.session.add(selected_task)
@@ -111,7 +92,7 @@ def mark_task_complete(task_id):
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(task_id):
-    selected_task = get_one_task_or_abort(task_id)
+    selected_task = validate_model(Task, task_id)
 
     selected_task.completed_at = None
 
@@ -124,7 +105,7 @@ def mark_task_incomplete(task_id):
 
 @task_bp.route("<task_id>", methods=["PUT"])
 def update_one_task(task_id):
-    selected_task = get_one_task_or_abort(task_id)
+    selected_task = validate_model(Task, task_id)
     
     request_body = request.get_json()
 
@@ -142,7 +123,7 @@ def update_one_task(task_id):
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
-    selected_task = get_one_task_or_abort(task_id)
+    selected_task = validate_model(Task, task_id)
 
     db.session.delete(selected_task)
     db.session.commit()
@@ -184,7 +165,7 @@ def get_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    selected_goal = get_one_goal_or_abort(goal_id)
+    selected_goal = validate_model(Goal, goal_id)
 
     goal_dict = Goal.to_dict(selected_goal)
 
@@ -192,7 +173,7 @@ def get_one_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    selected_goal = get_one_goal_or_abort(goal_id)
+    selected_goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
 
@@ -208,9 +189,47 @@ def update_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_one_goal(goal_id):
-    selected_goal = get_one_goal_or_abort(goal_id)
+    selected_goal = validate_model(Goal, goal_id)
 
     db.session.delete(selected_goal)
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{selected_goal.title}" successfully deleted'}), 200
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def send_goal_ids_to_task(goal_id):
+    selected_goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    
+    
+    for task_id in request_body["task_ids"]:
+        valid_task = validate_model(Task, task_id)
+        valid_task.goal = selected_goal
+        valid_task.goal_id = selected_goal.goal_id
+        db.session.commit()
+    
+    task_id_list = []
+    tasks = Goal.query.get(selected_goal.goal_id).tasks
+    for task in tasks:
+        task_id_list.append(task.task_id)
+    response_body = {
+        "id": selected_goal.goal_id,
+        "task_ids": task_id_list
+    }
+    return jsonify(response_body), 200
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_of_one_goal(goal_id):
+    selected_goal = validate_model(Goal, goal_id)
+
+    task_list = []
+    for task in selected_goal.tasks:
+        task_list.append(Task.to_dict(task))
+    
+    goal_dict = {
+        "id": selected_goal.goal_id,
+        "title": selected_goal.title,
+        "tasks": task_list
+    }
+
+    return jsonify(goal_dict), 200
