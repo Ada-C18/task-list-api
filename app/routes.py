@@ -103,12 +103,12 @@ def mark_complete_on_an_incompleted_task(task_id):
     db.session.commit()
 
     TOKEN_SLACK = os.environ.get("GIVEN_TOKEN_SLACK")
-    query_params = {"text": f"Someone just completed the task {patch_task.title}",
+    params = {"text": f"Someone just completed the task {patch_task.title}",
                     "channel": "task-notifications"}
     
     headers = {"Authorization": "Bearer "+ TOKEN_SLACK}
 
-    slack = requests.post(url='https://slack.com/api/chat.postMessage',json=query_params, headers=headers)
+    requests.post(url='https://slack.com/api/chat.postMessage',json=params, headers=headers)
 
     return jsonify({"task":patch_task.to_dict()}), 200
 
