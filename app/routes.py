@@ -21,7 +21,7 @@ def get_all_tasks():
 
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
-    chosen_task = get_task_from_id(task_id)
+    chosen_task = get_task_from_id(Task, task_id)
     return jsonify({"task": chosen_task.to_dict()}), 200
 
 @task_bp.route('', methods=['POST'])
@@ -35,38 +35,38 @@ def create_one_task():
 
     return jsonify({"task": new_task.to_dict()}), 201
 
-#@task_bp.route('/<task_id>', methods=['PUT'])
-#def update_one_task(task_id):
-#    update_task = get_task_from_id(task_id)
-#
-#    request_body = request.get_json()
-#
-#    try:
-#        update_task.name = request_body["name"]
-#        update_task.rating = request_body["rating"]
-#        update_task.prep_time = request_body["prep_time"]
-#    except KeyError:
-#        return jsonify({"msg": "Missing needed data"}), 400 
-#
-#    db.session.commit()
-#    return jsonify({"msg": f"Successfully updated task with id {update_task.id}"}), 200
-#
+@task_bp.route('/<task_id>', methods=['PUT'])
+def update_one_task(task_id):
+    update_task = get_task_from_id(Task, task_id)
+
+    request_body = request.get_json()
+
+    try:
+        #update_task = Task.from_dict(request_body)
+        update_task.title = request_body["title"]
+        update_task.description = request_body["description"]
+    except KeyError:
+        return jsonify({"msg": "Missing needed data"}), 400 
+
+    db.session.commit()
+    return jsonify({"task": update_task.to_dict()}), 200
+
 #@task_bp.route('/<task_id>', methods=['DELETE'])
 #def delete_one_task(task_id):
-#    task_to_delete = get_task_from_id(task_id)
+#    task_to_delete = get_task_from_id(Task, task_id)
 #
 #    db.session.delete(task_to_delete)
 #    db.session.commit()
 #
 #    return jsonify({"msg": f"Successfully deleted task with id {task_to_delete.id}"}), 200
 #
-def get_task_from_id(model_id):
+def get_task_from_id(cls, model_id):
     try:
         model_id = int(model_id)
     except ValueError:
         return abort(make_response({"msg": f"invalid data: {model_id}"}, 400))
 
-    chosen_task = Task.query.get(model_id)
+    chosen_task = cls.query.get(model_id)
 
     if chosen_task is None:
         return abort(make_response({"msg": f"Could not find task item with id: {model_id}"}, 404))
