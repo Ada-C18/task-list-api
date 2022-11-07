@@ -21,15 +21,10 @@ def create_one_task():
 
     except KeyError:
         return {"details": "Invalid data"}, 400
-        
-        # if "title" not in request_body or "description" not in request_body or
 
     new_task = Task(
         title=title,
-        # request_body["title"],
         description=description,
-        # request_body["description"],
-        # request_body["completed_at"]
         completed_at=completed_at
         if request_body["completed_at"] is not None else None
     )
