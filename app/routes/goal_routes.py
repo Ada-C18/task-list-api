@@ -64,6 +64,8 @@ def read_one_goal(goal_id):
     return jsonify({"goal": goal.to_dict()}), 200
 
 # UPDATE ALL ONE
+
+
 @bp.route("/<goal_id>", methods=["PUT"], strict_slashes=False)
 def update_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -74,37 +76,51 @@ def update_one_goal(goal_id):
     db.session.commit()
     return jsonify({"goal": goal.to_dict()}), 200
 
-#DELETE ONE TASK
+# DELETE ONE TASK
+
+
 @bp.route("/<goal_id>", methods=["DELETE"], strict_slashes=False)
 def delete_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     db.session.delete(goal)
     db.session.commit()
-    # return {
-    #     "details": "Goal 1 \"Build a habit of going outside daily\" successfully deleted"
-    # }
     return make_response(jsonify({
-            "details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}), 
-            200)
+        "details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}),
+        200)
 
 # GOALS AND TASKS
-#Sending a List of Task IDs to a Goal
-@bp.route("/goals/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
+# Sending a List of Task IDs to a Goal
+
+@bp.route("/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
 def send_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    request_body = request.get_json() 
-    new_task = Task.from_dict(request_body) # maybe new_tasks = [==]? 
-    new_task.goal = goal
+    request_body = request.get_json()
+    tasks = []
 
-    db.session.add(new_task)
+    for task in request_body["task_ids"]:
+        valid_task = validate_model(Task, task)
+        tasks.append(valid_task)
+        valid_task.goal = goal
+
+    db.session.add(tasks)
     db.session.commit()
 
-    return make_response(jsonify({"id":{goal.goal_id}, "task_ids":{new_task}}), 200) #change this
+    return make_response(jsonify({"id": {goal.goal_id}, "task_ids": {goal.tasks}}), 200)
+
 
 # GOALS AND TASKS
-#Getting Tasks of One Goal
-#Getting Tasks of One Goal: No Matching Tasks
-#Getting Tasks of One Goal: No Matching Goal
-@bp.route("/goals/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
+# Getting Tasks of One Goal
+# Getting Tasks of One Goal: No Matching Tasks
+# Getting Tasks of One Goal: No Matching Goal
+
+
+@bp.route("/<goal_id>/tasks", methods=["GET"], strict_slashes=False)
 def get_tasks_from_goal(goal_id):
     pass
+    # goal = validate_model(Goal, goal_id)
+
+    # tasks_response = []
+    # for task in goal.tasks:
+    #     tasks_response.append(task.to_dict())
+
+    # return make_response(jsonify(goal.to_dict()))

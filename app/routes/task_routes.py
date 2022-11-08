@@ -97,7 +97,7 @@ def mark_complete(task_id):
     PATH = os.environ.get("COMPLETE_PATH")
     PASS = os.environ.get("API_TOKEN")
     query_params = {'text': f"Someone just completed the task {task.title}",
-                    'channel': 'U03QGU0M6K'}  # My DM for now
+                    'channel': '#task-notifications'} 
     requests.post(PATH,
                   json=query_params,
                   headers={
@@ -107,7 +107,8 @@ def mark_complete(task_id):
 
     return jsonify({"task": task.to_dict()}), 200
 
-# UPDATE PART OF ONE TASK - IMCOMPLETE
+# UPDATE PART OF ONE TASK - INCOMPLETE
+
 @bp.route("/<task_id>/mark_incomplete", methods=["PATCH"], strict_slashes=False)
 def mark_incomplete(task_id):
     task = validate_model(Task, task_id)
@@ -126,5 +127,5 @@ def delete_one_task(task_id):
     db.session.delete(task)
     db.session.commit()
     return make_response(jsonify({
-            "details": f"Task {task.task_id} \"{task.description}\" successfully deleted"}), 
-            200)
+        "details": f"Task {task.task_id} \"{task.description}\" successfully deleted"}),
+        200)
