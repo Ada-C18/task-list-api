@@ -13,7 +13,14 @@ def validate_model(cls, model_id):
     if not model:
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
     return model
-    
+
+# def validate_task_data(task_data):
+#     try:
+#         assert "description" in task_data
+#         assert "title" in task_data
+#     except:
+#         abort(make_response({"details": "Invalid data"}), 400)
+
 @tasks_bp.route("", methods = ["GET"])
 def get_all_tasks():
     tasks = Task.query.all()
@@ -30,6 +37,10 @@ def get_one_task(task_id):
 @tasks_bp.route("", methods = ["POST"])
 def create_task():
     request_body = request.get_json()
+    
+    if "description" not in request_body or "title" not in request_body:
+        return make_response(jsonify({"details": "Invalid data"}), 400)
+
     new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
