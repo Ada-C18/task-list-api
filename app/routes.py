@@ -273,6 +273,7 @@ def goal_add_into_task_by_id(goal_id):
 @goals_bp.route('/<goal_id>/tasks', methods =["GET"])
 def get_tasks_one_goal(goal_id):
     goal = check_valid_goal_id(goal_id)
+    # More Query Params
     tasks = Task.query.filter_by(goal_id = int(goal_id)).all()
     tasks_goal_response = []
     
