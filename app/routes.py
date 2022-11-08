@@ -34,7 +34,8 @@ def format_return_json_object(target_task):
     return {"id": target_task.task_id,
             "title": target_task.title,
             "description": target_task.description,
-            "is_complete": target_task.completed_at
+            # "is_complete": target_task.completed_at,
+            "is_complete": False
             }
     return task
 
