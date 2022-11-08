@@ -9,16 +9,20 @@ class Goal(db.Model):
     def to_dict(self):
         return {
             "id": self.goal_id,
-            "title": self.title,
+            "title": self.title
             # "tasks": self.get_task_list()                        
-        }
+        }        
+        # if self. tasks:
+        #     goal_dict["tasks"] : self.get_task_list()
 
     def to_dict_task_id(self):
-        return {"id": self.goal_id,
-                "task_ids": self. get_task_list()    
-        }
-
-        
+        # return {"id": self.goal_id,
+        #         "task_ids": self. get_task_list()    
+        # }
+        return {
+            "id": self.goal_id,
+            "title": self.title,
+            "tasks" : self.get_task_list()}
         
         
     @classmethod
@@ -30,13 +34,6 @@ class Goal(db.Model):
     
     def get_task_list(self):
         list_of_tasks = []
-        for item in self.tasks:
-            list_of_tasks.append({
-             "id": item.task_id,
-            "title": item.title,
-            "description": item.description,
-            "is_complete": item.is_complete,
-            "goal_id": item.goal_id                
-                
-            })
+        for item in self. tasks:
+            list_of_tasks.append(item.to_dict_goal_id())
         return list_of_tasks

@@ -206,4 +206,6 @@ def create_task_id_to_goal(goal_id):
 def get_tasks_from_goal_id(goal_id):
     goal = get_model_from_id(Goal, goal_id)
     tasks = goal.get_task_list()
-    pass
+    
+    return jsonify(goal.to_dict_task_id()), 200
+    

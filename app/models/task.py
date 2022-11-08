@@ -14,17 +14,14 @@ class Task(db.Model):
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "is_complete": True if self.completed_at else False
-            # "goal_id": self.goal_id
-                                              
+            "is_complete": True if self.completed_at else False                                              
         }
     
     def to_dict_goal_id(self):
-        dict = self.to_dict(self)
+        dict = self.to_dict()
         dict["goal_id"] = self.goal_id
         return dict
-        
-    
+            
     @classmethod
     def from_dict(cls, task_dict):
         return cls(
