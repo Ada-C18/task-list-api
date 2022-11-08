@@ -1,8 +1,8 @@
-from flask import Blueprint, request, make_response, jsonify, abort, session
+from flask import Blueprint, request, make_response, jsonify, abort
 from app.models.task import Task
 from app import db
-from sqlalchemy import asc, desc
 import datetime
+import requests, os
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -11,8 +11,7 @@ def create_tasks():
     request_body = request.get_json()
 
     try:
-        new_task = Task(title=request_body["title"],
-                        description=request_body["description"])
+        new_task = Task(title=request_body["title"], description=request_body["description"])
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
 
@@ -69,6 +68,17 @@ def mark_task_complete(task_id):
     task.completed_at = datetime.datetime.now()
 
     db.session.commit()
+
+    path = "https://slack.com/api/chat.postMessage"
+    SLACK_API_TOKEN = os.environ.get("BOT_TOKEN")
+    channel_id = "task-notifications"
+
+    query_params = {
+        "channel": channel_id,
+        "text": f"Someone just completed the task {task.title}"
+    }
+
+    requests.post(path, params=query_params, headers={"Authorization": f"Bearer {SLACK_API_TOKEN}"})
 
     return make_response(jsonify({"task": task.to_dict()}), 200)
 

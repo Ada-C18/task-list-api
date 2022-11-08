@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 import os
 
 
-
 db = SQLAlchemy()
 migrate = Migrate()
 load_dotenv()
@@ -16,6 +15,7 @@ def create_app(test_config=None):
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_ECHO"] = True
+    app.config["SLACK_BOT_TOKEN"] = os.environ.get("BOT_TOKEN")
 
     if test_config is None:
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("SQLALCHEMY_DATABASE_URI")
