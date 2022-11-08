@@ -62,22 +62,22 @@ import pytest
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_create_goal(client):
-#     # Act
-#     response = client.post("/goals", json={
-#         "title": "My New Goal"
-#     })
-#     response_body = response.get_json()
+def test_create_goal(client):
+    # Act
+    response = client.post("/goals", json={
+        "title": "My New Goal"
+    })
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 201
-#     assert "goal" in response_body
-#     assert response_body == {
-#         "goal": {
-#             "id": 1,
-#             "title": "My New Goal"
-#         }
-#     }
+    # Assert
+    assert response.status_code == 201
+    assert "goal" in response_body
+    assert response_body == {
+        "goal": {
+            "id": 1,
+            "title": "My New Goal"
+        }
+    }
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
@@ -145,13 +145,13 @@ import pytest
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_create_goal_missing_title(client):
-#     # Act
-#     response = client.post("/goals", json={})
-#     response_body = response.get_json()
+def test_create_goal_missing_title(client):
+    # Act
+    response = client.post("/goals", json={})
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 400
-#     assert response_body == {
-#         "details": "Invalid data"
-#     }
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {
+        "details": "Invalid data"
+    }
