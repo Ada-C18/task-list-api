@@ -1,7 +1,7 @@
 from flask import Blueprint, request, make_response, jsonify, abort
 from app.models.task import Task
 from app import db
-import datetime
+from datetime import datetime
 import requests, os
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -65,7 +65,7 @@ def update_task(task_id):
 def mark_task_complete(task_id):
     task = validate_task_id(task_id)
 
-    task.completed_at = datetime.datetime.now()
+    task.completed_at = datetime.utcnow()
 
     db.session.commit()
 
