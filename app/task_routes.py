@@ -20,8 +20,20 @@ def validate_task(cls,task_id):
 
 @task_bp.route("/", strict_slashes=False, methods =["GET"])
 def read_all_task():
+    
+    sort_by_title_query = request.args.get("sort")
 
-    tasks = Task.query.all()
+    task_query = Task.query
+    tasks_response = []
+    if sort_by_title_query:
+        if sort_by_title_query == "asc":
+            tasks = task_query.order_by(Task.title.asc())
+        elif sort_by_title_query == "desc":
+            tasks = task_query.order_by(Task.title.desc())
+        else:
+            task_query = Task.query.all()
+
+
     tasks_response = [task.to_dict() for task in tasks]
 
     return jsonify(tasks_response)
@@ -33,9 +45,8 @@ def read_one_task(id):
     task = validate_task(Task,id)
     return {"task":task.to_dict()}, 200
 
-@task_bp.route("", strict_slashes=False, methods =["POST"])
+@task_bp.route("/", strict_slashes=False, methods =["POST"])
 def create_task():
-
     try:
         request_body = request.get_json()
         new_task = Task.from_dict(request_body)
