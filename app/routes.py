@@ -214,7 +214,7 @@ def add_task_id_to_goal(goal_id):
     for task in tasks:
         task.goal_id = goal.id
 
-    db.session.add(task)
+    db.session.add(task) #Not needed?
     db.session.commit()
 
     return jsonify({
@@ -241,3 +241,5 @@ def get_tasks_for_goal(goal_id):
         "title": goal.title,
         "tasks": tasks
     })
+
+#oudbfdjf
