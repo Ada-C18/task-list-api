@@ -49,7 +49,17 @@ def create_task():
 @bp.route("", methods=["GET"])
 def read_all_tasks():
 
+    # get the sort parameter from request
+    sort= request.args.get('sort')
     tasks = Task.query.all()
+
+    # reverse is set to a boolean that sort equals "desc" is consider True. If it doesn't equal "desc" it False.
+    reverse = sort == "desc"
+
+    def sorting(task):
+        return task.title
+
+    tasks.sort(reverse=reverse, key=sorting)
 
     get_response = []
     for task in tasks:
