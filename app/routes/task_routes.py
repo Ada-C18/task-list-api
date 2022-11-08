@@ -65,7 +65,11 @@ def read_all_tasks():
 @bp.route("/<task_id>", methods=["GET"], strict_slashes=False)
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
-    return jsonify({"task": task.to_dict()}), 200
+    if not task.goal_id:
+        return jsonify({"task": task.to_dict()}), 200
+    else:
+        return jsonify({"task": task.to_dict_with_goal_id
+        ()}), 200
 
 # UPDATE ALL ONE TASK
 
