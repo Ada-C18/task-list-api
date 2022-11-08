@@ -7,13 +7,13 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"))
+    goal = db.relationship("Goal", back_populates="tasks")
 
     
     @classmethod
     def from_dict(cls, data_dict):
-        return cls(title=data_dict["title"],
-        description=data_dict["description"],
-    )
+        return cls(title=data_dict["title"], description=data_dict["description"])
 
     def to_dict(self):
         return {
@@ -21,6 +21,7 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "is_complete": False if not self.completed_at else True    
+            # "goal_id": self.goal_id   
         }
     
     def update(self,req_body):

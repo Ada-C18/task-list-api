@@ -76,7 +76,7 @@ def mark_complete_task(id):
 
     SLACK_KEY = os.environ.get("SLACK_KEY")
 
-    message = "This will be replaced with the task title"
+    message = f"Someone just completed the task {task.title}"
 
     query_params = {
         "channel": "slack-bot-test-channel",

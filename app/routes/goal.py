@@ -18,6 +18,23 @@ def create_goal():
 
     return jsonify({"goal": new_goal.to_dict()}), 201
 
+# Wave 6:
+# Nested routes
+# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def create_task(goal_id):
+#     request_body = request.get_json()
+#     goal = validate_model(Task, goal_id)
+
+#     new_task = Task.from_dict(request_body) 
+#     new_task.goal = goal
+    
+#     db.session.add(new_task)
+#     db.session.commit()
+# return {
+    #     "id": 1,
+    #     "task_ids": [1, 2, 3]
+    # }
+
 # read one goal (GET)
 @goals_bp.route("/<id>", methods=["GET"])
 def read_one_goal(id):
@@ -33,6 +50,15 @@ def read_all_goals():
 
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
+
+# -> Wave 6: I have not done flask migrate, flask upgrade. 
+# returns all tasks associated with a goal_id
+# @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+# def read_all_tasks(goal_id):
+#     goal_query = Goal.query.get(goal_id)
+
+#     return goal_query.tasks
+   
 
 # replace a goal (PUT)
 @goals_bp.route("/<id>", methods=["PUT"])
