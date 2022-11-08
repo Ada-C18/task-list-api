@@ -5,8 +5,10 @@ from app.models.task import Task
 from app.models.helper import get_one_obj_or_abort
 from datetime import datetime
 from app.slackClient import SlackClient
+from app.models.goal import Goal
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 slackClient = SlackClient()
 
 @task_bp.route("", methods=["POST"])
@@ -123,6 +125,69 @@ def mark_incomplete(task_id):
     response = make_response(jsonify(response_body), 200)
     return response
 
+# goal
+
+@goal_bp.route("", methods=["POST"])
+def add_goal():
+    request_body = request.get_json()
+
+    new_goal = Goal.from_request_dict(request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    goal_dict = new_goal.to_response_dict()
+    response_body = {
+        "goal": goal_dict
+    }
+
+    response = make_response(jsonify(response_body), 201)
+    return response
+
+@goal_bp.route("", methods=["GET"])
+def get_all_goals():
+    name_param = request.args.get("title")
+
+    if name_param is None:
+        goals = Goal.query.all()
+    else:
+        goals = Goal.query.filter_by(title=name_param)
+
+    response = [goal.to_response_dict() for goal in goals]
+
+    return jsonify(response), 200
+
+@goal_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    goal_dict = chosen_goal.to_response_dict()
+    response_body = {
+        "goal": goal_dict
+    }
+
+    return make_response(jsonify(response_body), 200)
+
+@goal_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal_with_new_vals(goal_id):
+
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    if "title" not in request_body:
+        return jsonify({"message":"Request must include title."}), 400
+
+    chosen_goal.title = request_body["title"]
+
+    db.session.commit()
+
+    goal_dict = chosen_goal.to_response_dict()
+    response_body = {
+        "goal": goal_dict
+    }
+
+    return make_response(jsonify(response_body), 200)
 
 
 
