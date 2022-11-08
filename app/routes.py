@@ -89,7 +89,7 @@ def create_task():
     #         "details": "Invalid data"
     #         }, 400)
 
-    if "title" not in request_body or "description" not in request_body or "is_complete" not in request_body:
+    if "title" not in request_body or "description" not in request_body:
         return {
             "details": "Invalid data"
         }, 400

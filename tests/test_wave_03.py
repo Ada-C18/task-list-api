@@ -145,10 +145,6 @@ def test_mark_incomplete_missing_task(client):
     assert response.status_code == 404
     assert response_body == {"Message": f"Task 1 not found"}
 
-<<<<<<< HEAD
-    # raise Exception("Complete test with assertion about response body")
-=======
->>>>>>> 4af94e2956d590a0b4055fc891e6487e210dde3b
     # *****************************************************************
     # **Complete test with assertion about response body***************
-    # *****************************************************************
+    # *****************************************************************   
