@@ -27,13 +27,17 @@ def validate_model(cls, model_id):
 @task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
+    if "completed_at" not in request_body:
+        request_body["completed_at"]=None
+
     new_task = Task.new_instance_from_dict(request_body)
 
     db.session.add(new_task)
     db.session.commit()
 
+    task_response = {"task": new_task.create_dict()}
 
-    return make_response(f'"task": {new_task.create_dict()}', 201)
+    return make_response(jsonify(task_response), 201)
 
 
 #==============================
@@ -41,6 +45,8 @@ def create_task():
 #==============================
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
+
+
     tasks = Task.query.all()
     tasks_response = [task.create_dict() for task in tasks]
 
@@ -53,7 +59,8 @@ def read_all_tasks():
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
-    return make_response(f'"task": {task.create_dict()}', 200)
+    task_response = {"task": task.create_dict()}
+    return make_response(jsonify(task_response), 200)
 
 #==============================
 #         UPDATE TASK
@@ -66,7 +73,8 @@ def update_one_task(task_id):
     task.update(request_body)
     db.session.commit()
 
-    return make_response(f'"task": {task.create_dict()}', 200)
+    task_response = {"task": task.create_dict()}
+    return make_response(jsonify(task_response), 200)
 
 #==============================
 #         DELETE TASK
@@ -78,4 +86,5 @@ def delete_one_task(task_id):
     db.session.delete(task)
     db.session.commit()
 
-    return make_response(f'"details": "Task {task.id} "{task.title}" successfully deleted"', 200)
+    task_response = {"details": f'Task {task.id} "{task.title}" successfully deleted'}
+    return make_response(jsonify(task_response), 200)
