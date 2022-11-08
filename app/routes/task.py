@@ -72,7 +72,7 @@ def mark_complete_task(id):
     # send to slack-bot-test-channel the message "Someone just completed the task {task title}"
     # reference key with SLACK_KEY = os.environ.get(“SLACK_KEY”)
 
-    path = "https://slack.com/api/chat.postMessage"
+    url = "https://slack.com/api/chat.postMessage"
 
     SLACK_KEY = os.environ.get("SLACK_KEY")
 
@@ -84,10 +84,12 @@ def mark_complete_task(id):
     }
 
     headers = {
-        "Authorization": "SLACK_KEY"
+        "Authorization": SLACK_KEY
     }
 
-    requests.get(path, params=query_params, headers=headers)
+    response = requests.get(url, params=query_params, headers=headers)
+    json_response = response.json()
+    print(json_response)
 
     return jsonify({"task": task.to_dict()}), 200
 
