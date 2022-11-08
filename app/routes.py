@@ -10,12 +10,12 @@ def add_task():
     request_body = request.get_json()
     print(request_body)
     if not "title" in request_body or not "description" in request_body:
-        return jsonify({"message": "Invalid data"}), 400
+        return jsonify({"details": "Invalid data"}), 400
 
     
     new_task = Task(
-        title=request_body.title, # could use dot notation to call instead 
-        description=request_body.description
+        title=request_body["title"], # could use dot notation to call instead 
+        description=request_body["description"]
         )
     # could do a conditional if completed_at = null in the request, update the task object with is_complete = False
 
