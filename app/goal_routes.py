@@ -31,3 +31,17 @@ def get_all_goals():
 def get_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     return {"goal": goal.as_dict()}, 200
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+# Updates specified goal's name, description, and completion
+def update_goal(goal_id):
+    request_body = request.get_json()
+    goal = validate_model(Goal, goal_id)
+
+    if "title" in request_body:
+        goal.title = request_body["title"]
+        
+        db.session.commit()
+        return {"goal": goal.as_dict()}, 200
+    else:
+        return {"details": "Invalid data"}, 404
