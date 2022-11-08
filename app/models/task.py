@@ -24,6 +24,10 @@ class Task(db.Model):
             "is_complete": self.completed_at is not None,
         }
 
+        # if "goal_id" in self:
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
+
         # is_complete is a "derived value"
         # if self.completed_at is None:
         #     task_dict["is_complete"] = False
