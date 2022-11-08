@@ -35,6 +35,20 @@ def create_task():
     return {"task": new_task.to_dict()}, 201
 
 
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
+    if not "title" in request_body:
+        return make_response({"details":"Invalid data"}, 400)
+    
+    new_goal = Goal.from_dict(request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return {"goal": new_goal.to_dict()}, 201
+
+
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     sort_param = request.args.get("sort")
