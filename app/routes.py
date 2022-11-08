@@ -2,6 +2,8 @@ from app import db
 from datetime import datetime
 from flask import abort, Blueprint, jsonify, make_response, request
 from .models.task import Task
+import os
+import requests
 
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -21,6 +23,23 @@ def validate_model(cls, model_id):
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
 
     return model
+
+def slack_bot_post_task_notification(message):
+    PATH = "https://slack.com/api/chat.post"
+    SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
+    CHANNEL = "task-notifications"
+    
+    query_params = {
+                    "channel": CHANNEL,
+                    "text": message
+                    }
+    
+    request_headers = {
+                    "Authorization": SLACK_API_KEY
+                    }
+
+    response = requests.get(PATH, params=query_params, headers=request_headers)
+    return response.json()
 
 #==============================
 #         CREATE TASK
@@ -91,6 +110,7 @@ def update_completed_task(task_id):
     task.is_complete_check()
     db.session.commit()
 
+    slack_bot_post_task_notification(f"Someone just completed the task {task.title}")
     task_response = {"task": task.create_dict()}
     return make_response(jsonify(task_response), 200)
 
