@@ -62,15 +62,20 @@ def create_one_task():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task_by_id(task_id):
     task = validate_task_id(task_id)
-    return {"task": 
-        {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete(),
-            "goal_id": task.goal_id
+
+    if task.goal_id:
+        return {"task": 
+            {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": task.is_complete(),
+                "goal_id": task.goal_id
+                }
             }
-        }
+    else: 
+        return {"task": task.to_dict()}
+
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
