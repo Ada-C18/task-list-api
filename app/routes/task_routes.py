@@ -9,13 +9,25 @@ def validate_model(cls, model_id):
         model_id = int(model_id)
     except:
         abort(make_response(
-            {"message": f"{cls.name} {model_id} invalid"}, 400))
+            {"message": f"{cls.title} {model_id} invalid"}, 400))
 
     model = cls.query.get(model_id)
 
     if not model:
         abort(make_response(
-            {"message": f"{cls.name} {model_id} not found"}, 404))
+            {"message": f"{cls.title} {model_id} not found"}, 404))
+    
+    return model
+
+@bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+    new_task = Task.from_dict(request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return make_response({"task": new_task.to_dict()}, 201)
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -28,7 +40,7 @@ def read_all_tasks():
 @bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     one_task = validate_model(Task, task_id)
-    return one_task.to_dict()
+    return make_response({"task": one_task.to_dict()})
 
 @bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -51,8 +63,3 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response({"details": f"Task {task_id} {task.description} successfully deleted"}, 200)
-
-@bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-    new_task = Task.from_dict(Task, request_body)
