@@ -1,9 +1,11 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from datetime import date
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
+
 
 def validate_model(cls, model_id):
     try:
@@ -14,10 +16,11 @@ def validate_model(cls, model_id):
     task_chosen = cls.query.get(model_id)
 
     if not task_chosen:
-        return abort(make_response({"msg": f"Could not find the task with id = {model_id}"}, 404))
+        return abort(make_response({"msg": f"Could not find the {cls.__name__.lower()} with id = {model_id}"}, 404))
     
     return task_chosen
 
+########### task routes #########
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
@@ -76,7 +79,6 @@ def get_one_task(task_id):
 @task_bp.route('/<task_id>', methods=['PUT'])
 def update_one_task(task_id):
     update_task = validate_model(Task, task_id)
-
     request_body = request.get_json()
 
     update_task.title = request_body["title"]
