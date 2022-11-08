@@ -1,8 +1,5 @@
 from app import db 
-from flask import abort, make_response
-
-# import datetime
-# from sqlalchemy import Column, Integer, DateTime
+# from flask import abort, make_response
 
 
 class Task(db.Model):
@@ -10,6 +7,10 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
+    # goal_id = db.Column(db.Integer, db.Foreignkey("goal.id"))
+    # title = db.Column(db.String)
+    # goal = db.relationship("Goal", back_populates="tasks")
+    
 
     def to_dict(self):
         return {
@@ -17,6 +18,7 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "is_complete": bool(self.completed_at)
+            # "goal_id": self.goal_id
         } 
         
     @classmethod
@@ -24,7 +26,6 @@ class Task(db.Model):
         return cls(
             title=req_body['title'],
             description=req_body['description']
-            # is_complete=req_body['is_complete']
         )
     
 # def update(self, req_body):
