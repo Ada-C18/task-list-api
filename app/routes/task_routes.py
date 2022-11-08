@@ -21,6 +21,7 @@ def validate_model(cls, model_id):
 
 @bp.route("", methods=["POST"])
 def create_task():
+    # verify task with helper function here
     request_body = request.get_json()
     new_task = Task.from_dict(request_body)
 
@@ -40,7 +41,7 @@ def read_all_tasks():
 @bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     one_task = validate_model(Task, task_id)
-    return make_response({"task": one_task.to_dict()})
+    return make_response({"task": one_task.to_dict()}, 200)
 
 @bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -49,11 +50,14 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"]
+    try:
+        task.completed_at = request_body["completed_at"]
+    except:
+        pass
 
     db.session.commit()
 
-    return jsonify(task)
+    return make_response({"task": task.to_dict()}, 200)
 
 @bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -62,4 +66,4 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
 
-    return make_response({"details": f"Task {task_id} {task.description} successfully deleted"}, 200)
+    return make_response({'details': f'Task {task_id} "{task.title}" successfully deleted'}, 200)
