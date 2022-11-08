@@ -156,6 +156,9 @@ goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 def add_goal():
     request_body = request.get_json()
 
+    if "title" not in request_body:
+        return jsonify({"details": "Invalid data"}), 400
+
     new_goal = Goal.from_dict(request_body)
 
     db.session.add(new_goal)
@@ -211,5 +214,5 @@ def delete_goal_data_from_db(goal_id):
     db.session.delete(goal_to_delete)
     db.session.commit()
 
-    response_body = 'Goal successfully deleted'
+    response_body = f'Goal {goal_id} "{goal_to_delete.title}" successfully deleted'
     return jsonify({"details": response_body}), 200

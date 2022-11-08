@@ -15,8 +15,7 @@ class Goal(db.Model):
 
     @classmethod
     def from_dict(cls, data_dict):
-        if "title" in data_dict:
-            new_object = cls(
+        new_object = cls(
                 title=data_dict["title"]
             )
-            return new_object
+        return new_object
