@@ -19,9 +19,14 @@ class Task(db.Model):
     
     def update(self, req_body):
         self.title = req_body["title"]
-        self.description = req_body["description"]
-        # if req_body["completed_at"]:
-        #     self.completed_at = req_body["completed_at"]
+        self.description = req_body["description"] 
+        # self.is_complete = req_body["is_complete"]
+
+    def is_complete_check(self):
+        if self.completed_at:
+            self.is_complete = True
+        else:
+            self.is_complete = False
 
     @classmethod
     def new_instance_from_dict(cls, req_body):

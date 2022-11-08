@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 from flask import abort, Blueprint, jsonify, make_response, request
 from .models.task import Task
 
@@ -77,6 +78,17 @@ def update_one_task(task_id):
     request_body = request.get_json()
 
     task.update(request_body)
+    db.session.commit()
+
+    task_response = {"task": task.create_dict()}
+    return make_response(jsonify(task_response), 200)
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def update_completed_task(task_id):
+    task = validate_model(Task, task_id)
+
+    task.completed_at = datetime.utcnow()
+    task.is_complete_check()
     db.session.commit()
 
     task_response = {"task": task.create_dict()}
