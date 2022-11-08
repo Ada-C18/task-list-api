@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from .models.task import Task
 
-bp = Blueprint("tasks", __name__, url_prefix="/planets")
+bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 def validate_model(cls, model_id):
     try:
