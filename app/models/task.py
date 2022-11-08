@@ -11,7 +11,7 @@ class Task(db.Model):
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "completed_at": self.completed_at
+            "is_complete": self.check_if_complete()
         }
 
     @classmethod
@@ -19,4 +19,10 @@ class Task(db.Model):
         return cls(
             title=task_data["title"],
             description=task_data["description"],
-            completed_at=task_data["completed_at"])
+            completed_at=None)
+
+    def check_if_complete(self):
+        if self.completed_at:
+            return True
+        else:
+            return False
