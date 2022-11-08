@@ -8,6 +8,7 @@ class Task(db.Model):
     # confirm null is default if task has not been completed
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean) # check if needed
+    
 
     def to_dict(self):
         task_dict = {}
