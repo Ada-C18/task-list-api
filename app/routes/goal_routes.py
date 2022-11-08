@@ -130,9 +130,20 @@ def send_task_ids_to_goal(goal_id):
 def get_tasks_of_one_goal(goal_id):
     goal = validate_goal(goal_id)
 
-    response = goal.to_dict()
+    # get tasks list
+    tasks = goal.tasks
+    tasks_list = [task.to_dict() for task in tasks]
 
-    return jsonify(response), 200
+    # convert goal to dict
+    goal_dict = goal.to_dict()
+    # add tasks_list to goal dict
+    goal_dict["tasks"] = tasks_list
+
+    # iterate tasks_list and add goal_id
+    for task in goal_dict["tasks"]:
+        task["goal_id"] = goal.goal_id
+
+    return jsonify(goal_dict), 200
 
 # response
 # {
@@ -148,3 +159,57 @@ def get_tasks_of_one_goal(goal_id):
 #     }
 #   ]
 # }
+
+
+# GET 1 TASK WITH GOAL_ID AND RESPONSE HAS GOAL_ID
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_task_of_one_goal_with_goal_id(goal_id):
+    goal = validate_goal(goal_id)
+
+    tasks = goal.tasks
+    tasks_list = [task.to_dict() for task in tasks]
+
+    # convert goal to dict
+    goal_dict = goal.to_dict()
+    # add tasks_list to goal dict
+    goal_dict["tasks"] = tasks_list
+
+    # iterate tasks_list and add goal_id
+    for task in goal_dict["tasks"]:
+        task["goal_id"] = goal.goal_id
+
+    task_dict = goal_dict["tasks"][0]
+
+    response = {
+        "task": task_dict
+    }
+
+    return jsonify(response), 200
+
+    # # get tasks list
+    # tasks = goal.tasks
+
+    # tasks_list = [task.to_dict() for task in tasks]
+
+    # # respomse = {}
+
+    # # for task in tasks_list:
+    # tasks_list[0]["goal_id"] = goal.goal_id
+
+    # response = {
+    #     "task": {tasks_list[0]}
+    # }
+
+    # return jsonify(response), 200
+
+
+# response_body
+    {
+        "task": {
+            "id": 1,
+            "goal_id": 1,
+            "title": "Go on my daily walk 🏞",
+            "description": "Notice something new every day",
+            "is_complete": False
+        }
+    }
