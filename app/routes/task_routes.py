@@ -161,17 +161,6 @@ def delete_task(task_id):
     return {"details": f"Task {task_id} \"{task.title}\" successfully deleted"}, 200
 
 
-def post_to_slack(task_title):
-    URL = "https://slack.com/api/chat.postMessage"
-    HEADER_AUTH = {"Authorization": os.environ.get("SL_TASK_BOT")}
-    request_params = {
-        "channel": "slack-bot-test-channel",
-        "text": f"Someone just completed the task {task_title}"
-    }
-
-    response = requests.post(URL, params=request_params, headers=HEADER_AUTH)
-
-
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
     task = validate_model(Task, task_id)
