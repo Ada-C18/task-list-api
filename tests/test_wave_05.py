@@ -123,7 +123,7 @@ def test_update_goal_not_found(client):
     # Assert
     assert response.status_code == 404
     assert response
-    assert response_body == {"message”:”Goal 1 not found"}
+    assert response_body == {'message': 'Goal 1 not found'}
 
 
     # Assert

@@ -134,12 +134,12 @@ def validate_goal(id):
     try:
         id = int(id)
     except:
-        abort(make_response({"message":f"goal {id} invalid"}, 400))
+        abort(make_response({'message':f'goal {id} invalid'}, 400))
 
     goal = Goal.query.get(id)
 
     if not goal:
-        abort(make_response({"message":f"Goal {id} not found"}, 404))
+        abort(make_response({'message':f'Goal {id} not found'}, 404))
 
     return goal
 
@@ -186,8 +186,10 @@ def edit_goal(id):
 @goals_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     goal = validate_task(id)
-
+    
     db.session.delete(goal)
     db.session.commit()
+    response_body = {"details": f'Goal {goal.id}"{goal.title}" successfully deleted'}
 
-    return {"details": f'Goal {goal.id} "{goal.title}" successfully deleted'}, 200
+    #return {"details": f'Goal{goal.id} "{goal.title}" successfully deleted'}, 200
+    return jsonify(response_body), 200
