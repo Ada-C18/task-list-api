@@ -1,5 +1,5 @@
 from app import db
-from datetime import datetime
+
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
@@ -9,28 +9,26 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, task_data):
-        new_task = Task(
+        return cls(
             title = task_data["title"],
             description = task_data["description"], 
             completed_at =  None  
         )
-        return new_task 
+        
 
-
+    # @classmethod
+    # def from_dict(cls, task_data):
+    #     new_task = Task(
+    #         title = task_data["title"],
+    #         description = task_data["description"], 
+    #         completed_at =  None  
+    #     )
+    #     return new_task 
 
     def to_dict(self):
         return {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "is_complete": self.task_complete(),
+            "is_complete":bool(self.completed_at)
         }
-
-    def task_complete(self):
-        if self.completed_at is None:
-            return False 
-        else:
-            return True
-            
-    
-        

@@ -3,7 +3,11 @@ from app.models.task import Task
 from app.models.goal import Goal 
 from datetime import datetime
 from flask import Blueprint, jsonify, abort, make_response, request
-from sqlalchemy import asc 
+from sqlalchemy import asc
+import requests  
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -67,7 +71,7 @@ def update_task(model_id):
 @tasks_bp.route("<model_id>", methods=["DELETE"])
 def delete_task(model_id):
     task = validate_model(Task, model_id)
-    db.session.delete(task)
+    db.session.delete()
     db.session.commit()
 
     return {"details" :f'Task {model_id} "{task.title}" successfully deleted'}, 200
@@ -77,6 +81,7 @@ def mark_task_complete(model_id):
     task = validate_model(Task, model_id)
     task.completed_at = datetime.now()
     db.session.commit() 
+    call_slack_bot(f"Someone just completed the task {task.title}!")
     return {"task":task.to_dict()}, 200
 
 @tasks_bp.route("/<model_id>/mark_incomplete", methods=["PATCH"])
@@ -85,4 +90,24 @@ def mark_task_incomplete(model_id):
     task.completed_at = None 
     db.session.commit()
     return {"task":task.to_dict()}, 200
-    
+
+# My Code:
+def call_slack_bot(message):
+    URL = "https://slack.com/api/chat.postMessage"
+    API_KEY = os.environ.get("TOKEN")
+    query_params ={
+        "channel" : "task-notifications",
+        "text": message
+        }
+    header = {"Authorization" : API_KEY}
+    requests.post(URL, data=query_params, headers=header)
+
+# Thao's Code: 
+# def slack_api_call(message):
+#     API_KEY = os.environ.get("TOKEN")
+#     header = {"Authorization":API_KEY}
+#     URL = "https://slack.com/api/chat.postMessage"
+#     query_params = {"channel":"task-notifications", "text":message}
+
+#     requests.post(URL, data=query_params, headers=header)
+
