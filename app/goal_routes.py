@@ -1,6 +1,7 @@
 from app import db
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.goal import Goal
+from app.models.task import Task
 from datetime import datetime
 import requests
 import os
@@ -95,4 +96,54 @@ def delete_goal(goal_id):
     return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200)
 
 # nested route
-# @goal_bp.route("/goals/<goal_id>/tasks", methods=["POST"])
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_tasks_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+
+    task_id_list = request_body["task_ids"]
+
+    for id in task_id_list:
+        task = Task.query.get(id)
+        task.goal = goal
+
+        db.session.add(task)
+        db.session.commit()
+
+    return {
+        "id": goal.goal_id,
+        "task_ids": task_id_list
+    }
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    tasks = []
+    for task in goal.tasks:
+        completed = None
+        if not task.completed_at:
+            completed = False
+        else:
+            completed = True 
+        one_task = {
+            "id": task.task_id,
+            "goal_id": goal.goal_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": completed
+        }
+        tasks.append(one_task)
+    """
+                "id": 1,
+                "goal_id": 1,
+                "title": "Go on my daily walk 🏞",
+                "description": "Notice something new every day",
+                "is_complete": False
+        """
+    return {
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": tasks
+    }
