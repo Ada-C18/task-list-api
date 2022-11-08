@@ -66,29 +66,23 @@ def get_Goal_all():
         )
     return jsonify(response), 200
 
-# @goal_bp.route("/<goal_id>", methods =["GET"])
-# def get_one_Goal(goal_id):
-#     Goals = Goal.query.all()
-#     try:
-#         goal_id = int(goal_id)
-#     except ValueError:
-#         response_str = f"Invalid goal_id: {goal_id} ID must be integer"
-#         return jsonify({"message": response_str}), 400
+@goal_bp.route("/<goal_id>", methods =["GET"])
+def get_one_Goal(goal_id):
+    goals = Goal.query.all()
+    try:
+        goal_id = int(goal_id)
+    except ValueError:
+        response_str = f"Invalid goal_id: {goal_id} ID must be integer"
+        return jsonify({"message": response_str}), 400
 
-#     for Goal in Goals:
-#         if goal_id == Goal.goal_id:
-#             is_completed = True
-#             if Goal.completed_at is None:
-#                 is_completed = False
-#             Goal_dict = {
-#                 "id": Goal.goal_id,
-#                 "title": Goal.title,
-#                 "description": Goal.description,
-#                 "is_complete": is_completed
-#             }
-#             return jsonify({"Goal": Goal_dict}), 200
-#     response_message = f"Could not find Goal with ID {goal_id}"
-#     return jsonify({"message": response_message}), 404
+    for goal in goals:
+        goal_dict = {
+            "id": goal.goal_id,
+            "title": goal.title
+        }
+        return jsonify({"goal": goal_dict}), 200
+    response_message = f"Could not find goal with ID {goal_id}"
+    return jsonify({"message": response_message}), 404
 
 # @goal_bp.route("/<goal_id>", methods = ["PUT"])
 # def update_Goal(goal_id):
