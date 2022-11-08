@@ -1,7 +1,12 @@
+import os
+import requests
 from app import db
 from app.models.task import Task
 from datetime import datetime
+from dotenv import load_dotenv
 from flask import Blueprint, request, make_response, jsonify, abort
+
+load_dotenv()
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -11,11 +16,22 @@ def validate_model(cls, model_id):
     except:
         abort(make_response({"message": f"{cls.__name__} {model_id} is invalid"}, 400))
 
-    task = cls.query.get(model_id)
-    if not task:
+    model = cls.query.get(model_id)
+    if not model:
         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
 
-    return task
+    return model
+
+def call_slack_bot(task):
+    URL = "https://slack.com/api/chat.postMessage"
+    API_KEY = os.environ.get("TOKEN")
+    query_params ={
+        "channel" : "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+        }
+    header = {"Authorization" : API_KEY}
+
+    requests.post(URL, data=query_params, headers=header)
 
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -76,19 +92,17 @@ def delete_task(model_id):
 def mark_complete(model_id):
     task = validate_model(Task, model_id)
 
-    request_body = request.get_json()
-
     task.completed_at = datetime.now()
 
     db.session.commit()
+
+    call_slack_bot(task)
 
     return {"task":task.to_dict()}, 200
 
 @tasks_bp.route("/<model_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(model_id):
     task = validate_model(Task, model_id)
-
-    request_body = request.get_json()
 
     task.completed_at = None
 
