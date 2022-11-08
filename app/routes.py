@@ -33,14 +33,7 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return make_response(jsonify({
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": False
-        }
-    }), 201)
+    return make_response(jsonify({"task": new_task.to_dict()}), 201)
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
@@ -53,27 +46,14 @@ def get_all_tasks():
             task_query = task_query.order_by(Task.title.desc())
     tasks = task_query.all()
     
-    tasks_response =[]
+    tasks_response =[task.to_dict() for task in tasks]
     
-    for task in tasks:
-        tasks_response.append({
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        })
     return jsonify(tasks_response)
 
 @task_bp.route("/<id>", methods=["GET"])
 def read_one_task(id):
     task = validate_model(Task, id)
-    response_body = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        }}
+    response_body = {"task": task.to_dict()}
     return make_response(jsonify(response_body), 200)
     
 @task_bp.route("/<id>",methods=["PUT"])
@@ -86,13 +66,7 @@ def update_task(id):
 
     db.session.commit()
 
-    return make_response(jsonify({"task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        }
-    }), 200)
+    return make_response(jsonify({"task": task.to_dict()}), 200)
 
 @task_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
@@ -112,7 +86,7 @@ def mark_task_complete(id):
 
     db.session.commit()
 
-    return make_response(jsonify(task.to_dict()), 200)
+    return make_response(jsonify({"task": task.to_dict()}), 200)
 
 @task_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(id):
@@ -124,7 +98,7 @@ def mark_task_incomplete(id):
 
     db.session.commit()
 
-    return make_response(jsonify(task.to_dict()), 200)
+    return make_response(jsonify({"task": task.to_dict()}), 200)
 
 
 

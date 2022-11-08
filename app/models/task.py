@@ -17,9 +17,9 @@ class Task(db.Model):
         else:
             flag = True
         
-        return {"task":{
+        return {
             "id" : self.task_id,
             "title" : self.title,
             "description" : self.description,
             "is_complete" : flag
-        }}
+        }
