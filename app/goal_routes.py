@@ -1,6 +1,6 @@
 from app import db
 from app.models.goal import Goal
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, jsonify
 from app.routes import validate_model
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -11,8 +11,16 @@ def create_goal():
     if "title" not in request_body:
         return make_response({"details" : "Invalid data"}, 400)
     
-    new_goal = Goal.goal_from_dict(request_body)
+    new_goal = Goal.from_dict(request_body)
     db.session.add(new_goal)
     db.session.commit()
 
-    return {"goal" :new_goal.goal_to_dict()}, 201
+    return {"goal" :new_goal.to_dict()}, 201
+
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    goals = Goal.query.all()
+    goal_response = []
+    for goal in goals:
+        goal_response.append(goal.to_dict())
+    return jsonify(goal_response)
