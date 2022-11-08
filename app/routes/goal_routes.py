@@ -134,10 +134,11 @@ def update_Goal(goal_id):
 
     
 
-# @goal_bp.route("<goal_id>", methods=["DELETE"])
-# def delete_one_Goal(goal_id):
-#     chosen_goal=goal = get_one_goal_or_abort(goal_id)
+@goal_bp.route("<goal_id>", methods=["DELETE"])
+def delete_one_Goal(goal_id):
+    chosen_goal = get_one_goal_or_abort(goal_id)
 
-#     db.session.delete(chosen_goal)
-#     db.session.commit()
-#     return jsonify({"details": f'Goal {goal_id} "Go on my daily walk 🏞" successfully deleted'}),200
+    db.session.delete(chosen_goal)
+    db.session.commit()
+    return jsonify({"details": f'Goal {goal_id} "Build a habit of going outside daily" successfully deleted'}),200
+    
