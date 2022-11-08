@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from .models.task import Task
+import datetime
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -20,7 +21,7 @@ def validate_task_dict(request_body):
     request_body = dict(request_body)
     if not (request_body.get("title", False) and request_body.get("description", False)):
         abort(make_response({'details': 'Invalid data'}, 400))
-    # if request_body.get("copmleted_at", 1) == 1:
+    # if request_body.get("completed_at", 1) == 1:
     #     abort(make_response({'details': 'Invalid data'}, 400))
 
 @bp.route("", methods=["POST"])
@@ -37,20 +38,15 @@ def create_task():
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
-    title_query = request.args.get("title")
-    description_query = request.args.get("description")
-    limit_query = request.args.get("limit")
+    sort_query = request.args.get("sort")
 
     task_query = Task.query
 
-    if title_query:
-        cat_query = cat_query.filter_by(personality=title_query)
-
-    if description_query:
-        cat_query = cat_query.filter_by(color=description_query)
-
-    if limit_query:
-        cat_query = cat_query.limit(limit_query)
+    if sort_query:
+        if sort_query == "desc":
+            task_query = task_query.order_by(Task.title.desc())
+        else:
+            task_query = task_query.order_by(Task.title)
 
     tasks = task_query.all()
 
@@ -76,6 +72,25 @@ def update_task(id):
     db.session.commit()
 
     return make_response({"task": task.to_dict()}, 200)
+
+@bp.route("/<id>/mark_complete", methods=["PATCH"])
+def complete_task(id):
+    task = validate_model(Task, id)
+    task.completed_at = datetime.datetime.now()
+
+    db.session.commit()
+
+    return make_response({"task": task.to_dict()}, 200)
+
+@bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete_task(id):
+    task = validate_model(Task, id)
+    task.completed_at = None
+
+    db.session.commit()
+
+    return make_response({"task": task.to_dict()}, 200)
+
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
