@@ -41,45 +41,30 @@ def create_Goal():
     if "title" not in request_body:
             return jsonify({"details": "Invalid data"}), 400
 
-    new_Goal = Goal(
+    new_goal = Goal(
         title = request_body["title"]
         
     )
-    db.session.add(new_Goal)
+    db.session.add(new_goal)
     db.session.commit()
 
-    Goal_dict = {"id": new_Goal.goal_id,
-    "title": new_Goal.title
+    goal_dict = {"id": new_goal.goal_id,
+    "title": new_goal.title
     }
 
-    return jsonify({"goal":Goal_dict}), 201
+    return jsonify({"goal":goal_dict}), 201
 
-# @goal_bp.route("", methods = ["GET"])
-# def get_Goal_all():
-#     title_query = request.args.get("sort") #this will give asc
-#     if title_query is not None and title_query=="asc":
-#         Goals = Goal.query.order_by(Goal.title).all()
-#     elif title_query is not None and title_query=="desc":
-#         Goals = Goal.query.order_by(Goal.title.desc()).all()
-#     elif title_query is None:
-#         Goals = Goal.query.all()
-    
-#     response= []
-    
-#     for Goal in Goals:
-#         is_completed = True
-#         if Goal.completed_at is None:
-#             is_completed = False
-#         Goal_dict = {
-#             "id": Goal.goal_id,
-#             "title": Goal.title,
-#             "description": Goal.description,
-#             "is_complete": is_completed
-            
-#         }
-
-#         response.append(Goal_dict)
-#     return jsonify(response), 200
+@goal_bp.route("", methods = ["GET"])
+def get_Goal_all():
+    goals = Goal.query.all()
+    response = []
+    for goal in goals:
+        response.append({
+            "id": goal.goal_id,
+            "title": goal.title
+        }
+        )
+    return jsonify(response), 200
 
 # @goal_bp.route("/<goal_id>", methods =["GET"])
 # def get_one_Goal(goal_id):

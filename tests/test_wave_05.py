@@ -2,31 +2,31 @@ import pytest
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_get_goals_no_saved_goals(client):
-#     # Act
-#     response = client.get("/goals")
-#     response_body = response.get_json()
+def test_get_goals_no_saved_goals(client):
+    # Act
+    response = client.get("/goals")
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 200
-#     assert response_body == []
+    # Assert
+    assert response.status_code == 200
+    assert response_body == []
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_get_goals_one_saved_goal(client, one_goal):
-#     # Act
-#     response = client.get("/goals")
-#     response_body = response.get_json()
+def test_get_goals_one_saved_goal(client, one_goal):
+    # Act
+    response = client.get("/goals")
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 200
-#     assert len(response_body) == 1
-#     assert response_body == [
-#         {
-#             "id": 1,
-#             "title": "Build a habit of going outside daily"
-#         }
-#     ]
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 1
+    assert response_body == [
+        {
+            "id": 1,
+            "title": "Build a habit of going outside daily"
+        }
+    ]
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
