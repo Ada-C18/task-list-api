@@ -21,3 +21,4 @@ class Task(db.Model):
                       completed_at=data_dic.get("completed_at"))
 
         return new_obj
+
