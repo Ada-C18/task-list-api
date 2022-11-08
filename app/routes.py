@@ -109,25 +109,6 @@ def mark_task_completed(task_id, completion):
         task.completed_at = datetime.now(timezone.utc)
         task.is_complete = True
 
-        # WAVE 4
-        # ID of channel you want to post message to
-        channel_id = "C04AL1N1AFJ"
-        SLACK_API_KEY = os.environ.get('API_KEY')
-        PATH = "https://slack.com/api/chat.postMessage"
-        slack_message_params = {
-                "channel": channel_id, 
-                "text": f"Someone just completed the task {task.title}"}
-        # try:
-            # Call the chat.postMessage method using the WebClient
-        request.post(PATH,
-                    data=slack_message_params,
-                    headers={"Authorization": SLACK_API_KEY}  
-        )
-        #     logger.info(result)
-
-        # except SlackApiError as e:
-        #     logger.error(f"Error posting message: {e}")
-
     elif completion == "mark_incomplete":
         task.completed_at = None
         task.is_complete = False
@@ -146,3 +127,25 @@ def mark_task_completed(task_id, completion):
     response_updated_task = {}
     response_updated_task["task"] = Task.to_dict(task)
     return jsonify(response_updated_task), 200
+
+
+def send_message_to_slack(completed_task):
+
+        # WAVE 4
+        # ID of channel you want to post message to
+        channel_id = "C04AL1N1AFJ"
+        SLACK_API_KEY = os.environ.get('API_KEY')
+        PATH = "https://slack.com/api/chat.postMessage"
+        slack_message_params = {
+                "channel": channel_id, 
+                "text": f"Someone just completed the task {completed_task.title}"}
+        # try:
+        #     # Call the chat.postMessage method using the WebClient
+        request.post(PATH,
+                    data=slack_message_params,
+                    headers={"Authorization": SLACK_API_KEY}  
+        )
+        #     logger.info(result)
+
+        # except SlackApiError as e:
+        #     logger.error(f"Error posting message: {e}")
