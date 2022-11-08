@@ -100,10 +100,10 @@ def mark_complete(task_id):
 @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model_id(Task, task_id)
-
-    response = {"task": task.to_dict()}
+    task.incomplete = False
     task.completed_at = None
-
+    response = {"task": task.to_dict()}
+    
     db.session.commit()
     return jsonify(response), 200
 
