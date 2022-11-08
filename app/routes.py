@@ -1,9 +1,12 @@
 from os import abort
+import os
+# Import Bolt for Python (github.com/slackapi/bolt-python)
+#from slack_bolt import App
 # from turtle import title
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
-
+from datetime import datetime, timezone
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
 def validate_task(class_obj, task_id):
@@ -97,3 +100,49 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response({"details": f"Task {task.id} \"{task.title}\" successfully deleted"})
+
+@tasks_bp.route("/<task_id>/<completion>", methods=["PATCH"])
+def mark_task_completed(task_id, completion):
+    task = validate_task(Task, task_id)
+
+    if completion == "mark_complete":
+        task.completed_at = datetime.now(timezone.utc)
+        task.is_complete = True
+
+        # WAVE 4
+        # ID of channel you want to post message to
+        channel_id = "C04AL1N1AFJ"
+        SLACK_API_KEY = os.environ.get('API_KEY')
+        PATH = "https://slack.com/api/chat.postMessage"
+        slack_message_params = {
+                "channel": channel_id, 
+                "text": f"Someone just completed the task {task.title}"}
+        # try:
+            # Call the chat.postMessage method using the WebClient
+        request.post(PATH,
+                    data=slack_message_params,
+                    headers={"Authorization": SLACK_API_KEY}  
+        )
+        #     logger.info(result)
+
+        # except SlackApiError as e:
+        #     logger.error(f"Error posting message: {e}")
+
+    elif completion == "mark_incomplete":
+        task.completed_at = None
+        task.is_complete = False
+
+    
+
+
+    #request_body = request.get_json()
+
+    # task.update(request_body)
+
+    # task.title = request_body["title"]
+    # task.description = request_body["description"]
+
+    db.session.commit()
+    response_updated_task = {}
+    response_updated_task["task"] = Task.to_dict(task)
+    return jsonify(response_updated_task), 200
