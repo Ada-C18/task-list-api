@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint,jsonify, make_response, request, abort
+import datetime
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -16,6 +17,7 @@ def validate_model(cls, model_id):
         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
     
     return model
+
 def validate_dict(request_body):
     request_body = dict(request_body)
     if not (request_body.get("title", False) and request_body.get("description", False)):
@@ -42,8 +44,17 @@ def create_task():
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
-    tasks = Task.query.all()
-    tasks_response = []
+    sort_task_query = request.args.get("sort")
+    task_query = Task.query
+    if sort_task_query:
+        if sort_task_query == "asc":
+            task_query = task_query.order_by(Task.title)
+        else:
+            task_query = task_query.order_by(Task.title.desc())
+    tasks = task_query.all()
+    
+    tasks_response =[]
+    
     for task in tasks:
         tasks_response.append({
             "id": task.task_id,
@@ -91,6 +102,32 @@ def delete_task(id):
     db.session.commit()
 
     return make_response({"details": f'Task {id} "{task.title}" successfully deleted'}),200
+@task_bp.route("/<id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(id):
+    task = validate_model(Task,id)
+
+    request_body = request.get_json()
+
+    task.completed_at = datetime.datetime.now()
+
+    db.session.commit()
+
+    return make_response(jsonify(task.to_dict()), 200)
+
+@task_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(id):
+    task = validate_model(Task, id)
+
+    request_body = request.get_json()
+
+    task.completed_at = None
+
+    db.session.commit()
+
+    return make_response(jsonify(task.to_dict()), 200)
+
+
+
 
 
 

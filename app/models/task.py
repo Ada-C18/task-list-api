@@ -12,9 +12,14 @@ class Task(db.Model):
         return cls(title=data_dict["title"], description=data_dict["description"])
 
     def to_dict(self):
+        if not self.completed_at:
+            flag = False
+        else:
+            flag = True
+        
         return {"task":{
             "id" : self.task_id,
             "title" : self.title,
             "description" : self.description,
-            "is_complete" : False
+            "is_complete" : flag
         }}
