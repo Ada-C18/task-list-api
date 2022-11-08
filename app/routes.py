@@ -29,8 +29,7 @@ def add_task():
 
     new_task = Task(
         title = request_body["title"],
-        description = request_body["description"],
-    )
+        description = request_body["description"])
 
     db.session.add(new_task)
 
@@ -47,13 +46,18 @@ def add_task():
 
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
-    
-    tasks_query = request.args.get("title")
-    if tasks_query is None:
-        tasks = Task.query.all()
+    title_param = request.args.get("title")
 
-    else:
-        tasks = Task.query.filter_by(title=tasks_query)
+    sort_param = request.args.get("sort")
+
+    if not title_param:
+        tasks = Task.query.all()
+    
+    if sort_param  == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+
+    if sort_param == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all()
 
     response = [task.to_dict() for task in tasks]
     return jsonify(response), 200
@@ -106,12 +110,9 @@ def delete_one_task(task_id):
 
     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
 
-@task_bp.route("", methods=["GET"])
-def get_tasks_sorted(task_id):
-    tasks_query = request.args.get("title")
 
-    tasks = Task.query.order_by("title=tasks_query")
-
-    response = [task.to_dict() for task in tasks]
-    return jsonify(response), 200
+@task_bp.route("/<task_id>", methods=["PATCH", "PUT"])
+def update_is_complete(task_id):
+    pass
+    
 

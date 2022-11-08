@@ -8,7 +8,7 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
 
-    def to_dict(self): # 1)  Add no need to migrate and upgrade
+    def to_dict(self):
         task_dict = {
             "id":self.id,
             "title":self.title,
