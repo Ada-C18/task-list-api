@@ -18,7 +18,12 @@ class Task(db.Model):
             # "goal_id": self.goal_id
                                               
         }
+    
+    def to_dict_goal_id(self):
+        dict = self.to_dict(self)
+        dict["goal_id"] = self.goal_id
         
+    
     @classmethod
     def from_dict(cls, task_dict):
         return cls(
@@ -26,5 +31,12 @@ class Task(db.Model):
             description=task_dict["description"],
             # goal_id=task_dict["goal_id"]                        
         )
-        
+    
+    @classmethod
+    def from_dict_goal_id(cls, task_dict):
+        return cls(
+            title=task_dict["title"],
+            description=task_dict["description"],
+            goal_id=task_dict["goal_id"]                        
+        )
     
