@@ -12,13 +12,4 @@ class Goal(db.Model):
             "title":self.title  
         }
 
-    # @classmethod
-    # def from_dict(cls,):
-    #     return cls(
-
-    #         name = breakfast_dict['name'],
-    #         rating = breakfast_dict['rating'],
-    #         prep_time = breakfast_dict['prep_time'],
-    #         menu_id = breakfast_dict['menu_id']
-
-    #     )    
+       
