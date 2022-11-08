@@ -37,25 +37,18 @@ def delete_one_task(task_id):
     return delete_one_model(Task, task_id)
 
 
-@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def mark_one_task_as_complete(task_id):
+@tasks_bp.route("/<task_id>/<mark_complete_or_incomplete>", methods=["PATCH"])
+def mark_one_task_as_complete(task_id, mark_complete_or_incomplete):
     task = validate_model(Task, task_id)
+    
+    if mark_complete_or_incomplete == "mark_complete":
+        task.completed_at = datetime.now()
 
-    task.completed_at = datetime.now()
-
-    db.session.commit()
-
-    post_notification_on_slack(task.title)
-
-    return jsonify(generate_response_body(Task, task)), 200
-
-
-@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-def mark_one_task_as_incomplete(task_id):
-    task = validate_model(Task, task_id)
-
-    task.completed_at = None
-
+        post_notification_on_slack(task.title)
+    
+    elif mark_complete_or_incomplete == "mark_incomplete":
+        task.completed_at = None
+    
     db.session.commit()
 
     return jsonify(generate_response_body(Task, task)), 200
@@ -233,12 +226,12 @@ def post_notification_on_slack(task_title):
     slack_bot_token = os.environ.get("SLACK_BOT_TOKEN")
 
     URL = "https://slack.com/api/chat.postMessage"
-
-    headers = {"Authorization": f'Bearer {slack_bot_token}'}
     
     params = {
         "channel":'task-notifications',
         "text":f"Someone just completed the task {task_title}"
     }
+
+    headers = {"Authorization": f"Bearer {slack_bot_token}"}
 
     requests.put(URL,params=params,headers=headers)
