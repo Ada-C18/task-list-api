@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
+from sqlalchemy import desc, asc
+
+
 
 #make a blueprint
 task_bp = Blueprint("task_bp", __name__, url_prefix = "/tasks")
@@ -12,7 +15,16 @@ COL_NAME_DEFAULT_DICT = dict(zip(COL_NAMES, COL_DEFAULTS))
 
 @task_bp.route("", methods = ["GET"])
 def get_all_tasks():
-    tasks = Task.query.all()
+    #refactor to helper function
+    #this isn't working.  not sure why. 
+    sort_order = request.args.get("sort")
+    if sort_order == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all() #Task.title is just a string??
+    elif sort_order == "asc":
+        tasks = Task.query.order_by(Task.title.asc()).all() #look up doc for asc.
+    else:
+        tasks = Task.query.all()
+    #refactor to helper function end here? 
     response = []
     for task in tasks:
         task_dict = task.make_dict()
