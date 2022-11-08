@@ -2,6 +2,7 @@
 from app import db
 from flask import Blueprint,jsonify,request,abort,make_response
 from app.models.goal import Goal
+from app.models.task import Task
 import os,requests
 from .helper_function import get_model_from_id
 
@@ -68,3 +69,33 @@ def delete_one_goal(goal_id):
 
     return make_response(jsonify({"details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}),200)
 
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_tasks_to_goal(goal_id):
+    goal = get_model_from_id(Goal,goal_id)
+
+    request_body = request.get_json()
+
+    for task_id in request_body["task_ids"]:
+        task = get_model_from_id(Task,task_id)
+        task.goal_id = goal_id
+        task.goal = goal
+    
+    # db.session.add(new_goal)
+    db.session.commit()
+
+    return jsonify({"id": goal.goal_id, "task_ids":request_body["task_ids"]}),200
+
+
+@goal_bp.route('/<goal_id>/tasks',methods = ["GET"])
+def get_tasks_for_goal(goal_id):
+    goal = get_model_from_id(Goal,goal_id)
+    
+    task_list = []
+    for task in goal.tasks:
+        task_list.append(task.to_dict())
+
+    goal_dict = goal.to_dict()  
+    goal_dict['tasks'] = task_list  
+
+    return make_response(jsonify(goal_dict),200) 
