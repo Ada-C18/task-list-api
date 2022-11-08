@@ -25,17 +25,24 @@ def add_task():
     return jsonify({"task": new_task.to_dict()}), 201
 
 @tasks_bp.route("", methods=["GET"])
-def get_saved_tasks():
-    name_param = request.args.get("name")
+def get_saved_tasks_and_sort():
+    sorted_query = request.args.get("sort")
 
-    if name_param is None:
-        tasks = Task.query.all()
+    if sorted_query:
+        # tasks = Task.query.order_by(Task.title.asc()).all()
+        if sorted_query == "asc":
+            tasks = Task.query.order_by(Task.title.asc()).all()
+        elif sorted_query == "desc":
+            tasks = Task.query.order_by(Task.title.desc()).all()
     else:
-        tasks = Task.query.filter_by(name=name_param)
+        tasks = Task.query.all()
 
-    response = [task.to_dict() for task in tasks]
-
-    return jsonify(response), 200
+    task_list = []
+    for task in tasks:
+        task_list.append(task.to_dict())
+    
+    return jsonify(task_list), 200
+    
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -79,9 +86,46 @@ def delete_one_task(task_id):
     db.session.delete(chosen_task)
     db.session.commit()
 
-    return jsonify({f"details": "Task with id {task_id} {task_dict}['description'] successfully deleted"}), 200
+    return jsonify({"details": f"Task {task_id} {task_dict['description']} successfully deleted"}), 200
     
 
     
     
     
+
+'''
+    tasks = Task.query.order_by(sort=sort_asc)
+    sort_asc = request.args.get("sort=asc")
+
+    if sort_asc is None:
+        tasks = Task.query.all()
+    else:
+        tasks = Task.query.order_by(sort=sort_asc)
+
+    sort_desc = request.args.get("sort=desc")
+
+    if sort_desc is None:
+        tasks = Task.query.all()
+    else:
+        tasks = Task.query.sort_by(sort=sort_desc)
+
+    response = [task.to_dict() for task in tasks] '''
+
+#    return jsonify(response), 200
+
+'''
+Working code for wave 1 get method tests before working on sort for wave 2
+
+@tasks_bp.route("", methods=["GET"])
+def get_saved_tasks_and_sort():
+    title_param = request.args.get("title")
+
+    if title_param is None:
+        tasks = Task.query.all()
+    else:
+        tasks = Task.query.filter_by(title=title_param)
+
+    response = [task.to_dict() for task in tasks]
+
+    return jsonify(response), 200
+'''
