@@ -1,5 +1,7 @@
 from app import db
 from datetime import datetime
+import requests
+import os
 
 
 class Task(db.Model):
@@ -27,6 +29,16 @@ class Task(db.Model):
             self.completed_at = datetime.utcnow()
         else:
             self.completed_at = None
+
+        if self.completed_at is not None:
+            SLACKBOT_OAUTH_TOKEN = os.environ.get("SLACKBOT_OAUTH_TOKEN")
+            slack_channel = "task-notifications"
+            message = f"Someone just completed the task {self.title}"
+            requests.get(
+                "https://slack.com/api/chat.postMessage",
+                params={"channel": slack_channel, "text": message},
+                headers = {"Authorization": f"Bearer {SLACKBOT_OAUTH_TOKEN}"}
+            )
 
     @classmethod
     def from_dict(cls, task_data):
