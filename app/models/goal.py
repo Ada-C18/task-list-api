@@ -23,5 +23,5 @@ class Goal(db.Model):
     def get_task_list(self):
         list_of_tasks = []
         for task in self.tasks:
-            list_of_tasks.append(task.to_dict_relationship())
+            list_of_tasks.append(task.to_dict())
         return list_of_tasks
