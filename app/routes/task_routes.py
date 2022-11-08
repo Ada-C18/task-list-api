@@ -41,10 +41,20 @@ def create_task():
 
 @bp.route("", methods=["GET"])
 def read_all_tasks():
-    all_tasks = []
-    tasks = Task.query.all()
-    for task in tasks:
-        all_tasks.append(task.to_dict())
+    sort_query = request.args.get("sort")
+
+    task_query = Task.query
+
+    if sort_query == "asc":
+        task_query = task_query.order_by(Task.title.asc())
+    
+    if sort_query == "desc":
+        task_query = task_query.order_by(Task.title.desc())
+
+    tasks = task_query.all()
+
+    all_tasks = [task.to_dict() for task in tasks]
+
     return jsonify(all_tasks)
 
 @bp.route("/<task_id>", methods=["GET"])
