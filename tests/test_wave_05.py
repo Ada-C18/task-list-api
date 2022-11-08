@@ -140,9 +140,7 @@ def test_delete_goal(client, one_goal):
     assert response.status_code == 404
 
     # raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+    assert Goal.query.get(1) == None
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
