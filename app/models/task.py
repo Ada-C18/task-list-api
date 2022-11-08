@@ -6,6 +6,9 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)
 
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks")
+
     def to_response_dict(self):
         task_dict = {
             "id": self.task_id,
