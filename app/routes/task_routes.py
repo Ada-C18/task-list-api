@@ -13,6 +13,7 @@ load_dotenv()
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
+
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
@@ -147,18 +148,7 @@ def delete_task(task_id):
     }
 
 
-    
-# Define Endpoint and Create Route Function to PATCH a Task
-# Make complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
-# create variable to store value of "is_complete" key
-# if mark_complete
-    # update completed_at to today's date
-    # set is_compelete variable to True
-# if mark_incomplete 
-    # update completed_at to None
-    # set is_compelete variable to False
-# Return task_response
-
+# create helper to post slack message
 def slack_request(title):  
     URL = "https://slack.com/api/chat.postMessage"
 
@@ -171,9 +161,18 @@ def slack_request(title):
 
     return requests.post(URL, data=payload, headers=headers) 
 
-    
-# Defining Endpoint and Creating Route Function to PATCH a Task
-# Made complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
+
+# Define Endpoint and Create Route Function to PATCH a Task
+# Make complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
+# create variable to store value of "is_complete" key
+# if mark_complete
+    # update completed_at to today's date
+    # set is_compelete variable to True
+# if mark_incomplete 
+    # update completed_at to None
+    # set is_compelete variable to False
+# Return task_response
+
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def patch_task_complete(task_id,complete):
     task = validate_task(task_id)
@@ -203,5 +202,6 @@ def patch_task_complete(task_id,complete):
         slack_request(task.title)
 
     return make_response(task_response, 200)
+
 
 
