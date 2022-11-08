@@ -51,3 +51,8 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response({"details": f"Task {task_id} {task.description} successfully deleted"}, 200)
+
+@bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+    new_task = Task.from_dict(Task, request_body)
