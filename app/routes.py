@@ -48,12 +48,13 @@ def validate_task(task_id):
 def handle_task(task_id):
     task = validate_task(task_id)
 
-    return {"task": {
-    "id": task.id,
-    "title": task.title,
-    "description": task.description,
-    "is_complete": False}
-}
+    return{"task":task.to_dict()} #CHANGED THIS
+#     return {"task": {
+#     "id": task.id,
+#     "title": task.title,
+#     "description": task.description,
+#     "is_complete": False}
+# }
 
 @tasks_bp.route("", methods=["POST"])
 
@@ -228,6 +229,12 @@ def get_tasks_for_goal(goal_id):
     
     tasks = [Task.to_dict(task) for task in goal.tasks]
 
+    response_body = jsonify({
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": tasks
+    })
+    # print(response_body["tasks"])
     
     return jsonify({
         "id": int(goal_id),

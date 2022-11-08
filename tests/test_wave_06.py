@@ -45,12 +45,14 @@ def test_post_task_ids_to_goal_already_with_goals(client, one_task_belongs_to_on
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_for_specific_goal_no_goal(client):
     # Act
-    response = client.get("/goals/1/tasks")
+    goal_id = 1
+    response = client.get(f"/goals/{goal_id}/tasks")
     response_body = response.get_json()
+    
 
     # Assert
     assert response.status_code == 404
-    assert response_body == {'message':f'Goal {id} not found'}
+    assert response_body == {'message':f'Goal {goal_id} not found'}
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
@@ -107,6 +109,7 @@ def test_get_task_includes_goal_id(client, one_task_belongs_to_one_goal):
     assert response.status_code == 200
     assert "task" in response_body
     assert "goal_id" in response_body["task"]
+
     assert response_body == {
         "task": {
             "id": 1,
