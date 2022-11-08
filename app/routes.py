@@ -149,15 +149,15 @@ def mark_complete(task_id):
 
 
 @bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-def mark_imcomplete(task_id):
+def mark_incomplete(task_id):
 
     task = validate_model(Task, task_id)
     
-    task.completed_at = datetime.datetime.utcnow()
+    task.completed_at = None
 
     db.session.commit()
 
-    completed_response = {
+    not_completed_response = {
         "task": {
             "id": task.task_id,
             "title": task.title,
@@ -166,6 +166,6 @@ def mark_imcomplete(task_id):
         }
     }
 
-    return(make_response(completed_response),200)
+    return(make_response(not_completed_response),200)
 
 
