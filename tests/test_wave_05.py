@@ -86,20 +86,16 @@ def test_update_goal(client, one_goal):
     # raise Exception("Complete test")
     # Act
     # ---- Complete Act Here ----
-    response = client.post("/goals", json={
-        "title": "My New Goal updated"
+    response = client.put("/goals/1", json={
+        "title": "Updated Goal 1"
     })
     response_body = response.get_json()
     # Assert
     # ---- Complete Assertions Here ----
+
     assert response.status_code == 200
-    assert "goal" in response_body
-    assert response_body == {
-        "goal": {
-            "id": 1,
-            "title": "Build a habit of going outside daily"
-        }
-    }
+    assert response_body["id"] == 1
+    assert response_body["title"] == "Updated Goal 1"
 
 
 
@@ -135,8 +131,9 @@ def test_delete_goal(client, one_goal):
 
     # Check that the goal was deleted
     response = client.get("/goals/1")
-    assert response.status_code == 404
     response_body = response.get_json()
+    assert response.status_code == 404
+    # response_body = response.get_json()
     assert response_body == {"message":f"Goal 1 not found."}
 
 

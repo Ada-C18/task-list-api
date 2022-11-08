@@ -9,7 +9,7 @@ def validate_goals(goal_id):
     try:
         goal_id = int(goal_id )
     except:
-        abort(make_response({"message":f"Goal {goal_id} invalid"}, 400))
+        abort(make_response({"message":f"Goal {goal_id} invalid."}, 400))
 
     goal = Goal.query.get(goal_id )
 
@@ -20,8 +20,9 @@ def validate_goals(goal_id):
 
 @goals_bp.route("", methods=["POST"])
 def create_goal():
+    request_body = request.get_json()
     try:
-        request_body = request.get_json()
+        
         new_goal = Goal(
             title=request_body["title"]
             )
@@ -50,20 +51,21 @@ def read_all_goals():
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
     goal = validate_goals(goal_id)
-    return jsonify(goal.to_dict()), 200
+    return jsonify({"goal":goal.to_dict()}), 200
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = validate_goals(goal_id)
-    title = request.json.get("title")
+    title = request.json.get("title") 
     
     if not title:
         return jsonify({"details": "Invalid data"}), 400
 
     goal.title = title
     db.session.commit()
-    return jsonify(goal.to_dict()["goal"]), 200
+    
+    return jsonify(goal.to_dict()), 200
     
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
