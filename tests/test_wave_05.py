@@ -39,16 +39,13 @@ def test_get_goal(client, one_goal):
     # Assert
     assert response.status_code == 200
     assert "goal" in response_body
-    assert response_body == [
-        {
+    assert response_body == {
+        "goal": {
             "id": 1,
-            "title": "Example Goal Title 1"
-        },
-        {
-            "id": 2,
-            "title": "Example Goal Title 2"
+            "title": "Build a habit of going outside daily"
         }
-    ]
+    }
+
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
@@ -93,7 +90,7 @@ def test_update_goal(client, one_goal):
     # raise Exception("Complete test")
     # Act
     response = client.put("/goals/1", json={
-        "title": "Updated Goal Title"
+        "title": "Build a habit of going outside daily"
     })
     
     # ---- Complete Act Here ----
@@ -108,12 +105,13 @@ def test_update_goal(client, one_goal):
     assert response_body == {
         "goal": {
             "id": 1,
-            "title": "Updated Goal Title"
+            "title": "Build a habit of going outside daily"
         }
     }
+    
     # ---- Complete Assertions Here ----
     goal = Goal.query.get(1)
-    assert goal.title == "Updated Goal Title"
+    assert goal.title == "Build a habit of going outside daily"
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
@@ -121,7 +119,7 @@ def test_update_goal_not_found(client):
     # raise Exception("Complete test")
     # Act
     response = client.put("goals/1", json={
-        "title": "Updated Task Title",
+        "title": "Updated Goal Title",
     })
     # ---- Complete Act Here ----
     response_body = response.get_json()
