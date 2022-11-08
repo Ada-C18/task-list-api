@@ -16,15 +16,6 @@ class Task(db.Model):
         )
         
 
-    # @classmethod
-    # def from_dict(cls, task_data):
-    #     new_task = Task(
-    #         title = task_data["title"],
-    #         description = task_data["description"], 
-    #         completed_at =  None  
-    #     )
-    #     return new_task 
-
     def to_dict(self):
         return {
             "id": self.task_id,

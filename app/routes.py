@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 def validate_model(cls, model_id):
     try: 
@@ -19,7 +18,6 @@ def validate_model(cls, model_id):
         abort(make_response({"message":f"{cls.__name__} {model_id} is invalid, please search by task_id."}, 400))
     
     task = cls.query.get(model_id)
-
     if not task:
         abort(make_response({"message":f"{cls.__name__} {model_id} does not exist."}, 404))
     
@@ -71,9 +69,8 @@ def update_task(model_id):
 @tasks_bp.route("<model_id>", methods=["DELETE"])
 def delete_task(model_id):
     task = validate_model(Task, model_id)
-    db.session.delete()
+    db.session.delete(task)
     db.session.commit()
-
     return {"details" :f'Task {model_id} "{task.title}" successfully deleted'}, 200
 
 @tasks_bp.route("/<model_id>/mark_complete", methods=["PATCH"])
