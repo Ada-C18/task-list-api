@@ -51,7 +51,7 @@ def read_all_tasks():
 def read_one_task(task_id):
     task = validate_task(task_id)
     return {"task": task.to_dict()}
- 
+
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_task(task_id)
@@ -64,7 +64,7 @@ def update_task(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
- 
+
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_task(task_id)
@@ -82,7 +82,7 @@ def mark_complete(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
- 
+
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
     task = validate_task(task_id)
@@ -91,4 +91,4 @@ def mark_incomplete(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
- 
+
