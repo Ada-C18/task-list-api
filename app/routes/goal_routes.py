@@ -3,6 +3,7 @@ from app.models.goal import Goal
 from flask import abort, Blueprint, jsonify, make_response, request
 # from dotenv import load_dotenv
 # import os
+from .routes import validate_task
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
@@ -97,3 +98,53 @@ def delete_goal(goal_id):
 
     # return make_response(jsonify(response))
     return jsonify(response)
+
+
+# POST
+# Sending a List of Task IDs to a Goal
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def send_task_ids_to_goal(goal_id):
+    goal = validate_goal(goal_id)
+
+    request_body = request.get_json()
+
+    # three Tasks belong to the Goal and it gets updated in the database
+    for task_id in request_body["task_ids"]:
+        task = validate_task(task_id)
+        task.goal_id = goal.goal_id
+
+    db.session.commit()
+
+    response = {
+        "id": goal.goal_id,
+        "task_ids": request_body["task_ids"]
+    }
+
+    return response
+
+
+# GET
+# Getting Tasks of One Goal
+# /goals/<goal_id>/tasks
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_of_one_goal(goal_id):
+    goal = validate_goal(goal_id)
+
+    response = goal.to_dict()
+
+    return jsonify(response), 200
+
+# response
+# {
+#   "id": 333,
+#   "title": "Build a habit of going outside daily",
+#   "tasks": [
+#     {
+#       "id": 999,
+#       "goal_id": 333,
+#       "title": "Go on my daily walk 🏞",
+#       "description": "Notice something new every day",
+#       "is_complete": false
+#     }
+#   ]
+# }
