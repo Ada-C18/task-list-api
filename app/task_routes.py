@@ -99,4 +99,3 @@ def mark_incomplete(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
- 
