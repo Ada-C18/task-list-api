@@ -40,26 +40,16 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
-    title_query = request.args.get("title")
-    description_query = request.args.get("description")
-    completed_at_query = request.args.get("completed_at")
-    limit_query = request.args.get("limit")
-    
+    sort_query = request.args.get("sort")
     task_query = Task.query
 
-    if title_query:
-        tasks = task_query.filter_by(title=title_query)
-    
-    if description_query:
-        tasks = task_query.filter_by(description=description_query)
-    
-    if completed_at_query:
-        tasks = task_query.filter_by(completed_at=completed_at_query)
-
-    if limit_query:
-        tasks = task_query.limit(limit_query)
-
-    tasks = task_query.all()
+    if sort_query:
+        if "desc" in sort_query:
+            tasks = task_query.order_by(Task.title.desc())
+        else:
+            tasks = task_query.order_by(Task.title)
+    else:
+        tasks = task_query.all()
 
     tasks_response = [task.to_dict() for task in tasks]
 
