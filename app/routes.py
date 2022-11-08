@@ -1,8 +1,10 @@
 from flask import Flask, Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
+from app.models.goal import Goal
 from app import db
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
 def validate_model(cls, model_id):
