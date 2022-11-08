@@ -96,26 +96,20 @@ def delete_one_goal(goal_id):
 def send_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     request_body = request.get_json()
-    tasks = []
 
     for task in request_body["task_ids"]:
-        # valid_task = validate_model(Task, task)
-        valid_task = Task.query.get(task)
+        valid_task = validate_model(Task, task)
         valid_task.goal = goal
-        tasks.append(valid_task)
 
-    db.session.add(tasks)
     db.session.commit()
 
-
-    return make_response(jsonify({"id": {goal.goal_id}, "task_ids": {goal.tasks}}), 200)
+    return make_response(jsonify({"id": goal.goal_id, "task_ids": [task.task_id for task in goal.tasks]}), 200)
 
 
 # GOALS AND TASKS
 # Getting Tasks of One Goal
 # Getting Tasks of One Goal: No Matching Tasks
 # Getting Tasks of One Goal: No Matching Goal
-
 
 @bp.route("/<goal_id>/tasks", methods=["GET"], strict_slashes=False)
 def get_tasks_from_goal(goal_id):
@@ -125,7 +119,7 @@ def get_tasks_from_goal(goal_id):
     tasks_response = [task.to_dict_with_goal_id() for task in goal.tasks]
 
     return make_response(jsonify(dict(
-            id=goal.goal_id,
-            title=goal.title,
-            tasks=tasks_response
-        )))
+        id=goal.goal_id,
+        title=goal.title,
+        tasks=tasks_response
+    )))
