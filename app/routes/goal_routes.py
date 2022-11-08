@@ -62,10 +62,11 @@ def create_goal():
     }},201)
 
 
-@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+@goal_bp.route("", methods=["POST"])
 def post_task_ids_to_goal(goal_id, task_id):
 
     request_body = request.get_json()
+
     goal = Goal.query.get(goal_id)
     task = Task.query.all(task_id)
 
@@ -75,14 +76,18 @@ def post_task_ids_to_goal(goal_id, task_id):
     new_goal = Goal(
         title=request_body["title"],
     )
+    task_list = []
+    if goal_id:
+        task_list.append(task_id)
     
     db.session.add(new_goal)
     db.session.commit()
 
     return make_response({ "goal":{
         "id": new_goal.goal_id,
-        "task_ids": 
+        "task_ids": new_goal.task_id
     }},201)
+
 
 
 
