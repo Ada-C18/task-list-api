@@ -159,7 +159,6 @@ def test_delete_task_not_found(client):
 
     # raise Exception("Complete test with assertion about response body")
     assert response_body == {"details":f"there is no existing task 1"}
-
     assert Task.query.all() == []
 
 

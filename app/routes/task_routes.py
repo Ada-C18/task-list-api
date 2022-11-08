@@ -13,7 +13,6 @@ load_dotenv()
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
-
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
@@ -81,7 +80,7 @@ def read_all_tasks():
         return jsonify(reverse_tasks)
     else:
         return jsonify(tasks_response)
-    # return jsonify(tasks_response)
+    
 
 #Creating helper function validate_task to handle errors for get a task by id
 # Checks for valid data type (int)
