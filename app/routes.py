@@ -216,3 +216,48 @@ def delete_goal_data_from_db(goal_id):
 
     response_body = f'Goal {goal_id} "{goal_to_delete.title}" successfully deleted'
     return jsonify({"details": response_body}), 200
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_list_of_tasks_to_goal(goal_id):
+
+    valid_goal = get_one_goal_or_error(goal_id)
+
+    request_body = request.get_json()
+
+    for task in request_body["task_ids"]:
+        current_task = get_one_task_or_error(task)
+        current_task.goals = valid_goal
+
+        db.session.commit()
+
+    task_id_list = [task.task_id for task in valid_goal.tasks]
+
+    response_body = {
+        "id": valid_goal.goal_id,
+        "task_ids": task_id_list
+    }
+
+    return jsonify(response_body), 200
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_of_one_goal(goal_id):
+    valid_goal = get_one_goal_or_error(goal_id)
+
+    list_of_tasks = []
+
+    for task in valid_goal.tasks:
+        list_of_tasks.append(Task.to_dict(task))
+    
+    goal_dict = {
+        "id": valid_goal.goal_id,
+        "title": valid_goal.title,
+        "tasks" : list_of_tasks
+    }
+
+    return jsonify(goal_dict), 200
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
