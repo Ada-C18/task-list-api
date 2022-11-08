@@ -2,6 +2,7 @@ from flask import Blueprint, json, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from sqlalchemy import asc, desc
+from datetime import date 
 
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -9,7 +10,7 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 @task_bp.route('', methods=['POST'])
 def create_one_task():
     request_body = request.get_json()   
-    print(request_body)
+    #print(request_body)
     try:
         new_task= Task(title=request_body['title'],
                     description=request_body['description'],
@@ -18,7 +19,7 @@ def create_one_task():
                     )
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400 
-    print(request_body)
+    #print(request_body)
     db.session.add(new_task)
     db.session.commit()
     return jsonify(new_task.to_response()), 201
@@ -79,23 +80,25 @@ def update_one_task(task_id):
         return jsonify({"details": "Invalid data"}), 400
     db.session.commit()
     return jsonify(update_task.to_response()), 200
-
+            
 #/tasks/1/mark_complete
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
-def mark_one_task(task_id):  
-    mark_task = get_task_from_id(task_id)
-    request_body = request.get_json()   
-    try:
-        mark_task.title = request_body["title"]
-        mark_task.description = request_body["description"]
-        mark_task.is_complete = request_body.get('completed_at') 
-      
-    except KeyError:
-        return jsonify({"details": "Task Not Found"}), 404
+def mark_complete_task(task_id):  
+    mark_complete_task = get_task_from_id(task_id)
+    mark_complete_task.completed_at = date.today() 
+
+    db.session.commit()
+    return jsonify(mark_complete_task.to_response()), 200
+
+
+#/tasks/1/mark_incomplete
+@task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
+def mark_incomplete_task(task_id):  
+    mark_incomplete_task = get_task_from_id(task_id)
+    mark_incomplete_task.completed_at = None
     
     db.session.commit()
-    return jsonify(mark_task.to_response()), 200
-
+    return jsonify(mark_incomplete_task.to_response()), 200
 
 
 # DELETE route for one task
