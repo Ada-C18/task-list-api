@@ -19,10 +19,19 @@ def validate_model(cls, model_id):
     
     return model
 
+def check_for_missing_data(request_body):
+    required_values = ["title", "description", "completed_at"]
+    for item in required_values:
+        if item not in request_body:
+            return False
+    return True
+
 @bp.route("", methods=["POST"])
 def create_task():
-    # verify task with helper function here
     request_body = request.get_json()
+    if not check_for_missing_data(request_body):
+        abort(make_response({"details": "Invalid data"}, 400))
+
     new_task = Task.from_dict(request_body)
 
     db.session.add(new_task)
