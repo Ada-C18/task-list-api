@@ -87,6 +87,17 @@ def update_task(task_id):
     return {"task": task.to_dict()}
 
 
+@goals_bp.route("<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+
+    goal.update(request_body)
+    db.session.commit()
+
+    return {"goal": goal.to_dict()}
+
+
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
     validated_task = validate_model(Task, task_id)
