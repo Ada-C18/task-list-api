@@ -1,6 +1,7 @@
 from flask import Blueprint, request, make_response, jsonify, abort
 from app import db
 from app.models.task import Task
+from sqlalchemy import desc
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -23,7 +24,13 @@ def validate_model(cls, model_id):
 
 @tasks_bp.route("", methods = ["GET"])
 def get_all_tasks():
-    tasks = Task.query.all()
+    sort_query = request.args.get("sort")
+    if sort_query == "asc":
+        tasks = Task.query.order_by(Task.title).all()
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+    else:
+        tasks = Task.query.all()
     tasks_response = []
     for task in tasks:
         tasks_response.append(task.to_dict())
@@ -39,6 +46,7 @@ def create_task():
     request_body = request.get_json()
     
     if "description" not in request_body or "title" not in request_body:
+        #also check for completed_at?
         return make_response(jsonify({"details": "Invalid data"}), 400)
 
     new_task = Task.from_dict(request_body)
