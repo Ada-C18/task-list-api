@@ -25,7 +25,7 @@ def add_task():
     return jsonify({"task": new_task.to_dict()}), 201
 
 @tasks_bp.route("", methods=["GET"])
-def get__saved_tasks():
+def get_saved_tasks():
     name_param = request.args.get("name")
 
     if name_param is None:
@@ -41,33 +41,47 @@ def get__saved_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     chosen_task = get_one_obj_or_abort(Task, task_id)
-
+    
     task_dict = chosen_task.to_dict()
+    if not task_dict:
+        return jsonify({f"message": "Task with id {task_id} was not found in the database."})
+    else:
+        return jsonify({"task": task_dict}), 200
 
-    return jsonify(task_dict), 200
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     chosen_task = get_one_obj_or_abort(Task, task_id)
-
+    
     request_body = request.get_json()
 
-    if "title" not in request_body or \
-        "description" not in request_body:
-            return jsonify({"message":"Request must include title and description"}), 400
+    if not "title" in request_body or not "description" in request_body:
+        return jsonify({"details": "Invalid data"}), 400
 
     chosen_task.title = request_body["title"]
     chosen_task.description = request_body["description"]
 
+    task_dict = chosen_task.to_dict()
+
     db.session.commit()
 
-    return jsonify({f"message": f"Successfully replaced task with id `{task_id}`"}), 200
+    return jsonify({"task": task_dict}), 200
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
     chosen_task = get_one_obj_or_abort(Task, task_id)
+
+    task_dict = chosen_task.to_dict()
+
+    if not task_dict:
+        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
     
     db.session.delete(chosen_task)
     db.session.commit()
 
-    return jsonify({"message": "Successfully deleted task with id '{task_id}'"}), 200
+    return jsonify({f"details": "Task with id {task_id} {task_dict}['description'] successfully deleted"}), 200
+    
+
+    
+    
+    
