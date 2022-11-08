@@ -124,7 +124,6 @@ def mark_complete_one_task(task_id):
     chosen_task.completed_at = date.today()    
     db.session.commit()
     
-
     SLACK_URL = os.environ.get("SLACK_URL")
 
     data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
