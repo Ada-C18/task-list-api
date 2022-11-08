@@ -84,24 +84,19 @@ def get_one_Goal(goal_id):
     response_message = f"Could not find goal with ID {goal_id}"
     return jsonify({"message": response_message}), 404
 
-# @goal_bp.route("/<goal_id>", methods = ["PUT"])
-# def update_Goal(goal_id):
-#     goal = get_one_goal_or_abort(goal_id) # we are getting a validated Goal id here
-#     request_body = request.get_json() #converts json into dictionary
+@goal_bp.route("/<goal_id>", methods = ["PUT"])
+def update_Goal(goal_id):
+    goal = get_one_goal_or_abort(goal_id) # we are getting a validated Goal id here
+    request_body = request.get_json() #converts json into dictionary
 
-#     is_completed = True
-#     if Goal.completed_at is None:
-#         is_completed=False
-#     Goal.title = request_body["title"]
-#     db.session.commit()
+    goal.title = request_body["title"]
+    db.session.commit()
 
-#     Goal_dict = {"id": Goal.goal_id,
-#     "title": Goal.title
-#     # "description": Goal.description,
-#     # "is_complete": is_completed
-#     }
+    goal_dict = {"id": goal.goal_id,
+    "title": goal.title
+    }
 
-#     return jsonify({"Goal":Goal_dict}), 200
+    return jsonify({"goal":goal_dict}), 200
 
 # @goal_bp.route("/<goal_id>/mark_complete", methods = ["PATCH"])
 # def update_Goal_completed_at(goal_id):
