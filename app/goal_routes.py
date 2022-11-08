@@ -94,7 +94,8 @@ def get_tasks_for_specific_goal(goal_id):
 
     tasks_response = []
     for task in tasks:
-        tasks_response.append(task.to_dict())
+        if task.goal_id == goal.id:
+            tasks_response.append(task.to_dict())
 
     return {
         "id": goal.id,
