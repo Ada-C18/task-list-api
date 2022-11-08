@@ -1,7 +1,11 @@
 from flask import abort, Blueprint, jsonify, make_response, request
+# Import WebClient from Python SDK (github.com/slackapi/python-slack-sdk)
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
 from app import db
 from app.models.task import Task
-import datetime
+import datetime, logging, os
+
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -119,6 +123,8 @@ def mark_task_complete(task_id):
 
     db.session.commit()
 
+    bot_mark_complete(f"Someone just completed the task {task.title}!")
+
     return {"task": task.to_dict()}
 
 
@@ -134,3 +140,28 @@ def mark_task_incomplete(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}
+
+
+def bot_mark_complete(mark_complete):
+    '''
+    helper function - runs a slack bot to post a complete message in slack
+    '''
+    # WebClient instantiates a client that can call API methods
+    # When using Bolt, you can use either `app.client` or the `client` passed to listeners.
+    client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+    logger = logging.getLogger(__name__)
+    
+    # ID of the channel you want to send the message to
+    channel_id = "C04A2AJGFAN"
+
+    try:
+        # Call the chat.postMessage method using the WebClient
+        result = client.chat_postMessage(
+            channel=channel_id, 
+            text=mark_complete
+        )
+        logger.info(result)
+
+    except SlackApiError as e:
+        logger.error(f"Error posting message: {e}")
+
