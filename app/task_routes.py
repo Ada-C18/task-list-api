@@ -48,7 +48,7 @@ def read_one_task(task_id):
 def create_task():
     request_body = request.get_json()
     try:
-        new_task = Task(title=request_body["title"], description=request_body["description"])
+        new_task = Task.from_dict(request_body)
     except:
         return abort(make_response({"details": 'Invalid data'}, 400))
 
@@ -115,4 +115,5 @@ def mark_incomplete(task_id):
 
     db.session.commit()
 
-    return task.to_dict_one()
+    # return task.to_dict_one()
+    return {"task": task.to_dict()}
