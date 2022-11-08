@@ -116,15 +116,3 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{task_title}" successfully deleted'}), 200
-
-    # slack_token = os.environ.get('SLACK_TOKEN')
-    # client = WebClient(token=slack_token)
-
-    # try:
-    #     response = client.chat_postMessage(
-    #     channel="task-notifications",
-    #     text=f"Someone just completed the task {task.title}"
-    #     )
-    # except SlackApiError as e:
-    # # You will get a SlackApiError if "ok" is False
-    #     assert e.response["error"]
