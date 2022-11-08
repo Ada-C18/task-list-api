@@ -81,9 +81,9 @@ def read_all_tasks():
         return jsonify(reverse_tasks)
     else:
         return jsonify(tasks_response)
-    # return jsonify(tasks_response)
+    
 
-#Creating helper function validate_task to handle errors foe get a task by id
+#Creating helper function validate_task to handle errors for get a task by id
 # Checks for valid data type (int)
 # Checks that id provided exists in records
 def validate_task(task_id):
@@ -148,6 +148,7 @@ def delete_task(task_id):
     }
 
 
+# create helper to post slack message
 def slack_request(title):  
     URL = "https://slack.com/api/chat.postMessage"
 
@@ -159,8 +160,19 @@ def slack_request(title):
     }
 
     return requests.post(URL, data=payload, headers=headers) 
-# Defining Endpoint and Creating Route Function to PATCH a Task
-# Made complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
+
+
+# Define Endpoint and Create Route Function to PATCH a Task
+# Make complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
+# create variable to store value of "is_complete" key
+# if mark_complete
+    # update completed_at to today's date
+    # set is_compelete variable to True
+# if mark_incomplete 
+    # update completed_at to None
+    # set is_compelete variable to False
+# Return task_response
+
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def patch_task_complete(task_id,complete):
     task = validate_task(task_id)
@@ -169,21 +181,8 @@ def patch_task_complete(task_id,complete):
     if complete == "mark_complete":
         task.completed_at = date.today()
         is_complete = True
-        # slack_request(task.title)
         
-        # url = "https://slack.com/api/chat.postMessage"
 
-        # payload = {"channel":"slack-bot-test-channel",
-        #             "text": "Someone just completed the task My Beautiful Task"
-        # }
-        # headers = {
-        # 'Authorization': os.environ.get("SLACK_TOKEN")
-        # }
-
-        # response = requests.get(url, headers=headers, data=payload)
-
-        # print(response.text)
-        
     elif complete == "mark_incomplete":
         task.completed_at = None
         is_complete = False
@@ -203,5 +202,6 @@ def patch_task_complete(task_id,complete):
         slack_request(task.title)
 
     return make_response(task_response, 200)
+
 
 
