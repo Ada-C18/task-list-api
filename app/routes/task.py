@@ -3,7 +3,7 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import asc, desc
 from datetime import date 
-
+import requests
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -80,25 +80,55 @@ def update_one_task(task_id):
         return jsonify({"details": "Invalid data"}), 400
     db.session.commit()
     return jsonify(update_task.to_response()), 200
-            
+
+
+#/tasks/1/mark_complete and added API
+path = "https://slack.com/api/chat.postMessage"
+API_KEY = "Bearer xoxb-3831949166102-4330548743939-M7VwemzW4oIcUOjzx0JLQ9El"
+
+@task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+def mark_complete_task_slack(task_id):
+    mark_complete_task = get_task_from_id(task_id)
+    mark_complete_task.completed_at = date.today() 
+    if mark_complete_task:
+        query_params = {
+            "channel": "task-notifications",
+            "text": f"Someone just completed the task {mark_complete_task.title}",
+            "format": "json"
+        }
+    else:
+        query_params = {
+            "channel": "task-notifications",
+            "text": f"No this No. {task_id} task",
+            "format": "json"
+        }
+    headers = {"Authorization": API_KEY}
+    response = requests.post(path, data=query_params, headers=headers)
+    db.session.commit()
+    return jsonify(mark_complete_task.to_response()), 200
+
+
+'''
 #/tasks/1/mark_complete
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_task(task_id):  
     mark_complete_task = get_task_from_id(task_id)
-    mark_complete_task.completed_at = date.today() 
-
+    mark_complete_task.completed_at = date.today()    
     db.session.commit()
     return jsonify(mark_complete_task.to_response()), 200
+'''
 
 
 #/tasks/1/mark_incomplete
 @task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
 def mark_incomplete_task(task_id):  
     mark_incomplete_task = get_task_from_id(task_id)
-    mark_incomplete_task.completed_at = None
-    
+    mark_incomplete_task.completed_at = None    
     db.session.commit()
     return jsonify(mark_incomplete_task.to_response()), 200
+
+
+
 
 
 # DELETE route for one task
