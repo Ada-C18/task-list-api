@@ -163,17 +163,35 @@ def delete_one_goal(goal_id):
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
 
 
-#POST assign tasks to a goal 
-# @goals_bp.route("/<goal_id>/tasks", methods = ["POST"])
-# def assign_tasks_to_goal(goal_id):
-#     goal = validate_model_id(Goal, goal_id)
+# # POST assign tasks to a goal 
+@goals_bp.route("/<goal_id>/tasks", methods = ["POST"])
+def post_task_ids_to_goal(goal_id):
+    goal = validate_model_id(Goal, goal_id)
 
-#     tasks = goal.get_task_list()
-#     for task in tasks:
-#         goal.tasks.append(task.id)
-#         task.goal_id = goal.goal_id
+    request_body = request.get_json()
+    task_id_list = request_body.get("task_ids")
 
-#     return jsonify({"id": goal.goal_id, "task_ids": goal.tasks}), 200
+    for task_id in task_id_list:
+        task = validate_model_id(Task, task_id)
+        goal.tasks.append(task)
+
+    db.session.commit()
+
+    return jsonify({"id": int(goal_id), "task_ids": task_id_list}), 200
+
+# GET tasks of one goal
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_of_one_goal(goal_id):
+    goal = validate_model_id(Goal, goal_id)
+    tasks = goal.get_task_list()
+
+    response_body = {
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": tasks
+    } 
+    return jsonify(response_body), 200
+
 
 #================== Helper Functions=================
 def validate_model_id(cls, model_id):
