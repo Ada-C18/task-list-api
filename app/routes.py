@@ -1,7 +1,9 @@
 import datetime
+import os
 from flask import Blueprint, request, make_response, abort, jsonify
 from app.models.task import Task
 from app import db
+import requests
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix = "/tasks")
 
@@ -17,6 +19,17 @@ def validate_id(class_obj, id):
         abort(make_response({"details": f"{class_obj} {id} is not found"}, 404))
     
     return query_result
+
+def send_slack_message(message):
+    path = "https://slack.com/api/chat.postMessage"
+    API_KEY = os.environ.get("API_KEY")
+    query_params = {
+        "channel": "happychannel",
+        "text": message
+    }
+    query_header = {"Authorization": f"Bearer {API_KEY}"}
+    return requests.post(path, params = query_params, headers = query_header)
+
 
 
 # CREATE RESOURCE
@@ -95,14 +108,16 @@ def mark_complete(task_id):
     task.completed_at = datetime.datetime.utcnow()
 
     db.session.commit()
-
+    send_slack_message(f"Someone just completed the task {task.title}")
     return make_response({"task":
                                 {
                                     "id": task.task_id,
                                     "title": task.title,
                                     "description": task.description,
                                     "is_complete": True
-                                }})
+                                }}, 200)
+
+ 
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_incomplete(task_id):
@@ -118,4 +133,4 @@ def mark_incomplete(task_id):
                                     "title": task.title,
                                     "description": task.description,
                                     "is_complete": False
-                                }})
+                                }}, 200)
