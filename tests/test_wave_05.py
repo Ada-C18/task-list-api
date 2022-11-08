@@ -115,7 +115,7 @@ def test_update_goal_not_found(client):
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_goal(client, one_goal):
     # Act
     response = client.delete("/goals/1")
@@ -130,26 +130,29 @@ def test_delete_goal(client, one_goal):
 
     # Check that the goal was deleted
     response = client.get("/goals/1")
+    response_body = response.get_json()
     assert response.status_code == 404
+    assert "details" in response_body
+    assert response_body == {
+        "details": "No Goal with ID 1 in database"
+    }
+    assert Goal.query.get(1) == None
 
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
 
-
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
-    raise Exception("Complete test")
-
     # Act
-    # ---- Complete Act Here ----
+    response = client.delete("/goals/1")
+    response_body = response.get_json()
 
     # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
+    assert response.status_code == 404
+    assert "details" in response_body
+    assert response_body == {
+        "details": "No Goal with ID 1 in database"
+    }
+    assert Goal.query.all() == []
+
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

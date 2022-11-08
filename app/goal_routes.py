@@ -45,3 +45,11 @@ def update_goal(goal_id):
         return {"goal": goal.as_dict()}, 200
     else:
         return {"details": "Invalid data"}, 404
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+    return {"details":f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200
