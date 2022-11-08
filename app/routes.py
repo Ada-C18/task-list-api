@@ -60,7 +60,7 @@ def create_task():
         return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task.from_dict(request_body)
-    response_body = {"task": new_task}
+    response_body = {"task": new_task.to_dict()}
 
     db.session.add(new_task)
     db.session.commit()
@@ -157,12 +157,12 @@ def create_goal():
     if "title" not in request_body:
         return jsonify({"details": "Invalid data"}), 400
     
-    new_goal = Goal.to_dict(request_body)
+    new_goal = Goal.from_dict(request_body)
 
     db.session.add(new_goal)
     db.session.commit()
 
-    response_body = {"goal": new_goal}
+    response_body = {"goal": new_goal.to_dict()}
 
     return response_body, 201
     
@@ -206,7 +206,7 @@ def delete_goal(goal_id):
 
 """ONE GOAL TO MANY TASKS NESTED ROUTES"""
 
-@goal_bp.route("<goal_id>/tasks", methods=["POST"])
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def create_task(goal_id):
     goal = get_one_object_or_abort(Goal, goal_id)
     request_body = request.get_json()
@@ -229,6 +229,15 @@ def create_task(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_from_goal(goal_id):
     goal = get_one_object_or_abort(Goal, goal_id)
-    response_body = goal.to_dict_with_tasks()
+
+    list_of_tasks = []
+    for task in goal.tasks:
+        list_of_tasks.append(task.to_dict())
+
+    response_body = {
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": list_of_tasks
+    }
 
     return jsonify(response_body), 200

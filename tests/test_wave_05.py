@@ -59,7 +59,7 @@ def test_get_goal_not_found(client):
     assert response.status_code == 404
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal(client):
     # Act
     response = client.post("/goals", json={
