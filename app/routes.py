@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
 
-#GET all tasks 
+#READ all tasks 
 @task_list_bp.route("", methods=["GET"])
 def get_all_tasks():
     sort_query = request.args.get("sort")
@@ -24,13 +24,11 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
 
-    response = []
-    for task in tasks:
-        response.append(task.to_dict())
+    response = [task.to_dict() for task in tasks]
 
     return jsonify(response), 200
 
-#GET one task
+#READ one task
 @task_list_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -60,7 +58,7 @@ def create_new_task():
     return jsonify(response_body), 201
 
 
-#PUT update task
+#UPDATE task
 @task_list_bp.route("/<task_id>", methods = ["PUT"])
 def update_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -84,7 +82,7 @@ def delete_task(task_id):
 
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200 
 
-#PATCH mark complete
+#UPDATE mark complete
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def mark_complete(task_id):
     task = validate_model_id(Task, task_id)
@@ -100,7 +98,7 @@ def mark_complete(task_id):
 
 
 
-#PATCH mark incomplete
+#UPDATE mark incomplete
 @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model_id(Task, task_id)
@@ -127,7 +125,7 @@ def validate_model_id(cls, model_id):
 
     return chosen_object
 
-#GET sorted tasks helper function
+#get sorted tasks helper function
 def get_tasks_sorted(sort_query):
     if sort_query == "desc": 
         tasks = Task.query.order_by(Task.title.desc()).all()

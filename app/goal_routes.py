@@ -12,7 +12,7 @@ from app.routes import validate_model_id
 
 goals_bp = Blueprint("goals", __name__, url_prefix = "/goals")
 
-#POST create a new goal
+#CREATE a new goal
 @goals_bp.route("", methods = ["POST"])
 def create_new_goal():
     request_body = request.get_json()
@@ -26,14 +26,12 @@ def create_new_goal():
     response_body = {"goal": new_goal.to_dict()}
     return jsonify(response_body), 201
 
-#GET get all goals
+#READ all goals
 @goals_bp.route("", methods = ["GET"])
 def get_all_goals():
     goals = Goal.query.all()
 
-    response = []
-    for goal in goals:
-        response.append(goal.to_dict())
+    response = [goal.to_dict() for goal in goals]
 
     return jsonify(response), 200
 
@@ -44,7 +42,7 @@ def get_one_goal(goal_id):
     response = {"goal": goal.to_dict()}
     return jsonify(response), 200
     
-#PUT update goal
+#UPDATE goal
 @goals_bp.route("/<goal_id>", methods = ["PUT"])
 def update_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
@@ -68,7 +66,7 @@ def delete_one_goal(goal_id):
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
 
 
-# # POST assign tasks to a goal 
+# POST assign tasks to a goal 
 @goals_bp.route("/<goal_id>/tasks", methods = ["POST"])
 def post_task_ids_to_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
