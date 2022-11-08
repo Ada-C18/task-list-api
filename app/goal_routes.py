@@ -17,3 +17,11 @@ def create_new_goal():
         return {"goal": new_goal.as_dict()}, 201
     else:
         return {"details": "Invalid data"}, 400
+
+@goals_bp.route("", methods=["GET"])
+# Get every goal in the goals list
+def get_all_goals():
+    goals = Goal.query.all()
+
+    goals_response = [goal.as_dict() for goal in goals]
+    return jsonify(goals_response)
