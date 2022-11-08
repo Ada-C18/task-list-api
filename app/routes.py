@@ -4,6 +4,8 @@ from app.models.task import Task
 from app.models.goal import Goal
 from sqlalchemy import desc
 from datetime import date
+import os
+import requests
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -39,7 +41,7 @@ def create_task():
 def get_all_tasks():
     tasks_response = []
     task_query = Task.query
-    sort_query = request.args.get("sort") 
+    sort_query = request.args.get("sort")
 
     if sort_query == "asc":
         tasks = task_query.order_by(Task.title).all()
@@ -125,6 +127,8 @@ def update_complete(task_id, complete):
     if complete == "mark_complete":
         task.is_complete = True
         task.completed_at = date.today()
+        slack_post(task_id)
+
     elif complete == "mark_incomplete":
         task.is_complete = False
         task.completed_at = None
@@ -139,7 +143,17 @@ def update_complete(task_id, complete):
             "is_complete": task.is_complete
         }
     }
+
     return make_response(task_response, 200)
+
+
+def slack_post(task_id):
+    task = validate_task_id(task_id)
+    if task.is_complete == True:
+        return requests.post('https://slack.com/api/chat.postMessage', {
+            'token': os.environ.get('API_KEY'),
+            'channel': 'C049FHLN615',
+            'text': f'Someone just completed the task {task.title}'}).json()
 
 
 @goals_bp.route("", methods=["POST"])
