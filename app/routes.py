@@ -4,7 +4,13 @@ from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
 from datetime import date
-
+import requests
+#NEW IMPORTS
+import os
+import slack_sdk
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+# slack-bot-test-channel = A0499S3K90X
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 
@@ -79,6 +85,11 @@ def edit_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({'task': task.to_dict()}), 200)
+#FROM MEDIUM BLOG
+
+slack_token= os.environ.get('SLACK_TOKEN')
+
+client=WebClient(slack_token)
 
 @tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
 def patch_task_complete(task_id,complete):
@@ -87,6 +98,11 @@ def patch_task_complete(task_id,complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
+        response = client.chat_postMessage(
+            channel="A0499S3K90X",
+            text=f"Someone just completed the task {task.title}"
+        )
+
 
     elif complete == "mark_incomplete":
         task.completed_at = None
