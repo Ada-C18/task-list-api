@@ -133,6 +133,10 @@ def add_goal():
 
     new_goal = Goal.from_request_dict(request_body)
 
+    if new_goal.title is None:
+        response_str = f"Invalid data"
+        abort(make_response(jsonify({"details":response_str}), 400))
+
     db.session.add(new_goal)
     db.session.commit()
 
@@ -188,6 +192,15 @@ def update_goal_with_new_vals(goal_id):
     }
 
     return make_response(jsonify(response_body), 200)
+
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    chosen_task = get_one_obj_or_abort(Goal, goal_id)
+
+    db.session.delete(chosen_task)
+    db.session.commit()
+
+    return make_response(jsonify({"details": f"Goal {goal_id} \"{chosen_task.title}\" successfully deleted"}), 200)
 
 
 
