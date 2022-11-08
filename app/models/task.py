@@ -25,6 +25,16 @@ class Task(db.Model):
             is_complete=self.is_complete()
         )
 
+    def to_dict_with_goal_id(self):
+        return dict(
+            id=self.task_id,
+            title=self.title,
+            description=self.description,
+            is_complete=self.is_complete(),
+            goal_id=self.goal_id
+        )
+
+
     def is_complete(self):
         if self.completed_at:
             return True
