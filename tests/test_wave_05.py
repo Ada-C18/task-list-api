@@ -109,7 +109,6 @@ def test_update_goal(client, one_goal):
             "title": "Updated Goal Title"
         }
     }
-    # goal = Goal.query.get(1)  # what does this do?
     # ---- Complete Assertions Here ----
 
 
