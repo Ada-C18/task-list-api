@@ -18,7 +18,7 @@ def get_model_from_id(cls, model_id):
         return abort(make_response({"msg": f"invalid data type: {model_id}"}, 200))
 
 
-    chosen_task = Task.query.get(model_id)
+    chosen_task = cls.query.get(model_id)
 
     if chosen_task is None:
         return abort(make_response({"msg": f"Could not find the task with id: {model_id}"}, 404))
@@ -127,72 +127,72 @@ def mark_incomplete_on_an_completed_task(task_id):
 
 # ROUTES FOR CLASS Goal
 
-goal_bp = Blueprint("goals", __name__,url_prefix="/goals")
+# goal_bp = Blueprint("goals", __name__,url_prefix="/goals")
 
 
-@goal_bp.route('', methods=['POST'])
-def create_one_goal():
-    request_body = request.get_json()
-    if "title" not in request_body:
-        return abort(make_response({"details": "Invalid data"}, 400))
+# @goal_bp.route('', methods=['POST'])
+# def create_one_goal():
+#     request_body = request.get_json()
+#     if "title" not in request_body:
+#         return abort(make_response({"details": "Invalid data"}, 400))
 
-    new_goal= Goal(title=request_body["title"])
+#     new_goal= Goal(title=request_body["title"])
 
-    db.session.add(new_goal)
-    db.session.commit()
+#     db.session.add(new_goal)
+#     db.session.commit()
 
-    return jsonify({"goal":new_goal.to_dict()}), 201
+#     return jsonify({"goal":new_goal.to_dict()}), 201
 
 
-@goal_bp.route('', methods=['GET'])
-def get_all_goals():
+# @goal_bp.route('', methods=['GET'])
+# def get_all_goals():
 
-    # sort_query_value = request.args.get('sort')
-    # if sort_query_value == "desc":
-        # tasks = Task.query.order_by(Task.title.desc()).all() 
-    # else:
-    # title_query_value is not None:
-        # tasks = Task.query.order_by(Task.title.asc()).all()
-    # else:
-    goals= Goal.query.all()
+#     # sort_query_value = request.args.get('sort')
+#     # if sort_query_value == "desc":
+#         # tasks = Task.query.order_by(Task.title.desc()).all() 
+#     # else:
+#     # title_query_value is not None:
+#         # tasks = Task.query.order_by(Task.title.asc()).all()
+#     # else:
+#     goals= Goal.query.all()
 
-    result = []
+#     result = []
 
-    for goal in goals:
-        result.append(goal.to_dict())
+#     for goal in goals:
+#         result.append(goal.to_dict())
     
-    return jsonify(result), 200
+#     return jsonify(result), 200
 
-@goal_bp.route('/<goal_id>', methods=['GET'])
-def get_one_goal(goal_id):
+# @goal_bp.route('/<goal_id>', methods=['GET'])
+# def get_one_goal(goal_id):
 
-    chosen_goal = get_model_from_id(Goal, goal_id)
+#     chosen_goal = get_model_from_id(Goal, goal_id)
 
-    return jsonify({"goal":chosen_goal.to_dict()}), 200
+#     return jsonify({"goal":chosen_goal.to_dict()}), 200
 
-@goal_bp.route('/<goal_id>', methods=['PUT'])
-def update_one_goal(goal_id):
-    update_goal = get_model_from_id(Goal, goal_id)
+# @goal_bp.route('/<goal_id>', methods=['PUT'])
+# def update_one_goal(goal_id):
+#     update_goal = get_model_from_id(Goal, goal_id)
 
-    request_body = request.get_json()
+#     request_body = request.get_json()
 
-    try:
-        update_goal.title = request_body["title"]
+#     try:
+#         update_goal.title = request_body["title"]
 
-    except KeyError:
-        return jsonify ({"msg": f"Missing attributes"}), 400
+#     except KeyError:
+#         return jsonify ({"msg": f"Missing attributes"}), 400
 
-    db.session.commit()
-    return jsonify({"goal":update_goal.to_dict()}), 200
+#     db.session.commit()
+#     return jsonify({"goal":update_goal.to_dict()}), 200
 
 
-@goal_bp.route('/<goal_id>', methods=['DELETE'])
-def delete_one_goal(goal_id):
-    goal_to_delete = get_model_from_id(Goal, goal_id)
+# @goal_bp.route('/<goal_id>', methods=['DELETE'])
+# def delete_one_goal(goal_id):
+#     goal_to_delete = get_model_from_id(Goal, goal_id)
 
-    title_goal_to_delete= get_model_from_id(Goal, goal_id).to_dict()["title"]
+#     title_goal_to_delete= get_model_from_id(Goal, goal_id).to_dict()["title"]
 
-    db.session.delete(goal_to_delete)
-    db.session.commit()
+#     db.session.delete(goal_to_delete)
+#     db.session.commit()
 
-    return jsonify({"details": f'Goal {goal_id} "{title_goal_to_delete}" successfully deleted'}), 200
+#     return jsonify({"details": f'Goal {goal_id} "{title_goal_to_delete}" successfully deleted'}), 200
