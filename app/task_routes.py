@@ -3,6 +3,8 @@ from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import date
+import requests
+import os
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -107,6 +109,13 @@ def patch_one_task_mark_complete_or_not(task_id, mark_complete_or_not):
     if mark_complete_or_not == "mark_complete":
         patch_task.completed_at = date.today()
         response["is_complete"] = True
+        slack_api_token = os.environ.get("SLACK_API_TOKEN")
+        requests.put(url="https://slack.com/api/chat.postMessage", 
+                     params={"channel": "task-notifications",
+                             "text": f"Someone just completed the task {patch_task.title}"}, 
+                     headers={"Authorization": f"Bearer {slack_api_token}"}
+                    )
+        
     if mark_complete_or_not == "mark_incomplete":
         patch_task.completed_at = None
 
