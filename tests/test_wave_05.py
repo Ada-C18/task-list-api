@@ -155,9 +155,11 @@ def test_delete_goal(client, one_goal):
     }
 
     # Check that the goal was deleted
-    response = client.get("/goals/1")
+    response_body = response.get_json()
     assert response.status_code == 404
+    assert response_body == {"message": f"Goal 1 not found"}, 404
     # add assert with response body when not found
+
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -168,22 +170,18 @@ def test_delete_goal(client, one_goal):
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
     # Act
+    # ---- Complete Act Here ----
     response = client.delete("/goals/1")
     response_body = response.get_json()
 
     # Assert
+    # ---- Complete Assertions Here ----
+     # assertion 1 goes here
     assert response.status_code == 404
+    # assertion 2 goes here
     assert response_body == {"message": f"Goal 1 not found"}, 404
     # raise Exception("Complete test")
 
-    # Act
-    # ---- Complete Act Here ----
-
-    # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

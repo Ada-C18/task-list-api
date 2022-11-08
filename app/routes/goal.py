@@ -54,5 +54,7 @@ def delete_goal(id):
     db.session.delete(goal)
     db.session.commit()
 
+    return(make_response({"details": f"Goal {id} \"{title}\" successfully deleted"}), 200)
+
     # Returns error 
     
