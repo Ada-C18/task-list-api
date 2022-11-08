@@ -9,7 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
-#client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
+# client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
 
 
@@ -120,7 +120,7 @@ def patch_task_complete(task_id, complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
-        #client.chat_postMessage(channel='#slack-bot-test-channel',text=f"Someone just completed the task {task.title}")
+        # client.chat_postMessage(channel='#slack-bot-test-channel',text=f"Someone just completed the task {task.title}")
 
     elif complete == "mark_incomplete":
         task.completed_at = None
