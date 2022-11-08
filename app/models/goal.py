@@ -31,5 +31,12 @@ class Goal(db.Model):
     def get_task_list(self):
         list_of_tasks = []
         for item in self.tasks:
-            list_of_tasks.append(item.task_id)
+            list_of_tasks.append({
+             "id": item.task_id,
+            "title": item.title,
+            "description": item.description,
+            "is_complete": item.is_complete,
+            "goal_id": item.goal_id                
+                
+            })
         return list_of_tasks

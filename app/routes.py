@@ -192,14 +192,17 @@ def create_task_id_to_goal(goal_id):
 
     for task_id in request_body["task_ids"]:
         task = get_model_from_id(Task, task_id)
-        if task:
-            task.goal_id = goal_id
+        # if task:
+        goal.tasks.append(task) #how do we know goal.tasks is a list to append?
+        task.goal_id = goal_id
     
     db.session.commit()
 
-    return jsonify(goal.to_dict_task_id()), 200
+    # return jsonify(goal.to_dict_task_id()), 200
+    return jsonify({"id":goal_id, "task_ids": request_body["task_ids"]}), 200
 
 @goal_bp.route('<goal_id>/tasks', methods =["GET"])
 def get_tasks_from_goal_id(goal_id):
     goal = get_model_from_id(Goal, goal_id)
-    tasks = goal.get_task_list
+    tasks = goal.get_task_list()
+    pass
