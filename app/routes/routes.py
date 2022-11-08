@@ -33,7 +33,7 @@ def send_slack_message(message):
         API_KEY = os.environ.get("SLACK_API_KEY")
 
         # API_KEY in "Authorization" request header
-        headers = {"Authorization": f"Bearer {API_KEY}"}
+        headers = {"Authorization": API_KEY}
 
         post_body = {
             "channel": "task-notifications",
