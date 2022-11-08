@@ -13,19 +13,31 @@ slack_oauth_token = os.environ.get("SLACK_OAUTH_TOKEN")
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
-
-def validate_task_id(task_id):
+def validate_model_by_id(cls, model_id):
     try:
-        task_id = int(task_id)
-    except:
-        abort(make_response(({"msg": f"{task_id} is not valid"}), 400))
+        model_id = int(model_id)
+    except ValueError:
+        return abort(make_response({"msg": f"{model_id} is not valid"}, 400))
+    
+    object = cls.query.get(model_id)
 
-    task = Task.query.get(task_id)
+    if object is None:
+        return abort(make_response({"msg": f"{model_id} not found"}, 404))
 
-    if not task:
-        abort(make_response(({"msg": f"{task_id} not found"}), 404))
+    return object
 
-    return task
+# def validate_task_id(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except:
+#         abort(make_response(({"msg": f"{task_id} is not valid"}), 400))
+
+#     task = Task.query.get(task_id)
+
+#     if not task:
+#         abort(make_response(({"msg": f"{task_id} not found"}), 404))
+
+#     return task
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -61,7 +73,7 @@ def create_one_task():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task_by_id(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_by_id(Task, task_id)
 
     if task.goal_id:
         return {"task": 
@@ -81,7 +93,7 @@ def read_one_task_by_id(task_id):
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task_by_id(task_id):
     request_body = request.get_json()
-    task = validate_task_id(task_id)
+    task = validate_model_by_id(Task, task_id)
 
     task.title = request_body["title"]
     task.description = request_body["description"]
@@ -92,7 +104,7 @@ def update_one_task_by_id(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task_by_id(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_by_id(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -101,7 +113,7 @@ def delete_task_by_id(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_by_id(Task, task_id)
 
     task.completed_at = datetime.now()
     db.session.commit()
@@ -122,7 +134,7 @@ def mark_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_by_id(Task, task_id)
 
     task.completed_at = None
     db.session.commit()
@@ -131,18 +143,18 @@ def mark_incomplete(task_id):
 
 
 ####################Goal routes###################
-def validate_goal_id(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        abort(make_response(({"msg": f"{goal_id} is not valid"}), 400))
+# def validate_goal_id(goal_id):
+#     try:
+#         goal_id = int(goal_id)
+#     except:
+#         abort(make_response(({"msg": f"{goal_id} is not valid"}), 400))
 
-    goal = Goal.query.get(goal_id)
+#     goal = Goal.query.get(goal_id)
 
-    if not goal:
-        abort(make_response(({"msg": f"{goal_id} not found"}), 404))
+#     if not goal:
+#         abort(make_response(({"msg": f"{goal_id} not found"}), 404))
 
-    return goal
+#     return goal
 
 @goals_bp.route("", methods=["POST"])
 def create_one_goal():
@@ -176,14 +188,14 @@ def read_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal_by_id(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_by_id(Goal, goal_id)
     return {"goal": goal.to_dict()}
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_one_goal_by_id(goal_id):
     request_body = request.get_json()
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_by_id(Goal, goal_id)
 
     goal.title = request_body["title"]
 
@@ -194,7 +206,7 @@ def update_one_goal_by_id(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal_by_id(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_by_id(Goal, goal_id)
 
     db.session.delete(goal)
     db.session.commit()
@@ -206,7 +218,7 @@ def delete_goal_by_id(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_existing_tasks_to_goal_id(goal_id):
     request_body = request.get_json()
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_by_id(Goal, goal_id)
 
     # provided_task_ids = request_body["tasks"]
     provided_task_ids = request_body["task_ids"]
@@ -229,7 +241,7 @@ def post_existing_tasks_to_goal_id(goal_id):
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def read_all_tasks_by_goal_id(goal_id):
-    goal = validate_goal_id(goal_id)
+    goal = validate_model_by_id(Goal, goal_id)
 
     tasks = []
     for task in goal.tasks:

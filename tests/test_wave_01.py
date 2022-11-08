@@ -1,6 +1,7 @@
 from app.models.task import Task
 import pytest
-from app.routes import validate_task_id
+# from app.routes import validate_task_id
+from app.routes import validate_model_by_id
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

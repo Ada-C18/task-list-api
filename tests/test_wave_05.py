@@ -1,5 +1,5 @@
 import pytest
-from app.routes import validate_goal_id
+from app.routes import validate_model_by_id
 from app.models.goal import Goal
 
 
