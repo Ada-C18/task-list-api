@@ -120,7 +120,8 @@ def delete_task(task_id):
 
     return {"details": f'Task {task.id} "{task.title}" successfully deleted'}, 200
 
-# **************************************(for goals)
+#***********************************************Goal routes
+
 goals_bp = Blueprint('goals_bp', __name__, url_prefix='/goals')
 
 @goals_bp.route("", methods=["GET"])
@@ -197,12 +198,39 @@ def delete_goal(id):
 
 
 
+
 # one to many(trial and error)
 
-# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
-# def add_tasks_to_one_goal(goal_id):
-#     pass
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_task_id_to_goal(goal_id):
+    goal = validate_goal(goal_id)
 
-# @goals_bp.route("/goal_id>/tasks", methods=["GET"])
-# def get_tasks_for_specific_goal(goal_id):
-#     pass
+    request_body = request.get_json()
+    task_ids = request_body["task_ids"]
+
+    tasks = [validate_task(task_id) for task_id in task_ids]
+   
+    for task in tasks:
+        task.goal_id = goal.id
+
+    db.session.add(task)
+    db.session.commit()
+
+    return jsonify({
+        "id": goal.id,
+        "task_ids": task_ids,
+    })
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_goal(goal_id):
+    goal = validate_goal(goal_id)
+
+    
+    tasks = [Task.to_dict(task) for task in goal.tasks]
+
+    
+    return jsonify({
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": tasks
+    })

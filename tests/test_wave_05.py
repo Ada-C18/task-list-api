@@ -128,7 +128,7 @@ def test_delete_goal(client, one_goal):
     response_body = response.get_json()
 
     # Assert
-    #assert response.status_code == 200
+    assert response.status_code == 200
     assert "details" in response_body
     assert response_body == {
         "details": "Goal 1 Build a habit of going outside daily successfully deleted"

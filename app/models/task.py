@@ -8,6 +8,8 @@ class Task(db.Model):
     # confirm null is default if task has not been completed
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean) # check if needed
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.id"),nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks")
     
 
     def to_dict(self):
