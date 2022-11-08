@@ -5,8 +5,8 @@ from flask import Blueprint,jsonify,request,abort,make_response
 from app.models.task import Task
 import os,requests
 from datetime import datetime
+from .helper_function import get_model_from_id
    
-
 
 task_bp = Blueprint("task",__name__,url_prefix = "/tasks")
 
@@ -14,16 +14,10 @@ task_bp = Blueprint("task",__name__,url_prefix = "/tasks")
 def create_task():
     request_body = request.get_json()
     try:
-        new_task = Task(
-            title = request_body['title'],
-            description = request_body['description'],
-            # completed_at = request_body['completed_at']
-        )
+        new_task = Task.from_dict(request_body)
     except:
         return abort(make_response({"details": "Invalid data"},400))
         
-          
-
     db.session.add(new_task)
     db.session.commit()
 
@@ -51,14 +45,14 @@ def get_all_tasks():
 @task_bp.route('/<task_id>', methods = ["GET"])
 def get_one_task(task_id):
 
-    chosen_task = get_task_from_id(task_id)
+    chosen_task = get_model_from_id(Task,task_id)
 
     return make_response(jsonify({"task":chosen_task.to_dict()}),200)
 
 
 @task_bp.route('/<task_id>', methods = ["PUT"])
 def update_task(task_id):
-    update_task = get_task_from_id(task_id)
+    update_task = get_model_from_id(Task,task_id)
 
     request_body = request.get_json()
     
@@ -76,34 +70,17 @@ def update_task(task_id):
 
 @task_bp.route('/<task_id>', methods = ["DELETE"])
 def delete_one_task(task_id):
-    task = get_task_from_id(task_id)
-
-    # request_body = request.get_json()
-    
+    task = get_model_from_id(Task,task_id)
    
     db.session.delete(task)
     db.session.commit()
 
     return make_response(jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}),200)
 
-
-def get_task_from_id(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:  
-        return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400 ))
-
-    chosen_task = Task.query.get(task_id)
-    
-    if chosen_task is None:
-        return abort(make_response({"msg": f" Could not find task item with id : {task_id}"} , 404 ))
-            
-    return chosen_task    
-
-
+  
 @task_bp.route('/<task_id>/mark_complete', methods =['PATCH'])
 def mark_complete(task_id):
-    task= get_task_from_id(task_id)
+    task = get_model_from_id(Task,task_id)
 
     task.completed_at = datetime.utcnow()
  
@@ -125,7 +102,7 @@ def mark_complete(task_id):
 
 @task_bp.route('/<task_id>/mark_incomplete', methods =['PATCH'])
 def mark_incomplete(task_id):
-    task= get_task_from_id(task_id)
+    task= get_model_from_id(Task,task_id)
 
     task.completed_at = None
     
