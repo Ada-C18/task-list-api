@@ -7,11 +7,21 @@ import os
 import slack
 from pathlib import Path
 from dotenv import load_dotenv
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
+import requests
+import json
+# env_path = Path('.') / '.env'
+# load_dotenv(dotenv_path=env_path)
 # client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
-
+def post_message_to_slack(text, blocks = None):
+    return requests.post('https://slack.com/api/chat.postMessage', {
+        'token': "SLACK_TOKEN",
+        'channel': "#slack-bot-test-channel",
+        'text': text,
+        # 'username': "brookeavivabot",
+        'blocks': json.dumps(blocks) if blocks else None
+    }).json()
+    
 
 task_bp = Blueprint('task_bp', __name__, url_prefix='/tasks')
 
@@ -121,6 +131,7 @@ def patch_task_complete(task_id, complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
+        post_message_to_slack(text=f"Someone just completed the task {task.title}")
         # client.chat_postMessage(channel='#slack-bot-test-channel',text=f"Someone just completed the task {task.title}")
 
     elif complete == "mark_incomplete":

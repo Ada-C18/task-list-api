@@ -62,7 +62,7 @@ def create_goal():
     }},201)
 
 
-@goal_bp.route("", methods=["POST"])
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id, task_id):
 
     request_body = request.get_json()
@@ -74,19 +74,19 @@ def post_task_ids_to_goal(goal_id, task_id):
     #     return make_response({"details":"Invalid data"}), 400
 
     new_goal = Goal(
-        title=request_body["title"],
+        task_ids=request_body["task_ids"],
     )
     task_list = []
-    if goal_id:
-        task_list.append(task_id)
+    if goal:
+        task_list.append(task)
     
-    db.session.add(new_goal)
+    db.session.add(task_list)
     db.session.commit()
 
     return make_response({ "goal":{
         "id": new_goal.goal_id,
         "task_ids": new_goal.task_id
-    }},201)
+    }},200)
 
 
 
