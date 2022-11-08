@@ -11,22 +11,16 @@ class Task(db.Model):
     goal = db.relationship('Goal', back_populates='tasks')
 
     def to_dict(self):
-        if self.completed_at is None:
-            return {
-                        # "task": {
-                            "id": self.task_id,
-                            "title": self.title,
-                            "description": self.description,
-                            "is_complete": False
-                        }
         return {
-                        # "task": {
-                            "id": self.task_id,
-                            "title": self.title,
-                            "description": self.description,
-                            "is_complete": True
-                        }
+                    # "task": {
+                        "id": self.task_id,
+                        "title": self.title,
+                        "description": self.description,
+                        "is_complete": True if (self.completed_at) else False  # ternary operator 
+                    }
 
+
+# if self.goal_id # added key to original dictionary above
 #do I need to create a new funciton or incorporate "goal_id" into dict print out
     def to_dict_relationship(self):
         if self.completed_at is None:
