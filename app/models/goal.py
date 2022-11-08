@@ -13,6 +13,9 @@ class Goal(db.Model):
 
         return goal 
 
+    def update(self, request_body):
+        self.title = request_body["title"]
+
     @classmethod
     def from_dict(cls, goal_data):
         return cls(title=goal_data["title"])
