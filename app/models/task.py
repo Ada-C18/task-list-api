@@ -13,6 +13,6 @@ class Task(db.Model):
             "id":self.id,
             "title":self.title,
             "description":self.description,
-            "is_complete": self.is_complete,
+            "is_complete": True if self.completed_at else False
         }
         return task_dict

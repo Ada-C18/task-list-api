@@ -1,6 +1,7 @@
 from flask import Blueprint,jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
+from datetime import date 
 
 task_bp = Blueprint("task_bp",__name__, url_prefix="/tasks")
 
@@ -111,8 +112,17 @@ def delete_one_task(task_id):
     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
 
 
-@task_bp.route("/<task_id>", methods=["PATCH", "PUT"])
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_is_complete(task_id):
-    pass
-    
+    update_is_valid_id = get_one_task_or_abort(task_id)
 
+    update_is_valid_id.complete_at = date.today()
+    db.session.commit()
+
+        
+    return jsonify({"task":update_is_valid_id.to_dict()}), 200
+
+# @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+# def update_is_complete(task_id):
+    
+#     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
