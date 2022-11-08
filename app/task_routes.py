@@ -40,7 +40,8 @@ def read_all_tasks():
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
-    return task.to_dict_one()
+    # return task.to_dict_one()
+    return {"task": task.to_dict()}
 
 # create new task
 @task_bp.route("", methods=["POST"])
@@ -54,7 +55,8 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return new_task.to_dict_one(), 201
+    # return new_task.to_dict_one(), 201
+    return {"task": new_task.to_dict()}, 201
 
 # update task
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -67,7 +69,8 @@ def update_task(task_id):
 
     db.session.commit()
     
-    return task.to_dict_one()
+    # return task.to_dict_one()
+    return {"task": task.to_dict()}
 
 # delete task
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -101,7 +104,8 @@ def mark_complete(task_id):
     db.session.commit()
     post_slack(task)
 
-    return task.to_dict_one()
+    # return task.to_dict_one()
+    return {"task": task.to_dict()}
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
