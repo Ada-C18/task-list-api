@@ -9,7 +9,7 @@ import os
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
-#HELPER FUNCTION
+#========HELPER FUNCTION=======================================
 def get_model_from_id(cls, model_id):
     try:
         model_id = int(model_id)
@@ -21,8 +21,8 @@ def get_model_from_id(cls, model_id):
     if chosen_object is None:
         return abort(make_response({"msg": f"Could not find {cls.__name__} with id:{model_id}"}, 404))
     return chosen_object
-#----------------------------------------
 
+#===============TASKS ROUTES====================================
 @tasks_bp.route("", methods=["POST"])
 def create_task():   
     try:
@@ -91,10 +91,7 @@ def mark_one_task_complete(task_id):
     task_to_mark_complete.completed_at = datetime.today()
     db.session.commit()
 
-    #send a POST request to https://slack.com/api/chat.postMessage
-    #Headers needs a new key-value pair of "Authorization: Bearer {SLACK_TOKEN}"
-    #params need to include "channel:task-notifications and 
-    # "text: Someone just completed the task {task_to_mark_as_complete.title}""
+    #Request
     SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
     path = "https://slack.com/api/chat.postMessage"
     headers = {"Authorization":f"Bearer {SLACK_TOKEN}"}
@@ -115,7 +112,7 @@ def mark_one_task_incomplete(task_id):
     
     return jsonify({"task":task_to_mark_incomplete.to_dict()}), 200
 
-# ==============GOAL ROUTES====================================
+#===============GOALS ROUTES====================================
 @goals_bp.route("", methods=["POST"])
 def create_goal():   
     try:
