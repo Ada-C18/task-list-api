@@ -11,7 +11,6 @@ class Task(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"), nullable=True)
     goal = db.relationship("Goal", back_populates="tasks", lazy=True)
 
-
     def to_dict(self):
         task_dict = {}
         if self.goal_id is not None:
@@ -34,8 +33,5 @@ class Task(db.Model):
     @classmethod
     def from_dict(cls, data_dict):
         if "title" in data_dict and "description" in data_dict:
-            new_obj = cls(
-            title=data_dict["title"], 
-            description=data_dict["description"])
-
+            new_obj = Task(title=data_dict["title"], description=data_dict["description"])
             return new_obj

@@ -55,16 +55,17 @@ def get_task_by_id(task_id):
 def create_task():
     request_body = request.get_json()
 
-    if "title" not in request_body or \
-    "description" not in request_body:
+    if "title" not in request_body or "description" not in request_body:
         return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task.from_dict(request_body)
-    response_body = {"task": new_task.to_dict()}
+    # response_body = {"task": new_task.to_dict()}
 
     db.session.add(new_task)
     db.session.commit()
 
+    response_body = {"task": new_task.to_dict()}
+    
     return jsonify(response_body), 201
 
 @task_bp.route("/<task_id>",methods=["PUT"])
