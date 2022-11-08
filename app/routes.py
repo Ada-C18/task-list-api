@@ -2,6 +2,11 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 from datetime import date
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 #Creating Task Blueprint (instantiating new Blueprint instance)
 #use it to group routes(endpoints) that start with /tasks
@@ -142,7 +147,17 @@ def delete_task(task_id):
     }
 
 
-    
+def slack_request(title):  
+    URL = "https://slack.com/api/chat.postMessage"
+
+    payload={"channel":"slack-bot-test-channel",
+            "text": f"Someone just completed the task {title}"}
+
+    headers = {
+    "Authorization": os.environ.get('SLACK_TOKEN')
+    }
+
+    return requests.post(URL, data=payload, headers=headers) 
 # Defining Endpoint and Creating Route Function to PATCH a Task
 # Made complete endpoint variable dyanmic to check if mark_complete or mark_incomplete
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
@@ -153,7 +168,20 @@ def patch_task_complete(task_id,complete):
     if complete == "mark_complete":
         task.completed_at = date.today()
         is_complete = True
+        # slack_request(task.title)
         
+        # url = "https://slack.com/api/chat.postMessage"
+
+        # payload = {"channel":"slack-bot-test-channel",
+        #             "text": "Someone just completed the task My Beautiful Task"
+        # }
+        # headers = {
+        # 'Authorization': os.environ.get("SLACK_TOKEN")
+        # }
+
+        # response = requests.get(url, headers=headers, data=payload)
+
+        # print(response.text)
         
     elif complete == "mark_incomplete":
         task.completed_at = None
@@ -169,6 +197,10 @@ def patch_task_complete(task_id,complete):
             "is_complete": is_complete
         }
         }
+
+    if is_complete == True:
+        slack_request(task.title)
+
     return make_response(task_response, 200)
 
 
