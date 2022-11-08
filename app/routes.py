@@ -1,24 +1,26 @@
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, request, jsonify, make_response, abort
 from datetime import datetime
 import requests
 import os
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 #HELPER FUNCTION
-def get_task_from_id(task_id):
+def get_model_from_id(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except ValueError:
         return abort(make_response({"details":"Invalid data"}, 400))
     
-    chosen_task = Task.query.get(task_id)
+    chosen_object = cls.query.get(model_id)
 
-    if chosen_task is None:
-        return abort(make_response({"msg": f"Could not find Task with id:{task_id}"}, 404))
-    return chosen_task
+    if chosen_object is None:
+        return abort(make_response({"msg": f"Could not find {cls.__name__} with id:{model_id}"}, 404))
+    return chosen_object
 #----------------------------------------
 
 @tasks_bp.route("", methods=["POST"])
@@ -55,12 +57,12 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    chosen_task = get_task_from_id(task_id)
+    chosen_task = get_model_from_id(Task, task_id)
     return jsonify({"task":chosen_task.to_dict()}), 200
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
-    update_task = get_task_from_id(task_id)
+    update_task = get_model_from_id(Task, task_id)
     request_body = request.get_json()
 
     try:
@@ -75,7 +77,7 @@ def update_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
-    task_to_delete = get_task_from_id(task_id)
+    task_to_delete = get_model_from_id(Task, task_id)
 
     db.session.delete(task_to_delete)
     db.session.commit()
@@ -84,11 +86,11 @@ def delete_one_task(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_one_task_complete(task_id):   
-    task_to_mark_complete = get_task_from_id(task_id)
+    task_to_mark_complete = get_model_from_id(Task, task_id)
     
     task_to_mark_complete.completed_at = datetime.today()
     db.session.commit()
-    
+
     #send a POST request to https://slack.com/api/chat.postMessage
     #Headers needs a new key-value pair of "Authorization: Bearer {SLACK_TOKEN}"
     #params need to include "channel:task-notifications and 
@@ -106,10 +108,62 @@ def mark_one_task_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_one_task_incomplete(task_id):  
-    task_to_mark_complete = get_task_from_id(task_id)
+    task_to_mark_incomplete = get_model_from_id(Task, task_id)
     
-    task_to_mark_complete.completed_at = None
+    task_to_mark_incomplete.completed_at = None
     db.session.commit()
     
-    return jsonify({"task":task_to_mark_complete.to_dict()}), 200
+    return jsonify({"task":task_to_mark_incomplete.to_dict()}), 200
 
+# ==============GOAL ROUTES====================================
+@goals_bp.route("", methods=["POST"])
+def create_goal():   
+    try:
+        request_body = request.get_json()
+        new_goal = Goal(
+            title=request_body["title"]
+            )
+        db.session.add(new_goal)
+        db.session.commit()
+
+        return jsonify({"goal":new_goal.to_dict()}), 201
+    
+    except KeyError:
+        return jsonify({"details":"Invalid data"}), 400
+
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    goals = Goal.query.all()
+    goals_response = []
+    
+    for goal in goals:
+        goals_response.append(goal.to_dict())
+    return jsonify(goals_response), 200
+
+@goals_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    chosen_goal = get_model_from_id(Goal, goal_id)
+    return jsonify({"goal":chosen_goal.to_dict()}), 200
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_one_goal(goal_id):
+    goal_to_update = get_model_from_id(Goal, goal_id)
+    request_body = request.get_json()
+
+    try:
+        goal_to_update.title = request_body["title"]
+    except KeyError:
+        return jsonify({"msg": "Missing required data"}), 400
+    
+    db.session.commit()
+
+    return jsonify({"goal":goal_to_update.to_dict()}), 200
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    goal_to_delete = get_model_from_id(Goal, goal_id)
+
+    db.session.delete(goal_to_delete)
+    db.session.commit()
+
+    return jsonify({"details":f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'})
