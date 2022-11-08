@@ -24,3 +24,16 @@ def get_all_goals():
     for goal in goals:
         goal_response.append(goal.to_dict())
     return jsonify(goal_response)
+
+@goals_bp.route("<model_id>",methods=["GET"])
+def read_one_goal(model_id):
+    goal = validate_model(Goal, model_id)
+    return {"goal": goal.to_dict()}
+
+@goals_bp.route("/<model_id>", methods = ["PUT"])
+def update_goal(model_id):
+    goal = validate_model(Goal, model_id)
+    request_body = request.get_json()
+    goal.title = request_body["title"]
+    db.session.commit()
+    return {"goal": goal.to_dict()}, 200
