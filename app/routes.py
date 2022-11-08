@@ -8,20 +8,19 @@ import datetime
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
-def validate_task(task_id):
+def validate_model(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except:
-        if task_id:
-            abort(make_response({"message": f"Task {task_id} invalid"}, 400))
+        if model_id:
+            abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
 
-    task = Task.query.get(task_id)
+    model = cls.query.get(model_id)
+    if not model:
+        abort(make_response({"message":f"{cls.__name__} {model_id} is not found"}, 404))
+    
+    return model
 
-    if not task:
-        abort(make_response({"message":f"Task {task_id} is not found"}, 404))
-    
-    return task
-    
 @task_bp.route("", methods=["POST"])
 def create_tasks():
     
@@ -41,7 +40,7 @@ def create_tasks():
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     return make_response({"task": task.to_dict()})
 
@@ -65,7 +64,7 @@ def get_tasks():
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     request_body = request.get_json()
 
@@ -78,7 +77,7 @@ def update_task(task_id):
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -101,7 +100,7 @@ def post_message_to_slack(message):
 
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
-    task_id = validate_task(task_id)
+    task_id = validate_model(Task, task_id)
 
     task_id.completed_at = datetime.datetime.now()
 
@@ -115,7 +114,7 @@ def mark_complete(task_id):
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
 
-    task_id = validate_task(task_id)
+    task_id = validate_model(Task, task_id)
 
     task_id.completed_at = None
 

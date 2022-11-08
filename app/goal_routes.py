@@ -3,19 +3,8 @@ from flask import Blueprint, request, make_response, jsonify, abort
 from app.models.task import Task
 from .routes import *
 from app import db
-import datetime
 
 goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
-
-def validate_goal(goal_id):
-    goal_id = int(goal_id)
-    
-    goal = Goal.query.get(goal_id)
-
-    if not goal:
-        abort(make_response({"message":f"Goal {goal_id} is not found"}, 404))
-
-    return goal
 
 @goal_bp.route("", methods=["POST"])
 def create_goal():
@@ -45,7 +34,7 @@ def get_goal_list():
 @goal_bp.route("/<goal_id>", methods=["GET"])
 def get_goal(goal_id):
 
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
 
     return make_response({"goal":goal.to_json()})
 
@@ -53,7 +42,7 @@ def get_goal(goal_id):
 @goal_bp.route("/<goal_id>", methods=["PUT"])
 def update_goals(goal_id):
 
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
 
@@ -64,7 +53,7 @@ def update_goals(goal_id):
 @goal_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
 
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
 
     db.session.delete(goal)
 
@@ -72,20 +61,39 @@ def delete_goal(goal_id):
 
     return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'})
 
-# @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-# def post_task_ids_to_goal(goal_id):
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
     
-#     goal_id = validate_goal(goal_id)
-#     request_body = request.get_json()
+    goal_id = validate_model(Goal, goal_id)
 
-#     for id in Task.goal_id.get.all():
-#         print(id)
+    request_body = request.get_json()
 
+    for id in request_body["task_ids"]:
+        task = Task.query.get(id)
+        goal_id.tasks.append(task)
+
+    db.session.commit()
     
-#     # task_id.goal_id = goal_id
+    return {
+        "id": goal_id.goal_id,
+        "task_ids": request_body["task_ids"],
+    }
 
-#     # db.session.add(task_id)
-#     # db.session.commit()
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_goals(goal_id):
     
-#     # return make_response({"task": task_id.to_dict()},201)
+    goal = validate_model(Goal, goal_id)
+
+    goal_dict = goal.to_json()
+
+    if goal.tasks:
+            tasks_dict = [task.to_dict() for task in goal.tasks]
+            goal_dict["tasks"] = tasks_dict
+
+    else:
+        goal_dict["tasks"] = []
+
+    return jsonify(goal_dict)
+
+
 
