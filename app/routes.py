@@ -4,6 +4,11 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, request, abort, make_response
 import sqlalchemy
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -75,7 +80,7 @@ def update_one_task(task_id):
         task.description = request_body["description"]
     except KeyError:
         return {
-            "msg" : "Update failed due to missing data. Title, Description are required!"
+            "msg": "Update failed due to missing data. Title, Description are required!"
         }, 400
 
     db.session.commit()
@@ -98,12 +103,12 @@ def delete_one_task(task_id):
 def mark_task_complete(task_id):
     task = validate_task(task_id)
     task.completed_at = datetime.now()
-    
-    # channel_id = "C049FQLJTBN"
-    # SlackUrl = 'https://slack.com/api/chat.postMessage'
-    
-
     db.session.commit()
+    
+    Slack_Url = 'https://slack.com/api/chat.postMessage'
+    message = {"text": f"Someone just completed the task {task.title}", "channel": "C049FQLJTBN"}
+    token = os.environ.get('SLACKBOT-TOKEN')
+    requests.post(Slack_Url, json=message, headers={"Authorization": f"Bearer {token}"})
 
     rsp = {"task": task.get_dict()}
     return jsonify(rsp), 200
