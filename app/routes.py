@@ -1,4 +1,5 @@
 from flask import Blueprint,request,jsonify,abort, make_response
+import requests, json
 from app import db
 from app.models.task import Task
 from sqlalchemy import asc
@@ -6,6 +7,16 @@ from sqlalchemy import desc
 from datetime import date
 
 task_bp = Blueprint("task_bp", __name__, url_prefix ="/tasks")
+
+def post_message_to_slack(text):
+    return requests.post('https://slack.com/api/chat.postMessage', {
+        'token': 'xoxb-4324705497462-4316813751687-KZnPiDyudwQ42qBrwRzMSnCP',
+        'channel': 'task-notifications',
+        'text': text
+        # 'icon_emoji': slack_icon_emoji,
+        # 'username': slack_user_name,
+        # 'blocks': json.dumps(blocks) if blocks else None
+    }).json()	
 
 def get_one_task_or_abort(task_id):
     try:
@@ -128,9 +139,11 @@ def update_task(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def update_task_completed_at(task_id):
     task = get_one_task_or_abort(task_id) #validated task_id = 1
-    task.completed_at = date.today()
+    if task.completed_at is None:
+        task.completed_at = date.today()
     is_completed = True
     db.session.commit()
+    post_message_to_slack("Someone just completed the task "+task.title)
     task_dict = {
         "id": task.task_id,
         "title": task.title,
