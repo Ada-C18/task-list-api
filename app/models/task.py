@@ -22,6 +22,7 @@ class Task(db.Model):
     def to_dict_goal_id(self):
         dict = self.to_dict(self)
         dict["goal_id"] = self.goal_id
+        return dict
         
     
     @classmethod

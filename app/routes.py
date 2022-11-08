@@ -67,6 +67,7 @@ def get_one_task(task_id):
 def create_one_task():
     request_body = request.get_json()
     
+    
     try:
         new_task = Task.from_dict(request_body)
     except KeyError:
@@ -184,15 +185,20 @@ def delete_one_goal(goal_id):
 
 @goal_bp.route('<goal_id>/tasks', methods=["POST"])
 def create_task_id_to_goal(goal_id):
-    goal = get_model_from_id(goal_id)
+    goal = get_model_from_id(Goal,goal_id)
     request_body = request.get_json()
-    
-    
-    for task_id in request_body["tasks_id"]:
-        task_id = Task.task_id
-        goal_id = Task.goal_id
 
+    for task_id in request_body["task_ids"]:
+        task = get_model_from_id(Task, task_id)
+        if task:
+            task.goal_id = goal_id
     
     # db.session.add(new_task)
     db.session.commit()
-    
+    # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    # print(goal.to_dict_task_id())
+    return jsonify(goal.to_dict_task_id()), 200
+
+@goal_bp.route('<goal_id>/tasks', methods =["GET"])
+def get_tasks_from_goal_id(goal_id):
+    pass
