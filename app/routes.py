@@ -35,12 +35,7 @@ def get_task_by_id(task_id):
     task_with_id = get_one_object_or_abort(Task, task_id)
 
     response_body = {
-        "task": {
-            "id": task_with_id.task_id,
-            "title": task_with_id.title,
-            "description": task_with_id.description,
-            "is_complete": task_with_id.is_complete
-        }}
+        "task": task_with_id.to_dict()}
 
     return jsonify(response_body), 200
     
@@ -208,3 +203,32 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f"Goal {goal_to_delete.goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
+
+"""ONE GOAL TO MANY TASKS NESTED ROUTES"""
+
+@goal_bp.route("<goal_id>/tasks", methods=["POST"])
+def create_task(goal_id):
+    goal = get_one_object_or_abort(Goal, goal_id)
+    request_body = request.get_json()
+
+    task_ids = request_body["task_ids"]
+
+    for task_id in task_ids:
+        task = get_one_object_or_abort(Task, task_id)
+        task.goal_id = goal_id
+    
+    db.session.commit()
+
+    response_body = {
+        "id": goal.goal_id,
+        "task_ids": task_ids
+        }
+
+    return jsonify(response_body), 200
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_from_goal(goal_id):
+    goal = get_one_object_or_abort(Goal, goal_id)
+    response_body = goal.to_dict_with_tasks()
+
+    return jsonify(response_body), 200

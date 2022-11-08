@@ -8,17 +8,27 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
-    goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"))
-    goal = db.relationship("Goal", back_populates="tasks")
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"), nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks", lazy=True)
 
 
     def to_dict(self):
-        task_dict = {
-            "id": self.task_id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": self.is_complete
-        }
+        task_dict = {}
+        if self.goal_id is not None:
+            task_dict = {
+                "id": self.task_id,
+                "goal_id": self.goal_id,
+                "title": self.title,
+                "description": self.description,
+                "is_complete": self.is_complete
+            } 
+        else:
+            task_dict = {
+                "id": self.task_id,
+                "title": self.title,
+                "description": self.description,
+                "is_complete": self.is_complete
+            }
         return task_dict
     
     @classmethod
