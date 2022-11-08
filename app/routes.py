@@ -1,6 +1,8 @@
 from flask import Blueprint, request, make_response, jsonify, abort
 from app.models.task import Task
 from app import db
+import datetime
+
 
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
@@ -22,7 +24,8 @@ def validate_task(task_id):
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
     title_query = request.args.get("title")
-    
+    # sort_query = request.args.get("sort")
+
     if title_query:
         tasks = Task.query.filter_by(title=title_query)
     else:
@@ -38,6 +41,10 @@ def read_all_tasks():
                 "is_complete": False
             }
         )
+    # if sort_query == "asc" and tasks_response:
+    #     return jsonify(tasks_response).order_by(task.title.asc())
+    # else:
+    #     return jsonify(tasks_response).order_by(task.title.desc())
     return jsonify(tasks_response)
 
 
@@ -108,3 +115,48 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
+
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def update_incompleted_task_to_complete(task_id):
+    task = validate_task(task_id)
+
+    task.completed_at = datetime.datetime.utcnow()
+
+    db.session.commit()
+
+    slack_bot_message(f"Someone just completed the task {task.title}")
+
+    return make_response(jsonify({
+                            "task": {
+                                "id": task.task_id,
+                                "title": task.title,
+                                "description": task.description,
+                                "is_complete": True
+                            }
+                        }), 200)
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def update_completed_task_to_incomplete(task_id):
+    task = validate_task(task_id)
+
+    task.completed_at = None
+
+    db.session.commit()
+
+    return make_response(jsonify({
+                            "task": {
+                                "id": task.task_id,
+                                "title": task.title,
+                                "description": task.description,
+                                "is_complete": False
+                            }
+                        }), 200)
+
+# def is_complete():
+#     request_body = request.get_json()
+#     if request_body["completed_at"] is not None:
+#         return True
+#     else:
+#         return False

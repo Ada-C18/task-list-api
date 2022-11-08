@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
+import requests
 
 
 db = SQLAlchemy()
@@ -34,3 +35,14 @@ def create_app(test_config=None):
     app.register_blueprint(tasks_bp)
 
     return app
+
+def slack_bot_message(message):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get('API_KEY')
+
+    query_params = {
+        "channel": "task-notifications",
+        "text": message
+    }
+
+    requests.post(PATH, params=query_params, headers={"Authorization": SLACK_API_KEY})
