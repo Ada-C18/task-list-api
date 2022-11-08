@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from .models.task import Task
 import datetime
+import os
+import requests
 
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -21,8 +23,16 @@ def validate_task_dict(request_body):
     request_body = dict(request_body)
     if not (request_body.get("title", False) and request_body.get("description", False)):
         abort(make_response({'details': 'Invalid data'}, 400))
-    # if request_body.get("completed_at", 1) == 1:
-    #     abort(make_response({'details': 'Invalid data'}, 400))
+
+def send_slack_message(message):
+    SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
+    params = {
+        "channel": "task-notifications",
+        "text": message
+        }
+    
+    requests.post("https://slack.com/api/chat.postMessage", params = params, headers = {"Authorization": f"Bearer {SLACK_API_KEY}"})
+
 
 @bp.route("", methods=["POST"])
 def create_task():
@@ -79,6 +89,8 @@ def complete_task(id):
     task.completed_at = datetime.datetime.now()
 
     db.session.commit()
+
+    send_slack_message(f'Someone just completed the task {task.title}')
 
     return make_response({"task": task.to_dict()}, 200)
 
