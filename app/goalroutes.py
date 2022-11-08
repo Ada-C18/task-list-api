@@ -1,5 +1,6 @@
 from app import db
 from app.models.goal import Goal
+from .routes import validate_model
 from flask import Blueprint, request, make_response, jsonify
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
@@ -26,3 +27,8 @@ def read_all_goals():
         goals_response.append(goal.to_dict())
     
     return jsonify(goals_response)
+
+@goals_bp.route("/<model_id>", methods=["GET"])
+def read_one_goal(model_id):
+    goal = validate_model(Goal, model_id)
+    return {"goal":goal.to_dict()}, 200
