@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
@@ -88,3 +89,27 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {task_id} "{title}" successfully deleted'}), 200
+
+
+@ task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_completed_at(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+    # request_body = request.get_json()
+
+    chosen_task.is_completed = True
+    # if "completed_at" in request_body:
+        # chosen_task.completed_at = request_body["completed_at"]
+    chosen_task.completed_at = datetime.now()
+
+    db.session.commit()
+    return jsonify({"task": chosen_task.to_dict()}), 200
+
+@ task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+    
+    chosen_task.completed_at = None
+    chosen_task.is_completed = False
+
+    db.session.commit()
+    return jsonify({"task": chosen_task.to_dict()}), 200
