@@ -77,7 +77,7 @@ def read_all_tasks():
         return jsonify(tasks_response)
     # return jsonify(tasks_response)
 
-#Creating helper function validate_task to handle errors foe get a task by id
+#Creating helper function validate_task to handle errors for get a task by id
 # Checks for valid data type (int)
 # Checks that id provided exists in records
 def validate_task(task_id):
