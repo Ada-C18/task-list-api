@@ -20,5 +20,5 @@ def validate_input(cls, request_body):
         if "title" not in request_body or "description" not in request_body:
             abort(make_response({"details":"Invalid data"},400))
     elif cls == Goal:
-        if "title" not in request_body:
+        if "title" not in request_body or "description" in request_body:
             abort(make_response({"details":"Invalid data"},400))
