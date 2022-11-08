@@ -1,3 +1,4 @@
+import datetime
 from flask import Blueprint
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
@@ -74,6 +75,7 @@ def read_all_tasks():
 
 @bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
+
     task = validate_model(Task,task_id)
 
 
@@ -114,11 +116,56 @@ def update_task(task_id):
 
 @bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
+
     task = validate_model(Task, task_id)
+
     db.session.delete(task)
     db.session.commit()
+
     task_response =  {
         "details": f'Task {task_id} "{task.title}" successfully deleted'
     }
     return make_response(task_response), 200
+
+@bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+
+    task = validate_model(Task, task_id)
+    
+    task.completed_at = datetime.datetime.utcnow()
+
+    db.session.commit()
+
+    completed_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }
+    }
+
+    return(make_response(completed_response),200)
+
+
+@bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_imcomplete(task_id):
+
+    task = validate_model(Task, task_id)
+    
+    task.completed_at = datetime.datetime.utcnow()
+
+    db.session.commit()
+
+    completed_response = {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }
+    }
+
+    return(make_response(completed_response),200)
+
 
