@@ -3,11 +3,16 @@ from app import db
 from app.models.task import Task
 
 
+
+
+
+
+
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
 
-def validate_task(task_id):
+def return_task_or_abort(task_id):
     try:
         verified_id = int(task_id)
     except ValueError:
@@ -20,6 +25,10 @@ def validate_task(task_id):
 
     return task
 
+
+
+
+
 def format_return_json_object(target_task):
     task = Task.query.filter_by(task_id=target_task.task_id)
     return {"id": target_task.task_id,
@@ -28,6 +37,9 @@ def format_return_json_object(target_task):
             "is_complete": target_task.completed_at
             }
     return task
+
+
+
 
 
 @tasks_bp.route("", methods = ["POST"])
@@ -47,6 +59,9 @@ def add_task():
    
 
 
+
+
+
 @tasks_bp.route("", methods=["GET"])
 def list_all_tasks():
     
@@ -64,8 +79,47 @@ def list_all_tasks():
 
 
 
+
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_task_by_id(task_id):
-    task = validate_task(task_id)
+    task = return_task_or_abort(task_id)
 
     return {"task":format_return_json_object(task)}, 200
+
+
+
+
+
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task=return_task_or_abort(task_id)
+
+    request_body=request.get_json()
+
+    if "name" not in request_body or \
+    "price" not in request_body or \
+    "size" not in request_body or \
+    "type" not in request_body:
+        return jsonify({"Must include task title and description"}), 400
+
+    task.title = request_body["name"]
+    task.description = request_body["description"]
+    # task.completed_at = request_body["completed_at"]
+
+    db.session.commit()
+
+    return {"task":format_return_json_object(task)}, 200
+
+
+
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task=return_task_or_abort(task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response(f"Task #{task_id} was successfully deleted", 200)
