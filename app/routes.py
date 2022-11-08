@@ -10,7 +10,6 @@ task_bp = Blueprint("task_bp", __name__, url_prefix ="/tasks")
 
 def post_message_to_slack(text):
     return requests.post('https://slack.com/api/chat.postMessage', {
-        'token': 'xoxb-4324705497462-4316813751687-KZnPiDyudwQ42qBrwRzMSnCP',
         'channel': 'task-notifications',
         'text': text
         # 'icon_emoji': slack_icon_emoji,
