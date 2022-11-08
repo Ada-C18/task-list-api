@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, request, make_response, jsonify, abort
 from app import db
 from app.models.task import Task
@@ -44,10 +45,10 @@ def create_task():
     db.session.commit()
 
     # using the class method in task.py 
-    return jsonify({"task":new_task.return_body()}),201
+    return jsonify({"task":new_task.return_body()}), 201
 
 
-# Get Tasks: Getting Saved Tasks
+# Get Tasks: Getting Saved Tasks, sorting by ascending/descending
 @task_bp.route("", methods=["GET"])
 def read_task():
     # tasks = Task.query.all()
@@ -57,7 +58,6 @@ def read_task():
     # #     read_task_result.append(task.return_body())
     # read_task_result = [task.return_body() for task in tasks]
     # return jsonify(read_task_result), 200
-
     sort_query = request.args.get("sort")
 
     if sort_query == "asc":
@@ -108,27 +108,38 @@ def delete_one_task(task_id):
     # mistakes in the return sentence trapped me for some time 
     return jsonify({"details": f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'}), 200
 
+  
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete_update(task_id):
+    chosen_task = validate_task(task_id)
+
+    task = Task.query.get(task_id)
+    if task is None:
+        return make_response("The task was not found", 404)
+    task.completed_at = datetime.now()
+
+    db.session.commit()
+    return jsonify({"task":chosen_task.return_body()}), 200
+    # return check_complete_status(task_id, result = datetime.now())
 
 
-# Sorting Tasks By Title, Ascending/Descending
-# @task_bp.route("", methods=["GET"])
-# def sorting_tasks():
-#     # query
-#     sort_query = request.args.get("sort")
-
-#     if sort_query == "asc":
-#         tasks = Task.query.order_by(Task.title.aec())
-#     elif sort_query == "desc":
-#         tasks = Task.query.order_by(Task.title.desc())
-#     elif sort_query is None:
-#         tasks = Task.query.all()
-
-#     response = []
-#     response = [task.return_body() for task in tasks]
-#     return jsonify(response), 200   
-
-
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete_update(task_id):
+    chosen_task = validate_task(task_id)
+    task = Task.query.get(task_id)
+    if task is None:
+        return make_response("The task was not found", 404)
+    task.completed_at = None
+    db.session.commit()
+    return jsonify({"task":chosen_task.return_body()}), 200
     
 
-
-    
+# helper function to check the value of completed_at
+# def check_complete_status(task_id, result):
+#     chosen_task = validate_task(task_id)
+#     task = Task.query.get(task_id)
+#     if task is None:
+#         return make_response("The task was not found", 404)
+#     task.complete_at = result
+#     db.session.commit()
+#     return jsonify({"task":chosen_task.return_body()}), 200
