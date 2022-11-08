@@ -115,7 +115,7 @@ def delete_task(task_id):
 def patch_task_complete(task_id, complete):
 
     task = Task.query.get(task_id)
-    
+
     if not task:
         return make_response({"details":"Id not found"}), 404 
 

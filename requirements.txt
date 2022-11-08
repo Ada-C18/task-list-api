@@ -111,3 +111,5 @@ Werkzeug==2.2.2
 widgetsnbextension==4.0.3
 wonderwords==2.2.0
 yarl==1.8.1
+slack==0.0.2
+slackclient==2.9.4

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, make_response, jsonify
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 
 
 goal_bp = Blueprint('goal_bp', __name__, url_prefix='/goals')
@@ -28,6 +29,17 @@ def get_one_goal(goal_id):
         "title": goal.title,
     }},200)
 
+# @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+# def get_one_goal(goal_id):
+    
+#     goal = Goal.query.get(goal_id)
+#     if not goal:
+#         return make_response({"details":"Id not found"}), 404
+
+#     return make_response({ "goal":{
+#         "id": goal.goal_id,
+#         "title": goal.title,
+#     }},200)
 
 @goal_bp.route("", methods=["POST"])
 def create_goal():
@@ -47,6 +59,29 @@ def create_goal():
     return make_response({ "goal":{
         "id": new_goal.goal_id,
         "title": new_goal.title,
+    }},201)
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id, task_id):
+
+    request_body = request.get_json()
+    goal = Goal.query.get(goal_id)
+    task = Task.query.all(task_id)
+
+    # if "title" not in request_body:
+    #     return make_response({"details":"Invalid data"}), 400
+
+    new_goal = Goal(
+        title=request_body["title"],
+    )
+    
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return make_response({ "goal":{
+        "id": new_goal.goal_id,
+        "task_ids": 
     }},201)
 
 
