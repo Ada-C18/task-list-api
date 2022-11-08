@@ -123,7 +123,12 @@ def update_is_complete(task_id):
         
     return jsonify({"task":Task.to_dict(update_is_valid_id)}), 200
 
-# @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-# def update_is_complete(task_id):
-    
-#     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def update_incompete(task_id):
+    task_incompete = get_one_task_or_abort(task_id)
+    task_incompete.completed_at = None
+
+    db.session.add(task_incompete)
+    db.session.commit()
+
+    return jsonify({"task":Task.to_dict(task_incompete)}), 200
