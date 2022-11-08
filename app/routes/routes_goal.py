@@ -80,7 +80,7 @@ def get_tasks_from_goal(goal_id):
     response = {
         "id": goal.goal_id, 
         "title": goal.title,
-        "tasks": [task.to_dict() for task in goal.tasks]
+        "tasks": [task.to_dict_goal_id() for task in goal.tasks]
     }
 
     return jsonify(response), 200

@@ -21,18 +21,14 @@ def get_all_tasks():
 
     all_tasks = []
     for task in tasks:
-        all_tasks.append({
-            "id": task.task_id,
-            "title" : task.title,
-            "description": task.description, 
-            "is_complete": task.is_complete
-        })
+        all_tasks.append(task.to_dict())
     return jsonify(all_tasks), 200
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task_by_id(task_id):
     task = validate_id(Task, task_id)
-
+    if task.goal_id:
+        return jsonify({"task": task.to_dict_goal_id()}), 200
     return jsonify({"task": task.to_dict()}), 200
 
 @task_bp.route("<task_id>", methods=["PUT"])
@@ -81,12 +77,7 @@ def mark_complete(task_id):
     header = {"Authorization": f"Bearer {os.environ.get('SLACK_TASK_BOT_KEY')}"}
     requests.get(os.environ.get("SLACK_POST_MESSAGE_PATH"), params=query_params, headers=header)
 
-    return jsonify({"task": {
-        "id": task.task_id,
-        "title": task.title,
-        "description":task.description,
-        "is_complete": task.is_complete
-    }}), 200
+    return jsonify({"task": task.to_dict()}), 200
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
@@ -96,9 +87,4 @@ def mark_incomplete(task_id):
 
     db.session.commit()
 
-    return jsonify({"task": {
-        "id": task.task_id,
-        "title": task.title,
-        "description":task.description,
-        "is_complete": task.is_complete
-    }}), 200
+    return jsonify({"task": task.to_dict()}), 200
