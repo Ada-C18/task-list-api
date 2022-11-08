@@ -3,6 +3,7 @@ from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
 
 
+
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
 #helper function to get goal by id:  ----> needs to be refactored.
@@ -20,6 +21,9 @@ def get_goal_from_id(goal_id):
 @goals_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
+    if "title" not in request_body:
+        return jsonify(
+            {"details": "Invalid data"}), 400
     new_goal = Goal.from_dict(request_body)
 
     db.session.add(new_goal)
@@ -71,3 +75,12 @@ def delete_goal(goal_id):
     return jsonify({
         "details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"
         })
+
+#get all goals()
+
+
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def get_task_for_goal(goal_id):
+    pass
