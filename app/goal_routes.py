@@ -42,3 +42,14 @@ def get_all_goals():
 def get_goal(goal_id):
     chosen_goal = get_goal_from_id(goal_id)
     return jsonify({"goal":chosen_goal.to_dict()}), 200
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_goal(goal_id)
+    request_body=request.get_json()
+
+    goal.title = request_body["title"]
+
+    db.session.commit()
+
+    return jsonify({"goal":goal.to_dict()}), 200
