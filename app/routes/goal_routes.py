@@ -64,33 +64,20 @@ def create_goal():
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id):
-
     request_body = request.get_json()
-
-    # tasks_query = request.args.get("tasks")
-
     goal = Goal.query.get(goal_id)
-    # task = Task.query.all(task_id)
+    task_ids = request_body["task_ids"]
+    task_list = [Task.query.get(task) for task in task_ids]
 
-    # if "title" not in request_body:
-    #     return make_response({"details":"Invalid data"}), 400
-    new_goal = Goal(
-        tasks=request_body["task_ids"],
-    )
-    
-    task_list = []
-    if new_goal:
-        task_list.append(goal.tasks)
-    
-    
-    db.session.add(new_goal)
-    db.session.commit()
+    for task in task_list:
+        task.goal_id = goal.goal_id
+        db.session.add(task)
+        db.session.commit()
 
     return make_response({
-        "id": new_goal.goal_id,
-        # "task_ids": new_goal.tasks
+        "id": goal.goal_id,
+        "task_ids": task_ids
     },200)
-
 
 
 
@@ -126,3 +113,7 @@ def delete_goal(goal_id):
 
     return make_response({f"details": f'Goal {goal_id} \"{goal.title}\" successfully deleted'}),200
 
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+
+def get_task_from_goal(goal_id):
