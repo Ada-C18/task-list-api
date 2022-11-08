@@ -18,15 +18,10 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, task_data):
-        if "is_complete" in task_data:
-            new_task = Task(
-                title=task_data["title"],
-                description=task_data["description"],
-                completed_at=task_data["is_complete"]
-            )
-        else:
-            new_task = Task(
-                title=task_data["title"],
-                description=task_data["description"])
+        new_task = Task(
+            title=task_data["title"],
+            description=task_data["description"],
+            completed_at=task_data["is_complete"] if "is_complete" in task_data else None)
+
 
         return new_task
