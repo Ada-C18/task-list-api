@@ -8,10 +8,11 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean, default=False)
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"))
+    goal = db.relationship("Goal", back_populates="tasks")
 
 
     def to_dict(self):
-        #check data_dict has all valid task attributes 
         task_dict = {
             "id": self.task_id,
             "title": self.title,
@@ -19,3 +20,12 @@ class Task(db.Model):
             "is_complete": self.is_complete
         }
         return task_dict
+    
+    @classmethod
+    def from_dict(cls, data_dict):
+        if "title" in data_dict and "description" in data_dict:
+            new_obj = cls(
+            title=data_dict["title"], 
+            description=data_dict["description"])
+
+            return new_obj
