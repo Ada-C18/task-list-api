@@ -89,7 +89,7 @@ def read_all_tasks():
 
 # Create GET route for 1 task
 @tasks_bp.route("/<task_id>", methods=["GET"])
-def get_one_bike(task_id):
+def get_one_task(task_id):
     chosen_task = validate_task(task_id)
 
     response = {
