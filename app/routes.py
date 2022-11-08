@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
+import requests, os
+
+SLACK_URL = "https://slack.com/api/chat.postMessage?channel=slack-bot-test-channel&text="
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -80,6 +83,11 @@ def mark_complete(task_id):
 
     task.mark_complete()
     db.session.commit()
+
+    headers = { 'Authorization': 'Bearer ' + os.environ.get('SLACK_API_TOKEN') }
+    message = f"Someone just completed the task {task.title}"
+
+    requests.request("POST", SLACK_URL + message, headers=headers)
 
     return {"task": task.to_dict()}
  
