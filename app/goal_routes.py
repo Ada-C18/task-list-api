@@ -14,7 +14,7 @@ def validate_goals(goal_id):
     goal = Goal.query.get(goal_id )
 
     if not goal:
-        abort(make_response({"message":f"goal {goal_id} not found"}, 404))
+        abort(make_response({"message":f"Goal {goal_id} not found."}, 404))
     
     return goal
 
