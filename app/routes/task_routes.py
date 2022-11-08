@@ -29,3 +29,18 @@ def read_all_tasks():
 def read_one_task(task_id):
     one_task = validate_model(Task, task_id)
     return one_task.to_dict()
+
+@bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_model(Task, task_id)
+    request_body = request.get_json()
+
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    task.completed_at = request_body["completed_at"]
+
+    db.session.commit()
+
+    return make_response(jsonify(
+            f"Task #{task_id} successfully updated"))
+
