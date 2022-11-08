@@ -58,10 +58,22 @@ def get_all_tasks():
     return jsonify([task.to_dict() for task in all_tasks])
 
 
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    all_goals = Goal.query.all()
+    return jsonify([goal.to_dict() for goal in all_goals])
+
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
     return {"task": task.to_dict()}
+
+
+@goals_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    return {"goal": goal.to_dict()}
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
