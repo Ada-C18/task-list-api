@@ -22,12 +22,6 @@ def validate_model(cls, model_id):
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
     return model
 
-# def validate_is_complete():
-#     request_body = request.get_json()
-#     if request_body["completed_at"] == None:
-#         return False
-#     else:
-#         return True
 
 @tasks_bp.route("", methods=["POST"])
 def create_task():
