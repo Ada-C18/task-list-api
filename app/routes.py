@@ -196,19 +196,15 @@ def post_existing_tasks_to_goal_id(goal_id):
 
     provided_task_ids = request_body["task_ids"]
 
-    # getting all tasks in provided task id
-    tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
-    print(f"🌸{tasks}")
     #######loop through provided task ids
         ## use read_task_by_id to get task
         ## task.goal_id = goal_id
 
-
-    # this line is solely to popluate response body
-    task_ids = [task.task_id for task in tasks]
-    
-    for task in tasks:
-        task.goal_id = goal_id
+    task_ids = []
+    for task_id in provided_task_ids:
+        task = validate_model_by_id(Task, task_id)
+        task.goal_id = goal.goal_id
+        task_ids.append(task_id)
 
     db.session.commit()
     
@@ -271,3 +267,33 @@ def read_all_tasks_by_goal_id(goal_id):
 #         abort(make_response(({"msg": f"{task_id} not found"}), 404))
 
 #     return task
+
+
+## original working code
+# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def post_existing_tasks_to_goal_id(goal_id):
+#     request_body = request.get_json()
+#     goal = validate_model_by_id(Goal, goal_id)
+
+#     provided_task_ids = request_body["task_ids"]
+
+#     # getting all tasks in provided task id
+#     tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
+#     print(f"🌸{tasks}")
+#     #######loop through provided task ids
+#         ## use read_task_by_id to get task
+#         ## task.goal_id = goal_id
+
+
+#     # this line is solely to popluate response body
+#     task_ids = [task.task_id for task in tasks]
+    
+#     for task in tasks:
+#         task.goal_id = goal_id
+
+#     db.session.commit()
+    
+#     return jsonify({
+#         "id": goal.goal_id,
+#         "task_ids": task_ids
+#         })
