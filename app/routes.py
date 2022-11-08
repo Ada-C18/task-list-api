@@ -183,6 +183,8 @@ def delete_one_goal(goal_id):
     db.session.commit()
     return jsonify({"details":f"Goal {goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
 
+
+#HOW IS THIS TESTED IN POSTMAN?
 @goal_bp.route('<goal_id>/tasks', methods=["POST"])
 def create_task_id_to_goal(goal_id):
     goal = get_model_from_id(Goal,goal_id)
@@ -193,12 +195,11 @@ def create_task_id_to_goal(goal_id):
         if task:
             task.goal_id = goal_id
     
-    # db.session.add(new_task)
     db.session.commit()
-    # print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-    # print(goal.to_dict_task_id())
+
     return jsonify(goal.to_dict_task_id()), 200
 
 @goal_bp.route('<goal_id>/tasks', methods =["GET"])
 def get_tasks_from_goal_id(goal_id):
-    pass
+    goal = get_model_from_id(Goal, goal_id)
+    tasks = goal.get_task_list
