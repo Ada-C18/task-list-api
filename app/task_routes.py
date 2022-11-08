@@ -121,12 +121,11 @@ def update_task_is_complete(task_id):
     response = {"task": task.to_dict()}
     
 
-    # slack_app_request = requests.patch("https://api.slack.com/methods/chat.postMessage", json = {"chanel": channel_id, "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": f"Bearer {SLACK_TOKEN}"})
     
     db.session.commit()
 
     
-    # requests.post("https://slack.com/api/chat.postMessage", json = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": os.environ.get('SLACK_API_KEY')})
+    # requests.post("https://slack.com/api/chat.postMessage", json = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": os.environ.get('SLACK_API_KEY')}) 
     SLACK_TOKEN =os.environ.get('SLACK_API_KEY')
     requests.post("https://slack.com/api/chat.postMessage", json = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": SLACK_TOKEN})
 

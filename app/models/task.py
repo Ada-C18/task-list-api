@@ -10,3 +10,20 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime, nullable = True, default = None)
     
 
+    def to_dict(self):
+        task_dict = {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete":bool(self.completed_at)
+        }
+        return task_dict
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        if "title" in data_dict and "description" in data_dict:
+            new_obj = cls(title = data_dict["title"],
+            description = data_dict["description"])
+            
+            return new_obj
+
