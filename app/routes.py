@@ -38,9 +38,6 @@ def add_task():
         title = request_body["title"],
         description = request_body["description"])
 
-        if "completed_at" in request_body:
-            new_task.completed_at = request_body["completed_at"]
-
         db.session.add(new_task)
         db.session.commit()
 
