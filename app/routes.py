@@ -87,6 +87,7 @@ def mark_complete(task_id):
 
     task.completed_at = date.today()
     task.is_complete = True
+
     response = {"task": task.to_dict()}
 
     db.session.commit()
@@ -100,11 +101,12 @@ def mark_complete(task_id):
 @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model_id(Task, task_id)
-    task.incomplete = False
+    task.is_complete = False
     task.completed_at = None
-    response = {"task": task.to_dict()}
-    
     db.session.commit()
+    
+    response = {"task": task.to_dict()}
+
     return jsonify(response), 200
 
 
