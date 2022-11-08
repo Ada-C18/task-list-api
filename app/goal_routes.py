@@ -62,4 +62,42 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
 
-    return make_response({"details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"})
+    return make_response({"details": f"Goal {goal.id} \"{goal.title}\" successfully deleted"})
+
+from app.task_routes import validate_task
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_task_id_to_goal(goal_id):
+    goal = validate_goal(goal_id)
+
+    request_body = request.get_json()
+    task_ids = request_body["task_ids"]
+
+    tasks = [validate_task(task_id) for task_id in task_ids]
+
+    for task in tasks:
+        task.goal_id = goal.id
+
+    db.session.commit()
+
+    return {
+        "id": goal.id,
+        "task_ids": task_ids,
+    }
+
+from app.models.task import Task
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_specific_goal(goal_id):
+    goal = validate_goal(goal_id)
+    tasks = Task.query.all()
+
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append(task.to_dict())
+
+    return {
+        "id": goal.id,
+        "title": goal.title,
+        "tasks": tasks_response
+        }
