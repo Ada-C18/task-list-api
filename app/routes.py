@@ -32,13 +32,11 @@ def get_all_tasks():
 @task_list_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     task = validate_model_id(Task, task_id)
-    response = {"task": {
-        "id": task.task_id,
-        "goal_id": task.goal_id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": task.is_complete
-    }}
+    if task.goal_id is None:
+        response = {"task": task.to_dict()}
+    else:
+        response = {"task": task.to_dict_with_goal_id()}
+
     return jsonify(response), 200
 
 #CREATE new task

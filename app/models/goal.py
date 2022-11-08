@@ -7,14 +7,13 @@ class Goal(db.Model):
     tasks = db.relationship("Task", back_populates="goal", lazy=True)
 
     def to_dict(self):
-        list_of_tasks = []
-        for task in self.tasks:
-            list_of_tasks.append(task.to_dict())
         return {
             "id": self.goal_id,
             "title": self.title,
         }
 
+    # def to_dict finish to dict with tasks 
+    
     def get_task_list(self):
         list_of_tasks = []
         for task in self.tasks:
