@@ -2,13 +2,10 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
 from app.models.goal import Goal
-from sqlalchemy import asc, desc
 from datetime import datetime
 import os
 import requests
 
-# adding comment
-slack_oauth_token = os.environ.get("SLACK_OAUTH_TOKEN")
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -26,18 +23,6 @@ def validate_model_by_id(cls, model_id):
 
     return object
 
-# def validate_task_id(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response(({"msg": f"{task_id} is not valid"}), 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response(({"msg": f"{task_id} not found"}), 404))
-
-#     return task
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -113,19 +98,19 @@ def delete_task_by_id(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
+    
     task = validate_model_by_id(Task, task_id)
 
     task.completed_at = datetime.now()
     db.session.commit()
 
     # slack api call to post to task-notifications
+    slack_oauth_token = os.environ.get("SLACK_OAUTH_TOKEN")
     url = "https://slack.com/api/chat.postMessage"
-
     params = {
         "channel": "task-notifications",
         "text": f"Someone just completed the task {task.title}"
     }
-
     headers = {"Authorization": f"Bearer {slack_oauth_token}"}
 
     requests.patch(url=url, params=params, headers=headers)
@@ -143,18 +128,7 @@ def mark_incomplete(task_id):
 
 
 ####################Goal routes###################
-# def validate_goal_id(goal_id):
-#     try:
-#         goal_id = int(goal_id)
-#     except:
-#         abort(make_response(({"msg": f"{goal_id} is not valid"}), 400))
 
-#     goal = Goal.query.get(goal_id)
-
-#     if not goal:
-#         abort(make_response(({"msg": f"{goal_id} not found"}), 404))
-
-#     return goal
 
 @goals_bp.route("", methods=["POST"])
 def create_one_goal():
@@ -220,13 +194,18 @@ def post_existing_tasks_to_goal_id(goal_id):
     request_body = request.get_json()
     goal = validate_model_by_id(Goal, goal_id)
 
-    # provided_task_ids = request_body["tasks"]
     provided_task_ids = request_body["task_ids"]
 
+    # getting all tasks in provided task id
     tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
-    
+    print(f"🌸{tasks}")
+    #######loop through provided task ids
+        ## use read_task_by_id to get task
+        ## task.goal_id = goal_id
+
+
+    # this line is solely to popluate response body
     task_ids = [task.task_id for task in tasks]
-    # goal.tasks = task_ids
     
     for task in tasks:
         task.goal_id = goal_id
@@ -259,3 +238,36 @@ def read_all_tasks_by_goal_id(goal_id):
         "title": "Build a habit of going outside daily",
         "tasks": tasks
     }
+
+
+
+
+
+
+
+# def validate_goal_id(goal_id):
+#     try:
+#         goal_id = int(goal_id)
+#     except:
+#         abort(make_response(({"msg": f"{goal_id} is not valid"}), 400))
+
+#     goal = Goal.query.get(goal_id)
+
+#     if not goal:
+#         abort(make_response(({"msg": f"{goal_id} not found"}), 404))
+
+#     return goal
+
+
+# def validate_task_id(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except:
+#         abort(make_response(({"msg": f"{task_id} is not valid"}), 400))
+
+#     task = Task.query.get(task_id)
+
+#     if not task:
+#         abort(make_response(({"msg": f"{task_id} not found"}), 404))
+
+#     return task
