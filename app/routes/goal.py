@@ -5,9 +5,6 @@ from app.models.goal import Goal
 from app.routes.task import validate_task_id
 
 
-
-
-
 goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 def validate_goal_id(goal_id):
@@ -54,14 +51,15 @@ def get_all_goals():
         goals = Goal.query.order_by(Goal.title.desc())
     else:
         goals = Goal.query.all()
-    response = []
-    for goal in goals:
-        response.append(goal.to_dict())
+    
+    response = [goal.to_dict() for goal in goals]
+
     return jsonify(response), 200
 
 @goal_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
+
     goal_dict = goal.to_dict()
     
     return jsonify({"goal":goal_dict})
@@ -69,6 +67,7 @@ def get_one_goal(goal_id):
 @goal_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = validate_goal_id(goal_id)
+
     request_body = request.get_json()
 
     if "title" not in request_body:
@@ -79,12 +78,15 @@ def update_goal(goal_id):
     goal_dict = goal.to_dict()
 
     db.session.commit()
+
     return jsonify({"goal":goal_dict}),200
 
 @goal_bp.route("/<goal_id>",methods = ['DELETE'])
 def delete_goal(goal_id):
     goal = validate_goal_id(goal_id)
+
     db.session.delete(goal)
+
     db.session.commit()
 
     return jsonify({"details":f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}),200
@@ -92,6 +94,7 @@ def delete_goal(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def add_all_tasks_for_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
+
     request_body = request.get_json()
 
     if "task_ids" not in request_body:
@@ -110,8 +113,11 @@ def add_all_tasks_for_one_goal(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_all_tasks_for_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
+
     all_goal_tasks = []
-    tasks = goal.tasks 
+
+    tasks = goal.tasks
+    
     for task in tasks:
         all_goal_tasks.append({
             "id": task.task_id, 

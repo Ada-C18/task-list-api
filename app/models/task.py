@@ -20,6 +20,7 @@ class Task(db.Model):
                 "description":self.description,
                 "is_complete":self.is_complete
             }
+            
         return {
                 "id":self.task_id,
                 "title":self.title,
