@@ -1,7 +1,7 @@
 from app import db
 from app.models.goal import Goal
-from .route_helpers import validate_model, send_slack_message
-from flask import Blueprint, jsonify, abort, make_response, request
+from .route_helpers import validate_model
+from flask import Blueprint, jsonify, request
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -25,3 +25,9 @@ def get_all_goals():
 
     goals_response = [goal.as_dict() for goal in goals]
     return jsonify(goals_response)
+
+@goals_bp.route("/<goal_id>", methods=["GET"])
+# Get one specific goal from the goals list
+def get_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    return {"goal": goal.as_dict()}, 200
