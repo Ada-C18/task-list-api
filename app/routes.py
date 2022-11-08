@@ -46,16 +46,19 @@ def format_return_json_object(target_task):
 def add_task():
     request_body = request.get_json()
 
-    new_task = Task(
-        title=request_body["title"],
-        description=request_body["description"],
-        completed_at=request_body["completed_at"],
-    )
+    try:
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"],
+            completed_at=request_body["completed_at"],
+        )
 
-    db.session.add(new_task)
-    db.session.commit()
+        db.session.add(new_task)
+        db.session.commit()
 
-    return {"task":format_return_json_object(new_task)}, 201
+        return {"task":format_return_json_object(new_task)}, 201
+    except KeyError:
+        return {"details":"Invalid data"}, 400
    
 
 
