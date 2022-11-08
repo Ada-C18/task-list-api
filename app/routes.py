@@ -41,8 +41,10 @@ def get_one_task(task_id):
 @task_list_bp.route("", methods = ["POST"])
 def create_new_task():
     request_body = request.get_json()
+
     if "title" not in request_body or "description" not in request_body:
         abort(make_response({"details": "Invalid data"}, 400))
+
     new_task = Task.from_dict(request_body)
     
     db.session.add(new_task)
@@ -159,6 +161,19 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
+
+
+#POST assign tasks to a goal 
+# @goals_bp.route("/<goal_id>/tasks", methods = ["POST"])
+# def assign_tasks_to_goal(goal_id):
+#     goal = validate_model_id(Goal, goal_id)
+
+#     tasks = goal.get_task_list()
+#     for task in tasks:
+#         goal.tasks.append(task.id)
+#         task.goal_id = goal.goal_id
+
+#     return jsonify({"id": goal.goal_id, "task_ids": goal.tasks}), 200
 
 #================== Helper Functions=================
 def validate_model_id(cls, model_id):
