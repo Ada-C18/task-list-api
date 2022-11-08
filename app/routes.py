@@ -7,7 +7,6 @@ tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 TASK_ID_PREFIX = '/<task_id>'
 
 def validate_task(task_id):
-
     try:
         task_id = int(task_id)
     except:
