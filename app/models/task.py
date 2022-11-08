@@ -9,10 +9,18 @@ class Task(db.Model):
     is_complete = db.Column(db.Boolean, default=False)
 
     def to_dict(self):
-        task_dict = {
-            "id":self.id,
-            "title":self.title,
-            "description":self.description,
-            "is_complete": True if self.completed_at else False
-        }
+        if self.completed_at is None:
+            task_dict = {
+                "id":self.id,
+                "title":self.title,
+                "description":self.description,
+                "is_complete": False
+            }
+        else: 
+            task_dict = {
+                "id":self.id,
+                "title":self.title,
+                "description":self.description,
+                "is_complete": True
+            } 
         return task_dict
