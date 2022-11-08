@@ -126,3 +126,13 @@ def delete_task(task_id):
     db.session.commit()
 
     return {'details': f'Task {task.task_id} "{task.title}" successfully deleted'}
+
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return {'details': f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}
