@@ -2,7 +2,10 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
 from sqlalchemy import asc, desc
-import datetime 
+import datetime, requests, os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 task_list_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -103,12 +106,49 @@ def delete_task(task_id):
     return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200
 
 
+# def slack_api_call(message):
+#     token = os.environ.get("SLACK_API")
+    
+#     requests.post("https://slack.com/api/chat.postMessage", params={
+#         "channel": "task-notifications", 
+#         "text": message}, 
+#                 headers={
+#                     "Authorization": token
+#         })
+
+# def slack_api_call(message):
+#     token = os.environ.get("SLACK_API")
+#     PATH = "https://slack.com/api/chat.postMessage"
+#     header = {
+#         "Authorization": "Bearer" + token
+#         }
+    
+#     query_params = {
+#         "channel": "task-notifications",
+#         "text": message
+#     }
+    
+#     response = requests.post(PATH, data=query_params, headers=header)
+
+
+def slack_api_call(message):
+    API_KEY = os.environ.get("SLACK_TOKEN")
+    header = {"Authorization":API_KEY}
+    URL = "https://slack.com/api/chat.postMessage"
+    query_params = {"channel":"task-notifications", "text":message}
+
+    requests.post(URL, params=query_params, headers=header)
+
+
+
 @task_list_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_on_incomplete_task(task_id):
     task = validate_model(Task, task_id)
-    task.completed_at = datetime.datetime.today()
+    task.completed_at = datetime.datetime.utcnow()
     
     db.session.commit()
+    
+    slack_api_call(f"Someone just completed the task {task.title}")
     
     return jsonify({"task": task.to_dict()})
     
