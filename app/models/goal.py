@@ -5,8 +5,6 @@ class Goal(db.Model):
     title = db.Column(db.String)
     tasks = db.relationship("Task", back_populates="goal", lazy=True)
 
-
-
     def to_response_dict(self):
         goal_dict = {
             "id": self.goal_id,
@@ -21,4 +19,6 @@ class Goal(db.Model):
         new_obj.title = None if "title" not in data_dict else data_dict["title"]
 
         return new_obj
+
+    
 
