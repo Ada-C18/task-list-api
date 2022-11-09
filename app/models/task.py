@@ -14,10 +14,10 @@ class Task(db.Model):
 
     def to_dict(self):
         completed = None
-        if not self.completed_at:
-            completed = False
+        if self.completed_at:
+            completed = True
         else:
-            completed = True 
+            completed = False 
         
         if self.goal_id:
             return {

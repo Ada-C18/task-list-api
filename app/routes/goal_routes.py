@@ -2,22 +2,9 @@ from app import db
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.goal import Goal
 from app.models.task import Task
-from app.helper import validate_model
+from app.helper_validate import validate_model
 
 goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
-
-# validate 
-# def validate_model(cls, model_id):
-#     try:
-#         model_id = int(model_id)
-#     except:
-#         abort(make_response({"message": f"{cls.__name__} {model_id} is not a valid id"}, 400))
-    
-#     model = cls.query.get(model_id)
-#     if not model:
-#         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
-    
-#     return model
 
 # read all tasks
 @goal_bp.route("", methods=["GET"])
@@ -48,7 +35,7 @@ def create_goal():
 
     return {"goal": new_goal.to_dict()}, 201
 
-# # update task
+# update task
 @goal_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -59,7 +46,7 @@ def update_goal(goal_id):
     db.session.commit()
     return {"goal": goal.to_dict()}
 
-# # delete task
+# delete task
 @goal_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
     goal = validate_model(Goal, goal_id)
