@@ -4,21 +4,9 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from datetime import datetime, datetime
 import os
 import requests
+from app.routes.helper_functions import validate_model
 
 bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
-
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"details": "Invalid Data"}, 400))
-
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response({"details": "Invalid Data"}, 404))
-
-    return model
 
 
 @bp.route("/<task_id>", methods=["GET"])
