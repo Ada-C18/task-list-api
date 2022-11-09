@@ -128,7 +128,7 @@ def mark_icomplete(id):
 #print(r.text)
 def send_slack_message(message):
     API_KEY=os.environ.get("TOKEN")
-    header={"Authorization":"Bearer"+API_KEY}
+    header={"Authorization":API_KEY}
     URL="https://slack.com/api/chat.postMessage"
     query_params={"channel":"task-notifications", "text":message}
     response = requests.post(URL, data=query_params, headers=header)
