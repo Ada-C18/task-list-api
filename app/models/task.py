@@ -15,7 +15,8 @@ class Task(db.Model):
             id = self.id,
             title = self.title,
             description = self.description,
-            is_complete = False)
+            is_complete = False
+            )
 
     @classmethod
     def from_dict(cls, data_dict):
