@@ -146,11 +146,13 @@ def delete_one_Goal(goal_id):
 
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-def create_task(goal_id):
+def update_task(goal_id):
 
     goal = get_one_goal_or_abort(goal_id) #goalid=1
 
-    request_body = request.get_json() #will have task list
+    request_body = request.get_json() #{
+    #     "task_ids": [1, 2, 3]
+    # }
     task_id_list = request_body["task_ids"] #[1,2,3]=task list
     for task_id in task_id_list:
         task_obj=get_one_task_or_abort(task_id) #1
