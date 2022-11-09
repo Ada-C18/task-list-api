@@ -62,21 +62,17 @@ def read_all_tasks():
     else:
         tasks = Task.query.all()
         
-    # tasks_response = []
-    # for task in tasks:
-    #     tasks_response.append( 
-    #         {
-    #             "id": task.task_id,
-    #             "title": task.title,
-    #             "description": task.description,
-    #             "is_complete": bool(task.completed_at)
-    #         }
-    #     )
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append( 
+            {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            }
+        )
 
-    # ---------------- ^^refactored task_response^^ -----------------------------
-    # to call to_dict 
-    # as dict comprehension 
-    tasks_response = [task.to_dict() for task in tasks]
     
     # call the filter from the test ex. asc & desc
     if tasks_sort == "asc":
