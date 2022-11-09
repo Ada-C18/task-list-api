@@ -8,19 +8,6 @@ import requests
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 
-
-# create a task (POST)
-@tasks_bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-
-    new_task = validate_input_data(Task, request_body)
-
-    db.session.add(new_task)
-    db.session.commit()
-
-    return jsonify({"task": new_task.to_dict()}), 201
-
 # read one task (GET)
 @tasks_bp.route("/<id>", methods=["GET"])
 def read_one_task(id):
@@ -43,6 +30,19 @@ def read_all_tasks():
 
     tasks_response = [task.to_dict() for task in tasks]
     return jsonify(tasks_response)
+
+
+# create a task (POST)
+@tasks_bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+
+    new_task = validate_input_data(Task, request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify({"task": new_task.to_dict()}), 201
 
 
 # replace a task (PUT)
@@ -113,7 +113,6 @@ def delete_task(id):
     db.session.delete(task)
     db.session.commit()
 
-    # Returns error 
     return(make_response({"details": f"Task {id} \"{title}\" successfully deleted"}), 200)
 
 

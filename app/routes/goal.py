@@ -7,35 +7,6 @@ from flask import Blueprint, jsonify, make_response, request, abort
 
 goals_bp = Blueprint('goals_bp', __name__, url_prefix='/goals')
 
-# create a goal (POST) we want to create a task for a goal:
-@goals_bp.route("", methods=["POST"])
-def create_goal():
-    request_body = request.get_json()
-
-    new_goal = validate_input_data(Goal, request_body)
-
-    db.session.add(new_goal)
-    db.session.commit()
-
-    return jsonify({"goal": new_goal.to_dict()}), 201
-
-# --------- Wave 6: ------------
-@goals_bp.route("/<id>/tasks", methods=["POST"])
-def post_task_ids_to_goal(id):
-    request_body = request.get_json()
-    goal = validate_model(Goal, id)
-    
-    task_ids = request_body["task_ids"]
-    task_list = [Task.query.get(task) for task in task_ids]
-
-    for task in task_list:
-        task.goal_id = goal.id
-        db.session.add(task)
-        db.session.commit()
-
-    return make_response({"id": goal.id, "task_ids": task_ids}, 200)
-    
-    
 # read one goal (GET)
 @goals_bp.route("/<id>", methods=["GET"])
 def read_one_goal(id):
@@ -43,7 +14,7 @@ def read_one_goal(id):
 
     return jsonify({"goal": goal.to_dict()}), 200
 
-# read all tasks for specific goal
+
 @goals_bp.route("/<id>/tasks", methods=["GET"])
 def get_tasks_for_specific_goal(id):
     goal = validate_model(Goal, id)
@@ -65,19 +36,34 @@ def read_all_goals():
     return jsonify(goals_response)
 
 
-# Nested routes:
-# # returns all tasks associated with a specific id
-# @goals_bp.route("/<id>/tasks", methods=["GET"])
-# def get_tasks_from_goal(id):
-#     goal = validate_model(Goal, id)
-#     tasks = [Task.to_dict(task) for task in tasks]
+# create a goal (POST) 
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
 
-#     return make_response(({
-#         "id": goal.id,
-#         "title": goal.title,
-#         "tasks": tasks
-#     },200))
-  
+    new_goal = validate_input_data(Goal, request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return jsonify({"goal": new_goal.to_dict()}), 201
+
+
+@goals_bp.route("/<id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(id):
+    request_body = request.get_json()
+    goal = validate_model(Goal, id)
+    
+    task_ids = request_body["task_ids"]
+    task_list = [Task.query.get(task) for task in task_ids]
+
+    for task in task_list:
+        task.goal_id = goal.id
+        db.session.add(task)
+        db.session.commit()
+
+    return make_response({"id": goal.id, "task_ids": task_ids}, 200)
+
 
 # replace a goal (PUT)
 @goals_bp.route("/<id>", methods=["PUT"])
