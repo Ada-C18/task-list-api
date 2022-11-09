@@ -17,6 +17,8 @@ class Task(db.Model):
     def to_dict(self):
         if not self.completed_at:
             self.completed_at = False
+        else:
+            self.completed_at = True
         return dict(
             id=self.id,
             title=self.title,

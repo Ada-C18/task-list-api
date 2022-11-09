@@ -1,8 +1,8 @@
-"""added to task class
+"""Updated migrate folder
 
-Revision ID: b711732597df
+Revision ID: 107399730e6a
 Revises: 
-Create Date: 2022-11-05 13:34:14.246542
+Create Date: 2022-11-08 18:21:42.818162
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b711732597df'
+revision = '107399730e6a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,11 +23,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('goal_id')
     )
     op.create_table('task',
-    sa.Column('task_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(), nullable=False),
     sa.Column('description', sa.String(), nullable=False),
-    sa.Column('completed_at', sa.Integer(), nullable=True),
-    sa.PrimaryKeyConstraint('task_id')
+    sa.Column('completed_at', sa.String(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 

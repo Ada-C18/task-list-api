@@ -1,6 +1,9 @@
 from app import db
 from flask import Blueprint, jsonify, abort, make_response, request
+import requests
 from app.models.task import Task
+import datetime
+import os
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
@@ -22,19 +25,18 @@ def validate_task(cls,task_id):
 def read_all_task():
     
     sort_by_title_query = request.args.get("sort")
-
-    task_query = Task.query
+    tasks = ""
     tasks_response = []
     if sort_by_title_query:
         if sort_by_title_query == "asc":
-            tasks = task_query.order_by(Task.title.asc())
+            tasks = Task.query.order_by(Task.title.asc()).all()
         elif sort_by_title_query == "desc":
-            tasks = task_query.order_by(Task.title.desc())
-        else:
-            task_query = Task.query.all()
-
-
+            tasks = Task.query.order_by(Task.title.desc()).all()
+    else:
+        tasks = Task.query.all()
     tasks_response = [task.to_dict() for task in tasks]
+        # for task in tasks:
+        #     tasks_response.append(task.to_dict())
 
     return jsonify(tasks_response)
 
@@ -89,3 +91,36 @@ def delete_task(id):
     }
 
     return make_response(jsonify(response_body),200)
+
+@task_bp.route("/<id>/mark_incomplete", strict_slashes=False, methods =["PATCH"])
+def update_incomplete(id):
+    task = validate_task(Task,id)
+    task.completed_at = None
+    
+
+    db.session.commit()
+
+    return make_response(jsonify({"task":task.to_dict()}),200)
+
+def slack_bot(message):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("API_KEY")
+
+    query_params = {
+        "channel":"list",
+        "text": message
+        }
+    requests.post(PATH, params=query_params, headers={"Authorization":f"Bearer {SLACK_API_KEY }"})
+
+
+@task_bp.route("/<id>/mark_complete", strict_slashes=False, methods =["PATCH"])
+def update_complete(id):
+    task = validate_task(Task,id)
+    task.completed_at = datetime.datetime.now()
+
+    db.session.commit()
+
+    slack_bot(f"Someone just completed the task {task.title}")
+
+    return make_response(jsonify({"task":task.to_dict()}),200)
+
