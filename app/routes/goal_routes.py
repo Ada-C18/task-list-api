@@ -87,6 +87,24 @@ def read_one_goal(goal_id):
     return make_response(jsonify(goal_response), 200)
 
 #==============================
+#      READ GOAL TASKS
+#==============================
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_goal_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    tasks_list = [task.create_dict() for task in goal.tasks]
+    for task in tasks_list:
+        task["goal_id"] = goal.goal_id
+
+    goal_response = {"id": goal.goal_id,
+                    "title": goal.title,
+                    "tasks": tasks_list
+                    }
+
+    return make_response(jsonify(goal_response), 200)
+
+#==============================
 #         UPDATE GOAL
 #==============================
 @goal_bp.route("/<goal_id>", methods=["PUT"])
