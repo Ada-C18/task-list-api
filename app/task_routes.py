@@ -22,7 +22,6 @@ def validate_model(cls, model_id):
     
     return task_chosen
 
-########### task routes #########
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
