@@ -19,22 +19,18 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 def create_tasks():
     request_body = request.get_json()
     
-    if "name" not in request_body or "breed" not in request_body:
-        return make_response({"details": "Invalid data"}, 400)
-   
-    new_task = Task.from_dict(request_body) 
 
-    # try:
-    #     request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
-    #     new_task = Task(
-    #         title=request_body["title"],
-    #         description=request_body["description"],
-    #         completed_at=None
-    #         )
-    # # if missing atribute title, description, or completed_at
-    # # KeyError
-    # except KeyError:
-    #     return {"details": "Invalid data"}, 400
+    try:
+        request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"],
+            completed_at=None
+            )
+    # if missing atribute title, description, or completed_at
+    # KeyError
+    except KeyError:
+        return {"details": "Invalid data"}, 400
 
     #communicating to the db to collect and commit the changes made in this function
     #saying we want the database to add new_task
@@ -119,31 +115,29 @@ def read_all_tasks():
 def get_one_task(task_id):
     task = get_record_by_id(Task, task_id)
     # task = validate_goal(task_id)
-    
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": bool(task.completed_at)
-    #     }
-    #     }
+
+    return {
+        "task": {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }
+        }
 
 # ---------------- ^^refactored return statement^^ --------------------
-    return task.to_dict(), 200
+    # return task.to_dict(), 200
 
 # Defining Endpoint and Creating Route Function to UPDATE a Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = Task.query.get(task_id)
+    task = get_record_by_id(Task, task_id)
 
     request_body = request.get_json()
 
-    # task.title = request_body["title"]
-    # task.description = request_body["description"]
+    task.title = request_body["title"]
+    task.description = request_body["description"]
     
-    # ----------------- ^^ refactored ^^ -----------------------------
-    task.update(request_body)
 
     db.session.commit()
 
@@ -159,7 +153,7 @@ def update_task(task_id):
 # Defining Endpoint and Creating Route Function to DELETE a Task
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = Task.query.get(task_id)
+    task = get_record_by_id(Task, task_id)
     # task = validate_task(task_id) #old version without refactoring
 
     db.session.delete(task)
@@ -197,7 +191,7 @@ def slack_request(title):
 
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def patch_task_complete(task_id,complete):
-    task = Task.query.get(task_id)
+    task = get_record_by_id(Task, task_id)
     # task = validate_task(task_id)
 
 

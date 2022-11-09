@@ -12,20 +12,15 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 def create_goal():
     request_body = request.get_json()
 
-    if "title" not in request_body:
-        return make_response({"details": "Invalid data"}, 400)
 
-    new_goal = Goal.from_dict(request_body)
-    # ------------ ^^ refactored ^^ ------------------------------
-
-    # try:
-    #     request_body = request.get_json() 
-    #     new_goal = Goal(
-    #         title=request_body["title"]
-    #         )
+    try:
+        request_body = request.get_json() 
+        new_goal = Goal(
+            title=request_body["title"]
+            )
             
-    # except KeyError:
-    #     return {"details": "Invalid data"}, 400
+    except KeyError:
+        return {"details": "Invalid data"}, 400
 
     db.session.add(new_goal)
     db.session.commit()
@@ -76,28 +71,24 @@ def get_one_goal(goal_id):
     goal = get_record_by_id(Goal, goal_id)
     # goal = validate_goal(goal_id)
 
-    # return {
-    #     "goal": {
-    #         "id": goal.goal_id,
-    #         "title": goal.title,
-    #     }
-    #     }
+    return {
+        "goal": {
+            "id": goal.goal_id,
+            "title": goal.title,
+        }
+        }
 
-# ---------------- ^^refactored return statement^^ --------------------
-    return goal.to_dict(), 200
 
 # Defining Endpoint and Creating Route Function to UPDATE a Goal
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = Goal.query.get(goal_id)
+    goal = get_record_by_id(Goal, goal_id)
     # goal = validate_goal(goal_id)
 
     request_body = request.get_json()
 
-    # goal.title = request_body["title"]
+    goal.title = request_body["title"]
     
-    # ----------------- ^^ refactored ^^ -----------------------------
-    goal.update(request_body)
 
     db.session.commit()
 
@@ -112,7 +103,7 @@ def update_goal(goal_id):
 #Defining Endpoint and Creating Route Function to DELETE a goal
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = Goal.query.get(goal_id)
+    goal = get_record_by_id(Goal, goal_id)
     # goal = validate_goal(goal_id)
     
     db.session.delete(goal)

@@ -7,19 +7,19 @@ class Goal(db.Model):
     title = db.Column(db.String)
     tasks = db.relationship("Task", back_populates="goal")
 
-def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title
-        }
+    def to_dict(self):
+            return {
+                "id": self.goal_id,
+                "title": self.title
+            }
 
-@classmethod
-def from_dict(cls, request_body):
-    return cls(
-        title=request_body["title"]
-    )
-def update(self, req_body):
-        try: 
-            self.title = req_body["title"]
-        except KeyError:
-            abort(make_response({"details": "Invalid data"}, 400))
+    @classmethod
+    def from_dict(cls, request_body):
+        return cls(
+            title=request_body["title"]
+        )
+    def update(self, req_body):
+            try: 
+                self.title = req_body["title"]
+            except KeyError:
+                abort(make_response({"details": "Invalid data"}, 400))
