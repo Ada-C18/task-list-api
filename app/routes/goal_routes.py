@@ -1,6 +1,7 @@
 from app import db
 from flask import abort, Blueprint, jsonify, make_response, request
 from app.models.goal import Goal
+from app.models.task import Task
 
 
 
@@ -38,6 +39,24 @@ def create_goal():
     goal_response = {"goal": new_goal.create_dict()}
 
     return make_response(jsonify(goal_response), 201)
+
+#==============================
+#      CREATE GOAL TASKS
+#==============================
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_goal_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+
+    for task_id in request_body["task_ids"]:
+        task = validate_model(Task, task_id)
+        task.goal = goal
+    db.session.commit()
+
+    goal_response = {"id": goal.goal_id,
+                        "task_ids": request_body["task_ids"]}
+
+    return make_response(jsonify(goal_response), 200)
 
 #==============================
 #        READ ALL GOALS
