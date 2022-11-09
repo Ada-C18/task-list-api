@@ -25,16 +25,11 @@ def validate_model(cls, model_id):
 
     return model
 
-# def validate_task_id(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"Message": f"Task {task_id} invalid"}, 400))
-
-#     task = Task.query.get(task_id)
-#     if not task:
-#         abort(make_response({"Message": f"Task {task_id} not found"}, 404))
-#     return task
+# def validate_request_body(body):
+#     if "title" not in body or "description" not in body:
+#         return {
+#             "details": "Invalid data"
+#         }, 400
 
 
 def post_to_slack(task_title):
@@ -46,6 +41,19 @@ def post_to_slack(task_title):
     }
 
     response = requests.post(URL, params=request_params, headers=HEADER_AUTH)
+
+
+@tasks_bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+    # request_body = validate_request_body(request_body)
+
+    new_task = Task.from_dict(request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return {"task": new_task.to_dict()}, 201
 
 
 @tasks_bp.route("", methods=["GET"])
@@ -61,72 +69,14 @@ def get_all_tasks():
     tasks = task_query.all()
 
     tasks_response = [task.to_dict() for task in tasks]
-    # tasks_response = []
-    # for task in tasks:
-    #     # tasks_response.append(task.to_dict())
-    #     tasks_response.append(
-    #         {
-    #             "id": task.task_id,
-    #             "title": task.title,
-    #             "description": task.description,
-    #             "is_complete": bool(task.completed_at),
-    #         }
-    #     )
 
     return jsonify(tasks_response), 200
-
-
-@tasks_bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-
-    # try:
-    #     new_task = Task(title=request_body["title"],
-    #                     description=request_body["description"],
-    #                     completed_at=request_body["completed_at"])
-    # except KeyError:
-    #     return make_response({
-    #         "details": "Invalid data"
-    #         }, 400)
-
-    if "title" not in request_body or "description" not in request_body:
-        return {
-            "details": "Invalid data"
-        }, 400
-
-    new_task = Task.from_dict(request_body)
-    # new_task = Task(
-    #     title=request_body["title"],
-    #     description=request_body["description"],
-    #     completed_at=request_body["is_complete"]  # Use bool here?
-    # )
-
-    db.session.add(new_task)
-    db.session.commit()
-
-    return {"task": new_task.to_dict()}, 201
-    # return {
-    #     "task": {
-    #         "id": new_task.task_id,
-    #         "title": new_task.title,
-    #         "description": new_task.description,
-    #         "is_complete": bool(new_task.completed_at),
-    #     }
-    # }, 201
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
     return {"task": task.to_dict()}, 200
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": bool(task.completed_at),
-    #     }
-    # }, 200
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -141,14 +91,6 @@ def update_task(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}, 200
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": bool(task.completed_at),
-    #     }
-    # }, 200
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
@@ -173,14 +115,6 @@ def mark_task_complete(task_id):
     post_to_slack(task_title)
 
     return {"task": task.to_dict()}, 200
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": bool(task.completed_at),
-    #     }
-    # }, 200
 
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
@@ -192,11 +126,3 @@ def mark_task_incomplete(task_id):
     db.session.commit()
 
     return {"task": task.to_dict()}, 200
-    # return {
-    #     "task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-    #         "is_complete": bool(task.completed_at),
-    #     }
-    # }, 200

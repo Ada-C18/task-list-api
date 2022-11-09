@@ -51,8 +51,8 @@ This project is designed to fulfill the features described in detail in each wav
 4. [Wave 2: Using query params](ada-project-docs/wave_02.md)
 5. [Wave 3: Creating custom endpoints](ada-project-docs/wave_03.md)
 6. [Wave 4: Using an external web API](ada-project-docs/wave_04.md)
-   
 7. [Wave 5: Creating a second model](ada-project-docs/wave_05.md)
 8. [Wave 6: Establishing a one-to-many relationship between two models](ada-project-docs/wave_06.md)
+   
 9.  [Wave 7: Deployment](ada-project-docs/wave_07.md)
 10. [Optional Enhancements](ada-project-docs/optional-enhancements.md)
