@@ -25,6 +25,27 @@ def get_one_task_or_abort(task_id):
 
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
+    
+    sort_param = request.args.get("sort")
+    if sort_param == "asc":        
+        tasks = Task.query.order_by(Task.title.asc()).all()
+    elif sort_param is None:
+        tasks = Task.query.all()
+    elif sort_param == "desc":
+        tasks = Task.query.order_by(Task.title.desc()).all()
+
+    response = []
+    for task in tasks:
+        task_dict = {
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": False
+            }
+        response.append(task_dict)
+    return jsonify(response), 200
+    
+    
     name_param = request.args.get("title")
 
     if name_param is None:
@@ -73,8 +94,9 @@ def get_one_task(task_id):
             "completed at": chosen_task.completed_at,
             "is_complete": True}
         
-
     return jsonify({"task": task}), 200
+
+
 
 
 #-------------------------------------POST------------------------------------------------
