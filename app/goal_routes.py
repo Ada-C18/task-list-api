@@ -1,11 +1,12 @@
 from flask import Blueprint
 from app import db
+from app.models.task import Task
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
-
+from app.routes import validate_id
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
-def validate_id(goal_id):
+def validate_goal_id(goal_id):
     try:
         goal_id = int(goal_id)
     except:
@@ -45,13 +46,13 @@ def get_all_goals():
 ################ GET ONE GOAL ###################
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    goal= validate_id(goal_id)
+    goal= validate_goal_id(goal_id)
     return jsonify({"goal":goal.to_dict()}), 200
 
 ################ UPDATE GOAL ####################
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_id(goal_id)
+    goal = validate_goal_id(goal_id)
     request_body = request.get_json()
     goal.title=request_body["title"]
     db.session.commit()
@@ -60,9 +61,37 @@ def update_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = validate_id(goal_id)
+    goal = validate_goal_id(goal_id)
 
     db.session.delete(goal)
 
     db.session.commit()
-    return  make_response({"details": f"goal {goal_id} \"{goal.title}\" successfully deleted"})
+    return  make_response({"details": f"Goal {goal_id} \"{goal.title}\" successfully deleted"})
+
+########################
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_all_taskes_for_one_goal(goal_id):
+    
+    goal=validate_goal_id(goal_id)
+    #task=validate_id(id)
+    request_body = request.get_json()
+
+    new=[]
+    #for i in task:
+    
+    for id in request_body["task_ids"]:
+        task=validate_id(id)
+        new.append(task)    
+        #title=request_body["title"],
+       # description=request_body["description"],
+        #completed_at=request_body["completed_at"],
+        #is_completed=request_body["is_completed"],
+       
+    #new.append(new_task)
+    
+   
+    #db.session.add(new)
+    db.session.commit()
+    return jsonify({"id":goal.goal_id , "task_ids":request_body["task_ids"]})
