@@ -2,6 +2,8 @@ from flask import abort, Blueprint, jsonify, make_response, request
 from app import db
 from sqlalchemy import desc
 from datetime import datetime
+import os, requests
+from dotenv import load_dotenv
 
 from app.models.task import Task
 
@@ -81,6 +83,7 @@ def change_value_of_task(task_id, mark_tf):
         if mark_tf == 'mark_complete':
             task_to_patch.is_complete = True # True or False
             task_to_patch.completed_at = datetime.utcnow()
+            slackbot(task_to_patch.title)
         elif mark_tf == 'mark_incomplete':
             task_to_patch.is_complete = False # True or False
             task_to_patch.completed_at = None
@@ -104,3 +107,16 @@ def get_model_from_id(cls, model_id):
         return abort(make_response({"msg": f"Could not find task item with id: {model_id}"}, 404))
 
     return chosen_task
+
+def slackbot(text):
+    slack_auth=os.environ.get("SLACK_AUTH")
+    path = "https://slack.com/api/chat.postMessage"
+
+    query_params = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {text}"
+    }
+
+    query_headers = {"Authorization": slack_auth}
+
+    response = requests.get(path, params=query_params, headers=query_headers)
