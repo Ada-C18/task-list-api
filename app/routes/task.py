@@ -32,7 +32,7 @@ def get_tasks():
     task_query = Task.query
 
     if sort_query:
-        task_query = task_query.order_by(Task.title.asc()) if sort_query == "asc" else task_query.order_by(Task.title.desc())
+        task_query = task_query.order_by(Task.title.desc()) if sort_query == "desc" else task_query.order_by(Task.title.asc())
 
     tasks = task_query.all()
 
