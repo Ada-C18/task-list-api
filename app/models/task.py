@@ -1,6 +1,5 @@
 from app import db
 
-
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
@@ -9,7 +8,6 @@ class Task(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"), nullable=True)
     goal= db.relationship("Goal", back_populates="tasks", lazy=True)
     
-
     @classmethod
     def from_dict(cls, task_data):
         return cls(
@@ -24,6 +22,7 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": bool(self.completed_at)
         }
+        
     def to_dict_with_goal(self):
         return {
             "id": self.task_id,

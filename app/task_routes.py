@@ -1,10 +1,10 @@
 from app import db
 from app.models.task import Task 
 from datetime import datetime
+from dotenv import load_dotenv
 from flask import Blueprint, jsonify, abort, make_response, request
 import requests  
 import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -45,15 +45,8 @@ def get_one_task(task_id):
     if not task.goal_id:
         return {"task":task.to_dict()}
     else:
-        return jsonify({
-            "task":
-                    {"id": task.task_id,
-                    "description": task.description, 
-                    "title": task.title,
-                    "is_complete": bool(task.completed_at), 
-                    "goal_id": task.goal_id 
-                }}), 200  
-                
+        return {"task": task.to_dict_with_goal()}
+
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
@@ -61,7 +54,6 @@ def update_task(task_id):
     task.title = request_body["title"]
     task.description = request_body["description"]
     db.session.commit()
-
     return {"task":task.to_dict()}, 200
 
 @tasks_bp.route("<task_id>", methods=["DELETE"])

@@ -1,8 +1,10 @@
 from app import db
 from app.models.goal import Goal
-from flask import Blueprint, request, make_response, jsonify
-from app.task_routes import validate_model
 from app.models.task import Task 
+from app.task_routes import validate_model
+from flask import Blueprint, request, make_response, jsonify
+
+
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
@@ -49,7 +51,10 @@ def post_task_ids_to_goal(goal_id):
         task = validate_model(Task, task_id)
         goal.tasks.append(task)
         db.session.commit()
-    return make_response(jsonify({"id": goal.goal_id, "task_ids": request_body["task_ids"]})), 200
+    return make_response(jsonify({
+        "id": goal.goal_id,
+        "task_ids": request_body["task_ids"]
+        })), 200
 
 @goals_bp.route("<goal_id>/tasks", methods=["GET"])
 def read_tasks_for_specific_goal(goal_id):
