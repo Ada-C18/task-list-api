@@ -1,7 +1,11 @@
 from os import abort
 from app import db
 from app.models.task import Task
-from flask import Blueprint, jsonify, abort, make_response, request
+from flask import Blueprint, jsonify, abort, make_response, request 
+import requests
+from datetime import datetime
+import os
+from dotenv import load_dotenv
 
 tasks_bp=Blueprint('tasks_bp',__name__,url_prefix='/tasks')
 
@@ -85,10 +89,37 @@ def delete_task(task_id):
     return jsonify(task_response), 200
 
 # wave 3 
-@tasks_bp.route("/<task_id>", methods = ["PATCH"])  
-def partial_task_update(task_id):
+@tasks_bp.route("/<task_id>/mark_complete", methods = ["PATCH"]) 
+def one_task_complete(task_id):
     task = validate_task(task_id)
-    request_body = request.get_json()
+    date_time_now = datetime.now()
+    if task.completed_at == None:
+        task.completed_at = date_time_now
+    task_response = {"task": task.to_dict()}
+    db.session.commit()
+    load_dotenv()
+    # get_token = os.environ.get('SLACK_BOT')
+    # url = "https://slack.com/api/chat.postMessage?channel=slack-bot-test-channel&text=Hello%20World!&pretty=1"
+    URL = "https://slack.com/api/chat.postMessage"
+    payload={"channel":"slack-bot-test-channel",
+            "text": f"Someone just completed the task {task.title}"}
+
+    headers = {
+    "Authorization": os.environ.get('SLACK_BOT')
+    }
+
+    requests.post(URL, data=payload, headers=headers)
+    return jsonify(task_response), 200
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"]) 
+def task_incomplete(task_id):
+    task = validate_task(task_id)
+    if task.completed_at:
+        task.completed_at = None
+    task_response = {"task": task.to_dict()}
+    db.session.commit()
+    return jsonify(task_response), 200    
+
 
 
 
