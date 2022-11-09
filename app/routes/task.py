@@ -1,46 +1,12 @@
 from datetime import datetime
 from app import db
 from app.models.task import Task
+from app.routes.routes_helper import validate_model, validate_input_data, error_message
 from flask import Blueprint, jsonify, make_response, request, abort
+import os
+import requests
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
-goals_bp = Blueprint('goals_bp', __name__, url_prefix='/goals')
-
-
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-         abort(make_response(jsonify({"message":f"task {model_id} not found"}), 400))
-    
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response(jsonify({"message":f"task {model_id} not found"}), 404))
-    else:
-        return model
-
-def validate_input_data(data_dict):
-    try:
-        return Task.from_dict(data_dict)
-    except KeyError:
-        abort(make_response(jsonify(dict(details="Invalid data")), 400))
-
-# TASK MODEL
-# create a task (POST)
-@tasks_bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-
-    new_task = validate_input_data(request_body)
-
-    if not new_task.title or not new_task.description:
-        return make_response({"details": f"Invalid data"})
-
-    db.session.add(new_task)
-    db.session.commit()
-
-    return jsonify({"task": new_task.to_dict()}), 201
 
 # read one task (GET)
 @tasks_bp.route("/<id>", methods=["GET"])
@@ -48,14 +14,14 @@ def read_one_task(id):
     task = validate_model(Task, id)
 
     return jsonify({"task": task.to_dict()}), 200
-    
+
 # read all tasks (GET)
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
 
     sort_asc_query = request.args.get("sort")
 
-    if sort_asc_query == "asc":
+    if sort_asc_query == "asc": 
         tasks = Task.query.order_by(Task.title)
     elif sort_asc_query == "desc":
         tasks = Task.query.order_by(Task.title.desc())
@@ -66,6 +32,19 @@ def read_all_tasks():
     return jsonify(tasks_response)
 
 
+# create a task (POST)
+@tasks_bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+
+    new_task = validate_input_data(Task, request_body)
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify({"task": new_task.to_dict()}), 201
+
+
 # replace a task (PUT)
 @tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
@@ -74,9 +53,6 @@ def update_task(id):
     request_body = request.get_json()
 
     task.update(request_body)
-
-    # task.title = request_body["title"]
-    # task.description = request_body["description"]
 
     db.session.commit()
     
@@ -92,8 +68,31 @@ def mark_complete_task(id):
     task.completed_at = datetime.utcnow()
 
     db.session.commit()
-   
+
+    # send to slack-bot-test-channel the message "Someone just completed the task {task title}"
+    # reference key with SLACK_KEY = os.environ.get(“SLACK_KEY”)
+
+    url = "https://slack.com/api/chat.postMessage"
+
+    SLACK_KEY = os.environ.get("SLACK_KEY")
+
+    message = f"Someone just completed the task {task.title}"
+
+    query_params = {
+        "channel": "slack-bot-test-channel",
+        "text": message
+    }
+
+    headers = {
+        "Authorization": SLACK_KEY
+    }
+
+    response = requests.get(url, params=query_params, headers=headers)
+    json_response = response.json()
+    print(json_response)
+
     return jsonify({"task": task.to_dict()}), 200
+
 
 @tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
 def mark_incomple_task(id):
@@ -102,20 +101,18 @@ def mark_incomple_task(id):
     task.completed_at = None
 
     db.session.commit()
-   
+    
     return jsonify({"task": task.to_dict()}), 200
 
 
 # delete a task (DELETE)
-# @tasks_bp.route("/<id>", methods=["DELETE"])
+@tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_model(Task, id)
-    description = task.description 
+    title = str(task.title )
     db.session.delete(task)
     db.session.commit()
 
-    # Returns error 
-    return(make_response({"details": f"Task {id} {task.description} successfully deleted"}), 200)
-    
-    
+    return(make_response({"details": f"Task {id} \"{title}\" successfully deleted"}), 200)
+
 

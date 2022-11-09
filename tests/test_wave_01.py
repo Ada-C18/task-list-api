@@ -1,5 +1,5 @@
 from app.models.task import Task
-from app.routes import validate_model
+from app.routes.task import validate_model
 import pytest
 
 
@@ -51,7 +51,6 @@ def test_get_task(client, one_task):
         }
     }
 
-
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_not_found(client):
     # Act
@@ -60,7 +59,7 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == {"message": f"task 1 not found"}, 404
+    assert response_body == {"message": f"Task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -132,7 +131,7 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == {"message": f"task 1 not found"}, 404
+    assert response_body == {"message": f"Task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -140,7 +139,7 @@ def test_update_task_not_found(client):
     # *****************************************************************
 
 # Ask how to reference to a task.id that has been removed
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task(client, one_task):
     # Act
     response = client.delete("/tasks/1")
@@ -156,14 +155,14 @@ def test_delete_task(client, one_task):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_delete_task_not_found(client):
+def test_delete_task_not_found(client):
     # Act
     response = client.delete("/tasks/1")
     response_body = response.get_json()
 
     # Assert
     assert response.status_code == 404
-    assert response_body == {"message": f"task 1 not found"}, 404
+    assert response_body == {"message": f"Task 1 not found"}, 404
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
