@@ -1,5 +1,6 @@
 from app import db
 from app.models.task import Task
+from datetime import datetime
 from flask import Blueprint, abort, jsonify, make_response, request
 from sqlalchemy import asc, desc
 
@@ -48,18 +49,6 @@ def read_all_tasks():
         task_response.append(task.to_dict())
     return make_response(jsonify(task_response), 200)
 
-    # tasks_response = []
-    # tasks = Task.query.all()
-    # for task in tasks:
-    #     tasks_response.append(
-    #         {
-    #             "id": task.task_id,
-    #             "title": task.title,
-    #             "description": task.description,
-    #             "is_complete": False
-    #         }
-    #     )
-    # return make_response(jsonify(tasks_response), 200)
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
@@ -88,11 +77,23 @@ def delete_task(task_id):
 
     return make_response({"details":f"Task {task.task_id} \"{task.title}\" successfully deleted"}), 200
 
-# @tasks_bp.route("", methods=["GET"])
-# def get_tasks_sorted():
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    task = validate_model(Task, task_id)
 
+    task.completed_at = datetime.utcnow()
+    db.session.commit()
 
+    return make_response({"task": task.to_dict()}, 200)
 
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    task = validate_model(Task, task_id)
+
+    task.completed_at = None
+    db.session.commit()
+
+    return make_response({"task": task.to_dict()}, 200)
 
 
 
