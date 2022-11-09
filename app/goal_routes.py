@@ -21,10 +21,7 @@ def create_goal():
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
     goals = Goal.query.all()
-    goal_response = []
-    for goal in goals:
-        goal_response.append(goal.to_dict())
-    return jsonify(goal_response)
+    return jsonify([goal.to_dict() for goal in goals])
 
 @goals_bp.route("<model_id>",methods=["GET"])
 def read_one_goal(model_id):
