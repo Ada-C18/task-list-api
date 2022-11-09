@@ -70,7 +70,7 @@ def create_task_ids(goal_id):
     goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
-    goal.tasks += [Task.query.get(task_id) for task_id in request_body['task_ids']]
+    goal.tasks = [Task.query.get(task_id) for task_id in request_body['task_ids']]
 
     db.session.commit()
     return make_response(jsonify({'id': goal.goal_id, 'task_ids': [ task.task_id for task in goal.tasks]}))
