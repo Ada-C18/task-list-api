@@ -6,9 +6,11 @@ import os
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
-    description = db.Column(db.String)
+    title = db.Column(db.String, nullable=False)
+    description = db.Column(db.String, nullable=False)
     completed_at = db.Column(db.DateTime, default=None)
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"))
+    goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
         task = {
@@ -17,6 +19,9 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": self.completed_at is not None
         }
+
+        if self.goal_id:
+            task["goal_id"] = self.goal_id
 
         return task
 
