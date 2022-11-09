@@ -3,12 +3,12 @@ from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
 from sqlalchemy import desc #(used in read_all_tasks for sorting)
-import os
-from slackclient import SlackClient
-
+import requests
+import os 
+# from slackclient import SlackClient #Alternate method 3 (below to call external api)
 
 SLACK_TOKEN = os.environ.get('SLACK_TOKEN', None)
-slack_client = SlackClient(SLACK_TOKEN)
+# slack_client = SlackClient(SLACK_TOKEN) #Alternate method 3
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -107,10 +107,24 @@ def update_task_mark_complete_or_incomplete(task_id, mark):
         task.completed_at = datetime.utcnow().date()
         #Source: https://stackoverflow.com/questions/27587127/how-to-convert-datetime-date-today-to-utc-time
         
-        channel_id = "C04A2GQ53NF" 
-        message = f"Someone just completed the task {task.title}"
         
-        send_message(channel_id=channel_id, message=message)
+        channel = "text-notifications"
+        message = f"Someone just completed the task {task.title}"
+        access_token = SLACK_TOKEN
+        my_headers = {'Authorization' : f'Bearer {access_token}'}
+        
+        #Method 1:
+        response = requests.post(f'https://slack.com/api/chat.postMessage', 
+            data={"channel": channel,"text": message},
+            headers=my_headers,json=True)
+        
+        #Alternate Method 2:
+        #response = requests.post(f'https://slack.com/api/chat.postMessage?channel={channel}&text={message}&pretty=1', headers=my_headers)
+        #Source: https://www.nylas.com/blog/use-python-requests-module-rest-apis/
+        
+        #Alternate Method 3: 
+        # channel_id = "C04A2GQ53NF" 
+        # send_message(channel_id=channel_id, message=message)
         #Source: https://realpython.com/getting-started-with-the-slack-api-using-python-and-flask/
     
     elif mark == "mark_incomplete":
@@ -130,11 +144,11 @@ def delete_route(task_id):
     
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200
 
-#Helper Function to call slack api
-def send_message(channel_id, message):
-    slack_client.api_call(
-        "chat.postMessage",
-        channel=channel_id,
-        text=message,
-    )
+#Helper Function to call slack api (Alternate Method 3)
+# def send_message(channel_id, message):
+#     slack_client.api_call(
+#         "chat.postMessage",
+#         channel=channel_id,
+#         text=message,
+#     )
 #Source: https://api.slack.com/methods/chat.postMessage/code
