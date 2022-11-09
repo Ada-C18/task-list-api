@@ -109,3 +109,36 @@ def delete_goal(goal_id):
     return {
         "details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'
     }
+
+# ------------------------------- NESTED ROUTES ---------------------------------------------------
+# Send a list of tasks IDs to a specific goal (ID)
+#   get a list of all tasks with the provided task ids
+#   set each task FK with the goal id
+    # goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
+# 
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def give_task_to_goal(goal_id):
+    request_body = request.get_json()
+    
+    #accessing the list of task_ids
+    request_body["task_ids"]
+    for id in request_body["task_ids"]:
+        id = int(id)
+        #gets the task object/dictionary
+        task = Task.query.get(id)
+        task.goal_id = goal_id
+        print(task.goal_id)
+
+    db.session.add(task.goal_id)
+    db.session.commit()
+
+    # return {
+    #     "id": task.goal_id,
+    #     "task_ids": [1, 2, 10]
+    # }
+
+    return "testing"
+    
+
+    
