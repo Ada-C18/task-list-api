@@ -114,7 +114,7 @@ def get_all_tasks_for_one_goal(goal_id):
 
     task_list = []
     for task in goal.tasks:
-        task_list.append(task.to_dict_all_tasks_with_goal())
+        task_list.append(Task.to_dict_all_tasks_with_goal(task))
 
     return jsonify({"id": goal.goal_id, "title": goal.title, "tasks": task_list}), 200
 
