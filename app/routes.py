@@ -1,5 +1,6 @@
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
 from sqlalchemy import desc, asc
 from datetime import date
@@ -73,7 +74,14 @@ def read_all_tasks():
 @ tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_task(task_id)
-    return {'task': task.to_dict()}
+    if not task.goal_id:
+        return {'task': task.to_dict()}
+    else:
+        task_dict = task.to_dict()
+        # task_as_dict["goal_id"] = self.goal_id
+        task_dict["goal_id"] = task.goal_id
+
+        return {'task': task_dict}
 
 
 @ tasks_bp.route("/<task_id>", methods=["PUT"])
