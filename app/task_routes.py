@@ -134,9 +134,7 @@ def slack_helper(title):
     # headers = {
     # "Authorization": os.environ.get('token_slack')
     # }
-    headers = {
-    "Authorization":  "Bearer xoxb-3833211039014-4343570498547-z13ipFiCkfUPpQDZKBYuxpmZ"
-    }
+#     
     return requests.post(URL,headers=headers, data=payload) 
 
 
