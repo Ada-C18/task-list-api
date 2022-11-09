@@ -54,7 +54,7 @@ The following are required routes for wave 1. Feel free to implement the routes 
 
 In addition to testing your code with pytest and postman, you can play test your code with the CLI (Command Line Interface) by running `python3 cli/main.py`. The flask server needs to be running to run the CLI.
 
-### Create a Task: Valid Task With `null` `completed_at`
+### [x] Create a Task: Valid Task With `null` `completed_at`
 
 As a client, I want to be able to make a `POST` request to `/tasks` with the following HTTP request body
 
@@ -83,7 +83,7 @@ and get this response:
 
 so that I know I successfully created a Task that is saved in the database.
 
-### Get Tasks: Getting Saved Tasks
+### [x] Get Tasks: Getting Saved Tasks
 
 As a client, I want to be able to make a `GET` request to `/tasks` when there is at least one saved task and get this response:
 
@@ -106,7 +106,7 @@ As a client, I want to be able to make a `GET` request to `/tasks` when there is
 ]
 ```
 
-### Get Tasks: No Saved Tasks
+### DONE Get Tasks: No Saved Tasks
 
 As a client, I want to be able to make a `GET` request to `/tasks` when there are zero saved tasks and get this response:
 
@@ -116,7 +116,7 @@ As a client, I want to be able to make a `GET` request to `/tasks` when there ar
 []
 ```
 
-### Get One Task: One Saved Task
+### DONE Get One Task: One Saved Task
 
 As a client, I want to be able to make a `GET` request to `/tasks/1` when there is at least one saved task and get this response:
 
@@ -133,7 +133,7 @@ As a client, I want to be able to make a `GET` request to `/tasks/1` when there 
 }
 ```
 
-### Update Task
+### DONE Update Task
 
 As a client, I want to be able to make a `PUT` request to `/tasks/1` when there is at least one saved task with this request body:
 
@@ -161,7 +161,7 @@ and get this response:
 
 Note that the update endpoint does update the `completed_at` attribute. This will be updated with custom endpoints implemented in Wave 03.
 
-### Delete Task: Deleting a Task
+### DONE Delete Task: Deleting a Task
 
 As a client, I want to be able to make a `DELETE` request to `/tasks/1` when there is at least one saved task and get this response:
 
@@ -173,7 +173,7 @@ As a client, I want to be able to make a `DELETE` request to `/tasks/1` when the
 }
 ```
 
-### No matching Task: Get, Update, and Delete
+### DONE No matching Task: Get, Update, and Delete
 
 As a client, if I make any of the following requests:
 
@@ -190,7 +190,7 @@ You may choose the response body.
 Make sure to complete the tests for non-existing tasks to check that the correct response body is returned.
  
 
-### Create a Task: Invalid Task With Missing Data
+### DONE Create a Task: Invalid Task With Missing Data
 
 #### Missing `title`
 
