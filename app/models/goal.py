@@ -16,7 +16,6 @@ class Goal(db.Model):
         return {
             "id": self.id,
             "title": self.title    
-        
         }
 
     def update(self,req_body):
