@@ -34,7 +34,8 @@ def create_one_task():
     try:
         new_task = Task(
             title=request_body["title"],
-            description=request_body["description"]
+            description=request_body["description"],
+            # goal_id=request_body["goal_id"]
             # completed_at=request_body["completed_at"]
         )
     except:
