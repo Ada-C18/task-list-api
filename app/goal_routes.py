@@ -1,22 +1,12 @@
 from app import db
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request,abort
+from app.models.task import Task
 from sqlalchemy import desc, asc
+from app.task_routes import validate_model
+
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
-
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
-        
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
-    return model
-
 
 @goals_bp.route("", methods=["POST"])
 def create_goal():
@@ -39,7 +29,6 @@ def get_all_goals():
         goals_response.append(goal.to_dict())
 
     return jsonify(goals_response)
-    # return [{"task":tasks.to_dict()}]
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
@@ -56,16 +45,41 @@ def delete_goal(goal_id):
     
     return {'details': f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}
 
-# @goals_bp.route("/<goal_id>", methods=["PUT"])
-# def update_goal(goal_id):
-#     goal = validate_model(Goal,goal_id)
 
-#     request_body = request.get_json()
-#     # if "title" not in request_body:
-#     #     request_body["title"]= None
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_model(Goal,goal_id)
+    request_body = request.get_json()
+    
+    goal.title = request_body["title"]
+    db.session.commit()
+    return{"goal": goal.to_dict()},200
 
-#     goal.title = request_body["title"]
 
-#     db.session.commit()
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def get_tasks_for_specific_goal(goal_id):
+    goal = validate_model(Goal,goal_id)
 
-#     return {"goal":goal.to_dict()}
+    request_body = request.get_json()
+    task_ids= []
+    for task_id in request_body["task_ids"]:
+        task = validate_model(Task,task_id)
+        goal.tasks.append(task)
+        task_ids.append(task_id)
+    db.session.commit()
+    return {"id":goal.goal_id,
+            "task_ids":task_ids},200
+    
+    
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_task_includes_goal_id(goal_id):
+    
+    goal = validate_model(Goal,goal_id)
+
+    response_body = []
+    for task in goal.tasks:
+        response_body.append(task.other_dict())
+        
+    return {"id": goal.goal_id,
+            "title": goal.title,
+            "tasks": response_body}
