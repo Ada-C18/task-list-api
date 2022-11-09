@@ -196,7 +196,8 @@ def slack_request(title):
 
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
 def patch_task_complete(task_id,complete):
-    task = validate_task(task_id)
+    task = Task.query.get(task_id)
+    # task = validate_task(task_id)
 
 
     if complete == "mark_complete":
