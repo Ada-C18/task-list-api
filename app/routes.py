@@ -109,6 +109,11 @@ def get_all_goals():
 
     return jsonify(result), 200
 
+@goal_bp.route('/<goal_id>', methods=['GET'])
+def get_one_goal(goal_id):
+    chosen_goal = get_model_from_id(Goal, goal_id)
+    return jsonify({"goal": chosen_goal.to_dict()}), 200
+
 
 def get_model_from_id(cls, model_id):
     try:
