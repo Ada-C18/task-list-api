@@ -42,6 +42,18 @@ def read_one_goal(id):
     goal = validate_model(Goal, id)
 
     return jsonify({"goal": goal.to_dict()}), 200
+
+# read all tasks for specific goal
+@goals_bp.route("/<id>/tasks", methods=["GET"])
+def get_tasks_for_specific_goal(id):
+    goal = validate_model(Goal, id)
+    if not goal:
+        return make_response({"details": "Id not found"}, 404)
+
+    tasks = [Task.to_dict(task) for task in goal.tasks]
+
+    return make_response({"id": goal.id, "title": goal.title, "tasks": tasks})
+     
     
 # read all goals (GET)
 @goals_bp.route("", methods=["GET"])
@@ -52,18 +64,19 @@ def read_all_goals():
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
 
-# Nested routes:
-# returns all tasks associated with a specific id
-@goals_bp.route("/<id>/tasks", methods=["GET"])
-def get_tasks_from_goal(id):
-    goal = validate_model(Goal, id)
-    tasks = [Task.to_dict(task) for task in tasks]
 
-    return make_response(({
-        "id": goal.id,
-        "title": goal.title,
-        "tasks": tasks
-    },200))
+# Nested routes:
+# # returns all tasks associated with a specific id
+# @goals_bp.route("/<id>/tasks", methods=["GET"])
+# def get_tasks_from_goal(id):
+#     goal = validate_model(Goal, id)
+#     tasks = [Task.to_dict(task) for task in tasks]
+
+#     return make_response(({
+#         "id": goal.id,
+#         "title": goal.title,
+#         "tasks": tasks
+#     },200))
   
 
 # replace a goal (PUT)
