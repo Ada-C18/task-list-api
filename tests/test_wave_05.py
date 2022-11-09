@@ -1,4 +1,5 @@
 import pytest
+from app.models.goal import Goal 
 
 
 def test_get_goals_no_saved_goals(client):
@@ -99,7 +100,7 @@ def test_update_goal_not_found(client):
     assert response_body == ({"message":"Goal 1 does not exist."}) 
     
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_goal(client, one_goal):
     # Act
     response = client.delete("/goals/1")
@@ -115,25 +116,19 @@ def test_delete_goal(client, one_goal):
     # Check that the goal was deleted
     response = client.get("/goals/1")
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
+    assert Goal.query.get(1) == None 
 
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
-    raise Exception("Complete test")
 
     # Act
-    # ---- Complete Act Here ----
-
+    response = client.delete("/task/1")
+    response_body = response.get_json()
     # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
+    assert response.status_code == 404
+    assert {"message": "Goal 1 does not exist."}
+    assert Goal.query.all() == []
 
 
 def test_create_goal_missing_title(client):
