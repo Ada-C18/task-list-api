@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app.models.goal import Goal
 from app import db
+from .task import get_task_from_id
 
 goal_bp = Blueprint("goal", __name__, url_prefix = "/goals")
-
 
 # Helper function
 def get_goal_from_id(goal_id):
@@ -13,7 +13,7 @@ def get_goal_from_id(goal_id):
         return abort(make_response({"message" : f"{goal_id} is invalid"}, 400))
 
     chosen_goal = Goal.query.get(goal_id)
-   
+    
     if chosen_goal is None:
         return abort(make_response({'msg': f' Could not find goal item with id : {goal_id}'}, 404))
      
@@ -41,7 +41,7 @@ def get_all_goals():
     response = []
     for goal in goals:    
         response.append(goal.to_dict())
-
+    
     return make_response(jsonify(response), 200)
 
 
@@ -55,10 +55,10 @@ def get_one_goal(goal_id):
 
 @goal_bp.route('/<goal_id>', methods= ['PUT'])
 def update_one_goal(goal_id):
+
     update_goal= get_goal_from_id(goal_id)
 
     request_body = request.get_json()
-
     try: 
         update_goal.title = request_body["title"]
     except KeyError:
@@ -70,6 +70,7 @@ def update_one_goal(goal_id):
 
 @goal_bp.route('/<goal_id>', methods= ['DELETE'])
 def delete_one_goal(goal_id):
+
     goal_to_delete = get_goal_from_id(goal_id)
 
     db.session.delete(goal_to_delete)
@@ -79,4 +80,34 @@ def delete_one_goal(goal_id):
              "details": f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'
             }), 200
 
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def sending_tasks_to_goal(goal_id):
+
+    goal = get_goal_from_id(goal_id)
+    request_body = request.get_json()
+
+    for task_id in request_body["task_ids"]:
+        task = get_task_from_id(task_id)
+        task.goal_id = goal_id
+        db.session.add(task)
+        db.session.commit()
+
+    return make_response(jsonify({"id":goal.goal_id, "task_ids":request_body["task_ids"]}), 200)
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_of_one_goal(goal_id):
+    
+    goal = get_goal_from_id(goal_id)
+    tasks_list=[]
+    for task in goal.tasks:
+        tasks_list.append(task.to_dict())
+        
+    goal_dict = goal.to_dict()
+    goal_dict['tasks']=tasks_list
+    
+    
+    return jsonify(goal_dict), 200
+    
+    
 

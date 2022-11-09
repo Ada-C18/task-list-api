@@ -5,8 +5,6 @@ from datetime import datetime
 import os
 import requests
 
-
-
 task_bp = Blueprint("task", __name__, url_prefix = "/tasks")
 
 # Helper function
@@ -27,12 +25,14 @@ def get_task_from_id(task_id):
 @task_bp.route('', methods= ['POST'])
 def create_one_task():
     request_body = request.get_json()
+    
     try:
         new_task = Task(title=request_body['title'], 
-                        description=request_body['description'])
-                    # completed_at=request_body['completed_at'])
+                        description=request_body['description']
+                        )
     except:
         return abort(make_response({"details": "Invalid data"}, 400))
+    
 
     db.session.add(new_task)
     db.session.commit()
@@ -43,7 +43,6 @@ def create_one_task():
 @task_bp.route('', methods=["GET"])
 def get_all_tasks():
     query_value = request.args.get("sort") 
-    # It's better to check for None rather than check for falsey, in case we are checking for value equal to 0 or False.
     
     if query_value == "asc" :
         tasks = Task.query.order_by(Task.title.asc()).all()
