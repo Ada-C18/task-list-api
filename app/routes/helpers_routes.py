@@ -1,4 +1,7 @@
 from flask import jsonify, abort, make_response
+from dotenv import load_dotenv
+import os
+import requests
 
 
 def validate_obj(cls, obj_id):
@@ -15,3 +18,22 @@ def validate_obj(cls, obj_id):
         abort(make_response(jsonify({"message": response_str}), 404))
 
     return obj
+
+
+# INTEGRATE SLACK API
+def send_slack_message(message):
+    try:
+        PATH = "https://slack.com/api/chat.postMessage"
+        API_KEY = os.environ.get("SLACK_API_KEY")
+
+        headers = {"Authorization": API_KEY}
+
+        post_body = {
+            "channel": "task-notifications",
+            "text": message
+        }
+
+        requests.post(
+            PATH, params=post_body, headers=headers)
+    except:
+        print(f"Message to Slack failed")
