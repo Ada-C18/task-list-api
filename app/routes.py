@@ -70,8 +70,14 @@ def add_task():
 def list_all_tasks():
     
     title_query = request.args.get("title")
+    sort_query = request.args.get("sort")
+
     if title_query:
         tasks = Task.query.filter_by(title=title_query)
+    elif sort_query == "asc":
+        tasks = Task.query.order_by(Task.title)
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
     else:
         tasks = Task.query.all()
 
