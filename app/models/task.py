@@ -6,7 +6,7 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)  
-    #is_complete = db.Column(db.Boolean)
+
 
     goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
     goal = db.relationship("Goal", back_populates="tasks")
@@ -18,5 +18,29 @@ class Task(db.Model):
                 "id": self.task_id,
                 "title": self.title,
                 "description": self.description,
-                "is_complete": bool(self.completed_at) 
+                "is_complete": bool(self.completed_at),
+                # "goal_id": self.goal_id     #added this
         }
+
+    def to_dict_two(self):
+        return {
+            "id":self.task_id,
+            "goal_id":self.task_id,
+            "title":self.title,
+            "description": self.description,
+            "is_complete": bool(self.completed_at)
+        }
+
+
+
+
+
+
+    @classmethod
+    def from_dict(cls, task_dict):
+        return cls(
+            title=task_dict["title"],
+            description=task_dict["description"],
+            completed_at=task_dict["completed_at"],
+            # goal_id=task_dict["goal_id"]
+        )

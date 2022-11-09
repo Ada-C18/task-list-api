@@ -1,13 +1,15 @@
 from app import db
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
+from app.models.task import Task
+from app.routes import get_task_from_id
 
 
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
 #helper function to get goal by id:  ----> needs to be refactored.
-def get_goal_from_id(goal_id):
+def validate_goal_id(goal_id):
     try:
         goal_id = int(goal_id)
     except ValueError:
@@ -44,7 +46,7 @@ def get_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
-    goal = get_goal_from_id(goal_id)
+    goal = validate_goal_id(goal_id)
     return jsonify({
         "goal": goal.to_dict()
     })
@@ -52,7 +54,7 @@ def read_one_goal(goal_id):
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     request_body = request.get_json()
-    goal = get_goal_from_id(goal_id)
+    goal = validate_goal_id(goal_id)
 
     if "title" not in request_body:
         return jsonify({"msg": "Request must include a title"}),400
@@ -67,7 +69,7 @@ def update_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = get_goal_from_id(goal_id)
+    goal = validate_goal_id(goal_id)
 
     db.session.delete(goal)
     db.session.commit()
@@ -80,7 +82,38 @@ def delete_goal(goal_id):
 
 
 
-
+# route to find a goal with id that matches the goal_id of tasks
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
-def get_task_for_goal(goal_id):
-    pass
+def send_list_of_tasks_ids_to_a_goal(goal_id):
+    request_body = request.get_json()
+    chosen_goal = validate_goal_id(goal_id)
+    for task_id in request_body["task_ids"]:
+        new_chosen_task = get_task_from_id(task_id)
+        chosen_goal.tasks.append(new_chosen_task)
+
+    db.session.commit()
+    response_body = {
+        "id": chosen_goal.goal_id,
+        "task_ids": request_body["task_ids"]
+    }
+    return jsonify(response_body), 200
+
+
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def getting_task_of_one_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    tasks = []
+    for item in goal.tasks:
+        tasks.append(Task.to_dict_two(item))
+
+    response_body = {
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": tasks
+    }
+    db.session.commit()
+
+    return jsonify(response_body), 200

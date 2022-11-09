@@ -33,6 +33,7 @@ def create_one_task():
     new_task = Task( 
         title=request_body["title"],
         description=request_body["description"],)
+    #new_task = Task.from_dict(request_body)
     db.session.add(new_task)
     db.session.commit()
 
@@ -63,9 +64,14 @@ def get_all_tasks():
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
-    return jsonify ({ 
-        "task": chosen_task.to_dict()
+    if chosen_task.goal_id:
+        return jsonify ({ 
+        "task": chosen_task.to_dict_two()
     })
+    else:
+        return jsonify ({ 
+            "task": chosen_task.to_dict()
+        })
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -132,18 +138,3 @@ def delete_one_task(task_id):
     return jsonify({
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
         })
-
-
-#helper function to get task by id:
-# def get_task_from_id(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except ValueError:
-#         return abort(make_response({"msg":f"Invalid data type: {task_id}"}, 400))
-#     chosen_task = Task.query.get(task_id)
-
-#     if chosen_task is None:
-#         return abort(make_response({"msg": f"Could not find task item with id: {task_id}"}, 404))
-#     return chosen_task
-
-
