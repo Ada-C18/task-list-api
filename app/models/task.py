@@ -21,11 +21,9 @@ class Task(db.Model):
             return True
     
     def to_dict(self):
-        return {"task": 
-            {
+        return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.is_complete()
             }
-                }
