@@ -57,7 +57,3 @@ class Task(db.Model):
                 self.description = req_body["description"]
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"}, 400))
-
-    # def validate_datetime(self):
-    #     if not type(self.completed_at) == type(datetime.datetime.now()):
-    #         abort(make_response({"message":f"Invalid datetime format: {self.completed_at}"}, 400))
