@@ -16,6 +16,10 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": self.is_complete()
         }
+
+        if self.goal_id is not None:
+            task_dict["goal_id"] = self.goal_id
+            
         return task_dict
 
     @classmethod

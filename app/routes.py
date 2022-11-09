@@ -225,13 +225,20 @@ def post_task_belonging_to_a_goal(goal_id):
     return jsonify(response_body), 200
 
 
-# @goal_bp.route("/<goal_id>/task", methods=["GET"])
-# def get_all_tasks_belonging_to_a_goal(goal_id):
-#     goal = get_one_obj_or_abort(Goal, goal_id)
+# goal dict and task dict 
 
-#     tasks_response = [task.to_response_dict() for task in goal.tasks]
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_all_tasks_belonging_to_a_goal(goal_id):
+    goal = get_one_obj_or_abort(Goal, goal_id)
 
-#     return jsonify(tasks_response), 200
+    tasks_response = [task.to_response_dict() for task in goal.tasks]
+
+    goals_response = goal.to_response_dict()
+    goals_response["tasks"] = tasks_response
+
+    return jsonify(goals_response), 200
+
+
 
 
 
