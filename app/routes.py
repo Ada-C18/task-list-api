@@ -6,7 +6,9 @@ import os, requests
 from dotenv import load_dotenv
 
 from app.models.task import Task
+from app.models.goal import Goal
 
+# task
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 @task_bp.route('', methods=['GET'])
@@ -21,7 +23,6 @@ def get_all_tasks():
         tasks = Task.query.order_by(desc(Task.title)).all()
     else:
         tasks = Task.query.all()
-
 
     result = []
     for item in tasks:
@@ -93,6 +94,20 @@ def change_value_of_task(task_id, mark_tf):
 
     db.session.commit()
     return jsonify({"task": task_to_patch.to_dict()}), 200
+
+
+# goal
+goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+@goal_bp.route('', methods=['GET'])
+def get_all_goals():
+    goals = Goal.query.all()
+
+    result = []
+    for item in goals:
+        result.append(item.to_dict())
+
+    return jsonify(result), 200
 
 
 def get_model_from_id(cls, model_id):
