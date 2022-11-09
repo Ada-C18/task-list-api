@@ -55,7 +55,7 @@ def get_all_tasks():
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": task.is_complete  # bool(task.completed_at)
+            "is_complete": task.is_complete 
         })
 
     return make_response(jsonify(tasks_response), 200)
@@ -151,7 +151,7 @@ def slack_post(task_id):
     task = validate_task_id(task_id)
     return requests.post('https://slack.com/api/chat.postMessage', {
         'token': os.environ.get('API_KEY'),
-        'channel': 'C049FHLN615',
+        'channel': 'C049FQLJTBN',
         'text': f'Someone just completed the task {task.title}'}).json()
 
 
@@ -246,44 +246,29 @@ def delete_task(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id):
     goal = validate_goal_id(goal_id)
-    request_body = request.get_json()
-    for task_id in request_body['task_ids']:
-        task = Task.query.get(task_id)
-        task.goal_id = goal.goal_id
-    # tasks = [ validate_task(task_id) for task_id in task_ids ]
+    request_body = request.get_json()  
+
+    for task_id in request_body['task_ids']:  
+        task = Task.query.get(task_id)  
+        task.goal_id = goal.goal_id  
+
     db.session.commit()
-        
 
     response = {"id": goal.goal_id,
                 "task_ids": request_body['task_ids']}
 
     return make_response(response, 200)
 
-# {
-#   "task_ids": [1, 2, 3]
-# }
-
-
-# {
-#   "id": goal.goal_id (1),
-#   "task_ids": [1, 2, 3]
-# }
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
-def get_tasks_for_one_goal(goal_id):
+def get_tasks_from_goal(goal_id):
     goal = validate_goal_id(goal_id)
-    task_list = []
-    task = Task.query.get(goal_id)
-    
-    for task in goal.task:
-        task_list.append(task)
-            
-    # db.session.query(Goal).filter_by(task.goal_id)
-        
+
+    tasks = [Task.to_dict(task) for task in goal.tasks]
     response = {
-        "id": goal.goal_id,
+        "id": int(goal_id),
         "title": goal.title,
-        "tasks": request_body[task_list]
+        "tasks": tasks
     }
     
     return make_response(response, 200)

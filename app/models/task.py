@@ -6,8 +6,21 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
-    is_complete = db.Column(db.Boolean, default=False)  
-    # #one-to-many relationship where goal has-many tasks, and a task belongs to one goal
-    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
+    is_complete = db.Column(db.Boolean, default=False)
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
     goal = db.relationship("Goal", back_populates="tasks")
-    # #db.relationship is a fx that adds on an attr to our Task model and returns the goal instance for that task
+
+    def to_dict(self):
+        task_dict = {}
+        task_dict["id"] = self.task_id
+        task_dict["title"] = self.title
+        task_dict["description"] = self.description
+        if self.completed_at == None:
+            task_dict["is_complete"] = False
+        else:
+            task_dict["is_complete"] = True
+        if self.goal_id == None:
+            pass
+        else:
+            task_dict["goal_id"] = self.goal_id
+        return task_dict
