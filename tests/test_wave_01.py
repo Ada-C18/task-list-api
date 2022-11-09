@@ -62,6 +62,16 @@ def test_get_task_not_found(client):
     assert response_body == {"message": "Task 1 not found"}
 
 
+def test_get_task_invalid(client):
+    # Act
+    response = client.get("/tasks/cat")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"message": "Task cat invalid"}
+
+
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task(client):
     # Act
