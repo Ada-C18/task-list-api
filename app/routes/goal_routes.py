@@ -81,10 +81,9 @@ def delete_goal(id):
 def create_task(id):
     goal = validate_model(Goal, id)
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
-    new_task.goal = goal
 
-    db.session.add(new_task)
+    goal.tasks += [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+
     db.session.commit()
     
-    return make_response({"id": goal.id, "task_ids": goal.tasks})
+    return make_response({"id": goal.id, "task_ids": [task.id for task in goal.tasks]}), 200
