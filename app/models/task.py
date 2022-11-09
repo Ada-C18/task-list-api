@@ -11,4 +11,3 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
 
-   

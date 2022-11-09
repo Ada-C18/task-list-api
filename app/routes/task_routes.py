@@ -1,7 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
-from app.routes.routes_helper import error_message, get_record_by_id
+from app.routes.routes_helper import get_record_by_id
 from datetime import date
 import requests
 import os
@@ -17,9 +17,7 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
-    request_body = request.get_json()
     
-
     try:
         request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
         new_task = Task(
@@ -101,7 +99,7 @@ def read_all_tasks():
 #         abort(make_response({"details":f"there is no existing task {task_id}"}, 404))
         
 #     return task
-# ------------------- refactored and moved to routes_helper -------------------------------------------
+# ------------------- ^^ refactored and moved to routes_helper ^^ -------------------------------------------
 
 
 # Defining Endpoint and Creating Route Function to GET(read) One Task
@@ -121,8 +119,7 @@ def get_one_task(task_id):
         }
         }
 
-# ---------------- ^^refactored return statement^^ --------------------
-    # return task.to_dict(), 200
+
 
 # Defining Endpoint and Creating Route Function to UPDATE a Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
