@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request, make_response, abort
 from app import db
 from app.models.task import Task
-
+import time
+from datetime import date
 
 
 
@@ -26,18 +27,22 @@ def return_task_or_abort(task_id):
     return task
 
 
-
+def boolean_completeness(completed_at):
+    if not completed_at:
+        return False
+    return True
 
 
 def format_return_json_object(target_task):
-    task = Task.query.filter_by(task_id=target_task.task_id)
     return {"id": target_task.task_id,
             "title": target_task.title,
             "description": target_task.description,
-            # "is_complete": target_task.completed_at,
-            "is_complete": False
+            "is_complete": boolean_completeness(target_task.completed_at)
             }
-    return task
+    
+
+
+
 
 
 
@@ -132,3 +137,27 @@ def delete_task(task_id):
     db.session.commit()
 
     return {"details": reponse_message}, 200
+
+
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    task=return_task_or_abort(task_id)
+
+    task.completed_at = date.today()
+   
+    db.session.commit()
+
+    return {"task":format_return_json_object(task)}, 200
+
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task=return_task_or_abort(task_id)
+
+    task.completed_at = None
+   
+    db.session.commit()
+
+    return {"task":format_return_json_object(task)}, 200
