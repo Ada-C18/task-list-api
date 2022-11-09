@@ -9,10 +9,10 @@ def validate_id(class_obj,id):
     try:
         id = int(id)
     except:
-        abort(make_response({"message":f"{class_obj} {id} is an invalid id"}, 400))
+        abort(make_response({"message":f"{id} is an invalid id"}, 400))
     query_result = class_obj.query.get(id)
     if not query_result:
-        abort(make_response({"message":f"{class_obj} {id} not found"}, 404))
+        abort(make_response({"message":f"{id} not found"}, 404))
 
     return query_result
 
@@ -21,20 +21,19 @@ task_bp = Blueprint("Task", __name__, url_prefix="/tasks")
 @task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    if "title" not in request_body or "description" not in request_body or "completed_at" not in request_body:
+    if "title" not in request_body or "description" not in request_body:
+        #TODO later wave will need 'or "completed_at" not in request_body', add above
         return make_response({"details": "Invalid data"}, 400)
 
     new_task = Task.from_json(request_body)
-    new_task = Task(title=request_body["title"],
-                    description=request_body["description"],
-                    completed_at=request_body["completed_at"],
-                    task_id=None)
 
     # abort(make_response)  
     db.session.add(new_task)
     db.session.commit()
-
-    return make_response(f"Task {new_task.title} has been successfully created", 201)
+    response_body = {
+        "task": new_task.to_dict()
+        }
+    return make_response(response_body, 201)
 
 #GET ALL TASKS
 

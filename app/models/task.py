@@ -21,7 +21,7 @@ class Task(db.Model):
         return cls(
             title=req_body['title'],
             description=req_body['description'],
-            completed_at=req_body['completed_at']
+            #TODO completed_at=req_body['completed_at']
         )
 
     def update(self,req_body):
@@ -31,3 +31,9 @@ class Task(db.Model):
             self.completed_at = req_body["completed_at"]
         except KeyError as error:
             abort(make_response({'message': f"Missing attribute: {error}"}))
+
+    def __str__(self):
+        return "Task"
+
+    def __repr__(self):
+        return "Task"
