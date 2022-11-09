@@ -9,7 +9,7 @@ class Task(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"), nullable=True)
     goal = db.relationship("Goal", back_populates="tasks")
 
-    def to_dict(self):
+    def from_instance_to_dict(self):
         make_dictionary = {
             "id": self.task_id,
             "title" : self.title,
@@ -22,7 +22,7 @@ class Task(db.Model):
         
 
     @classmethod
-    def from_dict(cls, data):
+    def from_dict_to_instance(cls, data):
         
         return cls(title=data["title"],
                         description=data["description"])

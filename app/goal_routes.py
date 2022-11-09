@@ -2,25 +2,11 @@ from flask import Blueprint
 from app import db
 from app.models.goal import Goal
 from app.models.task import Task
+from .task_routes import validate_model
 from flask import Blueprint, jsonify, make_response, request, abort
 import datetime as dt
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
-
-#validate function 
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
-
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
-
-    return model
-
 
 #CREATE goal
 @goals_bp.route("", methods=["POST"])
@@ -28,7 +14,7 @@ def create_goal():
     request_body = request.get_json()
     
     try:
-        new_goal = Goal.from_dict(request_body)
+        new_goal = Goal.from_dict_to_instance(request_body)
 
     except KeyError:
         abort(make_response({"details": "Invalid data"}, 400)) 
@@ -36,7 +22,7 @@ def create_goal():
     db.session.add(new_goal)
     db.session.commit()
 
-    return {"goal":new_goal.to_dict()},201
+    return {"goal":new_goal.from_instance_to_dict()},201
 
 
 # GET all goals
@@ -46,19 +32,19 @@ def read_all_goals():
 
     goals_response = []
     for goal in goals:
-        goals_response.append(goal.to_dict())
+        goals_response.append(goal.from_instance_to_dict())
 
     return jsonify(goals_response)
 
 
-# Get goal: Get one goal
+# GET one goal
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    return {"goal":goal.to_dict()}
+    return {"goal":goal.from_instance_to_dict()}
 
 
-#Update goal: Update one goal
+#UPDATE one goal
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -69,7 +55,7 @@ def update_goal(goal_id):
 
     db.session.commit()
 
-    return {"goal":goal.to_dict()}
+    return {"goal":goal.from_instance_to_dict()}
 
 # DELETE goal
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
@@ -81,8 +67,7 @@ def delete_goal(goal_id):
 
     return {"details":f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}
 
-# Send list of task IDs to a Goal /goals/<goal_id>/tasks
-
+# POST list of task IDs to a Goal /goals/<goal_id>/tasks
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def create_goal_with_tasks(goal_id):
 
@@ -99,12 +84,10 @@ def create_goal_with_tasks(goal_id):
     db.session.commit()
     return jsonify({"id": goal.goal_id, "task_ids": task_list}), 200
 
-    
+# GET all tasks for specific Goal id
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def read_tasks_of_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    goal_dict = goal.to_dict()
-    get_one_task =[task.to_dict() for task in goal.tasks]
-    goal_dict["tasks"] = get_one_task
+    goal_dict = goal.from_instance_to_dict(tasks = True)
+    return goal_dict
 
-    return goal_dict, 200
