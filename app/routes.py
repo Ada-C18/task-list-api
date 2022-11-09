@@ -25,21 +25,20 @@ def validate_model(cls, model_id):
     return model
 
 def slack_bot_post_task_notification(message):
-    PATH = "https://slack.com/api/chat.post"
+    PATH = "https://slack.com/api/chat.postMessage"
     SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
-    CHANNEL = "task-notifications"
+    CHANNEL = "C04AEBE3LD7"
     
-    query_params = {
-                    "channel": CHANNEL,
-                    "text": message
-                    }
-    
-    request_headers = {
-                    "Authorization": SLACK_API_KEY
-                    }
+    req_headers={"Authorization": SLACK_API_KEY}
+    req_data={
+            "channel": CHANNEL,
+            "text": message
+            }
 
-    response = requests.get(PATH, params=query_params, headers=request_headers)
-    return response.json()
+    requests.post(url=PATH,
+                headers=req_headers,
+                data=req_data
+                )
 
 #==============================
 #         CREATE TASK
