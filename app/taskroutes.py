@@ -29,7 +29,7 @@ def call_slack_bot(message):
         "channel" : "task-notifications",
         "text": message
         }
-    header = {"Authorization" :"Bearer" + API_KEY}
+    header = {"Authorization" :f"Bearer {API_KEY}"}
 
     requests.post(URL, data=query_params, headers=header)
 
