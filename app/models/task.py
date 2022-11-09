@@ -28,7 +28,9 @@ class Task(db.Model):
         for key in kwargs:
             if key in ("title", "description"):
                 setattr(self, key, kwargs[key])
-            if key in ("is_complete", "completed_at"):
+            if key == "is_complete":
+                self.mark_complete(when=kwargs[key] or False)
+            if key == "completed_at":
                 self.mark_complete(when=kwargs[key])
             if key == "goal_id":
                 self.add_goal(self)
