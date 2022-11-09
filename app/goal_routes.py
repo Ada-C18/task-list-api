@@ -4,6 +4,7 @@ from app.models.task import Task
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 from app.routes import validate_id
+from app.routes import tasks_bp
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
 def validate_goal_id(goal_id):
@@ -75,23 +76,67 @@ def delete_goal(goal_id):
 def create_all_taskes_for_one_goal(goal_id):
     
     goal=validate_goal_id(goal_id)
-    #task=validate_id(id)
+   
     request_body = request.get_json()
 
-    new=[]
+    goal.tasks=[]
     #for i in task:
     
     for id in request_body["task_ids"]:
         task=validate_id(id)
-        new.append(task)    
-        #title=request_body["title"],
-       # description=request_body["description"],
-        #completed_at=request_body["completed_at"],
-        #is_completed=request_body["is_completed"],
+        goal.tasks.append(task)    
        
-    #new.append(new_task)
-    
-   
-    #db.session.add(new)
+    db.session.add_all(goal.tasks)
     db.session.commit()
     return jsonify({"id":goal.goal_id , "task_ids":request_body["task_ids"]})
+
+
+###################Getting Task of One Goal############
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+
+def read_tasks(goal_id):
+
+    goal = validate_goal_id(goal_id)
+
+
+    task_response = []
+    for task in goal.tasks:
+
+        task_response.append(
+            {
+            "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete":task.is_complete,
+            "goal_id":task.goal_id
+            
+            }
+        )
+        
+    
+    return {"id":goal.goal_id,"title":goal.title,"tasks":task_response}
+
+  ####################################
+  
+# @tasks_bp.route("/<id>", methods=["GET"])
+# def read_one_task(id):
+#     task=validate_id(id)
+#     if not task.goal_id:
+#         return{"task":{"id":task.id,
+#                        "title":task.title,
+#                        "description":task.description,
+#                        "is_complete":task.is_complete
+#                        }
+#         }
+#     else:
+#         return{"task":{"id":task.id,
+#                        "goal_id":task.goal_id,
+#                        "title":task.title,
+#                        "description":task.description,
+#                        "is_complete":task.is_complete
+                       
+            
+            
+#         }
+#     }
