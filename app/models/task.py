@@ -18,6 +18,9 @@ class Task(db.Model):
         }
         if not self.is_complete:
             task_dict["is_complete"] = False
+        
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
 
         return task_dict
 
