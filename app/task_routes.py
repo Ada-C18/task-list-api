@@ -2,6 +2,7 @@ from datetime import datetime
 from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from sqlalchemy import desc #(used in read_all_tasks for sorting)
 import requests
 import os 
@@ -58,29 +59,29 @@ def read_all_tasks():
 
 @tasks_bp.route("<task_id>", methods=["GET"])
 def read_task_by_id(task_id): 
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     
     return jsonify({"task":task.to_dict()}), 200
 
 #Helper function for use in READ route: read_task_by_id and UPDATE route: update_task
-def validate_task(id):
+def validate_model(cls, id):
     try:
-        task_id = int(id)
+        model_id = int(id)
     except:
-        abort(make_response(jsonify({"msg":f"invalid id: {id}"}), 400))
+        abort(make_response(jsonify({"msg":f"invalid id: {model_id}"}), 400))
     
-    task = Task.query.get(task_id)
+    chosen_object = cls.query.get(model_id)
 
-    if not task:
-        abort(make_response(jsonify({"msg": f"No task found with given id: {id}"}), 404))
+    if not chosen_object:
+        abort(make_response(jsonify({"msg": f"No {cls.__name__.lower()} found with given id: {model_id}"}), 404))
 
-    return task
+    return chosen_object
 
 #UPDATE Routes (Wave 1: CRUD Routes)
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
 
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     request_body = request.get_json()
     
     task.title = request_body["title"]
@@ -101,7 +102,7 @@ def update_task(task_id):
 #UPDATE Routes (Wave 3: PATCH Routes)
 @tasks_bp.route("/<task_id>/<mark>", methods=["PATCH"])
 def update_task_mark_complete_or_incomplete(task_id, mark):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     
     if mark == "mark_complete":
         task.completed_at = datetime.utcnow().date()
@@ -137,7 +138,7 @@ def update_task_mark_complete_or_incomplete(task_id, mark):
 # DELETE Routes (Wave 1: CRUD Routes)
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     
     db.session.delete(task)
     db.session.commit()
@@ -152,3 +153,4 @@ def delete_task(task_id):
 #         text=message,
 #     )
 #Source: https://api.slack.com/methods/chat.postMessage/code
+

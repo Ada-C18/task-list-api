@@ -12,6 +12,12 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime, 
         nullable = True,
         default = None)
+    goal_id = db.Column(
+        db.Integer,
+        db.ForeignKey("goal.goal_id"))
+    goal = db.relationship(
+        "Goal", 
+        back_populates='task_items')
     
     def to_dict(self):
         return {
