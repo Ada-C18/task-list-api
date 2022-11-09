@@ -5,8 +5,9 @@ class Task(db.Model):
     title = db.Column(db.String, nullable=False)
     description = db.Column(db.String, nullable=False)
     completed_at = db.Column(db.DateTime, nullable=True, default = None)
-    goal = db.relationship("Goal", back_populates="tasks")
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.id"), nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks")
+
 
 
     @classmethod
@@ -25,9 +26,18 @@ class Task(db.Model):
             flag = True
         else:
             flag = False
-        return dict(
+        if self.goal_id:
+            return dict(
             id = self.id,
+            goal_id = self.goal_id,
             title = self.title,
             description = self.description,
             is_complete = flag
         )
+        else:
+            return dict(
+                id = self.id,
+                title = self.title,
+                description = self.description,
+                is_complete = flag
+            )

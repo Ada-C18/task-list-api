@@ -87,3 +87,17 @@ def create_task(id):
     db.session.commit()
     
     return make_response({"id": goal.id, "task_ids": [task.id for task in goal.tasks]}), 200
+
+@bp.route("/<id>/tasks", methods=["GET"])
+def get_tasks(id):
+    goal = validate_model(Goal, id)
+
+    tasks_response = []
+    for task in goal.tasks:
+        tasks_response.append(task.to_dict())
+    
+    return make_response({
+        "id": goal.id,
+        "title": goal.title,
+        "tasks": tasks_response
+        }), 200
