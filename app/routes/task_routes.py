@@ -26,7 +26,7 @@ def read_all_tasks():
     sort_query = request.args.get("sort")
 
     if sort_query == "asc":
-        tasks = Task.query.order_by(Task.title).all()
+        tasks = Task.query.order_by(Task.title.asc()).all()
     elif sort_query == "desc":
         tasks = Task.query.order_by(Task.title.desc()).all()
     else:
@@ -40,7 +40,6 @@ def read_all_tasks():
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
-    # return task.to_dict_one()
     return {"task": task.to_dict()}
 
 # create new task
@@ -55,7 +54,6 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    # return new_task.to_dict_one(), 201
     return {"task": new_task.to_dict()}, 201
 
 # update task
@@ -69,7 +67,6 @@ def update_task(task_id):
 
     db.session.commit()
     
-    # return task.to_dict_one()
     return {"task": task.to_dict()}
 
 # delete task
@@ -103,17 +100,12 @@ def mark_complete(task_id):
     task.completed_at = datetime.now()
     db.session.commit()
     post_slack(task)
-
-    # return task.to_dict_one()
     return {"task": task.to_dict()}
 
+# mark incomplete with patch
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model(Task, task_id)
-
     task.completed_at = None
-
     db.session.commit()
-
-    # return task.to_dict_one()
     return {"task": task.to_dict()}
