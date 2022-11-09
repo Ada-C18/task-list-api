@@ -10,7 +10,10 @@ goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
 @goal_bp.route('', methods=['POST'])
 def create_one_goal():
     request_body = request.get_json()
-    new_goal = Goal.from_dict(request_body)
+    try:
+        new_goal = Goal.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}), 400
     
     db.session.add(new_goal)
     db.session.commit()
@@ -45,3 +48,13 @@ def update_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"goal": update_goal.to_dict()}), 200
+
+
+@goal_bp.route('/<goal_id>', methods=['DELETE'])
+def delete_one_goal(goal_id):
+    delete_goal = validate_model(Goal, goal_id)
+
+    db.session.delete(delete_goal)
+    db.session.commit()
+
+    return jsonify({"details": f'Goal {goal_id} "{delete_goal.title}" successfully deleted'}), 200
