@@ -1,5 +1,4 @@
 from app import db 
-# from flask import abort, make_response
 
 
 class Task(db.Model):
@@ -17,7 +16,6 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "is_complete": bool(self.completed_at)
-            # "goal_id": self.goal_id
         } 
         
     @classmethod
@@ -27,10 +25,3 @@ class Task(db.Model):
             description=req_body['description']
         )
     
-# def update(self, req_body):
-#     try:
-#         self.title = req_body["title"],
-#         self.description = req_body["description"],
-#         self.complete = req_body["completed_at"]
-#     except KeyError as error:
-#         abort(make_response({'message': f"Missing attribute: {error}"}))

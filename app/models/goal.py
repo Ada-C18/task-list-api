@@ -10,9 +10,4 @@ class Goal(db.Model):
             "id": self.goal_id,
             "title": self.title
         }
-    # @classmethodcs
-    # def from_dict(cls, req_body):
-    #     return cls(
-    #         title=req_body['title'],
-    #     )
-    
+
