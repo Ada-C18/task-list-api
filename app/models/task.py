@@ -35,7 +35,7 @@ class Task(db.Model):
         else:
             self.completed_at = None
 
-        if self.completed_at is not None:
+        if isinstance(self.completed_at, datetime):
             SLACKBOT_OAUTH_TOKEN = os.environ.get("SLACKBOT_OAUTH_TOKEN")
             slack_channel = "task-notifications"
             message = f"Someone just completed the task {self.title}"
