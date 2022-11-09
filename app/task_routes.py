@@ -50,7 +50,7 @@ def get_one_task(task_id):
     
     task_dict = chosen_task.to_dict()
     if not task_dict:
-        return jsonify({f"message": "Task with id {task_id} was not found in the database."})
+        return jsonify({f"message": f"Task with id {task_id} was not found in the database."})
     else:
         return jsonify({"task": task_dict}), 200
 
@@ -86,7 +86,7 @@ def patch_task(task_id):
     db.session.commit()
 
     if not task_dict:
-        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+        return jsonify({f"message": f"Task with id {task_id} was not found in the database."}), 404
 
     return jsonify({"task": task_dict}), 200 
 
@@ -102,7 +102,7 @@ def patch_task_to_incomplete(task_id):
     db.session.commit()
 
     if not task_dict:
-        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+        return jsonify({f"message": f"Task with id {task_id} was not found in the database."}), 404
 
     return jsonify({"task": task_dict}), 200 
 
@@ -117,10 +117,10 @@ def delete_one_task(task_id):
     db.session.commit()
 
     if not task_dict:
-        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+        return jsonify({f"message": f"Task with id {task_id} was not found in the database."}), 404
     
 
-    return jsonify({f"details": "Task {task_id} successfully deleted"}), 200
+    return jsonify({f"details": f"Task {task_id} \"{task_dict['title']}\" successfully deleted"}), 200
     
 
     
