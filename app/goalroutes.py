@@ -65,9 +65,9 @@ def create_task(goal_id):
 
         db.session.commit()
         
-    return make_response(jsonify({
+    return {
         "id": goal.goal_id, "task_ids": request_body["task_ids"]
-    })), 200
+    }, 200
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def read_one_goal_tasks(goal_id):
@@ -76,7 +76,7 @@ def read_one_goal_tasks(goal_id):
     for task in goal.tasks:
         tasks.append(task.task_with_goal_to_dict())
         
-    return jsonify({
+    return {
         "id": goal.goal_id,
         "title": goal.title,
-        "tasks": tasks}), 200
+        "tasks": tasks}, 200

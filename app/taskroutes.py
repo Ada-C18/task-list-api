@@ -67,13 +67,13 @@ def read_one_task(model_id):
     if not task.goal_id:
         return {"task":task.to_dict()}
     else:
-        return jsonify({"task": {
+        return {"task": {
             "id": task.task_id,
             "goal_id": task.goal_id,
             "title": task.title,
             "description": task.description,
             "is_complete": bool(task.completed_at)
-        }}), 200
+        }}, 200
 
 @tasks_bp.route("/<model_id>", methods=["PUT"])
 def update_task(model_id):
