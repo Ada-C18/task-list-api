@@ -79,31 +79,31 @@ def delete_goal(goal_id):
 
 
 @goals_bp.route(GOAL_ID_PREFIX + "/tasks", methods=['GET'])
-
 def read_tasks (goal_id):
+    goal = validate_goal(goal_id)
     goal = Goal.query.get(goal_id)
 
-    task_response = []
-    for task in goal.task:
-        task_response.append(
-            {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description
-            }
-        )
-    return jsonify(task_response)
+    return_body = goal.to_dict()
+    return_body["tasks"] = [task.to_dict() for task in goal.tasks]
+
+    return make_response(jsonify(return_body), 200)
 
 
 @goals_bp.route(GOAL_ID_PREFIX + "/tasks", methods=['POST'])
-def create_task(goal_id):
-
+def add_tasks_to_goal(goal_id):
+    goal = validate_goal(goal_id)
     goal = Goal.query.get(goal_id)
-    request_body = request.get_json()
-    new_task = Task(
-        task_id=request_body["task_ids"])
 
-    db.session.add(new_task)
+    request_body = request.get_json()
+    tasks_to_assign = request_body["task_ids"]
+
+    for task in tasks_to_assign:
+        task.goal_id = goal.goal_id
+
     db.session.commit()
 
-    return make_response(jsonify(f”id: {goal_id}, + {request_body}"), 201)
+    return_body = {}
+    return_body["id"] = goal_id
+    return_body["task_ids"] = goal.tasks
+
+    return make_response({goal.to_dict()}, 200)

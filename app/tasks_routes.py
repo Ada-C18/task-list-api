@@ -133,7 +133,7 @@ def delete_task(task_id):
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
 
-@tasks_bp.route(TASK_ID_PREFIX + '/mark_complete', methods=['PATCH'])
+@tasks_bp.route(TASK_ID_PREFIX + 'mark_complete', methods=['PATCH'])
 def update_task_complete(task_id):
     task = validate_task(task_id)
     date_time_assign = datetime.now()
@@ -156,8 +156,6 @@ def update_task_complete(task_id):
 
     requests.post(URL, data=payload, headers=headers)
     return jsonify(task_response),200
-
-
 
 @tasks_bp.route(TASK_ID_PREFIX + '/mark_incomplete', methods=['PATCH'])
 def update_task_incomplete(task_id):
