@@ -24,12 +24,32 @@ class Task(db.Model):
             task["goal_id"] = self.goal_id
         return task
 
+    def update(self, **kwargs):
+        for key in kwargs:
+            if key in ("title", "description"):
+                setattr(self, key, kwargs[key])
+            if key in ("is_complete", "completed_at"):
+                self.mark_complete(when=kwargs[key])
+            if key == "goal_id":
+                self.add_goal(self)
+
+    def add_goal(self, goal_id=None, goal=None):
+        from app.models.goal import Goal
+
+        self.goal = goal or Goal.query.get(goal_id)
+
     def mark_complete(self, when=None):
-        self.completed_at = (
-            when
-            if type(when) is datetime
-            else (None if when is False else sql.func.now())
-        )
+        if when is None or when is True:
+            self.completed_at = sql.func.now()
+        elif type(when) is datetime:
+            self.completed_at = when
+        elif type(when) is str:
+            self.completed_at = datetime.fromisoformat(when)
+        elif when is False:
+            self.completed_at = None
+        else:
+            raise ValueError
+
         if self.completed_at is not None:
             slack_oauth_token = os.environ.get("SLACK_OAUTH_TOKEN")
             slack_channel = "task-notifications"
