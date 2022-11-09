@@ -12,11 +12,14 @@ class Task(db.Model):
         task_to_dict["id"] = self.task_id
         task_to_dict["title"] = self.title
         task_to_dict["description"] = self.description
-        task_to_dict["completed_at"] = self.completed_at
+        if self.completed_at:
+            task_to_dict["is_complete"] = True
+        else:
+            task_to_dict["is_complete"] = False
 
         return task_to_dict
 
     @classmethod
     def from_dict(cls, task_data):
-        new_task = Task(title=task_data["title"], description=task_data["description"], completed_at=task_data["completed_at"])
+        new_task = Task(title=task_data["title"], description=task_data["description"])
         return new_task
