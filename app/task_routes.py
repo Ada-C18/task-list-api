@@ -1,6 +1,7 @@
 from flask import Blueprint
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 import datetime as dt
 import requests
@@ -110,13 +111,6 @@ def read_all_tasks():
     else:
         tasks = Task.query.all()
 
-    ###old way???####
-    # title_query = request.args.get("title")
-    # if title_query:
-    #     tasks = Task.query.filter_by(title=title_query)
-    # else:
-    #     tasks = Task.query.all()
-
     tasks_response = []
     for task in tasks:
         tasks_response.append(task.to_dict())
@@ -124,10 +118,12 @@ def read_all_tasks():
     return jsonify(tasks_response)
 
 # Get Tasks: Get one task
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
     return {"task":task.to_dict()}
+
 
 # Update Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -202,5 +198,19 @@ def updated_complete_task_to_incomplete(task_id):
     db.session.commit()
     return {"task":task.to_dict()}, 200
 
+# Get tasks for curret goal 
+# @tasks_bp.route("", methods = ["GET"])
+# def read_task_for_goal()
 
-#Creat new route to /goals/<goal_id>/tasks
+#######################
+# wave 06 test tasks/<goal_id>
+# @tasks_bp.route("/<task_id>", methods=["GET"])
+# def read_one_task_one_goal(goal_id):
+#     goal = validate_model(Goal, goal_id)
+
+#     task_list =[]
+#     for task in goal.tasks:
+#         task = validate_model(Task, goal.tasks.task_id)
+#         task_list.append(task)
+
+#     return {"task": task_list[0].task_list_goal()}, 200

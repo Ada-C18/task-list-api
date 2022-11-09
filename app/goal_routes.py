@@ -103,30 +103,8 @@ def create_goal_with_tasks(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def read_tasks_of_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    
-    get_one_task =[task for task in goal.tasks]
+    goal_dict = goal.to_dict()
+    get_one_task =[task.to_dict() for task in goal.tasks]
+    goal_dict["tasks"] = get_one_task
 
-    if goal.tasks == []: 
-        return {"id": goal.goal_id, "title" : goal.title, "tasks" : goal.tasks}, 200
-        
-    elif goal.tasks:
-        return {"id": goal.goal_id, "title" : goal.title, "tasks" : get_one_task[0].task_list_goal()}, 200
-    
-
-
-
-
-############################
-#       jaime help
-###########################
-# @goals_bp.route("/<goal_id>/tasks", strict_slashes=False, methods=["GET"])
-# def get_goal_list(goal_id):
-#     goal = validate_model(Goal, goal_id)
-
-#     task_query = Task.query
-
-#     tasks = task_query.all()
-
-#     # appending each goal to dictionary
-#     task_response = [task.to_dict() for task in tasks]
-#     return {"id": goal.goal_id, "title" : goal.title, "tasks" : jsonify(task_response)}, 200
+    return goal_dict, 200
