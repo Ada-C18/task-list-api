@@ -20,10 +20,12 @@ def create_new_goal():
         abort(make_response({"details": "Invalid data"}, 400))
 
     new_goal = Goal.from_dict(request_body)
+
     db.session.add(new_goal)
     db.session.commit()
 
     response_body = {"goal": new_goal.to_dict()}
+
     return jsonify(response_body), 201
 
 #READ all goals
@@ -38,9 +40,12 @@ def get_all_goals():
 #GET get one goal
 @goals_bp.route("/<goal_id>", methods = ["GET"])
 def get_one_goal(goal_id):
+
     goal = validate_model_id(Goal, goal_id)
-    response = {"goal": goal.to_dict()}
-    return jsonify(response), 200
+
+    response_body = {"goal": goal.to_dict()}
+
+    return jsonify(response_body), 200
     
 #UPDATE goal
 @goals_bp.route("/<goal_id>", methods = ["PUT"])
@@ -51,6 +56,7 @@ def update_goal(goal_id):
     goal.title = request_body["title"]
 
     db.session.commit()
+
     response_body = {"goal": goal.to_dict()}
 
     return jsonify(response_body), 200

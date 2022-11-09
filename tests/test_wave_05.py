@@ -119,7 +119,11 @@ def test_delete_goal(client, one_goal):
     assert response_body == {
         "details": 'Goal 1 "Build a habit of going outside daily" successfully deleted'
     }
+    response = client.get("/goals/1")
+    response_body = response.get_json()
     assert Goal.query.get(1) == None
+    assert response.status_code == 404
+    assert response_body == {"message": "goal 1 not found"}
 
 
 # @pytest.mark.skip(reason="test to be completed by student")
