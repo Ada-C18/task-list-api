@@ -64,7 +64,7 @@ def test_get_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
-    assert response_body == {"message" : "task 1 not found"}
+    assert response_body == {"message" : "Task 1 not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -136,7 +136,7 @@ def test_update_task_not_found(client):
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
-    assert response_body == {"message" : "task 1 not found"}
+    assert response_body == {"message" : "Task 1 not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -169,7 +169,7 @@ def test_delete_task_not_found(client):
     # *****************************************************************
 
     assert Task.query.all() == []
-    assert response_body == {"message" : "task 1 not found"}
+    assert response_body == {"message" : "Task 1 not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
