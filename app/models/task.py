@@ -10,23 +10,26 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
 
-    # def to_dict(self):
-    #     task_as_dict = {}
-    #     task_as_dict["id"] = self.task_id
-    #     task_as_dict["title"] = self.title
-    #     task_as_dict["description"] = self.description
-        
-    #     #Check to see if truthy
-    #     if completed_at:
-    #         pass
-        
-    #     return task_as_dict
+    def to_dict(self):
+        task_dict = {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": bool(self.completed_at) 
+        }
 
-    # @classmethod
-    # def from_dict(cls, task_data):
-    #     new_task = Task(title=task_data["title"],
-    #                     description=task_data["description"])
-    #     return new_task
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
+
+        return task_dict
+    
+    @classmethod
+    def from_dict(cls, request_body):
+        return cls(
+            title=request_body["title"],
+            description=request_body["description"],
+            completed_at=None
+        )
 
 
 # def validate_model(cls, model_id):
