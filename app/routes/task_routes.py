@@ -101,6 +101,7 @@ def mark_complete_task(task_id):
     task = get_record_by_id(Task, task_id)
     task.completed_at = date.today()
 
+    print(task)
     headers = {
         "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     }
