@@ -25,7 +25,13 @@ def create_goal():
 @goal_bp.route("", methods=["GET"])
 def get_goal_list():
 
-    goals = Goal.query.all()
+    sort_query = request.args.get("sort")
+    goal_query = Goal.query
+
+    if sort_query:
+        goal_query = goal_query.order_by(Goal.title)
+
+    goals = goal_query.all()
 
     goals_list = [goal.to_json() for goal in goals]
 
@@ -37,7 +43,6 @@ def get_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     return make_response({"goal":goal.to_json()})
-
 
 @goal_bp.route("/<goal_id>", methods=["PUT"])
 def update_goals(goal_id):
@@ -68,9 +73,7 @@ def post_task_ids_to_goal(goal_id):
 
     request_body = request.get_json()
 
-    for id in request_body["task_ids"]:
-        task = Task.query.get(id)
-        goal_id.tasks.append(task)
+    goal_id.tasks = [Task.query.get(id) for id in request_body["task_ids"]]
 
     db.session.commit()
     

@@ -129,7 +129,7 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-    # assert Task.query.get(1) == None
+    assert Task.query.get(1) == None
     assert response_body == {"message": "Task 1 is not found"}
     # *****************************************************************
     # **Complete test with assertion about response body***************
@@ -168,9 +168,6 @@ def test_delete_task_not_found(client):
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
-    
-
-
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_task_must_contain_title(client):
     # Act
@@ -203,3 +200,44 @@ def test_create_task_must_contain_description(client):
         "details": "Invalid data"
     }
     assert Task.query.all() == []
+
+
+def test_get_tasks_filter_title(client, task_filter):
+    # Act
+    response = client.get("/tasks?title=Answer forgotten email 📧")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 1
+    assert response_body == [
+
+        {
+            "description": "Urgent Message",
+            "id": 1,
+            "is_complete": False,
+            "title": "Answer forgotten email 📧"}]
+    task = Task.query.get(1)
+    assert task.title == "Answer forgotten email 📧"
+    assert task.completed_at == None
+    assert task.description == "Urgent Message"
+
+
+# def test_create_invalid_task(client):
+#     # Act
+#     response = client.post("/tasks", json={
+#         "title": "A Brand New Task",
+#         "description": "Test Description", "is_complete": "Hello Wolrd",
+#     })
+#     response_body = response.get_json()
+
+#     # Assert
+#     assert response.status_code == 201
+#     assert "task" in response_body
+#     assert response_body == {
+#         "task": {
+#             "id": 1,
+#             "title": "A Brand New Task",
+#             "description": "Test Description",
+#             "is_complete": False
+#         }}

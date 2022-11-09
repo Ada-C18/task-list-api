@@ -4,7 +4,7 @@ from sqlalchemy import text
 from app import db
 import os
 import requests
-import datetime
+from datetime import datetime
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -48,13 +48,19 @@ def get_one_task(task_id):
 def get_tasks():
     
     sort_query = request.args.get("sort")
+    title_query = request.args.get("title")
     task_query = Task.query
 
+    if title_query:
+        task_query = task_query.filter_by(title=title_query)
+    
     if sort_query:
         if "asc" in sort_query:
             task_query = task_query.order_by(text('title asc'))
         elif "desc" in sort_query:
-            task_query = Task.query.order_by(text('title desc'))
+            task_query = task_query.order_by(text('title desc'))
+        else:
+            task_query = task_query.order_by(Task.id)
 
     tasks = task_query.all()
 
@@ -88,7 +94,7 @@ def post_message_to_slack(message):
     
     path = "https://slack.com/api/chat.postMessage"
     data = {
-        "channel": '#task-notifications',
+        "channel": 'C049L1ZUVQV',
         "text": message, 
     }
     header_key = os.environ.get("authorization")
@@ -97,19 +103,17 @@ def post_message_to_slack(message):
         url=path, data=data,
         headers={"Authorization": header_key})
 
-
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
     task_id = validate_model(Task, task_id)
 
-    task_id.completed_at = datetime.datetime.now()
+    task_id.completed_at = datetime.utcnow()
 
-    post_message_to_slack(f"{task_id.title} was completed at {task_id.completed_at}")
+    post_message_to_slack(f"{task_id.title} was completed")
 
     db.session.commit()
 
     return make_response({"task": task_id.to_dict()})
-
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
