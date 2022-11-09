@@ -9,6 +9,9 @@ from flask import Blueprint, jsonify, make_response, abort, request
 goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN")
+
+
 def validate_model(cls, id):
     try:
         model_id = int(id)
@@ -97,6 +100,11 @@ def read_tasks_from_goal(goal_id):
 #==============================
 #         TASK ROUTES
 #==============================
+
+@task_bp.route("/secrets", methods=["GET"])
+def read_one_task(task_id):
+    return SLACKBOT_TOKEN[:5]
+
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
@@ -114,6 +122,7 @@ def create_task():
 
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
+    
     sort_by_title_query = request.args.get("sort")
     title_query = request.args.get("title")
     sort_by_id_query = request.args.get("sort_id")
@@ -182,9 +191,8 @@ def mark_task_incomplete(task_id):
     return make_response(jsonify({"task": task.to_dict()}))
 
 def post_message_to_slack(a_task):
-    token = os.environ.get("SLACKBOT_TOKEN")
     url = "https://slack.com/api/chat.postMessage"
-    auth_header = {'Authorization': token}
+    auth_header = {'Authorization': SLACKBOT_TOKEN}
     param_data = {"channel":"task-notifications",
                 "text":f"Someone just completed the task {a_task.title}"}
 

@@ -31,29 +31,16 @@ class Task(db.Model):
     def to_dict(self):
         task_as_dict = {}
         if self.one_goal:
-            if self.completed_at == None:
                 task_as_dict["id"] = self.task_id
                 task_as_dict["title"] = self.title
                 task_as_dict["description"] = self.description
-                task_as_dict["is_complete"] = False
-                task_as_dict["goal_id"] = self.one_goal_id
-            else: 
-                task_as_dict["id"] = self.task_id
-                task_as_dict["title"] = self.title
-                task_as_dict["description"] = self.description
-                task_as_dict["is_complete"] = True
+                task_as_dict["is_complete"] = bool(self.completed_at)
                 task_as_dict["goal_id"] = self.one_goal_id
         else:    
-            if self.completed_at == None:
                 task_as_dict["id"] = self.task_id
                 task_as_dict["title"] = self.title
                 task_as_dict["description"] = self.description
-                task_as_dict["is_complete"] = False
-            else: 
-                task_as_dict["id"] = self.task_id
-                task_as_dict["title"] = self.title
-                task_as_dict["description"] = self.description
-                task_as_dict["is_complete"] = True
+                task_as_dict["is_complete"] = bool(self.completed_at)
         return task_as_dict
 
     def update(self, req_body):
@@ -71,6 +58,6 @@ class Task(db.Model):
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"}, 400))
 
-    def validate_datetime(self):
-        if not type(self.completed_at) == type(datetime.datetime.now()):
-            abort(make_response({"message":f"Invalid datetime format: {self.completed_at}"}, 400))
+    # def validate_datetime(self):
+    #     if not type(self.completed_at) == type(datetime.datetime.now()):
+    #         abort(make_response({"message":f"Invalid datetime format: {self.completed_at}"}, 400))
