@@ -100,3 +100,13 @@ def delete_goal(goal_id):
     return {
         "details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'
     }
+
+# ------------------------------- Nested Routes ---------------------------------------------------
+#Create a task by a specific goal
+
+
+
+
+
+
+#GET All tasks for a goal
