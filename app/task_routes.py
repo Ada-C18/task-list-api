@@ -85,9 +85,9 @@ def mark_complete_task(task_id):
     db.session.commit()
     
     #send notif to Slack API
-    params = {"channel": "task-notifications", "text": "Hello, world!"}
+    params = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}"}
     header = {"Authorization": f"Bearer {os.environ.get('SLACKBOT_AUTH_TOKEN')}"}
-    r = requests.post("https://slack.com/api/chat.postMessage", params=params, headers=header)
+    requests.post("https://slack.com/api/chat.postMessage", params=params, headers=header)
     
     return make_response({"task": task.to_dict()}, 200)
 
