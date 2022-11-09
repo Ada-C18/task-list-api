@@ -2,6 +2,8 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 from datetime import datetime, datetime
+import os
+import requests
 
 bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
@@ -93,13 +95,31 @@ def delete_task(task_id):
     db.session.commit()  
     return make_response({'details': f'Task {task.task_id} "{task.title}" successfully deleted'}, 200)
 
+def slack_bot(message):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("API_KEY")
+
+    bot_params = {
+        "channel" : "#task-notifications",
+        "text" : message
+    }
+
+    bot_header = {
+        "Authorization" : SLACK_API_KEY
+    }
+
+    requests.post(PATH, data=bot_params, headers=bot_header)
+
 @bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_mark_complete(task_id):
     task = validate_model(Task, task_id)
 
     if task.completed_at == None or isinstance(task.completed_at, datetime):
-        task.completed_at = datetime.utcnow()
+        task.completed_at = datetime.now()
         db.session.commit()  
+
+        slack_bot(f"Someone just completed the task {task.title}")
+
         return make_response(dict(task = dict(
             id=task.task_id,
             title=task.title,
@@ -112,7 +132,8 @@ def update_mark_incomplete(task_id):
 
     if task.completed_at == None or isinstance(task.completed_at, datetime):
         task.completed_at = None
-        db.session.commit()  
+        db.session.commit()
+
         return make_response(dict(task = dict(
             id=task.task_id,
             title=task.title,
