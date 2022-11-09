@@ -4,12 +4,7 @@ from app.models.task import Task
 from datetime import date
 import os
 import requests
-import logging
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
 
-client = WebClient(token=os.environ.get("SLACK_TOKEN"))
-logger = logging.getLogger(__name__)
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -93,14 +88,13 @@ def update_one_task_complete(task_id):
     db.session.commit()
 
     channel_id = "task-notifications"
-    try:
-        result = client.chat_postMessage(
-            channel=channel_id, 
-            text="Someone just completed the task My Beautiful Task")
-        logger.info(result)
-        # r = requests.post(url_prefix, data= param1, json= param2, headers= headers)
-    except SlackApiError as e:
-        logger.error(f"Error posting message: {e}") 
+    slack_path = "https://slack.com/api/chat.postMessage"
+    SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
+
+    headers = {"Authorization": f"Bearer {SLACK_TOKEN}"}
+    parameters = {"channel":channel_id, "text": f"Someone just completed the task {update_task_mark_complete.title}"}
+
+    requests.get(url=slack_path, headers=headers, params=parameters)
 
     return jsonify(update_task_mark_complete.to_dict_task()), 200
 
