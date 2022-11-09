@@ -2,6 +2,10 @@ import datetime
 from app import db
 from app.models.task import Task
 from flask import Blueprint,jsonify,abort,make_response,request
+import requests
+from datetime import datetime
+import os
+from dotenv import load_dotenv
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 TASK_ID_PREFIX = '/<task_id>'
@@ -102,9 +106,9 @@ def get_task():
     if title_query:
         task_query = task_query.filter_by(name = title_query)
     
-    is_complete_query = request.args.get("is_complete")
+    is_complete_query = request.args.get("is_completed")
     if is_complete_query:
-        task_query = task_query.filter_by(is_complete = is_complete_query)
+        task_query = task_query.filter_by(is_completed= is_complete_query)
 
     tasks = task_query.all()
 
@@ -113,7 +117,7 @@ def get_task():
         tasks_response.append({
             "id": task.task_id,
             "title": task.title,
-            "is_complete": task.is_complete,
+            "is_complete": task.is_completed,
             "description": task.description
         })
 
@@ -132,20 +136,35 @@ def delete_task(task_id):
 @tasks_bp.route(TASK_ID_PREFIX + '/mark_complete', methods=['PATCH'])
 def update_task_complete(task_id):
     task = validate_task(task_id)
-    task = Task.query.get(task_id)
-
-    task.is_complete = True
-    task.completed_at = datetime.datetime.now()
-
+    date_time_assign = datetime.now()
+    if task.is_completed == False:
+        task.completed_at = date_time_assign
+        task.is_completed = True
+    task_response = {"task": task.to_dict()}
     db.session.commit()
-    return make_response({"task":task.to_dict()}, 200)
+    load_dotenv()
+    
+    URL = "https://slack.com/api/chat.postMessage"
+
+    payload={"channel":"slack-bot-test-channel",
+            "text": f"Someone just completed the task {task.title}"}
+    
+    headers = {
+    "Authorization": os.environ.get('SLACK_TOKEN')
+    }
+
+
+    requests.post(URL, data=payload, headers=headers)
+    return jsonify(task_response),200
+
+
 
 @tasks_bp.route(TASK_ID_PREFIX + '/mark_incomplete', methods=['PATCH'])
 def update_task_incomplete(task_id):
     task = validate_task(task_id)
     task = Task.query.get(task_id)
 
-    task.is_complete = False
+    task.is_completed= False
     task.completed_at = None
 
     db.session.commit()
