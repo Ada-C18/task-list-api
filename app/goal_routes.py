@@ -1,5 +1,6 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from .route_helpers import validate_model
 from flask import Blueprint, jsonify, request
 
@@ -53,3 +54,21 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
     return {"details":f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_tasks_to_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    if "task_ids" in request_body and type(request_body["task_ids"] == list):
+        goal.tasks = [validate_model(Task, task_id) for task_id in request_body["task_ids"]]
+        db.session.commit()
+        return {"id": goal.goal_id, "task_ids": request_body["task_ids"]}, 200
+    else:
+        return {"details": "Missing or invalid data for task_ids (must be a list)"}, 400
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_goal_with_all_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+    goal_dict = goal.as_dict()
+    goal_dict["tasks"] = [task.as_dict() for task in goal.tasks]
+    return jsonify(goal_dict)
