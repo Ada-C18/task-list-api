@@ -18,10 +18,23 @@ class Task(db.Model):
             "is_complete": bool(self.completed_at)
         }
 
+    # @classmethod
+    # def from_dict(cls, task_data):
+        
+    #     new_task = Task(title=task_data["title"],
+    #                     description=task_data["description"])
+    #     return new_task
     @classmethod
-    def from_dict(cls, task_data):
+    def from_dict(cls, data):
         
-        new_task = Task(title=task_data["title"],
-                        description=task_data["description"])
-        return new_task
-        
+        return cls(title=data["title"],
+                        description=data["description"])
+    
+    
+    def task_list_goal(self):
+        return [{
+                "id": self.task_id,
+                "goal_id": self.goal_id,
+                "title": self.title,
+                "description": self.description,
+                "is_complete": bool(self.completed_at)}]

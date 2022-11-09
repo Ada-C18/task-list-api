@@ -19,4 +19,30 @@ class Goal(db.Model):
         
         new_goal = Goal(title=goal_data["title"])
         return new_goal
-        
+
+    
+    def to_dict_goal(self):
+
+        return {
+            "id" : self.goal_id,
+            "title": self.title,
+            "tasks": [
+                {
+                    "id": self.goal.tasks.task_id,
+                    "goal_id": self.goal.tasks.goal_id,
+                    "title": self.goal.tasks.title,
+                    "description": self.goal.tasks.description,
+                    "is_complete": bool(self.tasks.completed_at)
+                }
+            ]
+        }
+
+    def task_list_goal(self):
+        task_list = []
+        for task in self.tasks:
+            task_list.append({
+                    "id": task.task_id,
+                    "goal_id": task.goal_id,
+                    "title": task.title,
+                    "description": task.description,
+                    "is_complete": bool(task.completed_at)})
