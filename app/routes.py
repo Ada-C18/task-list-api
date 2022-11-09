@@ -129,10 +129,6 @@ def handle_goal_not_found(e):
 
 
 @task_bp.errorhandler(KeyError)
-def task_handle_invalid_data(e):
-    return {"details": "Invalid data"}, 400
-
-
 @goal_bp.errorhandler(KeyError)
-def goal_handle_invalid_data(e):
+def handle_invalid_data(e):
     return {"details": "Invalid data"}, 400
