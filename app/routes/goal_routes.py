@@ -4,6 +4,8 @@ from app import db
 from app.models.goal import Goal
 from app.models.task import Task
 from .routes_helper import validate
+from sqlalchemy import func
+
 
 
 
@@ -71,4 +73,35 @@ def delete_task(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def get_tasks_for_goal(goal_id):
+    goal = validate(Goal, goal_id)
+
+    request_body = request.get_json()
+    for tasks_for_goal in request_body["task_ids"]:
+        task = validate (Task, tasks_for_goal) 
+        goal.tasks.append(task) 
+
+   
+    db.session.commit()
+  
+
+    task_ids_list = [task.task_id for task in goal.tasks]
+
+    tasks_response = {"id": goal.goal_id, "task_ids":task_ids_list}
+    return jsonify(tasks_response), 200
+
+
+
+# @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+# def get_tasks_from_goal(goal_id):
+#     goal_
+#     goal.to_dict
+
+
+
+
+
 
