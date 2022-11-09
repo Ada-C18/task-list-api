@@ -6,39 +6,21 @@ from app.models.goal import Goal
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
-def get_one_task_or_error(task_id):
+def get_one_model_or_error(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except ValueError:
         response_body = "Invalid data"
         abort(make_response(jsonify({"details": response_body}), 400))
 
-    task_found = Task.query.get(task_id)
+    selected_obj = cls.query.get(model_id)
 
-    if task_found is None:
-        response_body = "Task id not found"
-        abort(make_response(jsonify({"details": response_body}), 404))
-
-    return task_found
-
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-def get_one_goal_or_error(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except ValueError:
-        response_body = "Invalid data"
-        abort(make_response(jsonify({"details": response_body}), 400))
-
-    goal_found = Goal.query.get(goal_id)
-
-    if goal_found is None:
-        response_body = "not found"
+    if selected_obj is None:
+        response_body = "Not found"
         abort(make_response(jsonify({"message": response_body}), 404))
 
-    return goal_found
+    return selected_obj
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 @tasks_bp.route("", methods=["POST"])
 def add_task():
 
@@ -57,7 +39,7 @@ def add_task():
 
     return jsonify({"task": response}), 201 
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
 
@@ -78,25 +60,23 @@ def get_all_tasks():
 
     if sort_params == "asc":
         response = sorted(response, key=lambda task: task['title'])
-        #give client list of titles in ascending order by alphabet 
     elif sort_params == "desc":
         response = sorted(response, key=lambda task: task['title'], reverse=True)
-        #give client list of titles in descending order by alphabet, reverse=True
     return jsonify(response), 200
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    chosen_task = get_one_task_or_error(task_id)
+    chosen_task = get_one_model_or_error(Task, task_id)
 
     response = Task.to_dict(chosen_task)
 
     return jsonify({"task": response}), 200
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task_title_and_description(task_id):
-    task_to_update = get_one_task_or_error(task_id)
+    task_to_update = get_one_model_or_error(Task, task_id)
 
     request_body = request.get_json()
 
@@ -109,12 +89,11 @@ def update_task_title_and_description(task_id):
 
     return jsonify({"task": response_body}), 200
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task_data_from_db(task_id):
 
-    task_to_delete = get_one_task_or_error(task_id)
+    task_to_delete = get_one_model_or_error(Task, task_id)
 
     db.session.delete(task_to_delete)
     db.session.commit()
@@ -122,11 +101,10 @@ def delete_task_data_from_db(task_id):
     response_body = f'Task {task_id} "{task_to_delete.title}" successfully deleted'
     return jsonify({"details": response_body}), 200
 
-# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
-    task_to_complete = get_one_task_or_error(task_id) # 1, whatever title, description and complete?
+    task_to_complete = get_one_model_or_error(Task, task_id)
 
     task_to_complete.completed_at = datetime.today()
     
@@ -135,11 +113,10 @@ def mark_task_complete(task_id):
     
     return jsonify({"task": task_to_complete.to_dict()}), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(task_id):
-    incomplete_task = get_one_task_or_error(task_id)
+    incomplete_task = get_one_model_or_error(Task, task_id)
 
     incomplete_task.completed_at = None
 
@@ -148,7 +125,6 @@ def mark_task_incomplete(task_id):
 
     return jsonify({"task": incomplete_task.to_dict()}), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>GOALS PATH >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -166,7 +142,6 @@ def add_goal():
 
     return {"goal": Goal.to_dict(new_goal)}, 201
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
@@ -178,21 +153,19 @@ def get_all_goals():
         response.append(Goal.to_dict(goal))
     return jsonify(response), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    chosen_goal = get_one_goal_or_error(goal_id)
+    chosen_goal = get_one_model_or_error(Goal, goal_id)
 
     response = Goal.to_dict(chosen_goal)
 
     return jsonify({"goal": response}), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal_title(goal_id):
-    goal_to_update = get_one_goal_or_error(goal_id)
+    goal_to_update = get_one_model_or_error(Goal, goal_id)
 
     request_body = request.get_json()
 
@@ -204,12 +177,11 @@ def update_goal_title(goal_id):
 
     return jsonify({"goal": response_body}), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal_data_from_db(goal_id):
 
-    goal_to_delete = get_one_goal_or_error(goal_id)
+    goal_to_delete = get_one_model_or_error(Goal, goal_id)
 
     db.session.delete(goal_to_delete)
     db.session.commit()
@@ -217,17 +189,16 @@ def delete_goal_data_from_db(goal_id):
     response_body = f'Goal {goal_id} "{goal_to_delete.title}" successfully deleted'
     return jsonify({"details": response_body}), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_list_of_tasks_to_goal(goal_id):
 
-    valid_goal = get_one_goal_or_error(goal_id)
+    valid_goal = get_one_model_or_error(Goal, goal_id)
 
     request_body = request.get_json()
 
     for task in request_body["task_ids"]:
-        current_task = get_one_task_or_error(task)
+        current_task = get_one_model_or_error(Task, task)
         current_task.goals = valid_goal
 
         db.session.commit()
@@ -241,11 +212,10 @@ def post_list_of_tasks_to_goal(goal_id):
 
     return jsonify(response_body), 200
 
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_of_one_goal(goal_id):
-    valid_goal = get_one_goal_or_error(goal_id)
+    valid_goal = get_one_model_or_error(Goal, goal_id)
 
     list_of_tasks = []
 
@@ -259,5 +229,3 @@ def get_tasks_of_one_goal(goal_id):
     }
 
     return jsonify(goal_dict), 200
-
-#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

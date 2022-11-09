@@ -59,7 +59,7 @@ def test_get_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response_body == {"message":"not found"}
+    assert response_body == {"message":"Not found"}
     # ---- Complete Test ----
 
 
@@ -119,7 +119,7 @@ def test_update_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response_body == {"message":"not found"}
+    assert response_body == {"message":"Not found"}
     # ---- Complete Assertions Here ----
 
 
@@ -141,7 +141,7 @@ def test_delete_goal(client, one_goal):
     response_body = response.get_json()
     assert response.status_code == 404
     assert "message" in response_body
-    assert response_body == {"message":"not found"}
+    assert response_body == {"message":"Not found"}
     # raise Exception("Complete test with assertion about response body")
     # # *****************************************************************
     # # **Complete test with assertion about response body***************
@@ -161,7 +161,7 @@ def test_delete_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response_body == {"message":"not found"}
+    assert response_body == {"message":"Not found"}
     # ---- Complete Assertions Here ----
 
 
