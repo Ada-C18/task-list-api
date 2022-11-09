@@ -173,9 +173,6 @@ def get_goal_with_task(goal_id):
     })
 
 
-    return response_body
-
-    
-    
+    # return response_body
 
     # return goal
