@@ -50,7 +50,6 @@ def delete_goal(model_id):
 def post_task_ids_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     request_body = request.get_json()
-    goal.tasks = []
     for task_id in request_body["task_ids"]:
         task = validate_model(Task, task_id)
         goal.tasks.append(task)
@@ -60,28 +59,16 @@ def post_task_ids_to_goal(goal_id):
 @goals_bp.route("<goal_id>/tasks", methods=["GET"])
 def read_tasks_for_specific_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    goals = Goal.query.get(goal_id)
-    tasks = Task.query.get(all)
-    goal_response = []
-    tasks = []
-    for goal in goals:
-        goal_response.append(goal.to_dict())
-
-
-    #for task in tasks: 
-        # if not task.goal_id:
-        #     return jsonify({
-        #         "task": {
-        #             "id": task.task_id,
-        #             "description": task.description, 
-        #             "is_complete": bool(task.completed_at)  
-        #         }}), 200 
-        # else: 
-        #     return jsonify({
-        #         "task": {
-        #             "id": task.task_id,
-        #             "description": task.description, 
-        #             "is_complete": bool(task.completed_at), 
-        #             "goal.id" : task.goal_id 
-        #         }}), 200 
-                
+    task_response = []
+    for task in goal.tasks:
+        task_response.append({
+                    "id": task.task_id,
+                    "description": task.description, 
+                    "title": task.title,
+                    "is_complete": bool(task.completed_at), 
+                    "goal_id" : goal.goal_id 
+                }), 200     
+    return jsonify({
+                "id": goal.goal_id,
+                "title" : goal.title,
+                "tasks" : task_response}), 200
