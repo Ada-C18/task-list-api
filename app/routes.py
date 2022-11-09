@@ -4,6 +4,7 @@ from app.models.task import Task
 from app import db
 from datetime import datetime
 import os
+import requests
 
 
 
@@ -163,7 +164,7 @@ def update_incompleted_task_to_complete(task_id):
 
     db.session.commit()
 
-    # slack_bot(task)
+    slack_bot(task_model)
     # return make_response(jsonify({"task": task_response}), 200)
     return make_response(jsonify({
         "task": {
@@ -187,7 +188,6 @@ def update_completed_task_to_incomplete(task_id):
 
     db.session.commit()
 
-    # slack_bot(task)
     # return make_response(jsonify({"task": task_response}), 200)
     return make_response(jsonify({
         "task": {
@@ -206,13 +206,13 @@ def update_completed_task_to_incomplete(task_id):
 #         return False
 
 
-# def slack_bot(task):
-#     PATH = "https://slack.com/api/chat.postMessage"
-#     SLACK_API_KEY = os.environ.get('SLACK_API_KEY')
+def slack_bot(task):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("SLACK_API")
 
-#     query_params = {
-#         "channel": "task-notifications",
-#         "text": f"Someone just completed the task {task.title}"
-#     }
+    bot_params = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+    }
 
-#     requests.post(PATH, params=query_params, headers={"Authorization": SLACK_API_KEY})
+    requests.post(PATH, data=bot_params, headers={"Authorization": SLACK_API_KEY})

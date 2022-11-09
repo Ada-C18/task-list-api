@@ -9,13 +9,13 @@ class Task(db.Model):
 
 
     def to_dict(self):
-        planet_as_dict = {}
-        planet_as_dict["id"] = self.task_id
-        planet_as_dict["title"] = self.title
-        planet_as_dict["description"] = self.description
-        planet_as_dict["completed_at"] = self.completed_at
+        task_dict = {}
+        task_dict["id"] = self.task_id
+        task_dict["title"] = self.title
+        task_dict["description"] = self.description
+        task_dict["completed_at"] = self.completed_at
 
-        return planet_as_dict
+        return task_dict
 
     @classmethod
     def from_dict(cls, req_body):
