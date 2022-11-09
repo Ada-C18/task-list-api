@@ -25,6 +25,7 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, data_dic):
+
         new_obj = cls(
             title=data_dic["title"],
             description=data_dic["description"],
