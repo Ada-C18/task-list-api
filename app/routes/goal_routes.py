@@ -92,9 +92,7 @@ def create_task(id):
 def get_tasks(id):
     goal = validate_model(Goal, id)
 
-    tasks_response = []
-    for task in goal.tasks:
-        tasks_response.append(task.to_dict())
+    tasks_response = [task.to_dict() for task in goal.tasks]
     
     return make_response({
         "id": goal.id,
