@@ -11,22 +11,6 @@ from .helpers_routes import validate_obj
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except ValueError:
-#         response_str = f"Invalid task id {task_id}. ID must be a integer."
-#         abort(make_response({"message": response_str}, 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         response_str = f"Task {task_id} not found."
-#         abort(make_response({"message": response_str}, 404))
-
-#     return task
-
-
 # INTEGRATE SLACK API
 def send_slack_message(message):
     try:
@@ -73,7 +57,6 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
-    # add functionality: sort task by title -> Add title query param
     order_param = request.args.get("sort")
 
     if order_param is None:
@@ -88,10 +71,8 @@ def read_all_tasks():
     return jsonify(tasks_response)
 
 
-# Create GET route for 1 task
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    # chosen_task = validate_task(task_id)
     chosen_task = validate_obj(Task, task_id)
 
     response = {
@@ -101,10 +82,8 @@ def get_one_task(task_id):
     return response, 200
 
 
-# Update Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    # task = validate_task(task_id)
     task = validate_obj(Task, task_id)
 
     request_body = request.get_json()
@@ -118,12 +97,10 @@ def update_task(task_id):
     db.session.commit()
 
     return jsonify(response), 200
-    # return response, 200 # jsonify needed here?
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    # task = validate_task(task_id)
     task = validate_obj(Task, task_id)
 
     db.session.delete(task)
@@ -133,13 +110,12 @@ def delete_task(task_id):
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
     }
 
-    return make_response(jsonify(response))  # returns 200 by default
+    return make_response(jsonify(response))
 
 
 # Modify mark_complete to call Slack API
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_to_complete(task_id):
-    # task = validate_task(task_id)
     task = validate_obj(Task, task_id)
 
     task.completed_at = datetime.utcnow()
@@ -160,7 +136,6 @@ def update_to_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def update_to_incomplete(task_id):
-    # task = validate_task(task_id)
     task = validate_obj(Task, task_id)
 
     task.completed_at = None
