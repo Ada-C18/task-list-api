@@ -1,4 +1,6 @@
+import os
 from app import db
+import requests
 from datetime import date
 from app.models.task import Task
 from app.models.goal import Goal
@@ -6,9 +8,23 @@ from app.routes.routes_helpers import *
 from flask import Blueprint, jsonify, make_response, request
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
+root_bp = Blueprint("root_bp", __name__)
 
+SLACK_API_URL = "https://slack.com/api/chat.postMessage"
+SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
+
+# Home page
+@root_bp.route("/", methods=["GET"])
+def root():
+    return {
+        "name": "Ghameerah's Task List API",
+        "message": "Fun with Flask",
+    }
+
+# Index
 @tasks_bp.route("", methods=["GET", "POST"])
 def handle_tasks():
+    # Get all tasks
     if request.method == "GET":
         task_query = Task.query
 
@@ -25,6 +41,7 @@ def handle_tasks():
             return make_response(jsonify(f"There are no tasks"))
         return jsonify(tasks_response), 200
 
+    # Create a new task
     elif request.method == "POST":
         request_body = request.get_json()
 
@@ -51,8 +68,11 @@ def handle_task(task_id):
     # Query our db to grab the task that has the id we want:
     task = Task.query.get(task_id)
 
+    # Show a single task
     if request.method == "GET":
         return task.to_json(), 200
+    
+    # Update a task
     elif request.method == "PUT":
         request_body = request.get_json()
 
@@ -66,6 +86,7 @@ def handle_task(task_id):
             "task": task.to_json()
         }, 200
 
+    # Delete a task
     elif request.method == "DELETE":
         db.session.delete(task)
         db.session.commit()
@@ -76,9 +97,27 @@ def handle_task(task_id):
 
 # PATCH /task/id/mark_complete
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+
 def mark_complete_task(task_id):
     task = get_record_by_id(Task, task_id)
     task.completed_at = date.today()
+
+    headers = {
+        "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
+    }
+    
+    if task.completed_at:
+        data = {
+            "channel": "task-notifications",
+            "text": f"Task {task.title} has been marked complete",
+        }
+    else:
+        data = {
+            "channel": "task-notifications",
+            "text": f"Task {task.title} has been marked incomplete",
+        }
+    
+    requests.post(SLACK_API_URL, headers=headers, data=data)
 
     db.session.commit()
 
