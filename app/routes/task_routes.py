@@ -3,7 +3,6 @@ from app import db
 import requests
 from datetime import date
 from app.models.task import Task
-from app.models.goal import Goal
 from app.routes.routes_helpers import *
 from flask import Blueprint, jsonify, make_response, request
 
