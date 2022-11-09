@@ -16,12 +16,12 @@ def return_task_or_abort(task_id):
     try:
         verified_id = int(task_id)
     except ValueError:
-        abort(make_response("Invalid ID: id must be an integer", 400))
+        abort(make_response({"details":"Invalid ID: id must be an integer"}, 400))
 
     task = Task.query.get(verified_id)
 
     if not task:
-        abort(make_response(jsonify("Invalid ID: id does not exist"), 404))
+        abort(make_response({"details":"Invalid ID: id does not exist"}, 404))
 
     return task
 
@@ -50,8 +50,8 @@ def add_task():
     try:
         new_task = Task(
             title=request_body["title"],
-            description=request_body["description"],
-            completed_at=request_body["completed_at"],
+            description=request_body["description"]
+            # completed_at=request_body["completed_at"],
         )
 
         db.session.add(new_task)
@@ -102,13 +102,11 @@ def update_task(task_id):
 
     request_body=request.get_json()
 
-    if "name" not in request_body or \
-    "price" not in request_body or \
-    "size" not in request_body or \
-    "type" not in request_body:
-        return jsonify({"Must include task title and description"}), 400
+    if "title" not in request_body or \
+    "description" not in request_body:
+        return jsonify("Must include task title and description"), 400
 
-    task.title = request_body["name"]
+    task.title = request_body["title"]
     task.description = request_body["description"]
     # task.completed_at = request_body["completed_at"]
 
@@ -122,8 +120,9 @@ def update_task(task_id):
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task=return_task_or_abort(task_id)
+    reponse_message = f'Task {task.task_id} "{task.title}" successfully deleted'
 
     db.session.delete(task)
     db.session.commit()
 
-    return make_response(f"Task #{task_id} was successfully deleted", 200)
+    return {"details": reponse_message}, 200
