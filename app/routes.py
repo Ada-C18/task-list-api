@@ -38,6 +38,17 @@ def task_endpoint(task_id):
 
     return jsonify(task.to_dict())
 
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def task_update(task_id):
+    task = validate_task(task_id)
+    request_body = request.get_json()
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    task.completed_at = request_body["completed at"]
+
+    db.session.commit()
+    return make_response(f"Task '{task.title}' has been updated successfully", 200)
+
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def task_delete(task_id):
     task = validate_task(task_id)
