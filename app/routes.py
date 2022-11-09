@@ -60,6 +60,7 @@ def create_one_task():
 
     return jsonify({"task": new_task.to_dict()}), 201
 
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task_by_id(task_id):
     '''Get one task by id, validates id before executing query.'''
@@ -77,7 +78,6 @@ def read_one_task_by_id(task_id):
             }
     else: 
         return jsonify({"task": task.to_dict()}), 200
-
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -104,6 +104,7 @@ def delete_task_by_id(task_id):
 
     return jsonify({"details": f"Task {task_id} \"Go on my daily walk 🏞\" successfully deleted"}), 200
 
+
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
     '''Updating task to completed using datetime function. Task ID validated before executing request.
@@ -127,6 +128,7 @@ def mark_complete(task_id):
 
     return jsonify({"task": task.to_dict()}), 200
 
+
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
     '''Marks a task as incomplete by id. ID validated before request.'''
@@ -139,7 +141,6 @@ def mark_incomplete(task_id):
 
 
 ####################Goal routes###################
-
 
 @goals_bp.route("", methods=["POST"])
 def create_one_goal():
@@ -154,6 +155,7 @@ def create_one_goal():
     db.session.commit()
 
     return jsonify({"goal": new_goal.to_dict()}), 201
+
 
 @goals_bp.route("", methods=["GET"])
 def read_all_goals():
@@ -190,7 +192,7 @@ def update_one_goal_by_id(goal_id):
 
     db.session.commit()
 
-    return {"goal": goal.to_dict()}, 200
+    return jsonify({"goal": goal.to_dict()}), 200
 
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
@@ -204,29 +206,6 @@ def delete_goal_by_id(goal_id):
     return jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200
 
 
-
-# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
-# def post_existing_tasks_to_goal_id(goal_id):
-#     '''Updates goal with a list of task ids.'''
-#     request_body = request.get_json()
-#     goal = validate_model_by_id(Goal, goal_id)
-
-#     provided_task_ids = request_body["task_ids"]
-
-#     task_ids = []
-#     for task_id in provided_task_ids:
-#         task = validate_model_by_id(Task, task_id)
-#         task.goal_id = goal.goal_id
-#         task_ids.append(task.task_id)
-
-#     db.session.commit()
-    
-#     return jsonify({
-#         "id": goal.goal_id,
-#         "task_ids": task_ids
-#         })
-
-
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def read_all_tasks_by_goal_id(goal_id):
     '''Returns list of task objects for task_ids in goal.tasks.'''
@@ -234,15 +213,8 @@ def read_all_tasks_by_goal_id(goal_id):
 
     tasks = []
     for task in goal.tasks:
-        tasks.append({
-            "id": task.task_id,
-            "goal_id": goal.goal_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete()
-            })
+        tasks.append(task.to_dict())
     
-
     return jsonify({
         "id": goal.goal_id,
         "title": "Build a habit of going outside daily",
@@ -250,18 +222,15 @@ def read_all_tasks_by_goal_id(goal_id):
     }), 200
 
 
-
-
-
-# trying to refactor without loop and using back_populates
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_existing_tasks_to_goal_id(goal_id):
+    '''Updates goal with list of tasks.'''
     request_body = request.get_json()
     goal = validate_model_by_id(Goal, goal_id)
     
     provided_task_ids = request_body["task_ids"]
     
-    tasks = []
+    tasks = goal.tasks
     task_ids = []
     for task_id in provided_task_ids:
         task = validate_model_by_id(Task, task_id)
@@ -271,71 +240,9 @@ def post_existing_tasks_to_goal_id(goal_id):
 
     goal.tasks = tasks
 
-
     db.session.commit()
     
     return jsonify({
         "id": goal.goal_id,
         "task_ids": task_ids
         })
-
-
-
-
-
-# def validate_goal_id(goal_id):
-#     try:
-#         goal_id = int(goal_id)
-#     except:
-#         abort(make_response(({"msg": f"{goal_id} is not valid"}), 400))
-
-#     goal = Goal.query.get(goal_id)
-
-#     if not goal:
-#         abort(make_response(({"msg": f"{goal_id} not found"}), 404))
-
-#     return goal
-
-
-# def validate_task_id(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response(({"msg": f"{task_id} is not valid"}), 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response(({"msg": f"{task_id} not found"}), 404))
-
-#     return task
-
-
-## original working code
-# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
-# def post_existing_tasks_to_goal_id(goal_id):
-#     request_body = request.get_json()
-#     goal = validate_model_by_id(Goal, goal_id)
-
-#     provided_task_ids = request_body["task_ids"]
-
-#     # getting all tasks in provided task id
-#     tasks = Task.query.filter(Task.task_id.in_(provided_task_ids)).all()
-#     print(f"🌸{tasks}")
-#     #######loop through provided task ids
-#         ## use read_task_by_id to get task
-#         ## task.goal_id = goal_id
-
-
-#     # this line is solely to popluate response body
-#     task_ids = [task.task_id for task in tasks]
-    
-#     for task in tasks:
-#         task.goal_id = goal_id
-
-#     db.session.commit()
-    
-#     return jsonify({
-#         "id": goal.goal_id,
-#         "task_ids": task_ids
-#         })

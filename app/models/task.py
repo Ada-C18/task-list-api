@@ -22,11 +22,12 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": self.is_complete()
         }
-    
+        
         if self.goal_id:
             dict["goal_id"] = self.goal_id
 
         return dict
+
 
     # @classmethod
     # def from_dict(cls, task_data):
