@@ -107,7 +107,8 @@ def incomplete_task(task_id):
 def post_tasks_to_goal(goal_id):
     goal = Goal.query.get_or_404(goal_id)
     request_body = request.get_json()
-    goal.tasks += [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+    task_id_in = Task.task_id.in_(request_body["task_ids"])
+    goal.tasks += Task.query.filter(task_id_in).all()
     db.session.commit()
     return {"id": goal.goal_id, "task_ids": [task.task_id for task in goal.tasks]}, 200
 
