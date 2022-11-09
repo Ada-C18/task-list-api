@@ -48,7 +48,7 @@ def create_task():
         db.session.add(new_task)
         db.session.commit()
 
-        return make_response(jsonify(new_task.to_task_dict())), 201
+        return make_response(jsonify({"task": new_task.to_task_dict()})), 201
 
     except:
         if not (request_body.get("title") is None):
@@ -72,7 +72,7 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
 
-    task_list = [t.to_dict() for t in tasks]
+    task_list = [t.to_task_dict() for t in tasks]
     
     return jsonify(task_list), 200
 
@@ -81,7 +81,7 @@ def get_all_tasks():
 def get_one_task(id):
     task = validate_id(Task, id)
 
-    return jsonify(task.to_task_dict()), 200
+    return jsonify({"task":task.to_task_dict()}), 200
 
     
 @tasks_bp.route("/<id>", methods=["PUT"])
@@ -95,7 +95,7 @@ def update_task(id):
     
     db.session.commit()
 
-    return make_response(jsonify(task.to_task_dict())), 200
+    return make_response(jsonify({"task":task.to_task_dict()})), 200
 
 @tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
 def update_completed_task(id):
@@ -107,7 +107,7 @@ def update_completed_task(id):
 
     send_msg_to_slack(task, id)
 
-    return make_response(jsonify(task.to_task_dict())), 200
+    return make_response(jsonify({"task": task.to_task_dict()})), 200
 
 @tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
 def update_incomplete_task(id):
@@ -117,7 +117,7 @@ def update_incomplete_task(id):
 
     db.session.commit()
 
-    return make_response(jsonify(task.to_task_dict())), 200
+    return make_response(jsonify({"task": task.to_task_dict()})), 200
 
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
@@ -140,7 +140,7 @@ def create_goal():
         db.session.add(new_goal)
         db.session.commit()
 
-        return make_response(jsonify(new_goal.goal_to_dict())), 201
+        return make_response(jsonify({"goal" :new_goal.to_dict()})), 201
 
     except:
         if not (request_body.get("title")):
@@ -159,7 +159,7 @@ def get_all_goals():
 def get_one_goal(id):
     goal = validate_id(Goal, id)
 
-    return jsonify(goal.goal_to_dict()), 200
+    return jsonify({"goal": goal.to_dict()}), 200
 
 @goals_bp.route("/<id>", methods=["PUT"])
 def update_goal(id):
@@ -171,7 +171,7 @@ def update_goal(id):
     
     db.session.commit()
 
-    return make_response(jsonify(goal.goal_to_dict())), 200
+    return make_response(jsonify({"goal":goal.to_dict()})), 200
 
 @goals_bp.route("/<id>", methods=["DELETE"])
 def delete_goal(id):
@@ -183,25 +183,40 @@ def delete_goal(id):
 
     return make_response({'details': f'Goal {id} "{goal.title}" successfully deleted'})
 
-@goals_bp.route("/<id>/tasks", methods=["POST"])
-def create_task(id):
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_tasks_for_goal(goal_id):
 
-    goal = validate_id(Goal, id)
+    goal = validate_id(Goal, goal_id)
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
-    new_task.goal = goal
+    for task_id in request_body["task_ids"]:
+        task = validate_id(Task, task_id)
+        goal.tasks.append(task)
 
-    db.session.add(new_task)
     db.session.commit()
 
-    return make_response(jsonify(new_task.to_task_dict())), 200
+    message = {
+        "id": goal.id,
+        "task_ids": request_body["task_ids"]
+    }
 
-@goals_bp.route("/<id>/tasks", methods=["GET"])
-def get_tasks(id):
+    return make_response(message), 200
 
-    goal = validate_id(Goal, id)
-    tasks_response = []
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_goal(goal_id):
+
+    goal = validate_id(Goal, goal_id)
+    
+    list_of_tasks = []
+
     for task in goal.tasks:
-        tasks_response.append(task.to_dict())
-
-    return make_response(jsonify(tasks_response)), 200
+        list_of_tasks.append(task.to_task_dict())
+    
+    message = {
+        "id": goal.id,
+        "title": goal.title,
+        "tasks": list_of_tasks
+    }
+    
+    return jsonify(message), 200
+    

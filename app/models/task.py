@@ -10,23 +10,23 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": self.completed_at is not None
-            }
-
     def to_task_dict(self):
-        return {
-            "task": {
-                "id": self.id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": self.completed_at is not None
-            }       
-        }     
+        if self.goal_id is not None:
+            return {
+                    "id": self.id,
+                    "goal_id": self.goal_id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": self.completed_at is not None
+                }       
+
+        else:
+            return {
+                    "id": self.id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": self.completed_at is not None
+                } 
 
     @classmethod
     def from_dict(cls, req_body):
@@ -35,4 +35,5 @@ class Task(db.Model):
             description = req_body['description'],
             completed_at = req_body.get('completed_at', None)
         )
+    
     
