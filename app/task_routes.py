@@ -48,7 +48,6 @@ def update_task(task_id):
     if "title" in request_body and "description" in request_body:
         task.title = request_body["title"]
         task.description = request_body["description"]
-        task.completed_at = task.completed_at # Will be adjusted in Wave 03
         
         db.session.commit()
         return {"task": task.as_dict()}, 200
