@@ -17,7 +17,7 @@ def validate_model(cls, model_id):
 
     return model
 
-
+# handle missing data
 def validate_input_data(cls, data_dict):
     try:
         return cls.from_dict(data_dict)

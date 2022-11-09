@@ -119,7 +119,7 @@ def test_update_task(client, one_task):
     assert task.description == "Updated Test Description"
     assert task.completed_at == None
 
-# where are we looking at to reference that task_id 1 does not exists?
+
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_update_task_not_found(client):
     # Act
@@ -138,7 +138,7 @@ def test_update_task_not_found(client):
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
-# Ask how to reference to a task.id that has been removed
+
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_delete_task(client, one_task):
     # Act

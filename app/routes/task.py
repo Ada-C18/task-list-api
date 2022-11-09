@@ -69,13 +69,9 @@ def mark_complete_task(id):
 
     db.session.commit()
 
-    # send to slack-bot-test-channel the message "Someone just completed the task {task title}"
-    # reference key with SLACK_KEY = os.environ.get(“SLACK_KEY”)
-
+    # when someone completes a task sends a message to slack
     url = "https://slack.com/api/chat.postMessage"
-
     SLACK_KEY = os.environ.get("SLACK_KEY")
-
     message = f"Someone just completed the task {task.title}"
 
     query_params = {
@@ -109,7 +105,10 @@ def mark_incomple_task(id):
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_model(Task, id)
-    title = str(task.title )
+
+    # saves title before being deleted 
+    title = task.title
+
     db.session.delete(task)
     db.session.commit()
 
