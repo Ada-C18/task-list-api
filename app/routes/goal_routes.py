@@ -140,7 +140,42 @@ def give_task_to_goal(goal_id):
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_goal_with_task(goal_id):
-    goal = get_record_by_id(Task, goal_id)
-    print(goal)
+    goal = get_record_by_id(Goal, goal_id)
 
-    return goal
+    #create a brand new list
+    #add dict version of each task instance via goal.tasks
+    task_list = []
+    # iterate over goal.tasks
+    for task in goal.tasks:
+        if goal_id:
+
+    # append each task dict to goal_list
+            task_list.append({
+                "id": task.task_id,
+                "goal_id":int(goal_id),
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            })
+        else:
+            task_list.append({
+                "id": task.task_id,
+                "goal_id": False,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            })
+    
+    response_body = jsonify({
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": task_list
+    })
+
+
+    return response_body
+
+    
+    
+
+    # return goal
