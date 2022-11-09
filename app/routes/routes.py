@@ -6,7 +6,7 @@ import os #newly added for wave4
 import requests #newly added for wave4
 from app.models.goal import Goal
 from app import SLACK_URL
-from app.slack_bot import slack_message
+from app.routes.slack_bot import slack_message
 
 
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
