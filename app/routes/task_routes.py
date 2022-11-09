@@ -118,6 +118,8 @@ def read_all_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = get_record_by_id(Task, task_id)
+    # task = validate_goal(task_id)
+    
     # return {
     #     "task": {
     #         "id": task.task_id,

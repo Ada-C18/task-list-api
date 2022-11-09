@@ -74,6 +74,7 @@ def read_all_goals():
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
     goal = get_record_by_id(Goal, goal_id)
+    # goal = validate_goal(goal_id)
 
     # return {
     #     "goal": {
@@ -88,11 +89,13 @@ def get_one_goal(goal_id):
 # Defining Endpoint and Creating Route Function to UPDATE a Goal
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = Goal.query.get(goal_id)
+    # goal = validate_goal(goal_id)
 
     request_body = request.get_json()
 
-    goal.title = request_body["title"]
+    # goal.title = request_body["title"]
+    goal.update(request_body)
 
     db.session.commit()
 
