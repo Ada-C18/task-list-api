@@ -76,6 +76,12 @@ def get_one_goal(goal_id):
     return {"goal": goal.to_dict()}
 
 
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    return goal.to_dict(tasks=True)
+
+
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
@@ -116,6 +122,17 @@ def mark_task_incomplete(task_id):
     task.mark_complete(False)
     db.session.commit()
     return {"task": task.to_dict()}
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_task_ids_to_goal(goal_id):
+    validate_goal = validate_model(Goal, goal_id)
+    goal = Goal.query.get(validate_goal.goal_id)
+    
+    request_body = request.get_json()
+    goal.tasks += [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+    db.session.commit()
+    return {"id": goal.goal_id, "task_ids": [task.task_id for task in goal.tasks]}
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
