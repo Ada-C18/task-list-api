@@ -77,8 +77,7 @@ def read_all_tasks():
     #         }
     #     )
 
-
-    # ^^refactored task_response^^ 
+    # ---------------- ^^refactored task_response^^ -----------------------------
     # to call to_dict 
     # as dict comprehension 
     tasks_response = [task.to_dict() for task in tasks]

@@ -1,8 +1,8 @@
 from app import db
 from app.models.goal import Goal
 from app.models.task import Task
+from app.routes.routes_helper import *
 from flask import Blueprint, jsonify, abort, make_response, request
-
 
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -10,15 +10,23 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 #Create a new goal
 @goals_bp.route("", methods=["POST"])
 def create_goal():
+    request_body = request.get_json()
 
-    try:
-        request_body = request.get_json() 
-        new_goal = Goal(
-            title=request_body["title"]
-            )
+    if "title" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+
+    new_goal = Goal.from_dict(request_body)
+    # ------------ ^^ refactored ^^ ------------------------------
+
+    # try:
+    #     request_body = request.get_json() 
+    #     new_goal = Goal(
+    #         title=request_body["title"]
+    #         )
             
-    except KeyError:
-        return {"details": "Invalid data"}, 400
+    # except KeyError:
+    #     return {"details": "Invalid data"}, 400
+
     db.session.add(new_goal)
     db.session.commit()
 
@@ -35,15 +43,17 @@ def read_all_goals():
 
     goals = Goal.query.all()
     
-    goals_response = []
-    # goals = goal.query.all()
-    for goal in goals:
-        goals_response.append( 
-            {
-                "id": goal.goal_id,
-                "title": goal.title,
-            }
-        )
+    # goals_response = []
+    # for goal in goals:
+    #     goals_response.append( 
+    #         {
+    #             "id": goal.goal_id,
+    #             "title": goal.title,
+    #         }
+    #     )
+    
+    #------------------ ^^ refactored ^^ ---------------------------- 
+    goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
 
 #helper function to validate goal 
