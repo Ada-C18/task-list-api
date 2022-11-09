@@ -17,6 +17,9 @@ def validate_model(cls, model_id):
 
 def send_slack_message(msg_body):
     payload = {"channel":"task-notifications","text":str(msg_body)}
-    header = {'Authorization':str('Bearer ' + key)}
+    if key:
+        header = {'Authorization':str('Bearer ' + key)}
+    else:
+        header = {'Authorization': None}
     r = requests.post('https://slack.com/api/chat.postMessage', headers=header, params=payload)
     return r
