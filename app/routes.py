@@ -59,14 +59,17 @@ def validate_id(cls, id):
     obj = cls.query.get(id)
 
     if not obj:
-        abort(make_response({"message":f"{cls.__name__}{id} not found"}, 404))
+        abort(make_response({"message":f"{cls.__name__} {id} not found"}, 404))
 
     return obj
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_id(Task, task_id)
 
-    return {"task": task.to_dict()}
+    if task.goal_id is None:
+        return {"task": task.to_dict()}
+    else:
+        return {"task": task.task_dict()}
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -143,3 +146,5 @@ def update_complete_task(task_id):
 
 
     return make_response(jsonify({"task": task.to_dict()}), 200)
+
+
