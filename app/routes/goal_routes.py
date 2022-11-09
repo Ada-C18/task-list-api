@@ -1,5 +1,6 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 
 
@@ -100,3 +101,24 @@ def delete_goal(goal_id):
     return {
         "details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'
     }
+
+# @goals_bp.route("<goal_id>/tasks", methods=["POST"])
+# def create_goals(goal_id):
+
+#     request_body= request.get_json()
+
+#     new_task = Task(
+#         title=request_body["title"],
+#         description=request_body["description"],
+#         completed_at=request_body["completed_at"]
+#     )
+    
+#     db.session.add(new_task)
+#     db.session.commit()
+
+#     pass
+    
+
+# @goals_bp.route("<goal_id>/tasks", methods=["GET"])
+# def reads_tasks_from_goal():
+#     pass

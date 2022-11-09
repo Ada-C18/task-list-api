@@ -63,7 +63,7 @@ def read_all_tasks():
     tasks_response = []
     # tasks = Task.query.all()
     for task in tasks:
-        tasks_response.append( 
+        tasks_response.append(
             {
                 "id": task.task_id,
                 "title": task.title,
@@ -92,10 +92,11 @@ def validate_task(task_id):
     except:
         abort(make_response({"details": "Invalid data"}, 400))
 
-    task = Task.query.get(task_id)
+    task = Task.query.get(task_id) ##first version
+    # task = cls.query.get(task_id)
 
     if not task:
-        abort(make_response({"details":f"there is no existing task {task_id}"}, 404))
+        abort(make_response({"details":f"there is no existing task {task_id}"}, 404))##first
         
     return task
 
