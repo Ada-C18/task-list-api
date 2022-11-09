@@ -58,9 +58,10 @@ def test_get_goal_not_found(client):
     # ---- Complete Test ----
     # assertion 1 goes here
     assert response.status_code == 404
-    assert response_body == {"message": f"Goal 1 not found."}
-    assert "message" in response_body
+
     # assertion 2 goes here
+    assert response_body == {"message": f"Goal with id 1 was not found."}
+    assert "message" in response_body
     # ---- Complete Test ----
 
 
@@ -129,8 +130,10 @@ def test_update_goal_not_found(client):
     # ---- Complete Assertions Here ----
     # assertion 1 goes here
     assert response.status_code == 404
+
     # assertion 2 goes here
-    assert response_body == {"message":  "Goal 1 not found."}
+    assert response_body == {"message": f"Goal with id 1 was not found."}
+
     assert "message" in response_body
     # ---- Complete Assertions Here ----
 
@@ -176,7 +179,7 @@ def test_delete_goal_not_found(client):
     # assertion 1 goes here
     assert response.status_code == 404
     # assertion 2 goes here
-    assert response_body == {"message":  "Goal 1 not found."}
+    assert response_body == {"message": f"Goal with id 1 was not found."}
     # ---- Complete Assertions Here ----
 
 
