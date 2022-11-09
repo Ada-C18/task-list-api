@@ -207,16 +207,16 @@ def create_goal():
 def read_all_goals():
 
     # get the sort parameter from request
-    sort= request.args.get('sort')
+    # sort= request.args.get('sort')
     goals = Goal.query.all()
 
     # reverse is set to a boolean that sort equals "desc" is consider True. If it doesn't equal "desc" it False.
-    reverse = sort == "desc"
+    # reverse = sort == "desc"
 
-    def sorting(goals):
-        return goal.title
+    # def sorting(goals):
+        # return goal.title
 
-    goals.sort(reverse=reverse, key=sorting)
+    # goals.sort(reverse=reverse, key=sorting)
 
     get_response = []
     for goal in goals:
@@ -226,3 +226,17 @@ def read_all_goals():
         ))
         
     return jsonify(get_response)
+
+@goal_bp.route("/<goal_id>", methods=["GET"])
+def handle_goal(goal_id):
+
+    goal = validate_model(Goal,goal_id)
+
+
+    get_response ={
+        f"goal": {
+            "id": goal.goal_id,
+            "title": goal.title
+        }}
+
+    return get_response, 200
