@@ -130,15 +130,16 @@ def give_task_to_goal(goal_id):
         task = Task.query.get(id)
         task.goal_id = goal_id
         print(task.goal_id)
-     
 
     db.session.add(task.goal_id)
     db.session.commit()
 
-    return {
-        "id": task.goal_id,
-        "task_ids": [1, 2, 10]
-    }
+    # return {
+    #     "id": task.goal_id,
+    #     "task_ids": [1, 2, 10]
+    # }
+
+    return "testing"
     
 
     
