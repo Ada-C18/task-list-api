@@ -93,4 +93,21 @@ def create_goals_of_task(goal_id):
     return make_response({
         "id": goal.goal_id,
         "task_ids": create_data['task_ids']
-    }, 201)
+    }, 200)
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=['GET'])
+def read_task_in_goals(goal_id):
+    goal = validate_goal(goal_id)
+
+    if goal.tasks:
+
+        for task in goal.tasks:
+            new_goal = goal.to_dict()
+            new_goal['tasks'] = [{"goal_id": goal.goal_id, "id": task.task_id,
+                                  "title": task.title, "description": task.description, "is_complete": bool(task.completed_at)}]
+
+        return make_response(jsonify(new_goal), 200)
+
+    else:
+        return make_response({"id": goal.goal_id, "title": goal.title, "tasks": []})
