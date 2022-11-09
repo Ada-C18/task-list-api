@@ -28,7 +28,7 @@ class Task(db.Model):
     def from_dict(cls, request_body):
         return cls(
             title=request_body["title"],
-            description=request_body["description"],
+            description=request_body["description"]
         )
 
     def update(self, req_body):

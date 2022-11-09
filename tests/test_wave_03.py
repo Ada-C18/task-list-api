@@ -127,12 +127,11 @@ def test_mark_complete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-
-    #raise Exception("Complete test with assertion about response body")
     assert response_body == {
         "details": "Id not found"
     }
     assert Task.query.all() == []
+    #raise Exception("Complete test with assertion about response body")
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
@@ -145,11 +144,10 @@ def test_mark_incomplete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-
-    #raise Exception("Complete test with assertion about response body")
     assert response_body == {
         "details": "Id not found"
     }
     assert Task.query.all() == []
+    #raise Exception("Complete test with assertion about response body")
     # **Complete test with assertion about response body***************
     # *****************************************************************
