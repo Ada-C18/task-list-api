@@ -80,30 +80,17 @@ def delete_task(goal_id):
 
 @goals_bp.route("/<goal_id>/tasks", methods=['POST'])
 def create_goals_of_task(goal_id):
+    # grab the goal from db' don't need to create new goal
     goal = validate_goal(goal_id)
-    goal_tasks = []
     create_data = request.get_json()
 
     for task_id in create_data['task_ids']:
         task = validate_task(task_id)
-        goal_tasks.append(task)
+        goal.tasks.append(task)
 
-    goal_tasks = Goal(tasks=create_data["task_ids"])
-
-    # response_task_ids = []
-
-    # goal.tasks.append(task)
-    # response_task_ids.append(task)
-    # response_task_ids.append(task.task_id)
-
-    db.session.add(goal_tasks)
     db.session.commit()
-
-    # response_task_ids = []
-    # for task in goal.tasks:
-    #     response_task_ids.append(task.task_id)
 
     return make_response({
         "id": goal.goal_id,
-        "task_ids": goal_tasks
+        "task_ids": create_data['task_ids']
     }, 201)
