@@ -5,6 +5,7 @@ from datetime import date
 import os #newly added for wave4
 import requests #newly added for wave4
 from app.models.goal import Goal
+from app import SLACK_URL
 
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -125,7 +126,7 @@ def mark_complete_one_task(task_id):
     chosen_task.completed_at = date.today()    
     db.session.commit()
     
-    SLACK_URL = os.environ.get("SLACK_URL")
+    # SLACK_URL = os.environ.get("SLACK_URL")
 
     data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
     

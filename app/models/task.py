@@ -21,16 +21,15 @@ class Task(db.Model):
             "title": self.title,
             "description": self.description,
             "is_complete": True if self.completed_at else False                                              
-        }
-        
+        }        
         if self.goal_id:
             dict["goal_id"] = self.goal_id
         return dict
             
-    def to_dict_goal_id(self):
-        dict = self.to_dict()
-        dict["goal_id"] = self.goal_id
-        return dict
+    # def to_dict_goal_id(self):
+    #     dict = self.to_dict()
+    #     dict["goal_id"] = self.goal_id
+    #     return dict
             
     @classmethod
     def from_dict(cls, task_dict):
@@ -40,11 +39,11 @@ class Task(db.Model):
             # goal_id=task_dict["goal_id"]                        
         )
     
-    @classmethod
-    def from_dict_goal_id(cls, task_dict):
-        return cls(
-            title=task_dict["title"],
-            description=task_dict["description"],
-            goal_id=task_dict["goal_id"]                        
-        )
+    # @classmethod
+    # def from_dict_goal_id(cls, task_dict):
+    #     return cls(
+    #         title=task_dict["title"],
+    #         description=task_dict["description"],
+    #         goal_id=task_dict["goal_id"]                        
+    #     )
     
