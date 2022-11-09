@@ -31,3 +31,12 @@ class Task(db.Model):
             self.description = req_body["description"]
         except KeyError as error:
             abort(make_response({"message": f"Missing attribute: {error}"},400))
+
+
+
+
+
+    
+
+    
+    
