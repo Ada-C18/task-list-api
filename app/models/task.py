@@ -1,4 +1,5 @@
 from app import db
+from datetime import datetime
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
@@ -26,3 +27,9 @@ class Task(db.Model):
             return True
         else:
             return False
+
+    def mark_complete(self):
+        self.completed_at = datetime.now()
+
+    def mark_incomplete(self):
+        self.completed_at = None
