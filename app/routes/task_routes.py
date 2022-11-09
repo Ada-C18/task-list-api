@@ -13,20 +13,20 @@ load_dotenv()
 task_bp = Blueprint('task_bp', __name__, url_prefix='/tasks')
 
 
-def validate_id(cls, id):
-    # invalid id type
-    try:
-        id = int(id)
-    except ValueError:
-        abort(make_response(jsonify({
-            "details": "Invalid data"
-        }), 400))
+# def validate_id(cls, id):
+#     # invalid id type
+#     try:
+#         id = int(id)
+#     except ValueError:
+#         abort(make_response(jsonify({
+#             "details": "Invalid data"
+#         }), 400))
 
-    # id not found
-    model = cls.query.get(id)
+#     # id not found
+#     model = cls.query.get(id)
 
-    if not model:
-        abort(make_response({"details": "Id not found"})), 404
+#     if not model:
+#         abort(make_response({"details": "Id not found"})), 404
 
 
 @task_bp.route("", methods=["POST"])
@@ -83,8 +83,7 @@ def edit_task(task_id):
         return make_response({"details": "Id not found"}), 404
     request_body = request.get_json(task_id)
 
-    task.title = request_body["title"],
-    task.description = request_body["description"]
+    task.update(request_body)
 
     db.session.commit()
 
