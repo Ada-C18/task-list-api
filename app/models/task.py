@@ -11,22 +11,14 @@ class Task(db.Model):
 
 
     def to_dict(self):
-        if self.goal_id is not None:
-            task_dict = {
-                "id": self.task_id,
-                "goal_id": self.goal_id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": True if self.completed_at else False,
-                }
-        else:
-            task_dict = {
-                "id": self.task_id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": True if self.completed_at else False,
-                }
+        task_dict = {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": True if self.completed_at else False,
+            }
         return task_dict
+
 
     @classmethod
     def from_dict(cls, obj_dict):
@@ -36,5 +28,4 @@ class Task(db.Model):
             completed_at = obj_dict.get("completed_at", None),
             # goal_id = obj_dict["goal_id"]
             )
-
         return new_obj
