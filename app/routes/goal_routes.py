@@ -1,5 +1,6 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.routes.routes_helper import *
 
@@ -130,15 +131,16 @@ def give_task_to_goal(goal_id):
         task.goal_id = goal_id
         print(task.goal_id)
 
-    db.session.add(task.goal_id)
     db.session.commit()
 
-    # return {
-    #     "id": task.goal_id,
-    #     "task_ids": [1, 2, 10]
-    # }
+    return jsonify({
+        "id": task.goal_id,
+        "task_ids": request_body["task_ids"]
+    })
 
-    return "testing"
-    
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_goal_with_task(goal_id):
+    goal = get_record_by_id(Task, goal_id)
+    print(goal)
 
-    
+    return goal
