@@ -37,7 +37,7 @@ def get_all_tasks():
     if sort_query == "asc":
         tasks = Task.query.order_by(Task.title)
     elif sort_query == "desc":
-        pass
+        tasks = Task.query.order_by(Task.title.desc()) #ColumnElement.desc() method produces a descending ORDER BY clause element
     else:
         tasks = Task.query.all()
     
