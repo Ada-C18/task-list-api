@@ -22,8 +22,6 @@ def create_goal():
 
     return make_response(f"Goal {new_goal.title} successfully created", 201)
 
-
-
 @bp.route("", methods=["GET"])
 def read_all_goals():
     goals = Goal.query.all()
@@ -32,24 +30,10 @@ def read_all_goals():
 
     return jsonify(goals_response)
 
-
-# @bp.route("/<goal_id>/tasks", methods=["POST"])
-# def create_task(goal_id):
-#     goal = validate_model(Goal, goal_id)
-#     request_body = request.get_json()
-#     new_task = Task.from_dict(request_body)
-#     new_task.goal = goal
-
-#     db.session.add(new_task)
-#     db.session.commit()
-
-#     return make_response(f"Task {new_task.title} cared for by {goal.title}", 201)
-
-
 @bp.route("/<goal_id>/", methods=["GET"])
 def read_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    return jsonify(goal.to_dict()), 200
+    return make_response(dict(goal = goal.to_dict()), 200)
 
 @bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
@@ -59,7 +43,7 @@ def update_goal(goal_id):
     goal.title = request_body["title"]
 
     db.session.commit()
-    return make_response(dict(task = goal.to_dict()), 200)
+    return make_response(dict(goal = goal.to_dict()), 200)
 
 @bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
