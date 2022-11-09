@@ -118,15 +118,18 @@ def read_all_tasks():
     #else task = Task.query.get(task_id) how task is defined validate_task without helper function
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_task(task_id)
-    return {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": bool(task.completed_at)
-        }
-        }
+    task = get_record_by_id(Task, task_id)
+    # return {
+    #     "task": {
+    #         "id": task.task_id,
+    #         "title": task.title,
+    #         "description": task.description,
+    #         "is_complete": bool(task.completed_at)
+    #     }
+    #     }
+
+# ---------------- ^^refactored return statement^^ --------------------
+    return task.to_dict(), 200
 
 # Defining Endpoint and Creating Route Function to UPDATE a Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
