@@ -18,10 +18,3 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": bool(self.completed_at)
         }})
-
-    # @classmethod
-    # def request_dict(cls, data_dict):
-    #     return cls(
-    #         title=data_dict["title"],
-
-    #     )
