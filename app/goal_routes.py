@@ -22,7 +22,7 @@ def create_goal():
     db.session.add(new_goal)
     db.session.commit()
 
-    response_body = {"task": new_goal.to_dict()}
+    response_body = {"goal": new_goal.to_dict()}
 
     return make_response(jsonify(response_body), 201)
 
@@ -71,7 +71,6 @@ def update_one_goal(goal_id):
     request_body = request.get_json()
 
     goal.title = request_body["title"]
-    goal.description = request_body["description"]
 
     db.session.commit()
 

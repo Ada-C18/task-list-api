@@ -40,11 +40,12 @@ def validate_model(cls, model_id):
     except:
         abort(make_response(jsonify({"msg": f"{cls.__name__} with ID: {model_id} is invalid"}), 400))
     
-    task = Task.query.get(model_id)
+    model = cls.query.get(model_id)
 
-    if not task:
+    print(cls.__name__)
+    if not model:
         abort(make_response(jsonify({"msg": f"{cls.__name__} with ID: {model_id} is not found"}), 404))
-    return task
+    return model
 
 
 @tasks_bp.route("", methods=["GET"])
@@ -112,6 +113,7 @@ def delete_task(task_id):
 
 
 #### is_complete endpoints ####
+
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
     '''
@@ -164,4 +166,5 @@ def bot_mark_complete(mark_complete):
 
     except SlackApiError as e:
         logger.error(f"Error posting message: {e}")
+
 
