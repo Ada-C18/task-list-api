@@ -134,12 +134,15 @@ def get_one_task(task_id):
 # Defining Endpoint and Creating Route Function to UPDATE a Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_task(task_id)
+    task = Task.query.get(task_id)
 
     request_body = request.get_json()
 
-    task.title = request_body["title"]
-    task.description = request_body["description"]
+    # task.title = request_body["title"]
+    # task.description = request_body["description"]
+    
+    # ----------------- ^^ refactored ^^ -----------------------------
+    task.update(request_body)
 
     db.session.commit()
 
@@ -155,7 +158,8 @@ def update_task(task_id):
 # Defining Endpoint and Creating Route Function to DELETE a Task
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_task(task_id)
+    task = Task.query.get(task_id)
+    # task = validate_task(task_id) #old version without refactoring
 
     db.session.delete(task)
     db.session.commit()
