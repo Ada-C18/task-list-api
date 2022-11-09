@@ -184,3 +184,46 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{goal_title}" successfully deleted'}), 200
+
+@goal_bp.route("/<goal_id>/tasks", methods=['POST'])
+def create_tasks_to_goal(goal_id):
+    request_body = request.get_json()
+    parent_goal = get_one_obj_or_abort(Goal, goal_id)
+    
+    for task_id in request_body["task_ids"]:
+        new_task = get_one_obj_or_abort(Task, task_id)
+        new_task.goal_id = parent_goal.goal_id
+
+    # tasks = [task.to_dict() for task in parent_goal.tasks]
+    # task_ids = [task.task_id for task in tasks]
+    db.session.commit()
+
+    task_ids = [task.task_id for task in parent_goal.tasks]
+
+    response = {"id": parent_goal.goal_id, "task_ids": task_ids}
+    return jsonify(response), 200
+
+@goal_bp.route("/<goal_id>/tasks", methods=['GET'])
+def get_tasks_for_goal(goal_id):
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    for task in chosen_goal.tasks:
+        # task_dict = {
+        #     "id": task.task_id,
+        #     "goal_id": task.goal_id,
+        #     "title": task.title,
+        #     "description": task.description,
+        #     "is_complete": task.is_completed}
+        task_dict = task.to_dict()
+        task_dict["goal_id"] = task.goal_id
+    goal_respsonse = chosen_goal.to_dict()
+    goal_respsonse["tasks"] = [task_dict for task in chosen_goal.tasks]
+
+    # {"id": chosen_goal.goal_id, "title": chosen_goal.title, "tasks": tasks_respsonse}
+    return jsonify(goal_respsonse), 200
+
+@goal_bp.route("/tasks/<task_id>", methods =["GET"])
+def get_task_includes_goal_id(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+
+    return jsonify({"task": chosen_task.to_dict()}), 200
