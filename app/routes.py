@@ -2,7 +2,7 @@ from datetime import datetime
 from flask import Blueprint, request, make_response, jsonify, abort
 from app import db
 from app.models.task import Task
-from sqlalchemy import asc, desc
+import requests, os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -112,15 +112,27 @@ def delete_one_task(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_update(task_id):
     chosen_task = validate_task(task_id)
-
     task = Task.query.get(task_id)
     if task is None:
         return make_response("The task was not found", 404)
     task.completed_at = datetime.now()
-
     db.session.commit()
+    
+    PATH = "https://slack.com/api/chat.postMessage"
+    
+    SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN")
+
+    # the query parameters come from the 
+    query_params = {
+        "token": SLACKBOT_TOKEN,
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+    }
+
+    requests.post(url=PATH, data=query_params, headers={"Authorization": SLACKBOT_TOKEN})
+    # POST: to submit data to be processed to the server.
+    
     return jsonify({"task":chosen_task.return_body()}), 200
-    # return check_complete_status(task_id, result = datetime.now())
 
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])

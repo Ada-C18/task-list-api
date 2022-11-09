@@ -17,7 +17,6 @@ class Task(db.Model):
             "is_complete": self.check_complete_or_not()
         }
 
-
     def check_complete_or_not(self):
         if self.completed_at:
             is_complete = True
