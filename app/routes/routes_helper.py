@@ -24,3 +24,4 @@ def validate_input_data(cls, data_dict):
     except KeyError:
         abort(make_response(jsonify(dict(details="Invalid data")), 400))
 
+

@@ -1,11 +1,11 @@
 from app import db
 from flask import abort, make_response, jsonify
 
-
+# One goal can have multiple tasks
 class Goal(db.Model):
-    goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
-    # tasks = db.relationship("Task", back_populates="goal")
+    tasks = db.relationship("Task", back_populates="goal", lazy=True)
     
 
     @classmethod
@@ -14,8 +14,9 @@ class Goal(db.Model):
 
     def to_dict(self):
         return {
-            "id": self.goal_id,
+            "id": self.id,
             "title": self.title    
+        
         }
 
     def update(self,req_body):
@@ -23,3 +24,8 @@ class Goal(db.Model):
             self.title = req_body["title"]
         except KeyError:
             abort(make_response(jsonify(dict(details="Invalid data")), 400))
+
+
+        
+
+

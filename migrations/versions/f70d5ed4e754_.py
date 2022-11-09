@@ -1,8 +1,8 @@
-"""deleting and creating task_list_api_development again
+"""empty message
 
-Revision ID: 43f7244a7cad
+Revision ID: f70d5ed4e754
 Revises: 
-Create Date: 2022-11-07 19:38:08.817959
+Create Date: 2022-11-08 15:09:23.644076
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '43f7244a7cad'
+revision = 'f70d5ed4e754'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,6 +28,8 @@ def upgrade():
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
+    sa.Column('goal_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['goal_id'], ['goal.goal_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
