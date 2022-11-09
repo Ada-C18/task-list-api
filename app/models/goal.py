@@ -9,7 +9,7 @@ class Goal(db.Model):
     def to_dict(self):
         return {
             "id":self.goal_id,
-            "title": self.title,
+            "title": self.title
         }
     
     def get_tasks_list(self):
@@ -18,5 +18,3 @@ class Goal(db.Model):
             list_of_tasks.append(item.to_dict())
         return list_of_tasks
 
-    def dict_for_one_goal(self):
-        pass
