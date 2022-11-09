@@ -55,7 +55,7 @@ def get_all_tasks():
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": task.is_complete  # bool(task.completed_at)
+            "is_complete": task.is_complete 
         })
 
     return make_response(jsonify(tasks_response), 200)
@@ -149,11 +149,10 @@ def update_complete(task_id, complete):
 
 def slack_post(task_id):
     task = validate_task_id(task_id)
-    if task.is_complete == True:
-        return requests.post('https://slack.com/api/chat.postMessage', {
-            'token': os.environ.get('API_KEY'),
-            'channel': 'C049FHLN615',
-            'text': f'Someone just completed the task {task.title}'}).json()
+    return requests.post('https://slack.com/api/chat.postMessage', {
+        'token': os.environ.get('API_KEY'),
+        'channel': 'C049FQLJTBN',
+        'text': f'Someone just completed the task {task.title}'}).json()
 
 
 @goals_bp.route("", methods=["POST"])
@@ -242,3 +241,34 @@ def delete_task(goal_id):
     db.session.commit()
 
     return make_response(jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200)
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+    request_body = request.get_json()  
+
+    for task_id in request_body['task_ids']:  
+        task = Task.query.get(task_id)  
+        task.goal_id = goal.goal_id  
+
+    db.session.commit()
+
+    response = {"id": goal.goal_id,
+                "task_ids": request_body['task_ids']}
+
+    return make_response(response, 200)
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_from_goal(goal_id):
+    goal = validate_goal_id(goal_id)
+
+    tasks = [Task.to_dict(task) for task in goal.tasks]
+    response = {
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": tasks
+    }
+    
+    return make_response(response, 200)
