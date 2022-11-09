@@ -9,11 +9,11 @@ def get_record_by_id(cls, id):
     try:
         id = int(id)
     except ValueError:
-        error_message(f"Invalid id {id}", 400)
+        error_message({"details": "Invalid data"}, 400)
 
     # check if id exists in db
     model = cls.query.get(id)
     if model: 
         return model 
 
-    error_message(f"No model of type {cls.__name__} with id {id} found", 404)
+    error_message({"details":f"there is no existing task {id}"}, 404)

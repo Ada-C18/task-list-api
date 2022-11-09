@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
+from app.routes.routes_helper import error_message, get_record_by_id
 from datetime import date
 import requests
 import os
@@ -16,18 +17,24 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 # Defining Endpoint and Creating Route Function to CREATE a task
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
-    try:
-        request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
-        new_task = Task(
-            title=request_body["title"],
-            description=request_body["description"],
-            completed_at=None
-            )
-    # if missing atribute title, description, or completed_at
-    # KeyError
-    except KeyError:
-        return {"details": "Invalid data"}, 400
+    request_body = request.get_json()
+    
+    if "name" not in request_body or "breed" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+   
+    new_task = Task.from_dict(request_body) 
 
+    # try:
+    #     request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
+    #     new_task = Task(
+    #         title=request_body["title"],
+    #         description=request_body["description"],
+    #         completed_at=None
+    #         )
+    # # if missing atribute title, description, or completed_at
+    # # KeyError
+    # except KeyError:
+    #     return {"details": "Invalid data"}, 400
 
     #communicating to the db to collect and commit the changes made in this function
     #saying we want the database to add new_task
@@ -49,7 +56,7 @@ def create_tasks():
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
 
-    tasks = Task.query.all()
+    tasks = Task.query.all() #Not sure if we need this
 
     # helps the client to search by title and sort
     tasks_sort = request.args.get("sort")
@@ -59,17 +66,22 @@ def read_all_tasks():
     else:
         tasks = Task.query.all()
         
-    tasks_response = []
-    # tasks = Task.query.all()
-    for task in tasks:
-        tasks_response.append( 
-            {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": bool(task.completed_at)
-            }
-        )
+    # tasks_response = []
+    # for task in tasks:
+    #     tasks_response.append( 
+    #         {
+    #             "id": task.task_id,
+    #             "title": task.title,
+    #             "description": task.description,
+    #             "is_complete": bool(task.completed_at)
+    #         }
+    #     )
+
+
+    # ^^refactored task_response^^ 
+    # to call to_dict 
+    # as dict comprehension 
+    tasks_response = [task.to_dict() for task in tasks]
     
     # call the filter from the test ex. asc & desc
     if tasks_sort == "asc":
@@ -82,21 +94,24 @@ def read_all_tasks():
         return jsonify(tasks_response)
     
 
+# ------------------- refactored and moved to routes_helper -------------------------------------------
 #Creating helper function validate_task to handle errors for get a task by id
 # Checks for valid data type (int)
 # Checks that id provided exists in records
-def validate_task(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"details": "Invalid data"}, 400))
+# def validate_task(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except:
+#         abort(make_response({"details": "Invalid data"}, 400))
 
-    task = Task.query.get(task_id)
+#     task = Task.query.get(task_id)
 
-    if not task:
-        abort(make_response({"details":f"there is no existing task {task_id}"}, 404))
+#     if not task:
+#         abort(make_response({"details":f"there is no existing task {task_id}"}, 404))
         
-    return task
+#     return task
+# ------------------- refactored and moved to routes_helper -------------------------------------------
+
 
 # Defining Endpoint and Creating Route Function to GET(read) One Task
 #Refactored to define task as return value of helper function validate_task
