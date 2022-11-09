@@ -97,13 +97,14 @@ def add_tasks_to_goal(goal_id):
     request_body = request.get_json()
     tasks_to_assign = request_body["task_ids"]
 
-    for task in tasks_to_assign:
+    for task_id in tasks_to_assign:
+        task = Task.query.get(task_id)
         task.goal_id = goal.goal_id
 
     db.session.commit()
 
     return_body = {}
-    return_body["id"] = goal_id
-    return_body["task_ids"] = goal.tasks
+    return_body["id"] = goal.goal_id
+    return_body["task_ids"] = tasks_to_assign
 
-    return make_response({goal.to_dict()}, 200)
+    return make_response(return_body, 200)
