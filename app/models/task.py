@@ -7,6 +7,7 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default=None)
 
+
     def get_dict(self):
         return {
             "id": self.task_id,
