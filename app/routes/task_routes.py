@@ -62,7 +62,7 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
 
-    tasks_response = [{"id": task.task_id, "title": task.title, "description": task.description, "is_complete": bool(task.completed_at)}for task in tasks]
+    tasks_response = [Task.to_dict(task)for task in tasks]
 
     return jsonify(tasks_response), 200
 
@@ -78,12 +78,7 @@ def get_one_task(task_id):
     return make_response({ "task":
         Task.to_dict(task)
     })
-    # return { "task":{
-    #     "id": task.task_id,
-    #     "title": task.title,
-    #     "description": task.description,
-    #     "is_complete": bool(task.completed_at)
-    # }},200
+
 
 
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -100,12 +95,11 @@ def edit_task(task_id):
 
     db.session.commit()
 
-    return make_response({ "task":{
-        "id": task.task_id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": bool(task.completed_at)
-    }},200)
+    return make_response({ "task":
+        Task.to_dict(task)
+    })
+
+    
 
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -139,12 +133,6 @@ def patch_task_complete(task_id, complete):
 
     db.session.commit()
 
-    return make_response({ "task":{
-        "id": task.task_id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": bool(task.completed_at)
-    }
-    },200)
-
-
+    return make_response({ "task":
+        Task.to_dict(task)
+    })

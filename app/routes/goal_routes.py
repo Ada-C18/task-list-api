@@ -121,43 +121,4 @@ def get_task_from_goal(goal_id):
         "tasks": tasks
     })), 200
 
-    
-
-
-# @goal_bp.route("/tasks/<task_id>", methods=["GET"])
-# def get_one_goal(task_id):
-    
-#     task = Task.query.get(task_id)
-#     if not task:
-#         return make_response({"details":"Id not found"}), 404
-
-#     task = [Task.to_dict(task) for task in goal.tasks]
-
-#     return make_response({ "goal":{
-#         "id": goal.goal_id,
-#         "title": goal.title,
-#     }},200)
-
-# def get_one_task(task_id):
-    
-#     task = Task.query.get(task_id)
-#     if not task:
-#         return make_response({"details":"Id not found"}), 404
-
-
-#     return { "task":{
-#         "id": task.task_id,
-#         "title": task.title,
-#         "description": task.description,
-#         "is_complete": bool(task.completed_at)
-#     }},200
-
-
-
-    
-
-
-
-
-
 
