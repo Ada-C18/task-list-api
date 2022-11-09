@@ -12,6 +12,7 @@ class Task(db.Model):
         task_to_dict["id"] = self.task_id
         task_to_dict["title"] = self.title
         task_to_dict["description"] = self.description
+        # task_to_dict["completed_at"] = self.completed_at
         if self.completed_at:
             task_to_dict["is_complete"] = True
         else:
