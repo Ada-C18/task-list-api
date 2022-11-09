@@ -77,13 +77,15 @@ def get_one_task(task_id):
     if not task:
         return make_response({"details":"Id not found"}), 404
 
-
-    return { "task":{
-        "id": task.task_id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": bool(task.completed_at)
-    }},200
+    return make_response({ "task":
+        Task.to_dict(task)
+    })
+    # return { "task":{
+    #     "id": task.task_id,
+    #     "title": task.title,
+    #     "description": task.description,
+    #     "is_complete": bool(task.completed_at)
+    # }},200
 
 
 @task_bp.route("/<task_id>", methods=["PUT"])
