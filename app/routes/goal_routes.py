@@ -125,11 +125,12 @@ def give_task_to_goal(goal_id):
     #accessing the list of task_ids
     request_body["task_ids"]
     for id in request_body["task_ids"]:
-        id = int(id)
+        
         #gets the task object/dictionary
+        #sets task FK to goal ID
         task = Task.query.get(id)
-        task.goal_id = goal_id
-        print(task.goal_id)
+        task.goal_id = int(goal_id)
+
 
     db.session.commit()
 
@@ -141,6 +142,13 @@ def give_task_to_goal(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_goal_with_task(goal_id):
     goal = get_record_by_id(Task, goal_id)
-    print(goal)
+    
+    tasks = []
 
-    return goal
+    response_body = jsonify({
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": tasks
+    })
+
+    return response_body
