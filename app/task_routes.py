@@ -1,6 +1,7 @@
 import datetime, logging, os
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import abort, Blueprint, jsonify, make_response, request
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -21,6 +22,20 @@ def validate_model(cls, model_id, action):
         abort(make_response({"message": f"Could not {action} {cls.__name__} {model_id} as it was not found"}, 404))
     
     return model
+
+
+def return_goal_from_goal_title(goal_title):
+    goal = Goal.query.filter(Goal.title==goal_title).first()
+    if goal is None:
+        new_goal = Goal.from_dict({"title":goal_title})
+        
+        db.session.add(new_goal)
+        db.session.commit()
+        return new_goal
+    else:
+        return goal
+
+
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -52,26 +67,57 @@ def read_all_tasks():
 @tasks_bp.route("", methods=["POST"])
 def post_a_task():
     request_body = request.get_json()
+
     try:
-        new_task = Task.from_dict(request_body)
+        goal_response = return_goal_from_goal_title(request_body["goal"])
+    except:
+        goal_response = None
+    
+    try:
+        new_task = Task(
+            title=request_body["title"],
+            description=request_body["description"],
+            goal=goal_response
+        )
 
         db.session.add(new_task)
         db.session.commit()
+    
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
 
     return jsonify({"task": new_task.to_dict()}), 201
 
 
-@tasks_bp.route("/<task_id>", methods=["PUT","PATCH"])
+@tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
     task_to_update = validate_model(Task, task_id, "update")
     request_body = request.get_json()
+    if "goal" in request_body:
+        goal_response = return_goal_from_goal_title(request_body["goal"])
+    else:
+        goal_response = None
 
-    if request_body["title"]:
+    try:
         task_to_update.title = request_body["title"]
-    if request_body["description"]:
         task_to_update.description = request_body["description"]
+        task_to_update.goal = goal_response
+    except KeyError:
+        return jsonify({"msg": "Missing needed data"}), 400
+
+    db.session.commit()
+    return jsonify({"task": task_to_update.to_dict()}), 200
+    
+@tasks_bp.route("/<task_id>", methods=["PATCH"])
+def add_goal_to_task(task_id):
+    task_to_update = validate_model(Task, task_id, "update")
+    request_body = request.get_json()
+
+    try:
+        goal_to_update = validate_model(Goal, request_body["goal"], "update")
+        task_to_update.goal = goal_to_update
+    except:
+        return jsonify({"msg": "Missing goal data"}), 400
 
     db.session.commit()
     return jsonify({"task": task_to_update.to_dict()}), 200
