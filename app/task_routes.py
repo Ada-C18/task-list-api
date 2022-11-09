@@ -6,6 +6,8 @@ import os
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
+import requests
+from requests import post
 from datetime import datetime, timezone
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -13,12 +15,12 @@ def validate_task(class_obj, task_id):
     try:
         task_id = int(task_id)
     except:
-        abort(make_response(jsonify({"message": f"task {task_id} has an invalid task_id"}), 400))
+        abort(make_response(jsonify({"message": f"Task {task_id} has an invalid task_id"}), 400))
 
     query_result = class_obj.query.get(task_id)
 
     if not query_result:
-        abort(make_response({"message": f"task {task_id} not found"}, 404))
+        abort(make_response({"message": f"Task {task_id} not found"}, 404))
 
     return query_result
 
@@ -108,13 +110,11 @@ def mark_task_completed(task_id, completion):
     if completion == "mark_complete":
         task.completed_at = datetime.now(timezone.utc)
         task.is_complete = True
+        send_message_to_slack(task)
 
     elif completion == "mark_incomplete":
         task.completed_at = None
         task.is_complete = False
-
-    
-
 
     #request_body = request.get_json()
 
@@ -141,7 +141,7 @@ def send_message_to_slack(completed_task):
                 "text": f"Someone just completed the task {completed_task.title}"}
         # try:
         #     # Call the chat.postMessage method using the WebClient
-        request.post(PATH,
+        requests.post(PATH,
                     data=slack_message_params,
                     headers={"Authorization": SLACK_API_KEY}  
         )
