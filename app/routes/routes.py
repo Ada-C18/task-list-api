@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, request, jsonify, abort, request
+from flask import Blueprint, make_response, request, jsonify, abort
 from app import db
 from app.models.task import Task
 from datetime import datetime
@@ -35,15 +35,29 @@ def create_task():
         }
     return make_response(response_body, 201)
 
-#GET ALL TASKS
+# @task_bp.route("", methods=["GET"])
+# def read_all_task():
+#     tasks_response = []
+#     tasks = Task.query.all()
+#     for task in tasks:
+#         tasks_response.append(task.to_dict())
+#     return jsonify(tasks_response)
+##GET ALL TASKS AND SORT TASKS BY ASC & DESC
 
 @task_bp.route("", methods=["GET"])
 def read_all_task():
-    tasks_response = []
-    tasks = Task.query.all()
+    title_sort_query = request.args.get("sort")
+    if title_sort_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif title_sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
+    else:
+        tasks = Task.query.all()
+
+    response = []
     for task in tasks:
-        tasks_response.append(task.to_dict())
-    return jsonify(tasks_response)
+        response.append(task.to_dict())
+    return jsonify(response)
 
 #GET ONE TASK
 @task_bp.route("/<task_id>", methods=["GET"])
@@ -82,4 +96,30 @@ def delete_task(task_id):
     return {
         "details": f'Task {task_id} "{task_dict["title"]}" successfully deleted'}
 
-#GET TASK WITH QUERY PARAMETERS, SORT BY ASCENDING & DESCENDING
+#MARK COMPLETE
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"]) #custom endpoint mark task complete
+def mark_complete(task_id):
+    task = validate_id(Task, task_id)
+    task.completed_at = datetime.utcnow()
+
+    db.session.commit()
+    response = {
+        "task": task.to_dict()
+    }
+    
+    return jsonify(response)
+
+
+#MARK INCOMPLETE
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_id(Task, task_id)
+    task.completed_at = None
+    
+    db.session.commit()
+    response = {
+        "task": task.to_dict()
+    }
+
+    return jsonify(response)
+
