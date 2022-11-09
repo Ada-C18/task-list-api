@@ -10,7 +10,6 @@ class Goal(db.Model):
         return {
             "id": self.goal_id,
             "title": self.title
-            # "tasks": [task.task_id for task in self.tasks]
         }
     
     @classmethod

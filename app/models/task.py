@@ -23,3 +23,4 @@ class Task(db.Model):
                         description=task_data["description"])
 
         return new_task
+
