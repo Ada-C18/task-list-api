@@ -6,21 +6,23 @@ from flask import Blueprint, jsonify, abort, make_response, request
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
-
-#-------------------------------------POST------------------------------------------------
-@task_bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-    
-    new_task = Task(title = request_body["title"], description = request_body["description"])
-
-    db.session.add(new_task)
-    db.session.commit()
-
-
-    return jsonify({"task": new_task.to_dict()}), 201
-
 #---------------------------------------GET------------------------------------------------
+
+def get_one_task_or_abort(task_id):
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        response_str = f"Invalid task ID: {task_id}. ID must be an integer."
+        abort(make_response(jsonify({"Message":response_str}), 400))
+    
+    matching_task = Task.query.get(task_id)
+
+    if not matching_task:
+        response_str = f"Task with id #{task_id} was not found in the database."
+        abort(make_response(jsonify({"Message": response_str}), 404))
+
+    return matching_task
+
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
     name_param = request.args.get("title")
@@ -51,23 +53,6 @@ def read_all_tasks():
             response.append(task_dict)
     return jsonify(response), 200
 
-def get_one_task_or_abort(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task ID: {task_id}. ID must be an integer."
-        abort(make_response(jsonify({"message":response_str}), 400))
-    
-    matching_task = Task.query.get(task_id)
-
-    if not matching_task:
-        response_str = f"Task with id #{task_id} was not found in the database."
-        abort(make_response(jsonify(f"message: {response_str}"), 404))
-
-    return matching_task
-
-
-
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     chosen_task = get_one_task_or_abort(task_id)
@@ -92,7 +77,23 @@ def get_one_task(task_id):
     return jsonify({"task": task}), 200
 
 
+#-------------------------------------POST------------------------------------------------
+@task_bp.route("", methods=["POST"])
+def create_task():
+    request_body = request.get_json()
+    
+    if "title" not in request_body or \
+        "description" not in request_body:
+        return jsonify({"details": "Invalid data"}), 400
 
+    new_task = Task(title = request_body["title"], description = request_body["description"])
+    
+
+    db.session.add(new_task)
+    db.session.commit()
+
+
+    return jsonify({"task": new_task.to_dict()}), 201
 
 #---------------------------------------UPDATE------------------------------------------------
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -106,4 +107,17 @@ def update_task(task_id):
             return jsonify({"Message":"Request must include title and description"})
     
     chosen_task.title = request_body["title"]
-    chosen_task.description = request_body["description]"]
+    chosen_task.description = request_body["description"]
+    
+    db.session.commit()
+
+    return jsonify({"task": chosen_task.to_dict()}), 200
+
+#---------------------------------------DELETE------------------------------------------------
+@task_bp.route("/<task_id>", methods=["DELETE"])
+def delete_one_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
+
+    db.session.delete(chosen_task)
+    db.session.commit()
+    return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
