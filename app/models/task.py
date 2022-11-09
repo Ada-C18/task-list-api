@@ -6,6 +6,9 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, default=None) # todo: nullable default=None?
     is_complete = db.Column(db.Boolean, default=False) # False until wave 3
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
+    goal = db.relationship('Goal', back_populates='tasks')
+
 
     def to_dict(self):
         if self.completed_at is not None: 
@@ -14,14 +17,17 @@ class Task(db.Model):
                 "title":self.title,
                 "description":self.description,
             #    "completed_at": self.completed_at,
-                "is_complete": self.is_complete
+                "is_complete": self.is_complete,
+                "goal_id":self.goal_id
+
             }
         else:
             return {
                 "id":self.task_id,
                 "title":self.title,
                 "description":self.description,
-                "is_complete": self.is_complete
+                "is_complete": self.is_complete,
+                "goal_id":self.goal_id
             }
 
     @classmethod

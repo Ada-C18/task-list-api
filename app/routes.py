@@ -151,6 +151,16 @@ def delete_one_goal(goal_id):
 
     return jsonify({"details": f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'}), 200
 
+@goal_bp.route('/<goal_id>/tasks', methods=['GET'])
+def get_tasks_for_goal(goal_id):
+    chosen_goal = get_model_from_id(Goal, goal_id)
+
+    #tasks = []
+    #for item in chosen_goal.task_items:
+    #    tasks.append(item.to_dict())
+
+    return jsonify(chosen_goal.to_dict()), 200
+
 
 def get_model_from_id(cls, model_id):
     try:
