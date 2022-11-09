@@ -33,7 +33,6 @@ def create_one_task():
     new_task = Task( 
         title=request_body["title"],
         description=request_body["description"],)
-    #new_task = Task.from_dict(request_body)
     db.session.add(new_task)
     db.session.commit()
 
@@ -64,19 +63,13 @@ def get_all_tasks():
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_one_task(task_id):
     chosen_task = get_task_from_id(task_id)
-    if chosen_task.goal_id:
-        return jsonify ({ 
-        "task": chosen_task.to_dict_two()
-    })
-    else:
-        return jsonify ({ 
+    return jsonify ({ 
             "task": chosen_task.to_dict()
         })
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     request_body = request.get_json()
-
     task = get_task_from_id(task_id)
 
     if "title" not in request_body or "description" not in request_body:
@@ -84,9 +77,7 @@ def update_task(task_id):
 
     task.title = request_body["title"]
     task.description = request_body["description"]
-
     db.session.commit()
-
     return jsonify({
         "task": task.to_dict()
     })
@@ -94,23 +85,17 @@ def update_task(task_id):
 #wave 3 creating a custom endpoint--mark a task as complete = True 
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def patch_a_complete_task(task_id):
-    # a task is_complete=True when there is a datemine for the task's completed_at value.
-    
+    # a task is_complete=True when there is a datemine for the task's completed_at value.    
     task = get_task_from_id(task_id)
-    
     task.completed_at = date.today()
-
     db.session.add(task)
     db.session.commit()
 
     SLACK_TOKEN = os.environ.get("MY_SLACK_TOKEN")
     query_params = {"text": f"Someone just completed the task {task.title}",
     "channel": "task-notifications"}
-
     headers = {"Authorization": "Bearer "+ SLACK_TOKEN }
-
     request_to_slack = requests.post(url='https://slack.com/api/chat.postMessage',json=query_params, headers=headers)
-
     return jsonify({
         "task": task.to_dict()
     }), 200
@@ -118,9 +103,8 @@ def patch_a_complete_task(task_id):
 #wave 3 creating a custom endpoint--mark a task as incomplete = False
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def patch_an_uncomplete_task(task_id):
-    # a task is_complete=True when there is a datemine for the task's completed_at value.
     task = get_task_from_id(task_id)
-    task.completed_at = None #date.today()
+    task.completed_at = None 
     db.session.add(task)
     db.session.commit()
     return jsonify({
@@ -129,12 +113,9 @@ def patch_an_uncomplete_task(task_id):
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
-
     task = get_task_from_id(task_id)
-
     db.session.delete(task)
     db.session.commit()
-
     return jsonify({
         "details": f"Task {task.task_id} \"{task.title}\" successfully deleted"
         })
