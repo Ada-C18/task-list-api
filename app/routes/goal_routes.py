@@ -95,6 +95,8 @@ def update_goal(goal_id):
     request_body = request.get_json()
 
     # goal.title = request_body["title"]
+    
+    # ----------------- ^^ refactored ^^ -----------------------------
     goal.update(request_body)
 
     db.session.commit()
@@ -110,8 +112,9 @@ def update_goal(goal_id):
 #Defining Endpoint and Creating Route Function to DELETE a goal
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = validate_goal(goal_id)
-
+    goal = Goal.query.get(goal_id)
+    # goal = validate_goal(goal_id)
+    
     db.session.delete(goal)
     db.session.commit()
 
