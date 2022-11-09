@@ -1,8 +1,13 @@
 from app import db
 from app.models.task import Task
-from flask import Blueprint, jsonify, make_response, request,abort
+from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc 
 import datetime
+import requests
+import os 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -87,6 +92,8 @@ def mark_complete(task_id):
     task = validate_model(Task,task_id)
     task.completed_at = datetime.datetime.now()
 
+    create_slack_mssg(task) 
+
     task_dict = {}
     task_dict["task"] = {"id":task.task_id, "title": task.title,"description":task.description, "is_complete":bool(task.completed_at)}
 
@@ -98,7 +105,8 @@ def mark_complete(task_id):
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model(Task,task_id)
-    task.completed_at = None 
+    task.completed_at = None
+
 
     task_dict = {}
     task_dict["task"] = {"id":task.task_id, "title": task.title,"description":task.description, "is_complete":bool(task.completed_at)}
@@ -106,3 +114,22 @@ def mark_incomplete(task_id):
     db.session.commit()
 
     return make_response(jsonify(task_dict), 200)
+
+
+def create_slack_mssg(task_object):
+
+    slack_token = os.environ.get("SLACK_TOKEN")
+
+    message= f"Someone just completed the task {task_object.title}"
+    args = {"token":slack_token,
+            "channel": "task-notifications",
+            "text": message
+            }
+    response=requests.post("https://slack.com/api/chat.postMessage", data=args) 
+
+    return response.json()
+
+
+
+
+
