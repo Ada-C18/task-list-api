@@ -13,18 +13,18 @@ tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 # HELPER FUNCTIONS
 # ===================
 
-def validate_task(task_id):
+def validate_model(cls, model_id):
     try:
-        task_id = int(task_id)
+        model_id = int(model_id)
     except:
-        abort(make_response({"message": f"Task {task_id} invalid"}, 400))
+        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
 
-    task = Task.query.get(task_id)
+    model = cls.query.get(model_id)
 
-    if not task:
-        abort(make_response({"message": f"Task {task_id} not found"}, 404))
+    if not model:
+        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
 
-    return task
+    return model
 
 def slack_bot_message(text):
     URL = "https://slack.com/api/chat.postMessage"
@@ -78,13 +78,13 @@ def get_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     response = {"task": task.create_dict()}
     return make_response(response)
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     request_body = request.get_json()
     task.update(request_body)
 
@@ -94,7 +94,7 @@ def update_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -103,7 +103,7 @@ def delete_task(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_and_send_slackbot(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     
     task.completed_at = datetime.datetime.utcnow()
     task.is_complete = True
@@ -116,7 +116,7 @@ def mark_complete_and_send_slackbot(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
-    task = validate_task(task_id)
+    task = validate_model(Task, task_id)
     
     task.completed_at = None
     task.is_complete = False

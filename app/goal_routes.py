@@ -1,31 +1,15 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from .models.goal import Goal
 from .models.task import Task
+from .task_routes import validate_model
 from app import db
-import datetime, requests, os
+import requests, os
 
 # ===================
 # BLUEPRINTS
 # ===================
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
-
-# ===================
-# HELPER FUNCTIONS
-# ===================
-
-def validate_goal(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        abort(make_response({"message": f"Goal {goal_id} invalid"}, 400))
-
-    goal = Goal.query.get(goal_id)
-
-    if not goal:
-        abort(make_response({"message": f"Goal {goal_id} not found"}, 404))
-
-    return goal
 
 # ===================
 # ROUTES
@@ -65,13 +49,13 @@ def get_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
     response = {"goal": goal.create_dict()}
     return make_response(response)
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
     request_body = request.get_json()
     goal.update(request_body)
 
@@ -81,7 +65,7 @@ def update_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
 
     db.session.delete(goal)
     db.session.commit()
@@ -91,7 +75,7 @@ def delete_goal(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_tasks_to_goal(goal_id):
 
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
 
     request_body = request.get_json()
     task_id_in = Task.task_id.in_(request_body["task_ids"])
@@ -102,7 +86,7 @@ def post_tasks_to_goal(goal_id):
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_for_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = validate_model(Goal, goal_id)
     return goal.create_dict(tasks=True)
 
         
