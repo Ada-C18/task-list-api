@@ -1,6 +1,7 @@
 import datetime
 from flask import Blueprint
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from dotenv import load_dotenv
@@ -8,7 +9,8 @@ import requests
 import os
 
 
-bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 def validate_model(cls, model_id):
     try:
@@ -34,7 +36,7 @@ def validate_request(data):
     return new_task
 
 
-@bp.route("", methods=["POST"])
+@task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
     new_task = validate_request(request_body)
@@ -51,7 +53,7 @@ def create_task():
         }}
     , 201)
 
-@bp.route("", methods=["GET"])
+@task_bp.route("", methods=["GET"])
 def read_all_tasks():
 
     # get the sort parameter from request
@@ -77,7 +79,7 @@ def read_all_tasks():
         
     return jsonify(get_response)
 
-@bp.route("/<task_id>", methods=["GET"])
+@task_bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
 
     task = validate_model(Task,task_id)
@@ -96,7 +98,7 @@ def handle_task(task_id):
     
     
 
-@bp.route("/<task_id>", methods=["PUT"])
+@task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
 
@@ -118,7 +120,7 @@ def update_task(task_id):
 
     return make_response(update_response), 200
 
-@bp.route("/<task_id>", methods=["DELETE"])
+@task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
 
     task = validate_model(Task, task_id)
@@ -141,7 +143,7 @@ def slack_bot(task):
     return slack
 
 
-@bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete(task_id):
 
     task = validate_model(Task, task_id)
@@ -164,7 +166,7 @@ def mark_complete(task_id):
     return(make_response(completed_response),200)
 
 
-@bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
 
     task = validate_model(Task, task_id)
@@ -185,3 +187,42 @@ def mark_incomplete(task_id):
     return(make_response(not_completed_response),200)
 
 
+@goal_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
+    new_goal = validate_request(request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return make_response({
+            "goal": {
+            "id":new_goal.goal_id,
+            "title": new_goal.title,
+        }}
+    , 201)
+
+
+@goal_bp.route("", methods=["GET"])
+def read_all_goals():
+
+    # get the sort parameter from request
+    sort= request.args.get('sort')
+    goals = Goal.query.all()
+
+    # reverse is set to a boolean that sort equals "desc" is consider True. If it doesn't equal "desc" it False.
+    reverse = sort == "desc"
+
+    def sorting(goals):
+        return goal.title
+
+    goals.sort(reverse=reverse, key=sorting)
+
+    get_response = []
+    for goal in goals:
+        get_response.append(dict(
+            id=goal.goal_id,
+            title=goal.title,
+        ))
+        
+    return jsonify(get_response)
