@@ -26,4 +26,4 @@ def post_slack(task):
         "Authorization": f"Bearer {slack_key}"
     }
 
-    requests.post(url, params=params, headers=headers)
+    return requests.post(url, params=params, headers=headers)
