@@ -22,21 +22,8 @@ def create_task():
     
     db.session.add(task_1)
     db.session.commit()
-
-    return_task_1 = {}
-    def is_complete():
-        if not request_body["completed_at"]:
-            return False
-        else:
-            return True
     
-    return_task_1 = {"task": {
-            "id": task_1.id,
-            "title":task_1.title,
-            "description":task_1.description,
-            "is_complete": is_complete()}}
-    
-    return make_response(jsonify(return_task_1), 201)
+    return {"task":task_1.to_dict()}, 201    
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks(): 
@@ -47,22 +34,10 @@ def read_all_tasks():
         tasks = Task.query.order_by(Task.title.desc())
     else:
         tasks = Task.query.all()   
-    # tasks =Task.query.all()
-    
-    def is_complete():
-        if "completed_at" in tasks_response == None:
-            return True
-        else:
-            return False
-    tasks_response = []
-    for task in tasks:
-        tasks_response.append({
-            "id": task.id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": is_complete()
-        })
+
+    tasks_response = [task.to_dict() for task in tasks]
     return jsonify(tasks_response)
+
 
 def validate_id(cls, id):
     try:
@@ -79,21 +54,9 @@ def validate_id(cls, id):
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_id(Task, task_id)
-    task_dict = {}
-    def is_complete():
-        if "completed_at" in task_dict == None:
-            return True
-        else:
-            return False
-    task_dict={"task":
-    {
-        "id": task.id,
-        "title": task.title,
-        "description": task.description,
-        "is_complete": is_complete()
-    }
-}
-    return jsonify(task_dict)
+    if task.goal_id is None:
+        return {"task": task.to_dict()}, 200
+    return {"task": task.from_dict()}, 200
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -115,7 +78,7 @@ def update_task(task_id):
         else:
             return True
     updated_task1 = {"task": {
-            "id": task.id,
+            "id": task.task_id,
             "title":task.title,
             "description":task.description,
             "is_complete": is_complete()}}
@@ -128,7 +91,7 @@ def deleted_task(task_id):
     db.session.delete(task)
     db.session.commit()
 
-    return {"details": f'Task {task.id} "{task.title}" successfully deleted'}
+    return {"details": f'Task {task.task_id} "{task.title}" successfully deleted'}
 
 def slack_bot(message):
     PATH = "https://slack.com/api/chat.postMessage"
