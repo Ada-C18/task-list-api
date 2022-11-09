@@ -85,10 +85,23 @@ def delete_goal(goal_id):
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def create_goal_with_tasks(goal_id):
+
     goal = validate_model(Goal, goal_id)
-
+    
     request_body = request.get_json()
-    new_task = Task(
-        title =request_body["description"],
+    
+    for task_id in request_body["task_ids"]:
+        task = validate_model(Task, task_id)
+        task.goal = goal 
 
-    )
+    db.session.commit()
+    return jsonify({"id": goal.goal_id, "task_ids": request_body["task_ids"]}), 200
+
+    #goal_id and "task_ids": [1,2,3]
+        #     {
+        #   "id": 1,
+        #   "task_ids": [1, 2, 3]
+        # }
+    
+# @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+# def read_tasks_of_one_goal(goal_id):
