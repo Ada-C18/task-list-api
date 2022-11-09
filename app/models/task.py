@@ -42,7 +42,7 @@ class Task(db.Model):
             requests.get(
                 "https://slack.com/api/chat.postMessage",
                 params={"channel": slack_channel, "text": message},
-                headers = {"Authorization": f"Bearer {SLACKBOT_OAUTH_TOKEN}"}
+                headers={"Authorization": f"Bearer {SLACKBOT_OAUTH_TOKEN}"}
             )
 
     @classmethod
