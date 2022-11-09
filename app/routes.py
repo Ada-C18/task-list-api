@@ -1,6 +1,9 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
+from datetime import date
+import requests
+import os
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -74,3 +77,41 @@ def delete_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f"Task {chosen_task.task_id} \"Go on my daily walk 🏞\" successfully deleted"})
+
+def call_slack_api(text):
+    url = "https://slack.com/api/chat.postMessage"
+    headers = {"Authorization": os.environ.get("SLACK_TOKEN")}
+    query_params = {
+        "channel": "task-notifications",
+        "text": text
+        }
+
+    response = requests.post(url, headers=headers, params=query_params)
+    return response
+
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    chosen_task = validate_task(task_id)
+    chosen_task.completed_at = date.today()
+    call_slack_api(f"Someone just completed the task {chosen_task.title}")
+
+    db.session.commit()
+
+    chosen_task_dict = chosen_task.to_dict()
+    chosen_task_dict["is_complete"] = True
+    return jsonify({"task": chosen_task_dict})
+
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    chosen_task = validate_task(task_id)
+    chosen_task.completed_at = None
+
+    db.session.commit()
+
+    return jsonify({"task": chosen_task.to_dict()})
+
+
+
+
