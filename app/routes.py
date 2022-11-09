@@ -66,18 +66,7 @@ def read_one_task_by_id(task_id):
     '''Get one task by id, validates id before executing query.'''
     task = validate_model_by_id(Task, task_id)
 
-    if task.goal_id:
-        return {"task": 
-            {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": task.is_complete(),
-                "goal_id": task.goal_id
-                }
-            }
-    else: 
-        return jsonify({"task": task.to_dict()}), 200
+    return jsonify({"task": task.to_dict()}), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -179,7 +168,7 @@ def read_all_goals():
 def read_one_goal_by_id(goal_id):
     '''Get one goal by id, validates id before executing query.'''
     goal = validate_model_by_id(Goal, goal_id)
-    return {"goal": goal.to_dict()}
+    return jsonify({"goal": goal.to_dict()}), 200
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
