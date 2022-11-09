@@ -3,6 +3,7 @@ from app import db
 import requests
 from datetime import date
 from app.models.goal import Goal
+from app.models.task import Task
 from app.routes.routes_helpers import *
 from flask import Blueprint, jsonify, make_response, request
 
@@ -82,3 +83,45 @@ def handle_goal(goal_id):
     return {
         "details": f'Goal {goal.goal_id} \"{goal.title}\" successfully deleted',
     }, 202
+    
+# Connects a goal to a task    
+# /goals/<goal_id>/tasks
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET", "POST"])
+def handle_goals_tasks(goal_id):
+    if request.method == "GET":
+        goal = Goal.query.get(goal_id)
+    
+        if not goal:
+            return {"message": f"Goal {goal_id} not found"}, 404
+        
+        task_list = [task.to_json() for task in goal.tasks]
+    
+        goal_dict = goal.to_json()
+        goal_dict["tasks"] = task_list
+        
+        return jsonify(goal_dict)
+    
+    elif request.method == "POST":
+        goal = get_record_by_id(Goal, goal_id)
+
+        if not goal:
+            return {"message": f"Goal {goal_id} not found"}, 404
+        
+        request_body = request.get_json()
+        
+        for task_id in request_body["task_ids"]:
+            task = get_record_by_id(Task, task_id)
+            task.goal_id = goal_id
+            task.goal = goal
+
+        db.session.commit()
+
+        task_ids = []
+        for task in goal.tasks:
+            task_ids.append(task.task_id)
+
+        return {
+            'id': goal.goal_id,
+            "task_ids": task_ids
+        }, 200
