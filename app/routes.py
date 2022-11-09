@@ -11,7 +11,7 @@ from .routes_helper import get_one_obj_or_abort
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
-# --------------------------  Task Endpoints --------------------------  
+# --------------------------  Task Endpoints --------------------------
 @task_bp.route("", methods=["POST"])
 def create_a_task():
     request_body = request.get_json()
@@ -126,7 +126,7 @@ def mark_incomplete(task_id):
     db.session.commit()
     return jsonify({"task": chosen_task.to_dict()}), 200
 
-# --------------------------  Goal Endpoints --------------------------  
+# --------------------------  Goal Endpoints --------------------------
 @goal_bp.route("", methods=["POST"])
 def create_a_goal():
     request_body = request.get_json()
