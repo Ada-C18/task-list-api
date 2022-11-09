@@ -136,7 +136,7 @@ def update_task_mark_complete_or_incomplete(task_id, mark):
 
 # DELETE Routes (Wave 1: CRUD Routes)
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
-def delete_route(task_id):
+def delete_task(task_id):
     task = validate_task(task_id)
     
     db.session.delete(task)
