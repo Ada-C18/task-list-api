@@ -1,4 +1,5 @@
 from app import db
+from flask import Blueprint, jsonify, abort, make_response, request
 
 #Parent 
 class Goal(db.Model):
@@ -17,3 +18,8 @@ def from_dict(cls, request_body):
     return cls(
         title=request_body["title"]
     )
+def update(self, req_body):
+        try: 
+            self.title = req_body["title"]
+        except KeyError:
+            abort(make_response({"details": "Invalid data"}, 400))

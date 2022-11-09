@@ -1,4 +1,5 @@
 from app import db
+from flask import abort, make_response
 
 #Child
 class Task(db.Model):
@@ -31,23 +32,12 @@ class Task(db.Model):
             completed_at=None
         )
 
+def update(self, req_body):
+        try: 
+            self.title = req_body["title"]
+            self.description = req_body["description"]
+            self.completed_at = None
+            
 
-# def validate_model(cls, model_id):
-#     try:
-#         model_id = int(model_id)
-#     except:
-#         response_body = {
-#             "message": f"{cls.__name__} id {model_id} is invalid."
-#         }
-
-#         abort(make_response(jsonify(response_body), 400))
-    
-#     model = cls.query.get(model_id)
-
-#     if model is None:
-#         response_body = {
-#             "message": f"{cls.__name__} {model_id} does not exist."
-#         }
-
-#         abort(make_response(jsonify(response_body), 404))
-    # return model
+        except KeyError:
+            abort(make_response({"details": "Invalid data"}, 400))
