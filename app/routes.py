@@ -11,7 +11,6 @@ import requests
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
-
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
@@ -25,23 +24,13 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    task_response = {
-        "task": {
-            "id": new_task.task_id,
-            "title": new_task.title,
-            "description": new_task.description,
-            "is_complete": new_task.is_complete
-        }
-    }
-
-    return make_response(task_response, 201)
+    return make_response({"task": new_task.to_dict()}, 201)
 
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
-    tasks_response = []
     task_query = Task.query
-    sort_query = request.args.get("sort")
+    sort_query = request.args.get("sort") 
 
     if sort_query == "asc":
         tasks = task_query.order_by(Task.title).all()
@@ -50,13 +39,7 @@ def get_all_tasks():
     else:
         tasks = task_query.all()
 
-    for task in tasks:
-        tasks_response.append({
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete 
-        })
+    tasks_response = [task.to_dict() for task in tasks]
 
     return make_response(jsonify(tasks_response), 200)
 
@@ -65,14 +48,7 @@ def get_all_tasks():
 def get_one_task(task_id):
     task = validate_task_id(task_id)
 
-    return {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete
-        }
-    }
+    return {"task":task.to_dict()}
 
 
 def validate_task_id(task_id):
@@ -108,16 +84,7 @@ def update_task(task_id):
 
     db.session.commit()
 
-    task_response = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete
-        }
-    }
-
-    return make_response(task_response, 200)
+    return make_response({"task": task.to_dict()}, 200)
 
 
 @tasks_bp.route("/<task_id>/<complete>", methods=["PATCH"])
@@ -135,16 +102,7 @@ def update_complete(task_id, complete):
 
     db.session.commit()
 
-    task_response = {
-        "task": {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": task.is_complete
-        }
-    }
-
-    return make_response(task_response, 200)
+    return make_response({"task":task.to_dict()}, 200)
 
 
 def slack_post(task_id):
@@ -167,38 +125,21 @@ def create_goal():
     db.session.add(new_goal)
     db.session.commit()
 
-    goal_response = {
-        "goal": {
-            "id": new_goal.goal_id,
-            "title": new_goal.title
-        }
-    }
-
-    return make_response(goal_response, 201)
+    return make_response({"goal": new_goal.to_dict()}, 201)
 
 
 @goals_bp.route("", methods=["GET"])
 def get_all_goal():
-    goal_response = []
     goals = Goal.query.all()
-
-    for goal in goals:
-        goal_response.append({
-            "id": goal.goal_id,
-            "title": goal.title
-        })
+    goal_response = [goal.to_dict() for goal in goals]
 
     return make_response(jsonify(goal_response), 200)
-
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
     goal = validate_goal_id(goal_id)
 
-    return {"goal": {
-            "id": goal.goal_id,
-            "title": goal.title,
-            }}
+    return {"goal": goal.to_dict()}
 
 
 def validate_goal_id(goal_id):
@@ -223,14 +164,7 @@ def update_goal(goal_id):
 
     db.session.commit()
 
-    goal_response = {
-        "goal": {
-            "id": goal.goal_id,
-            "title": goal.title
-        }
-    }
-
-    return make_response(goal_response, 200)
+    return make_response({"goal":goal.to_dict()}, 200)
 
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
@@ -240,7 +174,7 @@ def delete_task(goal_id):
     db.session.delete(goal)
     db.session.commit()
 
-    return make_response(jsonify({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}), 200)
+    return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200)
 
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
@@ -270,5 +204,5 @@ def get_tasks_from_goal(goal_id):
         "title": goal.title,
         "tasks": tasks
     }
-    
+
     return make_response(response, 200)

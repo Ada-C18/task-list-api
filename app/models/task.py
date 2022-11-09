@@ -12,6 +12,7 @@ class Task(db.Model):
 
     def to_dict(self):
         task_dict = {}
+
         task_dict["id"] = self.task_id
         task_dict["title"] = self.title
         task_dict["description"] = self.description
@@ -23,4 +24,6 @@ class Task(db.Model):
             pass
         else:
             task_dict["goal_id"] = self.goal_id
+        
+        
         return task_dict
