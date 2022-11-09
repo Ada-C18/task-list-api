@@ -9,16 +9,10 @@ class Goal(db.Model):
     def to_dict(self):
         return {
             "id": self.goal_id,
-            "title": self.title
-            # "tasks": self.get_task_list()                        
+            "title": self.title                       
         }        
-        # if self. tasks:
-        #     goal_dict["tasks"] : self.get_task_list()
 
     def to_dict_task_id(self):
-        # return {"id": self.goal_id,
-        #         "task_ids": self. get_task_list()    
-        # }
         return {
             "id": self.goal_id,
             "title": self.title,
@@ -28,8 +22,7 @@ class Goal(db.Model):
     @classmethod
     def from_dict(cls,goal_dict):
         return cls(
-            title=goal_dict["title"]
-                        
+            title=goal_dict["title"]                        
         )
     
     def get_task_list(self):

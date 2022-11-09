@@ -85,21 +85,6 @@ def update_task(task_id):
     except KeyError:
         return jsonify({"details": "Invalid data"}),400
         
-    # update_task = get_model_from_id(Task,task_id)
-    # request_body = request.get_json()
-    
-    # task_attributes = ["title","description"]
-    # response_message = ""
-    
-    # try:
-    #     update_task.title = request_body["title"]
-    #     update_task.description = request_body["description"]
-    # except KeyError:
-    #     # return jsonify({"details": "Invalid data"}),400
-    #     for attribute in task_attributes:            
-    #         if attribute not in request_body:
-    #             response_message += attribute +", "
-    #     return jsonify({"message": f"Task #{task_id} missing {response_message[:-2]}"}),400
     
 
     
