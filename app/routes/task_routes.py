@@ -39,7 +39,7 @@ def create_tasks():
             "id": new_task.task_id,
             "title": new_task.title,
             "description": new_task.description,
-            "is_complete": False
+            "is_complete": bool(new_task.completed_at)
         }
         }, 201
 
@@ -67,7 +67,7 @@ def read_all_tasks():
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": False
+                "is_complete": bool(task.completed_at)
             }
         )
     
@@ -109,7 +109,7 @@ def get_one_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False
+            "is_complete": bool(task.completed_at)
         }
         }
 
@@ -130,7 +130,7 @@ def update_task(task_id):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": False 
+            "is_complete": bool(task.completed_at)
         }
         }
 
@@ -193,7 +193,7 @@ def patch_task_complete(task_id,complete):
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": is_complete
+            "is_complete": bool(task.completed_at)
         }
         }
 

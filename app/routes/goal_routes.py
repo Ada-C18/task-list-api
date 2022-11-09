@@ -1,5 +1,6 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
 
 
@@ -103,10 +104,50 @@ def delete_goal(goal_id):
 
 # ------------------------------- Nested Routes ---------------------------------------------------
 #Create a task by a specific goal
+# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def create_tasks(goal_id):
+#     goal = Goal.query.get(goal_id)
+
+#     try:
+#         request_body = request.get_json() #This method "Pythonifies" the JSON HTTP request body by converting it to a Python dictionary
+#         new_task = Task(
+#             title=request_body["title"],
+#             description=request_body["description"],
+#             completed_at=None
+#             )
+    
+#     except KeyError:
+#         return {"details": "Invalid data"}, 400
 
 
+#     db.session.add(new_task)
+#     db.session.commit()
+
+#     return {
+#         "task": {
+#             "id": new_task.task_id,
+#             "title": new_task.title,
+#             "description": new_task.description,
+#             "is_complete": False
+#         }
+#         }, 201
 
 
+# #GET All tasks for a goal/ associated with a goal
+# @goals_bp.route("/goal_id/tasks", methods=["GET"])
+# def read_all_tasks_of_goal(goal_id):
+#     goal = Goal.query.all(goal_id)
+    
 
-
-#GET All tasks for a goal
+#     tasks_response = []
+#     for task in tasks:
+#         tasks_response.append( 
+#             {
+#                 "id": task.task_id,
+#                 "title": task.title,
+#                 "description": task.description,
+#                 "is_complete": False
+#             }
+#         )
+    
+#     return jsonify(tasks_response)
