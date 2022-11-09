@@ -22,14 +22,14 @@ def validate_model(cls, model_id):
 
     return model
 
-def call_slack_bot(task):
+def call_slack_bot(message):
     URL = "https://slack.com/api/chat.postMessage"
     API_KEY = os.environ.get("TOKEN")
     query_params ={
         "channel" : "task-notifications",
-        "text": f"Someone just completed the task {task.title}"
+        "text": message
         }
-    header = {"Authorization" : API_KEY}
+    header = {"Authorization" :"Bearer" + API_KEY}
 
     requests.post(URL, data=query_params, headers=header)
 
@@ -64,7 +64,16 @@ def read_all_tasks():
 @tasks_bp.route("/<model_id>", methods=["GET"])
 def read_one_task(model_id):
     task = validate_model(Task, model_id)
-    return {"task":task.to_dict()}
+    if not task.goal_id:
+        return {"task":task.to_dict()}
+    else:
+        return jsonify({"task": {
+            "id": task.task_id,
+            "goal_id": task.goal_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": bool(task.completed_at)
+        }}), 200
 
 @tasks_bp.route("/<model_id>", methods=["PUT"])
 def update_task(model_id):
@@ -96,7 +105,7 @@ def mark_complete(model_id):
 
     db.session.commit()
 
-    call_slack_bot(task)
+    call_slack_bot(f"Someone just completed the task {task.title}")
 
     return {"task":task.to_dict()}, 200
 
