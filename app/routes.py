@@ -164,3 +164,38 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details":f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'})
+#=========NESTED ROUTES==========================
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def adding_task_ids_to_goal(goal_id):
+    goal = get_model_from_id(Goal, goal_id)
+    #validate the goal
+    #set the request body to a variable
+    request_body = request.get_json()
+
+    task_list = []
+    #loop over every task in the task list in request body
+    for task_id in request_body["task_ids"]:
+    #validate each task first
+        task = get_model_from_id(Task, task_id)
+    # set the validated task-goal to the valid goal
+        task.goal = goal
+        task_list.append(task_id)
+    #commit to the database
+    db.session.commit()
+
+    return jsonify({
+        "id": goal.goal_id,
+        "task_ids": task_list
+    })
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_one_goal(goal_id):
+    goal = get_model_from_id(Goal, goal_id)
+
+    tasks = goal.get_tasks_list()
+    
+    return jsonify({
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks":tasks
+        }), 200
