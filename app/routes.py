@@ -1,7 +1,9 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint,jsonify, make_response, request, abort
+import os
 import datetime
+import requests
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -76,6 +78,8 @@ def delete_task(id):
     db.session.commit()
 
     return make_response({"details": f'Task {id} "{task.title}" successfully deleted'}),200
+
+
 @task_bp.route("/<id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(id):
     task = validate_model(Task,id)
@@ -86,7 +90,23 @@ def mark_task_complete(id):
 
     db.session.commit()
 
+    call_slack_bot(f"Someone just completed the task {task.title}")
+
     return make_response(jsonify({"task": task.to_dict()}), 200)
+
+def call_slack_bot(message):
+    PATH = "https://slack.com/api/chat.postMessage"
+    slack_bot_auth_key = os.environ.get("SLACK_BOT_KEY")
+
+    
+    query_params = {
+        "channel" : "task-notifications",
+        "text": message
+    }
+    headers = {"Authorization": f"Bearer {slack_bot_auth_key}"}
+
+    response = requests.post(PATH, params=query_params, headers=headers
+    )
 
 @task_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(id):
