@@ -81,7 +81,7 @@ def one_goal(app):
 
 
 # This fixture gets called in every test that
-# references "one_task_belongs_to_one_goal"
+# references "one_task_belongs_to_one_goal"zaaaaa`1`
 # This fixture creates a task and a goal
 # It associates the goal and task, so that the
 # goal has this task, and the task belongs to one goal
