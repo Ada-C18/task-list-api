@@ -3,7 +3,7 @@ from app.models.goal import Goal
 from flask import abort, Blueprint, jsonify, make_response, request
 # from dotenv import load_dotenv
 # import os
-from .routes import validate_task
+from .task_routes import validate_task
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
