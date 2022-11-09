@@ -5,6 +5,9 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable = True) # Can be nullable
+    #foreign key
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable = True) # could be empty
+    goal = db.relationship('Goal', back_populates='tasks')
 
     def to_response(self):
         return {
@@ -16,9 +19,7 @@ class Task(db.Model):
                 "id":self.task_id,
                 "title":self.title,
                 "description":self.description,
-                #"is_complete": False
-                # "completed_at":self.completed_at
                 "is_complete": True if self.completed_at else False
-                #"is_complete": self.completed_at 
+                
         }
         

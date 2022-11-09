@@ -129,8 +129,6 @@ def mark_incomplete_task(task_id):
 
 
 
-
-
 # DELETE route for one task
 @task_bp.route('/<task_id>', methods=['DELETE'])
 def delete_one_task(task_id):
