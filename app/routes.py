@@ -224,9 +224,6 @@ def post_task_belonging_to_a_goal(goal_id):
     
     return jsonify(response_body), 200
 
-
-# goal dict and task dict 
-
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_all_tasks_belonging_to_a_goal(goal_id):
     goal = get_one_obj_or_abort(Goal, goal_id)
