@@ -56,30 +56,34 @@ def read_all_goals():
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
 
-#helper function to validate goal 
-def validate_goal(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        abort(make_response({"details": "Invalid data"}, 400))
+# #helper function to validate goal 
+# def validate_goal(goal_id):
+#     try:
+#         goal_id = int(goal_id)
+#     except:
+#         abort(make_response({"details": "Invalid data"}, 400))
 
-    goal = Goal.query.get(goal_id)
+#     goal = Goal.query.get(goal_id)
 
-    if not goal:
-        abort(make_response({"details":f"there is no existing goal {goal_id}"}, 404))
+#     if not goal:
+#         abort(make_response({"details":f"there is no existing goal {goal_id}"}, 404))
         
-    return goal
+#     return goal
 
 #Get One goal
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    goal = validate_goal(goal_id)
-    return {
-        "goal": {
-            "id": goal.goal_id,
-            "title": goal.title,
-        }
-        }
+    goal = get_record_by_id(Goal, goal_id)
+
+    # return {
+    #     "goal": {
+    #         "id": goal.goal_id,
+    #         "title": goal.title,
+    #     }
+    #     }
+
+# ---------------- ^^refactored return statement^^ --------------------
+    return goal.to_dict(), 200
 
 # Defining Endpoint and Creating Route Function to UPDATE a Goal
 @goals_bp.route("/<goal_id>", methods=["PUT"])
