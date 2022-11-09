@@ -3,6 +3,11 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import desc
 from datetime import datetime
+import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -71,6 +76,12 @@ def mark_completion(task_id, status):
     task = validate_model(Task, task_id)
     if status == "mark_complete":
         task.completed_at = datetime.utcnow()
+        #call the Slack API to post a message
+        token = os.environ.get("SLACKBOT_TOKEN")
+        params = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}!"}
+        headers = {"Authorization": token}
+        requests.post("https://slack.com/api/chat.postMessage", params = params, headers = headers)
+
     elif status == "mark_incomplete":
         task.completed_at = None
     db.session.commit()
