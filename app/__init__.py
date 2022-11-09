@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
+# from app.models.task import Task  TASK OB NOT SUBSCRIPTABLE?
 
 
 db = SQLAlchemy()
@@ -30,5 +31,10 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # Register Blueprints here
-
+    from .routes import task_bp
+    # from .routes import
+    app.register_blueprint(task_bp)
+    
+    from app.models.task import Task
+    # from app.models.goal import Goal
     return app
