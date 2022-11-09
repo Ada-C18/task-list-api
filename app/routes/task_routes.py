@@ -1,7 +1,7 @@
 from app import db
 from datetime import datetime
 from flask import abort, Blueprint, jsonify, make_response, request
-from .models.task import Task
+from app.models.task import Task
 import os
 import requests
 

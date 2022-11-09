@@ -1,8 +1,8 @@
-"""resetting development db by dropping
+"""empty message
 
-Revision ID: f376583332aa
+Revision ID: d2068374c15b
 Revises: 
-Create Date: 2022-11-07 09:42:06.005452
+Create Date: 2022-11-08 17:13:22.754248
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f376583332aa'
+revision = 'd2068374c15b'
 down_revision = None
 branch_labels = None
 depends_on = None

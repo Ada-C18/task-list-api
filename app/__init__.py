@@ -32,7 +32,7 @@ def create_app(test_config=None):
     from .models.task import Task
 
     # Register Blueprints here
-    from .routes import task_bp
+    from .routes.task_routes import task_bp
     app.register_blueprint(task_bp)
 
     return app
