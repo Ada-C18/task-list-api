@@ -5,6 +5,7 @@ from app.models.task import Task
 from flask import Blueprint, jsonify, make_response, request, abort
 from app.routes.helper_functions import validate_model
 
+
 bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 @bp.route("", methods=["POST"])
@@ -12,15 +13,14 @@ def create_goal():
     request_body = request.get_json()
     
     if not request_body:
-        abort(make_response({"details": "Invalid Data"}, 400))
-
+        abort(make_response({"details": "Invalid data"}, 400))
 
     new_goal = Goal.from_dict(request_body)
 
     db.session.add(new_goal)
     db.session.commit()
 
-    return make_response(f"Goal {new_goal.title} successfully created", 201)
+    return make_response(dict(goal = new_goal.to_dict()), 201)
 
 @bp.route("", methods=["GET"])
 def read_all_goals():
@@ -30,7 +30,7 @@ def read_all_goals():
 
     return jsonify(goals_response)
 
-@bp.route("/<goal_id>/", methods=["GET"])
+@bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     return make_response(dict(goal = goal.to_dict()), 200)
@@ -52,3 +52,28 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()  
     return make_response({'details': f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}, 200)
+
+# @bp.route("/<goal_id>/tasks", methods=["POST"])
+# def create_goal(goal_id):
+#     goal = validate_model(Goal, goal_id)
+#     request_body = request.get_json()
+#     new_task = Task.from_dict(request_body)
+#     new_task.goals = goal
+
+#     db.session.add(new_task)
+#     db.session.commit()
+
+#     return make_response(new_task.to_dict(), 201)
+
+
+@bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_one_task(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    task_response = [task.to_dict() for task in goal.tasks]
+
+    return make_response({
+        "id": goal.task_id,
+        "title": goal.title,
+        "tasks": task_response
+}, 200)

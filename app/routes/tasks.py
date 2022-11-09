@@ -16,7 +16,7 @@ def read_one_task(task_id):
 
 
 @bp.route("", methods=["GET"])
-def read_all_planets():
+def read_all_tasks():
 
     sort_query = request.args.get('sort')
 
