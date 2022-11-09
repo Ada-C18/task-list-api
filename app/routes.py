@@ -4,6 +4,7 @@ from app.models.task import Task
 from datetime import datetime
 import os
 import requests
+from app.models.goal import Goal
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -154,22 +155,87 @@ def mark_task_incomplete(task_id):
 
     return make_response(jsonify({'task': dict_task}), 200)
 
+# --------------------------------------------------------------------------------------------
 
+goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
-@task_bp.route("", methods=["POST"])
-def create_task():
+@goal_bp.route("", methods=["POST"])
+def create_goal():
     request_body = request.get_json()
     try:
-        new_task = Task.from_dict(request_body)
+        new_goal = Goal.from_goal_dict(request_body)
     except KeyError:
         abort(make_response({"details": "Invalid data"}, 400))
 
-    db.session.add(new_task)
+    db.session.add(new_goal)
     db.session.commit()
 
-    return make_response(jsonify({'task': new_task.to_dict()}), 201)
+    return make_response(jsonify({'goal': new_goal.to_dict_goal()}), 201)
 
 
+@goal_bp.route("", methods=["GET"])
+def list_all_goals():
+    goal_list = []
+
+
+    sort_query = request.args.get("sort")
+    
+    if sort_query:
+        if "asc" in sort_query:
+            goal = Goal.query.order_by(Goal.goal_title)
+        elif "desc" in sort_query:
+            goal = Goal.query.order_by(Goal.goal_title.desc())
+    else:
+        goals = Goal.query.all()   
+    
+    for goal in goals:
+        goal_list.append({
+            
+            "id": goal.goal_id, 
+            "title": goal.goal_title, 
+            
+            })
+    return jsonify(goal_list)
+
+
+@goal_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    goals = Goal.query.get(goal_id)
+    
+
+    return {"goal":
+            {"id": goal.goal_id, 
+            "title": goal.goal_title}
+            }
+
+
+
+@goal_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    goal.goal_title = request_body["title"]
+    
+    db.session.commit()
+
+    return {"goal":{
+            "id": 1,
+            "title": "Updated Goal Title",
+        }}
+
+
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return {"details": f'Goal {goal.goal_id} "{goal.goal_title}" successfully deleted'}
 
 
 
