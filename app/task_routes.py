@@ -120,12 +120,3 @@ def mark_task_incomplete(id):
 
     return make_response(jsonify({"task": task.to_dict()}), 200)
 
-
-
-
-
-
-
-
-
-
