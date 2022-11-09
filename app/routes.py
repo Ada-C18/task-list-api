@@ -45,3 +45,25 @@ def get_all_tasks():
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
     return make_response({"task": task.to_dict()}, 200)
+
+@tasks_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    task = validate_model(Task, task_id)
+    
+    request_body = request.get_json()
+    
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    
+    db.session.commit()
+    
+    return make_response({"task": task.to_dict()}, 200)
+
+@tasks_bp.route("/<task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    task = validate_model(Task, task_id)
+
+    db.session.delete(task)
+    db.session.commit()
+
+    return make_response({"details": f"Task {task.id} \"{task.title}\" successfully deleted"}, 200)
