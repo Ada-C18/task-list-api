@@ -19,12 +19,14 @@ def create_goal():
     
     return {"goal": new_goal.to_dict()}, 201
 
+
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
     goals = Goal.query.all()
 
     goals_response =[goal.to_dict()for goal in goals]
     return jsonify(goals_response)
+
 
 def validate_id(cls, id):
     try:
@@ -37,22 +39,26 @@ def validate_id(cls, id):
         abort(make_response({"Message": f"{cls.__name__} {id} not found."}, 404))
     return obj
 
+
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
     goal = validate_id(Goal, goal_id)
+    
     return {"goal": goal.to_dict()}, 200
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    request_body = request.get_json()
     goal = validate_id(Goal, goal_id)
+    request_body = request.get_json()
     
-    goal.title = title=request_body["title"]
+    goal.title=request_body["title"]
         
     db.session.commit()
     
-    return make_response(f"Goal #{goal_id} is updated.")
+    return {"goal": goal.to_dict()}, 200
+    
+
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
@@ -62,6 +68,7 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return {"details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}
+
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id):
@@ -77,6 +84,7 @@ def post_task_ids_to_goal(goal_id):
     db.session.commit()
     return {"id": goal.goal_id,
             "task_ids" : task_ids}
+
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_goals(goal_id):
