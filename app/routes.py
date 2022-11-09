@@ -1,6 +1,7 @@
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
+from datetime import datetime
 
 
 
@@ -143,3 +144,35 @@ def delete_one_task(task_id):
     db.session.delete(chosen_task)
     db.session.commit()
     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
+
+
+#---------------------------------------PATCH------------------------------------------------
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete_on_incompleted_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
+    today = datetime.now()
+    
+    if chosen_task.completed_at is None:
+        chosen_task.completed_at = today
+        chosen_task.is_complete = True
+
+    else:
+        chosen_task.completed_at = today
+        chosen_task.is_complete = True
+    db.session.commit()
+    return jsonify({"task": chosen_task.to_dict()}), 200
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete_on_completed_task(task_id):
+    chosen_task = get_one_task_or_abort(task_id)
+    today = datetime.now()
+    
+    if chosen_task.completed_at:
+        chosen_task.completed_at = None
+        chosen_task.is_complete = None
+    else:
+        chosen_task.completed_at = None
+        chosen_task.is_complete = None
+
+    db.session.commit()
+    return jsonify({"task": chosen_task.to_dict()}), 200
