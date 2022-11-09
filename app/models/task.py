@@ -2,7 +2,6 @@ from app import db
 
 
 class Task(db.Model):
-    # __tablename__ = "tasks"
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
@@ -11,21 +10,16 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self, determine_completion):
-        return {
+        data_dict= {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": determine_completion(self)
-            }
-    
-    def to_dict_with_goal(self, determine_completion):
-        return {
-            "id": self.task_id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": determine_completion(self),
-            "goal_id": self.goal_id
-            }
+        }
+        if self.goal_id:
+            data_dict["goal_id"] = self.goal_id
+
+        return data_dict
 
     @classmethod
     def from_dict(cls, task_data):
