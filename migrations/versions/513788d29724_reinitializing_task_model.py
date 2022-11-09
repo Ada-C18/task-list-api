@@ -1,8 +1,8 @@
-"""updated Task model
+"""reinitializing Task model
 
-Revision ID: 99d78fcdcf13
+Revision ID: 513788d29724
 Revises: 
-Create Date: 2022-11-03 17:09:01.828672
+Create Date: 2022-11-09 01:00:42.241045
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '99d78fcdcf13'
+revision = '513788d29724'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,11 +23,11 @@ def upgrade():
     sa.PrimaryKeyConstraint('goal_id')
     )
     op.create_table('task',
-    sa.Column('task_id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('title', sa.Text(), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
-    sa.PrimaryKeyConstraint('task_id')
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 

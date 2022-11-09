@@ -3,6 +3,8 @@ from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import datetime
+import requests
+import os
 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -81,6 +83,11 @@ def mark_complete_task(task_id):
     
     task.completed_at = datetime.utcnow()
     db.session.commit()
+    
+    #send notif to Slack API
+    params = {"channel": "task-notifications", "text": "Hello, world!"}
+    header = {"Authorization": f"Bearer {os.environ.get('SLACKBOT_AUTH_TOKEN')}"}
+    r = requests.post("https://slack.com/api/chat.postMessage", params=params, headers=header)
     
     return make_response({"task": task.to_dict()}, 200)
 
