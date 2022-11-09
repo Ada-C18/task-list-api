@@ -144,8 +144,6 @@ def test_delete_goal(client, one_goal):
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
-    # assert "details" in response_body
-    # assert response_body["details"] == 'Goal 1 "Build a habit of going outside daily" successfully deleted'
     assert response_body["message"] == "Could not find Goal item with id: 1"
     # *****************************************************************
 

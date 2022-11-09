@@ -10,12 +10,6 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
-        # return {
-        #     "id": self.task_id,
-        #     "title": self.title,
-        #     "description": self.description,
-        #     "is_complete": True if self.completed_at else False                                              
-        # }
         dict = {        
             "id": self.task_id,
             "title": self.title,
@@ -26,24 +20,11 @@ class Task(db.Model):
             dict["goal_id"] = self.goal_id
         return dict
             
-    # def to_dict_goal_id(self):
-    #     dict = self.to_dict()
-    #     dict["goal_id"] = self.goal_id
-    #     return dict
-            
     @classmethod
     def from_dict(cls, task_dict):
         return cls(
             title=task_dict["title"],
-            description=task_dict["description"],
-            # goal_id=task_dict["goal_id"]                        
+            description=task_dict["description"]                     
         )
-    
-    # @classmethod
-    # def from_dict_goal_id(cls, task_dict):
-    #     return cls(
-    #         title=task_dict["title"],
-    #         description=task_dict["description"],
-    #         goal_id=task_dict["goal_id"]                        
-    #     )
+
     

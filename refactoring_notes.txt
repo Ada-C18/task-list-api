@@ -1,1 +1,0 @@
-1) creating a response model function to return the response {goal/task: cls.to_dict()}??
