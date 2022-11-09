@@ -117,3 +117,25 @@ def delete_goal(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 
 def get_task_from_goal(goal_id):
+    goal = Goal.query.get(goal_id)
+    if not goal:
+        return make_response({"details":"Id not found"}), 404
+    tasks = [Task.query.get(task) for task in goal.tasks]
+
+
+    
+    return make_response({ 
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": tasks
+    },200)
+
+
+
+    
+
+
+
+
+
+
