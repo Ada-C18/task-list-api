@@ -236,15 +236,15 @@ def update_one_task(goal_id):
         }
     }, 200
 
-# @task_bp.route("/<task_id>", methods=["DELETE"])
-# def delete_one_task(task_id):
-#     chosen_task = get_one_task_or_abort(task_id)
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    chosen_goal = get_one_goal_or_abort(goal_id)
 
-#     db.session.delete(chosen_task)
+    db.session.delete(chosen_goal)
 
-#     db.session.commit()
+    db.session.commit()
 
-#     return jsonify({"details": f'Task {task_id} "{chosen_task.title}" successfully deleted'}), 200
+    return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
 
 
 # @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
