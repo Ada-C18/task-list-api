@@ -51,7 +51,7 @@ def test_get_tasks_for_specific_goal_no_goal(client):
     # Assert
     assert response.status_code == 404
 
-    assert response_body == {"message": "task not found"}
+    assert response_body == {"message": "Goal not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

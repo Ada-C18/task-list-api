@@ -128,7 +128,7 @@ def test_mark_complete_missing_task(client):
     # Assert
     assert response.status_code == 404
 
-    assert response_body == {"message": "task not found"}
+    assert response_body == {"message": "Task not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -140,4 +140,4 @@ def test_mark_incomplete_missing_task(client):
     # Assert
     assert response.status_code == 404
 
-    assert response_body == {"message": "task not found"}
+    assert response_body == {"message": "Task not found"}
