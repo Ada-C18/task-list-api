@@ -59,22 +59,27 @@ def get_one_task(task_id):
 def update_task(task_id):
     task = validate_id(Task, task_id)
     request_body = request.get_json() 
-
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"] #not sure if to include this right now
+    # TODO task.completed_at = request_body["completed_at"] #include later
     # task.update(request_body)
     db.session.commit()
-    return make_response(f"Task #{task.id} successfully updated")
+    response_body =  {
+        "task": task.to_dict()
+        }
+    return make_response(response_body, 200)
 
 #DELETE ONE TASK
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_id(Task, task_id)
 
+    task_dict = task.to_dict()
+
     db.session.delete(task)
     db.session.commit()
 
-    return make_response(f"Task #{task.id} has been successfully deleted")
+    return {
+        "details": f'Task {task_id} "{task_dict["title"]}" successfully deleted'}
 
-#GET TASK WITH QUERY PARAMETERS
+#GET TASK WITH QUERY PARAMETERS, SORT BY ASCENDING & DESCENDING
