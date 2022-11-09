@@ -28,3 +28,11 @@ class Task(db.Model):
             return False
         else:
             return True
+
+    def task_with_goal_to_dict(self):
+        return {
+        "id": self.task_id,
+        "goal_id": self.goal_id,
+        "title": self.title,
+        "description": self.description,
+        "is_complete": self.task_complete()}
