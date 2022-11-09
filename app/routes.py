@@ -1,5 +1,6 @@
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc 
 import datetime
@@ -10,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 @tasks_bp.route("", methods=["POST"])
 def create_tasks():
@@ -130,6 +132,57 @@ def create_slack_mssg(task_object):
     return response.json()
 
 
+###############################################
+############# ROUTES FOR GOAL #################
+###############################################
 
+@goals_bp.route("", methods=["POST"])
+def create_goals():
+    request_body = request.get_json()
+    new_goal = Goal.from_dict_goals(request_body)
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    goal_dict = {}
+    goal_dict["goal"] = {"id":new_goal.goal_id, "title": new_goal.title}
+
+    return make_response(jsonify(goal_dict), 201)
+
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    goals = Goal.query.all()
+    goals_response = []
+    for goal in goals:
+        goals_response.append({"id": goal.goal_id, "title": goal.title})
+
+    return (jsonify(goals_response))
+
+
+@goals_bp.route("/<goal_id>", methods = ["GET"])
+def get_one_goal(goal_id):
+    goal = validate_model(Goal,goal_id)
+
+    return goal.to_dict_goals()
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_a_goal(goal_id):
+    goal = validate_model(Goal,goal_id)
+
+    request_body = request.get_json()
+
+    goal.update_goal(request_body) 
+    db.session.commit()
+
+    return goal.to_dict_goals()
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal,goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+    delete_dict = {"details":f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}
+    return make_response(jsonify(delete_dict))
 
 
