@@ -26,7 +26,7 @@ def read_one_task(goal_id):
 def create_goal():
     request_body = request.get_json()
     try:
-        new_goal = Goal(title=request_body["title"])
+        new_goal = Goal.from_dict(request_body)
     except:
         return abort(make_response({"details": 'Invalid data'}, 400))
 

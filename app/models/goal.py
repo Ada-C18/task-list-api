@@ -5,6 +5,10 @@ class Goal(db.Model):
     title = db.Column(db.String, nullable = False)
     tasks = db.relationship("Task", back_populates="goal", lazy=True)
 
+    @classmethod
+    def from_dict(cls, data_dict):
+        return cls(title=data_dict["title"])
+        
     def to_dict(self):
         return {
             "id": self.goal_id,
