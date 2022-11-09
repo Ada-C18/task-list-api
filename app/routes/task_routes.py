@@ -78,7 +78,7 @@ def read_all_tasks():
     return make_response(jsonify(tasks_response), 200)
 
 #==============================
-#        READ ONE TASKS
+#        READ ONE TASK
 #==============================
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
