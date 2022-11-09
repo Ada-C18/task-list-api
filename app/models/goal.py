@@ -12,5 +12,6 @@ class Goal(db.Model):
         goal_dict = {}
         goal_dict["id"] = self.id
         goal_dict["title"] = self.title
-    
+        if self.tasks:
+            goal_dict["goal_id"]= self.goal_id
         return goal_dict
