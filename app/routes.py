@@ -202,20 +202,27 @@ def delete_one_goal(goal_id):
 
     return make_response(jsonify({"details": f"Goal {goal_id} \"{chosen_task.title}\" successfully deleted"}), 200)
 
-# @goal_bp.route("/<goal_id>/task", methods=["POST"])
-# def post_task_belonging_to_a_goal(goal_id):
-#     parent_goal = get_one_obj_or_abort(Goal, goal_id)
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_belonging_to_a_goal(goal_id):
+    parent_goal = get_one_obj_or_abort(Goal, goal_id)
 
-#     request_body = request.get_json()
+    request_body = request.get_json()
 
-#     new_task = Task.from_request_dict(request_body)
-#     new_task.goal = parent_goal
+    task_ids = [] if "task_ids" not in request_body else request_body["task_ids"]
 
-#     db.session.add(new_task)
-#     db.session.commit()
+    for id in task_ids:
+        new_task = get_one_obj_or_abort(Task, id)
+        new_task.goal = parent_goal
 
-#     return jsonify({f"{new_task.task_id}"}), 201
+        db.session.add(new_task)
+        db.session.commit()
 
+    response_body = {
+        "id": int(goal_id),
+        "task_ids": task_ids
+        }
+    
+    return jsonify(response_body), 200
 
 
 # @goal_bp.route("/<goal_id>/task", methods=["GET"])
