@@ -60,6 +60,7 @@ def test_get_task_not_found(client):
     # Assert
     assert response.status_code == 404
     #add test with assertion about response body
+    assert "message" in response_body
     # assert response_body == {"message": "Task with id 1 was not found in the database."}
     
 
@@ -128,7 +129,8 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
-
+    #add test with assertion about response body
+    assert "details" in response_body
     assert response_body == {"details": "Invalid data"}
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
