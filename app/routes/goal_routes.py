@@ -2,21 +2,22 @@ from app import db
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.goal import Goal
 from app.models.task import Task
+from app.helper import validate_model
 
 goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
 
 # validate 
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message": f"{cls.__name__} {model_id} is not a valid id"}, 400))
+# def validate_model(cls, model_id):
+#     try:
+#         model_id = int(model_id)
+#     except:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} is not a valid id"}, 400))
     
-    model = cls.query.get(model_id)
-    if not model:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+#     model = cls.query.get(model_id)
+#     if not model:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
     
-    return model
+#     return model
 
 # read all tasks
 @goal_bp.route("", methods=["GET"])

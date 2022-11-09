@@ -4,21 +4,22 @@ from app.models.task import Task
 from datetime import datetime
 import requests
 import os
+from app.helper import validate_model, post_slack
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
 # validate 
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message": f"{cls.__name__} {model_id} is not a valid id"}, 400))
+# def validate_model(cls, model_id):
+#     try:
+#         model_id = int(model_id)
+#     except:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} is not a valid id"}, 400))
     
-    model = cls.query.get(model_id)
-    if not model:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
+#     model = cls.query.get(model_id)
+#     if not model:
+#         abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
     
-    return model
+#     return model
 
 # read all tasks
 @task_bp.route("", methods=["GET"])
@@ -80,18 +81,18 @@ def delete_task(task_id):
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
 
 # slack bot helper
-def post_slack(task):
-    url = 'https://slack.com/api/chat.postMessage'
-    params = {
-        "channel": "task-notifications",
-        "text": f"Someone just completed the task {task.title}"
-    }
-    slack_key = os.environ.get("SLACK_KEY")
-    headers = {
-        "Authorization": f"Bearer {slack_key}"
-    }
+# def post_slack(task):
+#     url = 'https://slack.com/api/chat.postMessage'
+#     params = {
+#         "channel": "task-notifications",
+#         "text": f"Someone just completed the task {task.title}"
+#     }
+#     slack_key = os.environ.get("SLACK_KEY")
+#     headers = {
+#         "Authorization": f"Bearer {slack_key}"
+#     }
 
-    requests.post(url, params=params, headers=headers)
+#     requests.post(url, params=params, headers=headers)
 
 # mark complete with patch
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])

@@ -1,6 +1,5 @@
 from app import db
 
-
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
@@ -20,7 +19,6 @@ class Task(db.Model):
         else:
             completed = True 
         
-        # if goal id return
         if self.goal_id:
             return {
                     "id": self.task_id,
@@ -29,10 +27,10 @@ class Task(db.Model):
                     "description": self.description,
                     "is_complete": completed
                 }
-        else:
-            return {
-                "id": self.task_id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": completed
-            }
+                
+        return {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": completed
+        }
