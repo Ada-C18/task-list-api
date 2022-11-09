@@ -19,15 +19,24 @@ def validate_model(cls, model_id):
 @task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = Task.from_dict(request_body)
 
+    if "title" not in request_body or "description" not in request_body:
+        return {"details": "Invalid data"}, 400
+
+    # if "completed_at" in request_body:
+    #     new_task = Task(title=request_body["title"], description=request_body["description"], completed_at=request_body["completed_at"])
+    # else:
+    #     new_task = Task(title=request_body["title"], description=request_body["description"])
+
+    new_task = Task.from_dict(request_body)
     db.session.add(new_task)
     db.session.commit()
 
-    task_dict = {
+    return {
         "task": new_task.to_dict()
-    }
-    return task_dict, 201
+    }, 201
+
+
 
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -62,16 +71,24 @@ def read_one_task(task_id):
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_model(Task, task_id)
+    if task:
+        task_dict = {
+        "details": f"Task {task_id} \"{task.title}\" successfully deleted"
+        }
+    else:
+        return {"message": f"Task {task_id} not found"}, 404
+
     db.session.delete(task)
-    db.commit()
-    return make_response(f"Task # {task.task_id} successfully deleted", 200)
+    db.session.commit()
+
+    return task_dict, 200
+    
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
-    if task:
-        request_body = request.get_json()
-    
+    request_body = request.get_json()
+    if task:   
         task.title = request_body["title"]
         task.description = request_body["description"]
         response_body = {"task": {
@@ -79,8 +96,13 @@ def update_task(task_id):
                     "title": "Updated Task Title",
                     "description": "Updated Test Description",
                     "is_complete": False
-                }}
-        
-    db.session.commit()
-    return response_body, 200
-
+            }}
+        db.session.commit()
+        return response_body, 200
+    else:
+        db.session.commit()
+        return {"message": f"Task {task_id} not found"}, 404
+    
+@task_bp.route("/<task_id>sort=asc", methods=["GET"])
+def get_task_sort_asc(task_id):
+    
