@@ -30,5 +30,5 @@ class Task(db.Model):
             dict_task["goal_id"] = self.goal_id
         return dict_task
     
-#"is_complete": True if self.completed_at == True else False
+
 

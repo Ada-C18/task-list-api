@@ -69,16 +69,7 @@ def delete_task(task_id):
     db.session.commit()
     return make_response(jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}),200)
 
-    #Sorting Query Params, Wave 2
 
-# def order_by_title_asc(sort):
-#     order = Task.query.order_by(Task.title).asc()
-#     tasks_data=[task.to_dict() for task in order]
-#     return jsonify(tasks_data)
-
-# SELECT user.user_id AS user_user_id FROM user ORDER BY case when ifnull(nickname, '') = '' then 0 else 1 end desc LIMIT 1
-
-# Wave 3 mark complete 
 def send_task_to_slack_api(task):
     text = f"Someone just completed the task {task.title}"
     SLACK_API_KEY =  os.environ.get("SLACKAPI_TOKEN")
