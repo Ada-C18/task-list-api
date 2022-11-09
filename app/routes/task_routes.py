@@ -4,24 +4,11 @@ from app.models.task import Task
 from datetime import date
 import os
 import requests
+from .helper_function import get_one_obj_or_abort
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
 #--------------------------------helper functions---------------------------
-def get_one_task_or_abort(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task_id: '{task_id}'. ID must be an integer"
-        abort(make_response(jsonify({"message": response_str}), 404))
-
-    matching_task = Task.query.get(task_id)
-
-    if not matching_task:
-        response_str = f"Task with ID '{task_id}' was not found in the database"
-        abort(make_response(jsonify({"message":response_str}), 404))
-
-    return matching_task
 
 def send_to_slack(task):
     url = "https://slack.com/api/chat.postMessage?channel=task-notifications&text=%22Hello%20World%22&pretty=1"
@@ -44,8 +31,7 @@ def add_task():
 
     new_task = Task(
         title = request_body["title"],
-        description = request_body["description"],
-        #completed_at = request_body["completed_at"]
+        description = request_body["description"]
     )
     db.session.add(new_task)
     db.session.commit()
@@ -73,14 +59,14 @@ def get_all_tasks():
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
 
-    task = get_one_task_or_abort(task_id)
+    task = get_one_obj_or_abort(Task, task_id)
 
     return jsonify({"task": task.create_dict()}), 200
 
 #--------------------------------PUT-------------------------
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task_values(task_id):
-    task = get_one_task_or_abort(task_id)
+    task = get_one_obj_or_abort(Task, task_id)
     request_body = request.get_json()
 
     if "title" not in request_body or\
@@ -96,7 +82,7 @@ def update_task_values(task_id):
 #------------------------PATCH----------------------------------
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
-    task = get_one_task_or_abort(task_id)
+    task = get_one_obj_or_abort(Task, task_id)
     task.completed_at = date.today()
     db.session.commit()
     send_to_slack(task)
@@ -105,7 +91,7 @@ def mark_task_complete(task_id):
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(task_id):
-    task = get_one_task_or_abort(task_id)
+    task = get_one_obj_or_abort(Task, task_id)
     task.completed_at = None
     db.session.commit()
 
@@ -115,7 +101,7 @@ def mark_task_incomplete(task_id):
 #-------------------------DELETE----------------------------
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def detlete_one_task(task_id):
-    task = get_one_task_or_abort(task_id)
+    task = get_one_obj_or_abort(Task, task_id)
     db.session.delete(task)
     db.session.commit()
     return jsonify({"details": f"Task {task_id} \"{task.title}\" successfully deleted"}), 200
