@@ -79,7 +79,11 @@ def view_one_task(task_id):
     '''
     task = validate_model(Task, task_id)
 
-    return {"task": task.to_dict()}
+    dict = task.to_dict()
+    if task.goal_id:
+        dict["goal_id"] = task.goal_id
+
+    return {"task": dict}
 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
