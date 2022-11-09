@@ -122,9 +122,6 @@ def update_incomplete_task(task_id):
     task.completed_at = datetime.datetime.utcnow()
 
     db.session.commit()
-
-    def is_complete():
-        return True
     
     slack_bot_message(f"Someone just completed the task {task.title}")
 
@@ -140,10 +137,6 @@ def update_complete_task(task_id):
     task.completed_at =  None
 
     db.session.commit()
-
-    def is_complete():
-        return False
-
 
     return make_response(jsonify({"task": task.to_dict()}), 200)
 

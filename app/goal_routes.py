@@ -87,7 +87,6 @@ def post_task_to_goal(goal_id):
 
     for task_id in request_body["task_ids"]:
         task = validate_id(Task, task_id)
-        # task.goal = goal
         goal.tasks.append(task)
         task_ids.append(task_id)
 
@@ -96,7 +95,6 @@ def post_task_to_goal(goal_id):
     return {"id": goal.goal_id,
             "task_ids" : task_ids}
 
-# here we are creating a relationship btwn the task and the goal - if we wanted to post a new task we'd go to the task endpoin and vise versa 
 
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_for_goals(goal_id): 
