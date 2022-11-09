@@ -5,6 +5,7 @@ from flask import abort, make_response
 class Goal(db.Model):
     goal_id =   db.Column(db.Integer, primary_key=True)
     title =     db.Column(db.String,    nullable=False)
+    tasks =     db.relationship("Task", back_populates="goal", lazy=True)
 
     def create_dict(self):
         goal_as_dict = {}
