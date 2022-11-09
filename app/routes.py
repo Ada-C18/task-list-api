@@ -37,7 +37,6 @@ def slack_call(task):
         "Authorization": os.environ.get("SLACK_BOT_TOKEN")
     }
     
-    
     # method
     requests.post(SLACK_BOT_ROUTE, params=query_params, headers=headers)
 
@@ -105,7 +104,7 @@ def complete_task(task_id):
     task.completed_at = date.today()
     
     
-    db.session.add(task)
+    #db.session.add(task)
     db.session.commit()
     
     slack_call(task)
