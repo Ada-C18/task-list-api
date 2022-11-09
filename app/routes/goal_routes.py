@@ -1,8 +1,7 @@
 from app import db
 from app.models.goal import Goal
-from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
-
+from app.routes.routes_helper import *
 
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
@@ -10,6 +9,8 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 #Create a new goal
 @goals_bp.route("", methods=["POST"])
 def create_goal():
+    request_body = request.get_json()
+
 
     try:
         request_body = request.get_json() 
@@ -19,6 +20,7 @@ def create_goal():
             
     except KeyError:
         return {"details": "Invalid data"}, 400
+
     db.session.add(new_goal)
     db.session.commit()
 
@@ -36,7 +38,6 @@ def read_all_goals():
     goals = Goal.query.all()
     
     goals_response = []
-    # goals = goal.query.all()
     for goal in goals:
         goals_response.append( 
             {
@@ -44,26 +45,29 @@ def read_all_goals():
                 "title": goal.title,
             }
         )
+    
     return jsonify(goals_response)
 
-#helper function to validate goal 
-def validate_goal(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except:
-        abort(make_response({"details": "Invalid data"}, 400))
+# #helper function to validate goal 
+# def validate_goal(goal_id):
+#     try:
+#         goal_id = int(goal_id)
+#     except:
+#         abort(make_response({"details": "Invalid data"}, 400))
 
-    goal = Goal.query.get(goal_id)
+#     goal = Goal.query.get(goal_id)
 
-    if not goal:
-        abort(make_response({"details":f"there is no existing goal {goal_id}"}, 404))
+#     if not goal:
+#         abort(make_response({"details":f"there is no existing goal {goal_id}"}, 404))
         
-    return goal
+#     return goal
 
 #Get One goal
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = get_record_by_id(Goal, goal_id)
+    # goal = validate_goal(goal_id)
+
     return {
         "goal": {
             "id": goal.goal_id,
@@ -71,14 +75,17 @@ def get_one_goal(goal_id):
         }
         }
 
+
 # Defining Endpoint and Creating Route Function to UPDATE a Goal
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_goal(goal_id)
+    goal = get_record_by_id(Goal, goal_id)
+    # goal = validate_goal(goal_id)
 
     request_body = request.get_json()
 
     goal.title = request_body["title"]
+    
 
     db.session.commit()
 
@@ -93,32 +100,12 @@ def update_goal(goal_id):
 #Defining Endpoint and Creating Route Function to DELETE a goal
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = validate_goal(goal_id)
-
+    goal = get_record_by_id(Goal, goal_id)
+    # goal = validate_goal(goal_id)
+    
     db.session.delete(goal)
     db.session.commit()
 
     return {
         "details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'
     }
-
-# @goals_bp.route("<goal_id>/tasks", methods=["POST"])
-# def create_goals(goal_id):
-
-#     request_body= request.get_json()
-
-#     new_task = Task(
-#         title=request_body["title"],
-#         description=request_body["description"],
-#         completed_at=request_body["completed_at"]
-#     )
-    
-#     db.session.add(new_task)
-#     db.session.commit()
-
-#     pass
-    
-
-# @goals_bp.route("<goal_id>/tasks", methods=["GET"])
-# def reads_tasks_from_goal():
-#     pass
