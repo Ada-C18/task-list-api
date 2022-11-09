@@ -80,3 +80,9 @@ def add_task(goal_id):
         "id": goal.goal_id,
         "task_ids": request_body["task_ids"]
     }))
+
+@bp.route("<goal_id>/tasks", methods=["GET"])
+def get_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    return make_response(jsonify(goal.to_dict(tasks=True)))
