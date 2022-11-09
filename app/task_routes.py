@@ -15,10 +15,10 @@ def add_task():
 
     
     new_task = Task(
-        title=request_body["title"], # could use dot notation to call instead 
+        title=request_body["title"], 
         description=request_body["description"]
         )
-    # could do a conditional if completed_at = null in the request, update the task object with is_complete = False
+
 
     db.session.add(new_task)
     db.session.commit()
@@ -30,7 +30,6 @@ def get_saved_tasks_and_sort():
     sorted_query = request.args.get("sort")
 
     if sorted_query:
-        # tasks = Task.query.order_by(Task.title.asc()).all()
         if sorted_query == "asc":
             tasks = Task.query.order_by(Task.title.asc()).all()
         elif sorted_query == "desc":
@@ -76,27 +75,37 @@ def update_task(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def patch_task(task_id):
-    #chosen_task = get_one_obj_or_abort(Task, task_id)
+    chosen_task = get_one_obj_or_abort(Task, task_id)
 
-    chosen_task = Task.query.get(task_id)
-    
-    # if not task_dict:
-    # return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
-
+    #chosen_task = Task.query.get(task_id)
     
     chosen_task.completed_at = datetime.now() 
     task_dict = chosen_task.to_dict()
-    # print(chosen_task)
-    
-    # need to update completed_at value to current date
 
-    # import from datetime import datetime
-    # get current date and time time_now = datetime.now()
-    # use timestamp to get the completed_at time something like completed_at == datetime.timestamp(time_now)
-    db.session.add(chosen_task)
+    # db.session.add(chosen_task)
     db.session.commit()
 
+    if not task_dict:
+        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+
     return jsonify({"task": task_dict}), 200 
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def patch_task_to_incomplete(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+    #chosen_task = Task.query.get(task_id)
+    print(chosen_task)
+    chosen_task.completed_at = None
+    task_dict = chosen_task.to_dict()
+
+    # db.session.add(chosen_task)
+    db.session.commit()
+
+    if not task_dict:
+        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+
+    return jsonify({"task": task_dict}), 200 
+
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
@@ -104,13 +113,14 @@ def delete_one_task(task_id):
 
     task_dict = chosen_task.to_dict()
 
-    if not task_dict:
-        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
-    
     db.session.delete(chosen_task)
     db.session.commit()
 
-    return jsonify({f"details": "Task {task_id} {task_dict} successfully deleted"}), 200
+    if not task_dict:
+        return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+    
+
+    return jsonify({f"details": "Task {task_id} successfully deleted"}), 200
     
 
     
