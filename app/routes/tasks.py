@@ -1,3 +1,5 @@
+import requests
+import os
 from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, abort, make_response, request
@@ -94,6 +96,7 @@ def mark_task_complete(task_id):
     completed_task = task.to_dict()
 
     db.session.commit()
+    post_to_slack(completed_task)
 
     return make_response({"task": completed_task}, 200)
 
@@ -106,3 +109,20 @@ def mark_task_incomplete(task_id):
     db.session.commit()
 
     return make_response({"task": completed_task}, 200)
+
+def post_to_slack(completed_task):
+    title = completed_task["title"]
+    slack_token = os.environ.get("SLACK_API_TOKEN")
+    slack_channel = '#the-task-list-api-project'
+    url = "https://slack.com/api/chat.postMessage"
+
+    params = {
+        'channel': slack_channel,
+        'text': f'Someone just completed the task {title} :tada:',
+        'format': 'json'
+    }
+    headers = {
+        'Authorization': f"Bearer {slack_token}"
+    }
+
+    requests.post(url, params=params, headers=headers)
