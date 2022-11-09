@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from .models.task import Task
 from app import db
-import datetime
+import datetime, requests, os
 
 # ===================
 # BLUEPRINTS
@@ -25,6 +25,17 @@ def validate_task(task_id):
         abort(make_response({"message": f"Task {task_id} not found"}, 404))
 
     return task
+
+def slack_bot_message(text):
+    URL = "https://slack.com/api/chat.postMessage"
+    API_KEY = os.environ.get("SLACK_API_KEY")
+
+    query_params = {
+        "channel": "task-notifications",
+        "text": text
+    }
+
+    requests.post(URL, data=query_params, headers={"Authorization": API_KEY})
 
 # ===================
 # ROUTES
@@ -90,14 +101,27 @@ def delete_task(task_id):
 
     return {"details": f"Task {task.task_id} \"{task.title}\" successfully deleted"}
 
+# @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+# def mark_complete(task_id):
+#     task = validate_task(task_id)
+    
+#     task.completed_at = datetime.datetime.utcnow()
+#     task.is_complete = True
+
+#     db.session.commit()
+
+#     return {"task": task.create_dict()}
+
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def mark_complete(task_id):
+def mark_complete_and_send_slackbot(task_id):
     task = validate_task(task_id)
     
     task.completed_at = datetime.datetime.utcnow()
     task.is_complete = True
 
     db.session.commit()
+
+    slack_bot_message(f"Someone just completed the task {task.title}")
 
     return {"task": task.create_dict()}
 
