@@ -2,33 +2,10 @@ from app import db
 from app.models.task import Task
 from datetime import datetime
 from flask import abort, Blueprint, jsonify, make_response, request
-import requests
-from dotenv import load_dotenv
-import os
 from sqlalchemy import desc, asc
-from .helpers_routes import validate_obj
+from .helpers_routes import validate_obj, send_slack_message
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-
-
-# INTEGRATE SLACK API
-def send_slack_message(message):
-    try:
-        PATH = "https://slack.com/api/chat.postMessage"
-        API_KEY = os.environ.get("SLACK_API_KEY")
-
-        # API_KEY in "Authorization" request header
-        headers = {"Authorization": API_KEY}
-
-        post_body = {
-            "channel": "task-notifications",
-            "text": message
-        }
-
-        requests.post(
-            PATH, params=post_body, headers=headers)
-    except:
-        print(f"Message to Slack failed")
 
 
 @tasks_bp.route("", methods=["POST"])
@@ -113,7 +90,6 @@ def delete_task(task_id):
     return make_response(jsonify(response))
 
 
-# Modify mark_complete to call Slack API
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_to_complete(task_id):
     task = validate_obj(Task, task_id)
@@ -125,6 +101,7 @@ def update_to_complete(task_id):
 
     # Slack message integration
     notification_text = f"Someone just completed the task {task.title}"
+    # send_slack_message in helpers_routes
     send_slack_message(notification_text)
 
     response = {
