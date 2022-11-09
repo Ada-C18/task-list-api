@@ -101,10 +101,6 @@ def read_tasks_from_goal(goal_id):
 #         TASK ROUTES
 #==============================
 
-@task_bp.route("/secrets", methods=["GET"])
-def read_one_task(task_id):
-    return SLACKBOT_TOKEN[:5]
-
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
