@@ -55,12 +55,23 @@ def post_task_ids_to_goal(id):
     goal = validate_model(Goal, id)
     
     task_ids = request_body["task_ids"]
-    task_list = [Task.query.get(task) for task in task_ids]
 
-    for task in task_list:
-        task.goal_id = goal.id
-        db.session.add(task)
-        db.session.commit()
+    ####### caitlyn's solution ########
+    for task_id in task_ids:
+        task = validate_model(Task, task_id)
+        goal.tasks.append(task)
+
+    db.session.commit()
+    ###################################
+
+    ######## andrea's solution ########
+    # task_list = [Task.query.get(task) for task in task_ids]
+
+    # for task in task_list:
+    #     task.goal_id = goal.id
+    #     db.session.add(task)
+    #     db.session.commit()
+    ###################################
 
     return make_response({"id": goal.id, "task_ids": task_ids}, 200)
 
