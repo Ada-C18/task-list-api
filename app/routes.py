@@ -114,6 +114,20 @@ def get_one_goal(goal_id):
     chosen_goal = get_model_from_id(Goal, goal_id)
     return jsonify({"goal": chosen_goal.to_dict()}), 200
 
+@goal_bp.route('', methods=['POST'])
+def create_one_goal():
+    request_body = request.get_json()
+
+    try:
+        new_goal = Goal.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}), 400
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return jsonify({"goal": new_goal.to_dict()}), 201
+
 
 def get_model_from_id(cls, model_id):
     try:
@@ -121,12 +135,12 @@ def get_model_from_id(cls, model_id):
     except ValueError:
         return abort(make_response({"msg": f"invalid data: {model_id}"}, 400))
 
-    chosen_task = cls.query.get(model_id)
+    chosen_model = cls.query.get(model_id)
 
-    if chosen_task is None:
+    if chosen_model is None:
         return abort(make_response({"msg": f"Could not find task item with id: {model_id}"}, 404))
 
-    return chosen_task
+    return chosen_model
 
 def slackbot(text):
     slack_auth=os.environ.get("SLACK_AUTH")
