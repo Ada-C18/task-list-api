@@ -113,7 +113,7 @@ def test_update_goal_not_found(client):
     # Act
     # ---- Complete Act Here ----
     response = client.put("/goals/1", json={
-        "title": "Updated Task Title"
+        "title": "Updated Goal Title"
     })
     response_body = response.get_json()
     # Assert
