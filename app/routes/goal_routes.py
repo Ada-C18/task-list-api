@@ -6,6 +6,7 @@ from app.models.goal import Goal
 from sqlalchemy import asc
 from sqlalchemy import desc
 from datetime import date
+from app.routes.task_routes import get_one_task_or_abort
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix ="/goals")
 
@@ -141,4 +142,22 @@ def delete_one_Goal(goal_id):
     db.session.delete(chosen_goal)
     db.session.commit()
     return jsonify({"details": f'Goal {goal_id} "Build a habit of going outside daily" successfully deleted'}),200
+
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_task(goal_id):
+
+    goal = get_one_goal_or_abort(goal_id) #goalid=1
+
+    request_body = request.get_json() #will have task list
+    task_id_list = request_body["task_ids"] #[1,2,3]=task list
+    for task_id in task_id_list:
+        task_obj=get_one_task_or_abort(task_id) #1
+        task_obj.goal=goal
+        db.session.commit()
+    goal_dict = {"id": goal.goal_id,
+    "task_ids": task_id_list
+    }
+    return make_response(jsonify(goal_dict)),200
     
