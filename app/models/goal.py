@@ -13,5 +13,5 @@ class Goal(db.Model):
         goal_dict["id"] = self.id
         goal_dict["title"] = self.title
         if self.tasks:
-            goal_dict["goal_id"]= self.goal_id
+            goal_dict["tasks"]= [task.to_dict() for task in self.tasks]
         return goal_dict
