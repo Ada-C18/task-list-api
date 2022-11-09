@@ -1,28 +1,27 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import abort, Blueprint, jsonify, make_response, request
-# from dotenv import load_dotenv
-# import os
-from .task_routes import validate_task
+from .helpers_routes import validate_obj
 
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
-def validate_goal(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except ValueError:
-        response_str = f"Invalid goal id {goal_id}. ID must be a integer."
-        abort(make_response({"message": response_str}, 400))
+# def validate_goal(goal_id):
+#     try:
+#         goal_id = int(goal_id)
+#     except ValueError:
+#         response_str = f"Invalid goal id {goal_id}. ID must be a integer."
+#         abort(make_response({"message": response_str}, 400))
 
-    goal = Goal.query.get(goal_id)
+#     goal = Goal.query.get(goal_id)
 
-    if not goal:
-        response_str = f"Goal {goal_id} not found."
+#     if not goal:
+#         response_str = f"Goal {goal_id} not found."
 
-        abort(make_response({"message": response_str}, 404))
+#         abort(make_response({"message": response_str}, 404))
 
-    return goal
+#     return goal
 
 
 @goals_bp.route("", methods=["GET"])
@@ -36,7 +35,8 @@ def read_all_goals():
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
-    chosen_goal = validate_goal(goal_id)
+    # chosen_goal = validate_goal(goal_id)
+    chosen_goal = validate_obj(Goal, goal_id)
 
     response = {
         "goal": chosen_goal.to_dict()
@@ -68,7 +68,8 @@ def create_goal():
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_goal(goal_id)
+    # goal = validate_goal(goal_id)
+    goal = validate_obj(Goal, goal_id)
 
     request_body = request.get_json()
     goal.title = request_body["title"]
@@ -84,7 +85,8 @@ def update_goal(goal_id):
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    goal = validate_goal(goal_id)
+    # goal = validate_goal(goal_id)
+    goal = validate_obj(Goal, goal_id)
 
     db.session.delete(goal)
     db.session.commit()
@@ -101,13 +103,15 @@ def delete_goal(goal_id):
 # Sending a List of Task IDs to a Goal
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def send_task_ids_to_goal(goal_id):
-    goal = validate_goal(goal_id)
+    # goal = validate_goal(goal_id)
+    goal = validate_obj(Goal, goal_id)
 
     request_body = request.get_json()
 
     # three Tasks belong to the Goal and it gets updated in the database
     for task_id in request_body["task_ids"]:
-        task = validate_task(task_id)
+        # task = validate_task(task_id)
+        task = validate_obj(Task, task_id)
         task.goal_id = goal.goal_id
 
     db.session.commit()
@@ -125,7 +129,8 @@ def send_task_ids_to_goal(goal_id):
 # /goals/<goal_id>/tasks
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_of_one_goal(goal_id):
-    goal = validate_goal(goal_id)
+    # goal = validate_goal(goal_id)
+    goal = validate_obj(Goal, goal_id)
 
     # get tasks list
     tasks = goal.tasks
