@@ -1,12 +1,11 @@
 from app import db
 from app.models.task import Task 
-from app.models.goal import Goal 
 from datetime import datetime
 from flask import Blueprint, jsonify, abort, make_response, request
-from sqlalchemy import asc
 import requests  
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
@@ -52,7 +51,7 @@ def get_one_task(task_id):
                     "description": task.description, 
                     "title": task.title,
                     "is_complete": bool(task.completed_at), 
-                    "goal_id" : task.goal_id 
+                    "goal_id": task.goal_id 
                 }}), 200  
                 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
