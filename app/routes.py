@@ -7,6 +7,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
+# Functions are grouped by endpoint, method routing logic (eg GET vs POST) is handled within the function
+# I consider this to be DRYer and more RESTful
 
 load_dotenv()
 
@@ -48,7 +50,7 @@ def validate_id(class_obj, id):
     try:
         id = int(id)
     except:
-        abort(make_response({"details":"invalid id"},400))
+        abort(make_response({"details":f"invalid {class_obj.__name__()}id"},400))
     obj = class_obj.query.get(id)
     if not obj:
         abort(make_response({"details":f"{class_obj.__name__} not found"},404))
@@ -123,7 +125,7 @@ def handle_goals():
         response_body = [goal.to_dict() for goal in goals]
         return make_response(jsonify(response_body), 200)
 
-@goals_bp.route("/<id>", methods=["POST", "GET", "PUT", "DELETE"])
+@goals_bp.route("/<id>", methods=["GET", "PUT", "DELETE"])
 def handle_individual_goal(id):
     goal = validate_id(Goal, id)
     if request.method == "GET":
@@ -141,7 +143,7 @@ def handle_individual_goal(id):
 
         return make_response({"goal":goal.to_dict()}, 200)
 
-@goals_bp.route("/<id>/tasks", methods=["POST", "GET", "PUT", "DELETE"])
+@goals_bp.route("/<id>/tasks", methods=["POST", "GET"])
 def goals_tasks(id):
     goal = validate_id(Goal, id)
     if request.method == "POST":
