@@ -6,6 +6,8 @@ import os #newly added for wave4
 import requests #newly added for wave4
 from app.models.goal import Goal
 from app import SLACK_URL
+from app.slack_bot import slack_message
+
 
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
@@ -52,7 +54,8 @@ def update_one_object(cls, model_id):
     elif cls == Goal:
         update_object.title = request_body["title"]
     return update_object
- 
+
+##END ROUTES
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():    
     result = get_all_objects(Task)
@@ -67,8 +70,7 @@ def get_one_task(task_id):
 @task_bp.route('', methods=['POST'])
 def create_one_task():
     request_body = request.get_json()
-    
-    
+        
     try:
         new_task = Task.from_dict(request_body)
     except KeyError:
@@ -84,10 +86,7 @@ def update_task(task_id):
         update_task = update_one_object(Task, task_id)        
     except KeyError:
         return jsonify({"details": "Invalid data"}),400
-        
-    
-
-    
+                
     db.session.commit()
     return jsonify({"task":update_task.to_dict()}),200
     
@@ -103,21 +102,30 @@ def delete_one_task(task_id):
 ########################## WAVE 3 ##########################
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_one_task(task_id):
-    '''
-    See : assets/minh_slackbot_proof.png
-    '''
-    
     chosen_task = get_model_from_id(Task,task_id)      
     chosen_task.completed_at = date.today()    
     db.session.commit()
-    
-    # SLACK_URL = os.environ.get("SLACK_URL")
+        
+    slack_message("Someone just completed the task {chosen_task.title}")
 
-    data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
-    
-    requests.post(SLACK_URL, data)        
-    
     return jsonify({"task":chosen_task.to_dict()}), 200
+
+# #2ND SOLUTION FOR SLACKBOT USING BUILT-IN WEBHOOKS FEATURES
+# @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+# def mark_complete_one_task(task_id):
+    
+#     chosen_task = get_model_from_id(Task,task_id)      
+#     chosen_task.completed_at = date.today()    
+#     db.session.commit()
+    
+#     # SLACK_URL = os.environ.get("SLACK_URL") #This is now under app.__init__.py
+
+#     data = '{"text":"%s"}' % f"Someone just completed the task {chosen_task.title}"
+    
+#     requests.post(SLACK_URL, data)        
+    
+#     return jsonify({"task":chosen_task.to_dict()}), 200
+
 
 @task_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
 def mark_incomplete_one_task(task_id):
@@ -170,7 +178,6 @@ def delete_one_goal(goal_id):
     return jsonify({"details":f"Goal {goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
 
 
-#HOW IS THIS TESTED IN POSTMAN?
 @goal_bp.route('<goal_id>/tasks', methods=["POST"])
 def create_task_id_to_goal(goal_id):
     goal = get_model_from_id(Goal,goal_id)
@@ -181,11 +188,10 @@ def create_task_id_to_goal(goal_id):
         task = get_model_from_id(Task, task_id)
         # if task:
         task.goal_id = goal.goal_id
-        task_list.append(task.task_id) #how do we know goal.tasks is a list to append?
+        task_list.append(task.task_id)
     
     db.session.commit()
 
-    # return jsonify(goal.to_dict_task_id()), 200
     return jsonify({"id":goal.goal_id, "task_ids": task_list}), 200
 
 @goal_bp.route('<goal_id>/tasks', methods =["GET"])
