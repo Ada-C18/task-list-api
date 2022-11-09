@@ -82,6 +82,7 @@ def create_goal_with_tasks(goal_id):
         task_list.append(task_id)
 
     db.session.commit()
+
     return jsonify({"id": goal.goal_id, "task_ids": task_list}), 200
 
 # GET all tasks for specific Goal id
@@ -89,5 +90,6 @@ def create_goal_with_tasks(goal_id):
 def read_tasks_of_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     goal_dict = goal.from_instance_to_dict(tasks = True)
+    
     return goal_dict
 

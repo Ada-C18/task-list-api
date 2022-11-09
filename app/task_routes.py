@@ -64,6 +64,7 @@ def read_all_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
+    
     return {"task":task.from_instance_to_dict()}
 
 
@@ -104,6 +105,7 @@ def slack_bot(task):
     "channel": slack_channel,
     "text": task_text
     }
+
     requests.post(path, params=query_params, headers={"Authorization" : slack_token})
 
 # PATCH method to update task
@@ -125,4 +127,5 @@ def updated_complete_task_to_incomplete(task_id):
     task.completed_at = None
 
     db.session.commit()
+
     return {"task":task.from_instance_to_dict()}, 200
