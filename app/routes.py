@@ -128,6 +128,20 @@ def create_one_goal():
 
     return jsonify({"goal": new_goal.to_dict()}), 201
 
+@goal_bp.route('/<goal_id>', methods=['PUT'])
+def update_one_goal(goal_id):
+    update_goal = get_model_from_id(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    try:
+        update_goal.title = request_body["title"]
+    except KeyError:
+        return jsonify({"msg": "Missing needed data"}), 400 
+
+    db.session.commit()
+    return jsonify({"goal": update_goal.to_dict()}), 200
+
 
 def get_model_from_id(cls, model_id):
     try:
@@ -138,7 +152,7 @@ def get_model_from_id(cls, model_id):
     chosen_model = cls.query.get(model_id)
 
     if chosen_model is None:
-        return abort(make_response({"msg": f"Could not find task item with id: {model_id}"}, 404))
+        return abort(make_response({"msg": f"Could not find item with id: {model_id}"}, 404))
 
     return chosen_model
 
