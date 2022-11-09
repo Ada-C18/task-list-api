@@ -2,6 +2,7 @@ from app import db
 from datetime import datetime
 from flask import abort, Blueprint, jsonify, make_response, request
 from app.models.task import Task
+from app.routes.helper_functions import validate_model
 import os
 import requests
 
@@ -11,19 +12,6 @@ task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 #==============================
 #       HELPER FUNCTIONS
 #==============================
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message":f"{cls.__name__} {model_id} invalid"}, 400))
-    
-    model = cls.query.get(model_id)
-
-    if not model: 
-        abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
-
-    return model
-
 def slack_bot_post_task_notification(message):
     PATH = "https://slack.com/api/chat.postMessage"
     SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
