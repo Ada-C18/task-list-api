@@ -6,24 +6,25 @@ import requests
 from dotenv import load_dotenv
 import os
 from sqlalchemy import desc, asc
+from .helpers_routes import validate_obj
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 
-def validate_task(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task id {task_id}. ID must be a integer."
-        abort(make_response({"message": response_str}, 400))
+# def validate_task(task_id):
+#     try:
+#         task_id = int(task_id)
+#     except ValueError:
+#         response_str = f"Invalid task id {task_id}. ID must be a integer."
+#         abort(make_response({"message": response_str}, 400))
 
-    task = Task.query.get(task_id)
+#     task = Task.query.get(task_id)
 
-    if not task:
-        response_str = f"Task {task_id} not found."
-        abort(make_response({"message": response_str}, 404))
+#     if not task:
+#         response_str = f"Task {task_id} not found."
+#         abort(make_response({"message": response_str}, 404))
 
-    return task
+#     return task
 
 
 # INTEGRATE SLACK API
@@ -90,7 +91,8 @@ def read_all_tasks():
 # Create GET route for 1 task
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    chosen_task = validate_task(task_id)
+    # chosen_task = validate_task(task_id)
+    chosen_task = validate_obj(Task, task_id)
 
     response = {
         "task": chosen_task.to_dict()
@@ -102,7 +104,8 @@ def get_one_task(task_id):
 # Update Task
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_task(task_id)
+    # task = validate_task(task_id)
+    task = validate_obj(Task, task_id)
 
     request_body = request.get_json()
     task.title = request_body["title"]
@@ -120,7 +123,8 @@ def update_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_task(task_id)
+    # task = validate_task(task_id)
+    task = validate_obj(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()
@@ -135,7 +139,8 @@ def delete_task(task_id):
 # Modify mark_complete to call Slack API
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_to_complete(task_id):
-    task = validate_task(task_id)
+    # task = validate_task(task_id)
+    task = validate_obj(Task, task_id)
 
     task.completed_at = datetime.utcnow()
     updated_task = task.to_dict()
@@ -155,7 +160,8 @@ def update_to_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def update_to_incomplete(task_id):
-    task = validate_task(task_id)
+    # task = validate_task(task_id)
+    task = validate_obj(Task, task_id)
 
     task.completed_at = None
 
