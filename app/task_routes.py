@@ -38,10 +38,7 @@ def get_all_tasks():
         tasks = Task.query.order_by(Task.title.desc()).all()
     else:
         tasks = Task.query.order_by(Task.title).all() 
-    task_response = []
-    for task in tasks:
-        task_response.append(task.to_dict())
-    return jsonify(task_response)
+    return jsonify([task.to_dict() for task in tasks])
 
 @tasks_bp.route("<task_id>", methods=["GET"])
 def get_one_task(task_id):

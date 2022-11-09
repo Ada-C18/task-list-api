@@ -29,7 +29,7 @@ def create_app(test_config=None):
 
     # Register Blueprints here
     from app.models.task import Task # accessed here but not on l 25 -26 ??
-    from .routes import tasks_bp
+    from .task_routes import tasks_bp
     app.register_blueprint(tasks_bp)
 
     from app.models.goal import Goal 
