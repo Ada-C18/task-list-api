@@ -63,9 +63,8 @@ def read_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     return jsonify({"goal": goal.to_dict()}), 200
 
+
 # UPDATE ALL ONE
-
-
 @bp.route("/<goal_id>", methods=["PUT"], strict_slashes=False)
 def update_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -76,9 +75,8 @@ def update_one_goal(goal_id):
     db.session.commit()
     return jsonify({"goal": goal.to_dict()}), 200
 
+
 # DELETE ONE TASK
-
-
 @bp.route("/<goal_id>", methods=["DELETE"], strict_slashes=False)
 def delete_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -88,10 +86,9 @@ def delete_one_goal(goal_id):
         "details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}),
         200)
 
+
 # GOALS AND TASKS
 # Sending a List of Task IDs to a Goal
-
-
 @bp.route("/<goal_id>/tasks", methods=["POST"], strict_slashes=False)
 def send_tasks_to_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -108,12 +105,8 @@ def send_tasks_to_goal(goal_id):
 
 # GOALS AND TASKS
 # Getting Tasks of One Goal
-# Getting Tasks of One Goal: No Matching Tasks
-# Getting Tasks of One Goal: No Matching Goal
-
 @bp.route("/<goal_id>/tasks", methods=["GET"], strict_slashes=False)
 def get_tasks_from_goal(goal_id):
-    # pass
     goal = validate_model(Goal, goal_id)
 
     tasks_response = [task.to_dict_with_goal_id() for task in goal.tasks]
