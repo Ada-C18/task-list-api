@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
 from .routes_helper import get_one_obj_or_abort
+from datetime import datetime
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -42,7 +43,6 @@ def get_saved_tasks_and_sort():
         task_list.append(task.to_dict())
     
     return jsonify(task_list), 200
-    
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -73,6 +73,30 @@ def update_task(task_id):
     db.session.commit()
 
     return jsonify({"task": task_dict}), 200
+
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def patch_task(task_id):
+    #chosen_task = get_one_obj_or_abort(Task, task_id)
+
+    chosen_task = Task.query.get(task_id)
+    
+    # if not task_dict:
+    # return jsonify({f"message": "Task with id {task_id} was not found in the database."}), 404
+
+    
+    chosen_task.completed_at = datetime.now() 
+    task_dict = chosen_task.to_dict()
+    # print(chosen_task)
+    
+    # need to update completed_at value to current date
+
+    # import from datetime import datetime
+    # get current date and time time_now = datetime.now()
+    # use timestamp to get the completed_at time something like completed_at == datetime.timestamp(time_now)
+    db.session.add(chosen_task)
+    db.session.commit()
+
+    return jsonify({"task": task_dict}), 200 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_one_task(task_id):
