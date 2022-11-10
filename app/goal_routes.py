@@ -2,6 +2,7 @@ from app import db
 from flask import Blueprint, jsonify, abort, make_response, request
 import requests
 from app.models.goal import Goal
+from app.models.task import Task
 import datetime
 import os
 
@@ -11,12 +12,12 @@ def validate_goal(cls,id):
     try:
         id=int(id)
     except:
-        abort(make_response({"message": f"{cls.__name__} {id} invalid. Must be an integer"}, 400))
+        abort(make_response(jsonify({"details": "Invalid data"}),400))
         
-    goal = Goal.query.get(id)
+    goal = cls.query.get(id)
 
     if not goal:
-        abort(make_response({"message": f"{cls.__name__} {id} not found"}, 404))
+        abort(make_response(jsonify({"details": "Invalid data"}), 404))
 
     return goal
 
@@ -90,3 +91,19 @@ def delete_goal(id):
 
     return make_response(jsonify(response_body),200)
 
+@goal_bp.route("/<goal_id>/tasks", strict_slashes=False, methods =["GET"])
+def read_tasks_goal(goal_id):
+    
+    goal = validate_goal(Goal,goal_id)
+
+    return make_response(jsonify(goal.to_dict(tasks=True)), 200)
+
+@goal_bp.route("/<goal_id>/tasks", strict_slashes=False, methods =["POST"])
+def create_tasks_goal(goal_id):
+    goal = validate_goal(Goal,goal_id)
+    request_body = request.get_json()
+    goal.tasks = [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+
+    db.session.commit()
+
+    return make_response(jsonify(dict(id= goal.id, task_ids = [task.id for task in goal.tasks])),200)
