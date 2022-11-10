@@ -193,15 +193,7 @@ def add_goal():
 def get_all_goals():
 
     goals = Goal.query.all()
-    response = []
-    for goal in goals:
-        goal_dict = {
-            "id": goal.goal_id,
-            "title": goal.title
-        }
-        response.append(goal_dict)
-
-    # response = [Goal.to_dict(goal) for goal in goals]
+    response = [Goal.to_dict(goal) for goal in goals]
     return jsonify(response), 200
 
 
