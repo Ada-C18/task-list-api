@@ -8,3 +8,20 @@ class Task(db.Model):
     completed_at = db.Column(db.DateTime, nullable=True)
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.goal_id"))
     goal = db.relationship("Goal", back_populates="tasks")
+
+    def format_task(self):
+        return {
+            "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": (self.completed_at == True),
+        }
+
+    def format_task_goal(self):
+        return {
+            "id": self.task_id,
+            "goal_id": self.goal_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": bool(self.completed_at),
+        }
