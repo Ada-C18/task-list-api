@@ -19,32 +19,6 @@ def validate_model(cls, model_id):
 
     return model
 
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"message":f"task {task_id} invalid"}, 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response({"message":f"Task {task_id} not found"}, 404))
-
-#     return task
-
-# def validate_goal(id):
-#     try:
-#         id = int(id)
-#     except:
-#         abort(make_response({'message':f'goal {id} invalid'}, 400))
-
-#     goal = Goal.query.get(id)
-
-#     if not goal:
-#         abort(make_response({'message':f'Goal {id} not found'}, 404))
-
-#     return goal
-
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
     all_goals = Goal.query.all()
@@ -119,7 +93,7 @@ def add_task_id_to_goal(goal_id):
         task.goal_id = goal.id
     
 
-    # db.session.add(task) #Not needed?
+    # db.session.add(task) #Not needed
     db.session.commit()
 
     # return jsonify(goal.to_dict())

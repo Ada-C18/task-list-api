@@ -7,7 +7,7 @@ class Task(db.Model):
     description = db.Column(db.String)
     # confirm null is default if task has not been completed
     completed_at = db.Column(db.DateTime, nullable=True)
-    is_complete = db.Column(db.Boolean) # check if needed
+    # is_complete = db.Column(db.Boolean) # check if needed
     goal_id = db.Column(db.Integer, db.ForeignKey("goal.id"),nullable=True)
     goal = db.relationship("Goal", back_populates="tasks")
     
@@ -22,17 +22,6 @@ class Task(db.Model):
             task_dict["is_complete"] = False
         else:
             task_dict["is_complete"] = True
-        if self.goal_id == None:
-            pass
-        else:
+        if self.goal_id:
             task_dict["goal_id"]= self.goal_id
         return task_dict
-
-    # @classmethod
-    # def from_dict(cls, task_data):
-    #     new_task = Task(title=task_data["title"],
-    #                     description=task_data["description"],
-    #                     completed_at=task_data["completed_at"])
-
-    #     return new_task
-#something
