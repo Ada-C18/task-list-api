@@ -50,10 +50,10 @@ def create_goal_tasks(goal_id):
 def read_all_goals():
     sort_query = request.args.get("sort")
 
-    if sort_query=="asc":
-        goals=Goal.query.order_by(Goal.title.asc())
-    elif sort_query=="desc":
-        goals=Goal.query.order_by(Goal.title.desc())
+    if sort_query == "asc":
+        goals = Goal.query.order_by(Goal.title.asc())
+    elif sort_query == "desc":
+        goals = Goal.query.order_by(Goal.title.desc())
     else:
         goals = Goal.query.all()
         
