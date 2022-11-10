@@ -8,7 +8,10 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
+    # goal_title = db.Column(db.Integer, db.ForeignKey('goal.title'))
+    # goal = db.relationship("Goal", back_populated="tasks")
     
+
     def return_body(self):
         return {
             "id": self.task_id,

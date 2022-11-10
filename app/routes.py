@@ -2,9 +2,11 @@ from datetime import datetime
 from flask import Blueprint, request, make_response, jsonify, abort
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 import requests, os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 # helper function
 def validate_task(task_id):
@@ -20,6 +22,7 @@ def validate_task(task_id):
         abort(make_response(jsonify({"message": f"The {task_id} is not found"}), 404))
 
     return matching_task
+
 
 
 # Create a Task: Valid Task With null completed_at
@@ -67,7 +70,6 @@ def read_task():
     else:
         tasks = Task.query.all()
     
-    response = []
     response = [task.return_body() for task in tasks]
     return jsonify(response), 200   
 
@@ -130,6 +132,7 @@ def mark_complete_update(task_id):
     }
 
     requests.post(url=PATH, data=query_params, headers={"Authorization": SLACKBOT_TOKEN})
+    # using json=query_params connot connect to the slack
     # POST: to submit data to be processed to the server.
     
     return jsonify({"task":chosen_task.return_body()}), 200
@@ -147,11 +150,76 @@ def mark_incomplete_update(task_id):
     
 
 # helper function to check the value of completed_at
-# def check_complete_status(task_id, result):
-#     chosen_task = validate_task(task_id)
-#     task = Task.query.get(task_id)
+# def check_complete_status(goal_id, result):
+#     chosen_task = validate_task(goal_id)
+#     task = Task.query.get(goal_id)
 #     if task is None:
 #         return make_response("The task was not found", 404)
 #     task.complete_at = result
 #     db.session.commit()
 #     return jsonify({"task":chosen_task.return_body()}), 200
+
+
+
+
+# ===============================================================
+# Goal Routes
+
+def validate_goal(goal_id):
+    try:
+        goal_id = int(goal_id)
+    except ValueError:
+        response_str = f"Invalid task id: {goal_id} must be an integer"
+        abort(make_response(jsonify({"message":response_str}), 400))
+
+    matching_goal = Goal.query.get(goal_id)
+
+    if not matching_goal:
+        abort(make_response(jsonify({"message": f"The {goal_id} is not found"}), 404))
+
+    return matching_goal
+
+@goal_bp.route("", methods=["POST"])
+def create_goal():
+    response_body = request.get_json()
+
+    if "title" not in response_body:
+        return jsonify({"details": "Invalid data"}), 400
+
+    new_goal = Goal(
+        title = response_body["title"]
+    )
+
+    db.session.add(new_goal)
+    db.session.commit()
+    return jsonify({"goal":new_goal.return_body()}), 201
+
+
+# Get Goals: Getting Saved Goals
+@goal_bp.route("", methods=["GET"])
+def read_goal():
+    goals = Goal.query.all()
+    response = [goal.return_body() for goal in goals]
+    return jsonify(response), 200   
+
+
+#Get One Goal: One Saved Goal
+@goal_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal_by_id(goal_id):
+    chosen_goal= validate_goal(goal_id)
+    return jsonify({"goal":chosen_goal.return_body()}), 200
+
+
+# Update Goal
+@task_bp.route("/<task_id>", methods=["PUT"])
+def update_task(task_id):
+    # after update the task, it becomes to the last one
+    # id order: 2341
+    chosen_task = validate_task(task_id)
+    request_body = request.get_json()
+
+    chosen_task.title = request_body["title"]
+    chosen_task.description = request_body["description"]
+    
+    db.session.commit()
+    return jsonify({"task":chosen_task.return_body()}), 200
