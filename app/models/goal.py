@@ -15,4 +15,5 @@ class Goal(db.Model):
         goal_dict = {}
         goal_dict["id"] = self.goal_id
         goal_dict["title"] = self.title
+        goal_dict["task_ids"] = self.tasks
         return goal_dict
