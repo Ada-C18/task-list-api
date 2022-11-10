@@ -162,10 +162,17 @@ def test_delete_task_not_found(client):
     response = client.delete("/tasks/1")
     response_body = response.get_json()
 
+    response_2 = client.delete("tasks/one")
+    response_2_body = response_2.get_json()
+
     # Assert
     assert response.status_code == 404
     assert "Task 1" in response_body["message"]
     assert response_body == {"message": "Could not delete Task 1 as it was not found"}
+
+    assert response_2.status_code == 400
+    assert "Task 'one'" in response_2_body["message"]
+    assert response_2_body == {"message": "Could not delete Task 'one' as it is invalid"}
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
@@ -207,3 +214,5 @@ def test_create_task_must_contain_description(client):
         "details": "Invalid data"
     }
     assert Task.query.all() == []
+
+

@@ -1,7 +1,7 @@
 from app import db
 from app.models.goal import Goal
 from app.models.task import Task
-from app.task_routes import validate_model, add_goal_to_task
+from app.task_routes import validate_model
 from flask import abort, Blueprint, jsonify, make_response, redirect, request, url_for
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
@@ -18,6 +18,7 @@ def post_a_goal():
         return jsonify({"details": "Invalid data"}), 400
 
     return jsonify({"goal": new_goal.to_dict()}), 201
+
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):

@@ -21,10 +21,3 @@ class Task(db.Model):
 
         return task_dict
 
-    def from_dict(task_data):
-        return Task(
-            title=task_data["title"],
-            description=task_data["description"],
-            goal=task_data["goal"]
-        )
-

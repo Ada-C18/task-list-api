@@ -17,13 +17,12 @@ def validate_model(cls, model_id, action):
         abort(make_response({"message": f"Could not {action} {cls.__name__} \'{model_id}\' as it is invalid"}, 400))
 
     model = cls.query.get(model_id)
-    
     if not model:
         abort(make_response({"message": f"Could not {action} {cls.__name__} {model_id} as it was not found"}, 404))
-    
     return model
 
 
+# create new goal if a new goal is passed as input
 def return_goal_from_goal_title(goal_title):
     goal = Goal.query.filter(Goal.title==goal_title).first()
     if goal is None:
@@ -34,8 +33,6 @@ def return_goal_from_goal_title(goal_title):
         return new_goal
     else:
         return goal
-
-
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
@@ -82,7 +79,6 @@ def post_a_task():
 
         db.session.add(new_task)
         db.session.commit()
-    
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400
 
@@ -93,7 +89,10 @@ def post_a_task():
 def update_one_task(task_id):
     task_to_update = validate_model(Task, task_id, "update")
     request_body = request.get_json()
-    if "goal" in request_body:
+    
+    if "goal_id" in request_body:
+        goal_response = validate_model(Goal, request_body["goal_id"], "get")
+    elif "goal" in request_body:
         goal_response = return_goal_from_goal_title(request_body["goal"])
     else:
         goal_response = None
@@ -107,20 +106,6 @@ def update_one_task(task_id):
 
     db.session.commit()
     return jsonify({"task": task_to_update.to_dict()}), 200
-    
-@tasks_bp.route("/<task_id>", methods=["PATCH"])
-def add_goal_to_task(task_id):
-    task_to_update = validate_model(Task, task_id, "update")
-    request_body = request.get_json()
-
-    try:
-        goal_to_update = validate_model(Goal, request_body["goal"], "update")
-        task_to_update.goal = goal_to_update
-    except:
-        return jsonify({"msg": "Missing goal data"}), 400
-
-    db.session.commit()
-    return jsonify({"task": task_to_update.to_dict()}), 200
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
@@ -129,12 +114,11 @@ def delete_one_task(task_id):
 
     db.session.delete(task_to_delete)
     db.session.commit()
-
     return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"}), 200
+
 
 client = WebClient(token=os.environ.get('SLACK_BOT_TOKEN'))
 logger = logging.getLogger(__name__)
-
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_one_task_as_completed(task_id):
     task_to_mark_complete = validate_model(Task, task_id, "mark complete")
@@ -154,7 +138,6 @@ def mark_one_task_as_completed(task_id):
             text=f"Someone just completed the task <{task_to_mark_complete.title.title()}> on {task_to_mark_complete.completed_at:%m-%d-%Y}"
         )
         logger.info(result)
-
     except SlackApiError as e:
         logger.error(f"Error posing message: {e}")
 

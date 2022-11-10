@@ -50,11 +50,11 @@ def test_get_tasks_for_specific_goal_no_goal(client):
 
     # Assert
     assert response.status_code == 404
+    assert "Goal 1" in response_body["message"]
+    assert response_body == {"message": "Could not get Goal 1 as it was not found"}
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
-    assert "Goal 1" in response_body["message"]
-    assert response_body == {"message": "Could not get Goal 1 as it was not found"}
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
@@ -118,3 +118,72 @@ def test_get_task_includes_goal_id(client, one_task_belongs_to_one_goal):
             "is_complete": False
         }
     }
+
+# @pytest.mark.skip()
+def test_update_task_includes_goal_id(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/2", json={
+        "title": "Answer forgotten email 📧",
+        "description": "Set reminder to reply",
+        "goal_id": 1})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 2,
+                "goal_id": 1,
+                "title": "Answer forgotten email 📧",
+                "description": "Set reminder to reply",
+                "is_complete": False
+            }
+    }
+
+
+# @pytest.mark.skip()
+def test_update_task_includes_goal_title(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/2", json={
+        "title": "Answer forgotten email 📧",
+        "description": "Set reminder to reply",
+        "goal": "Build a habit of going outside daily"})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 2,
+                "goal_id": 1,
+                "title": "Answer forgotten email 📧",
+                "description": "Set reminder to reply",
+                "is_complete": False
+            }
+    }
+
+
+# @pytest.mark.skip()
+def test_update_task_includes_new_goal_title(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/3", json={
+        "title": "Pay my outstanding tickets 😭",
+        "description": "Fix broken headlight",
+        "goal": "Build better financial habits"})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 3,
+                "goal_id": 2,
+                "title": "Pay my outstanding tickets 😭",
+                "description": "Fix broken headlight",
+                "is_complete": False
+            }
+    }
+
