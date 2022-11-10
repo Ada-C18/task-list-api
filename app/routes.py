@@ -60,7 +60,7 @@ def get_all_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
         task = validate_model(Task, task_id)
-        return make_response({f"task": task.to_dict()}, 200)
+        return make_response({f"task": task.from_dict()}, 200)
 
 #======== upate task ==========================================
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -69,6 +69,7 @@ def update_task(task_id):
         request_body = request.get_json()
         task.title = request_body["title"]
         task.description = request_body["description"]
+
         db.session.commit()
         return make_response({f"task": task.to_dict()}, 200)
 
@@ -77,6 +78,7 @@ def update_task(task_id):
 def patch_task_incomplete(task_id):
         task = validate_model(Task, task_id)
         task.completed_at = None
+
         db.session.commit()
         return make_response({f"task": task.to_dict()}, 200)
 
@@ -84,6 +86,7 @@ def patch_task_incomplete(task_id):
 def patch_task_complete(task_id):
         task = validate_model(Task, task_id)
         task.completed_at = datetime.now()
+
         db.session.commit()
         post_message(task)
         return make_response({f"task": task.to_dict()}, 200)
@@ -101,6 +104,7 @@ def post_message(task):
 def delete_task(task_id):
         task = validate_model(Task, task_id)
         task_dict = task.to_dict()
+
         db.session.delete(task)
         db.session.commit()
         return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
@@ -125,6 +129,7 @@ def create_goal():
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
         goals = Goal.query.all()
+        
         goal_response = []
         for goal in goals:
                 goal_response.append(goal.to_dict())
@@ -137,9 +142,10 @@ def get_one_goal(goal_id):
 
 #======== get goal(s) =========================================
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
-def delete_task(goal_id):
+def delete_goal(goal_id):
         goal = validate_model(Goal, goal_id)
         goal_dict = goal.to_dict()
+
         db.session.delete(goal)
         db.session.commit()
         return make_response({"details": f'goal {goal_id} "{goal.title}" successfully deleted'}, 200)
@@ -150,5 +156,38 @@ def update_goal(goal_id):
         request_body = request.get_json()
         goal = validate_model(Goal, goal_id)
         goal.title = request_body["title"]
+
         db.session.commit()
         return {"goal": goal.to_dict()}, 200
+
+
+#======== post tasks to goals ==================================
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+        goal = validate_model(Goal, goal_id)
+        request_body = request.get_json()
+
+        task_ids = []
+        for task_id in request_body["task_ids"]:
+                task = validate_model(Task, task_id)
+                goal.tasks.append(task)
+                task_ids.append(task_id)
+        
+        db.session.commit()
+        return {
+                "id": goal.goal_id,
+                "task_ids" : task_ids}
+
+#======== get specific task with goal id ========================
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_specific_goal(goal_id):
+        goal = validate_model(Goal, goal_id)
+        tasks_response = [task.to_dict_with_goal() for task in goal.tasks]
+        return {
+                "id": goal.goal_id,
+                "title": goal.title,
+                "tasks": tasks_response}
+
+# AssertionError: 
+# assert 'goal_id' in 
+# {'description': 'Notice something new every day', 'id': 1, 'is_complete': False, 'title': 'Go on my daily walk 🏞'}
