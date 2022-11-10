@@ -23,10 +23,12 @@ class Task(db.Model):
             return True
     
     def to_dict(self):
-        return {
+        task = {
             "id": self.id,
-            "goal_id": self.goal_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.is_complete()
             }
+        if self.goal_id:
+            task["goal_id"] = self.goal_id
+        return task
