@@ -50,33 +50,23 @@ def read_all_tasks():
 
     sort_query = request.args.get("sort")
 
-    if sort_query:
-        task = Task.query.order_by(Task.title.desc())
+    if sort_query == "asc":
         task = Task.query.order_by(Task.title.asc())
+    elif sort_query == "desc":
+        task = Task.query.order_by(Task.title.desc())
     else:
         task = Task.query.all()
 
-    # task = Task.query.all()
     task_response = []
     for task in task:
-        task_response.append({
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        })
-
+        task_response.append(task.to_dict())
+        
     return jsonify(task_response)
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
-    return {"task":{
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        }}
+    return {"task": task.to_dict()}
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -89,13 +79,8 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return make_response({"task":{
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        }})
-
+    return make_response({"task": task.to_dict()})
+ 
 def slack_bot_message(message):
     PATH = "https://slack.com/api/chat.postMessage"
     SLACK_API_KEY = os.environ.get("SLACK_API_KEY")
@@ -117,12 +102,7 @@ def complete_incomplete_task(task_id):
 
     slack_bot_message(f"Someone just completed the task {task.title}")
 
-    return make_response({"task":{
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": True
-        }})
+    return make_response({"task": task.to_dict()})
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_complete_task_incomplete(task_id):
@@ -132,12 +112,7 @@ def mark_complete_task_incomplete(task_id):
 
     db.session.commit()
 
-    return make_response({"task":{
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": False
-        }})
+    return make_response({"task": task.to_dict()})
         
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -199,7 +174,7 @@ def update_goal(goal_id):
 
     db.session.commit()
 
-    return make_response({goal:{
+    return make_response({"goal":{
             "id": goal.goal_id,
             "title": goal.title
         }})
@@ -212,3 +187,31 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return make_response({"details":f'Goal {goal_id} "{goal.title}" successfully deleted'})
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def add_task_ids_to_goal(goal_id):
+
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    goal.tasks = [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+
+    db.session.commit()
+
+    return {"id":goal.goal_id,
+            "task_ids":[task.task_id for task in goal.tasks]}, 200
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+
+def read_tasks(goal_id):
+
+    goal = validate_model(Goal, goal_id)
+
+    tasks_response = []
+    for task in goal.tasks:
+        tasks_response.append(task.to_dict())
+
+    return make_response({
+            "id": goal.goal_id,
+            "title": goal.title,
+            "tasks": tasks_response
+        })
