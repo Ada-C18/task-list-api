@@ -61,6 +61,11 @@ def get_one_task(task_id):
     task_dict = {}
     task_dict["task"] = {"id":task.task_id, "title": task.title,"description":task.description, "is_complete":bool(task.completed_at)}
 
+    if bool(task.goal_id) == True:
+        task_with_goal_dict = {}
+        task_with_goal_dict["task"] = {"id":task.task_id,"goal_id":task.goal_id,"title": task.title,"description":task.description, "is_complete":bool(task.completed_at)}
+        return make_response(jsonify(task_with_goal_dict), 200)
+
     return make_response(jsonify(task_dict), 200) 
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -117,7 +122,7 @@ def mark_incomplete(task_id):
     return make_response(jsonify(task_dict), 200)
 
 ##############################################
-###### ROUTE FOR TO POST SLACK MESSAGE #######
+######## ROUTE TO POST SLACK MESSAGE #########
 ##############################################
 
 def create_slack_mssg(task_object):
@@ -201,4 +206,22 @@ def assign_task_to_goal(goal_id):
         goal.tasks.append(task)
         db.session.commit()
 
-    return make_response(jsonify({"id":goal.goal_id,"task_ids":request_body["task_ids"]})),200 
+    return make_response(jsonify({"id":goal.goal_id,"task_ids":request_body["task_ids"]})),200
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def gets_tasks_of_one_goal(goal_id):
+
+    goal = validate_model(Goal, goal_id)
+    tasks_of_goal =[]  
+    
+    for task in goal.tasks:
+        tasks_of_goal.append(
+            {
+                "id": task.task_id,
+                "goal_id": task.goal_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            }
+            ) 
+    return make_response(jsonify({"id":goal.goal_id,"title":goal.title,"tasks":tasks_of_goal})),200 
