@@ -14,7 +14,7 @@ class Task(db.Model):
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
-            "is_complete": (self.completed_at == True),
+            "is_complete": bool(self.completed_at),
         }
 
     def format_task_goal(self):

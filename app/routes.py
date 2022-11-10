@@ -68,9 +68,7 @@ def create_task():
     )
     db.session.add(new_task)
     db.session.commit()
-    return {
-        "task": new_task.format_task()
-    }, 201
+    return {"task": new_task.format_task()}, 201
 
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
