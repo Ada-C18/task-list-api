@@ -19,3 +19,10 @@ class Task(db.Model):
 
         return task_dict
 
+    @classmethod
+    def from_dict(cls, task_dict):
+        return cls(
+            title = task_dict["title"],
+            description = task_dict["description"]
+        )
+
