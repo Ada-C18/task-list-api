@@ -107,7 +107,7 @@ def test_update_goal_not_found(client):
     response = client.put("/goals/1", json={
         "title": "Excersise every day"
     })
-   
+
     # # Assert
     # # ---- Complete Assertions Here ----
     assert response.status_code == 404

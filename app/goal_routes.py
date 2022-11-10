@@ -107,5 +107,6 @@ def get_tasks_of_goal(goal_id):
     result = goal.to_dict()
     result["tasks"] = tasks_dict
 
+
     return jsonify(result), 200
 
