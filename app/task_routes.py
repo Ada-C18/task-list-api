@@ -26,7 +26,8 @@ def create_task():
         
         db.session.add(new_task)
         db.session.commit()
-        
+        if new_task.goal_id:
+            return jsonify({"task": new_task.to_dict_incl_goal_id()}), 201
         return jsonify({"task": new_task.to_dict()}), 201
 
 #READ Routes (Wave 1: CRUD routes)
