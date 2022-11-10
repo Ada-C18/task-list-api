@@ -14,12 +14,15 @@ from dotenv import load_dotenv
 # load_dotenv(dotenv_path=env_path)
 # client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
 load_dotenv()
+
 slack_token = os.environ.get('SLACK_TOKEN')
+headers = {'Authorization': slack_token}
 
 
 def post_to_slack(text, blocks=None):
-    return requests.post('https://slack.com/api/chat.postMessage',
-                         {'token': slack_token, 'channel': '#slack-bot-test-channel', 'text': text})
+    slack_data = {'channel': '#slack-bot-test-channel', 'text': text}
+    requests.post('https://slack.com/api/chat.postMessage', headers=headers,
+                  data=slack_data)
 
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
@@ -117,8 +120,8 @@ def mark_complete(task_id):
     task.completed_at = date.today()
 
     text = f"Someone just completed the task {task.title}"
-    response = post_to_slack(text)
-    print(response.text)
+    post_to_slack(text)
+    # print(response.text)
 
     db.session.commit()
     # client.chat_postMessage(
