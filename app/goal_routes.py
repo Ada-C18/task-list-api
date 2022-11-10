@@ -86,3 +86,17 @@ def assign_tasks_to_goal(goal_id):
          "task_ids": task_ids},
         200
     )
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_tasks_from_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    
+    tasks_response = []
+    for task in goal.tasks:
+        tasks_response.append(task.to_dict())
+    
+    return make_response(
+        {"id": goal.goal_id,
+         "title": goal.title,
+         "tasks": tasks_response}
+    )
