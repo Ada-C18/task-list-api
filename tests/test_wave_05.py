@@ -89,7 +89,7 @@ def test_update_goal(client, one_goal):
     # raise Exception("Complete test")
     # Act
     # ---- Complete Act Here ----
-    response = client.post("/goals", json={
+    response = client.put("/goals/1", json={
         "title": "Updata My New Goal"
     })
     response_body = response.get_json()
@@ -147,7 +147,6 @@ def test_delete_goal(client, one_goal):
     # Check that the goal was deleted
     response = client.get("/goals/1")
     assert response.status_code == 404
-    assert "message" in response_body
     # raise Exception("Complete test with assertion about response body")
 
     # *****************************************************************
