@@ -34,23 +34,10 @@ def get_all_tasks():
 def get_task_by_id(task_id):
     task_with_id = get_one_object_or_abort(Task, task_id)
 
-    response_body = {
-        "task": task_with_id.to_dict()}
+    response_body = {"task": task_with_id.to_dict()}
 
     return jsonify(response_body), 200
     
-    # new_task = Task(
-    #     title=request_body["title"],
-    #     description=request_body["description"],
-    # )
-    # response_body = {
-    #     "task": {
-    #         "id": new_task.task_id,
-    #         "title": new_task.title,
-    #         "description": new_task.description,
-    #         "is_complete": new_task.is_complete
-    #         }
-    #         }
 @task_bp.route("",methods=["POST"])
 def create_task():
     request_body = request.get_json()
@@ -59,7 +46,6 @@ def create_task():
         return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task.from_dict(request_body)
-    # response_body = {"task": new_task.to_dict()}
 
     db.session.add(new_task)
     db.session.commit()
@@ -83,13 +69,7 @@ def update_task(task_id):
 
     db.session.commit()
 
-    response_body = {
-        "task": {
-                "id": selected_task.task_id,
-                "title": selected_task.title,
-                "description": selected_task.description,
-                "is_complete": selected_task.is_complete
-                }}
+    response_body = {"task": selected_task.to_dict()}
     
     return jsonify(response_body), 200
 
@@ -111,14 +91,7 @@ def mark_task_complete(task_id):
 
     db.session.commit()
 
-    response_body = {
-        "task": {
-            "id": task_to_mark_complete.task_id,
-            "title": task_to_mark_complete.title,
-            "description": task_to_mark_complete.description,
-            "is_complete": task_to_mark_complete.is_complete,
-        }
-    }
+    response_body = {"task": task_to_mark_complete.to_dict()}
 
     client = WebClient(token=os.environ["SLACK_TOKEN"])
     logger = logging.getLogger(__name__)
@@ -135,14 +108,7 @@ def mark_task_incomplete(task_id):
     task_to_mark_incomplete.is_complete = False
     task_to_mark_incomplete.completed_at = None
 
-    response_body = {
-        "task": {
-            "id": task_to_mark_incomplete.task_id,
-            "title": task_to_mark_incomplete.title,
-            "description": task_to_mark_incomplete.description,
-            "is_complete": task_to_mark_incomplete.is_complete
-        }
-    }
+    response_body = {"task": task_to_mark_incomplete.to_dict()}
 
     db.session.commit()
 
@@ -167,7 +133,6 @@ def create_goal():
 
     return response_body, 201
     
-
 @goal_bp.route("",methods=["GET"])
 def get_goals():
     goals = Goal.query.all()
@@ -231,9 +196,7 @@ def create_task(goal_id):
 def get_tasks_from_goal(goal_id):
     goal = get_one_object_or_abort(Goal, goal_id)
 
-    list_of_tasks = []
-    for task in goal.tasks:
-        list_of_tasks.append(task.to_dict())
+    list_of_tasks = [task.to_dict() for task in goal.tasks]
 
     response_body = {
         "id": goal.goal_id,
