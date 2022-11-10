@@ -85,7 +85,14 @@ def read_all_tasks():
 @bp.route("/<id>", methods = ["GET"])
 def read_tasks_by_id(id):
     task = validate_model(Task,id)
-    return jsonify({"task":task.to_dict()}), 200
+    if task.goal_id != None:
+        return jsonify({
+            "task":{
+            "id": task.id, "title": task.title, 
+        "description": task.description, "is_complete": False,"goal_id": task.goal_id}}), 200
+    
+    else:
+        return jsonify({"task":task.to_dict()}), 200
 
 @bp.route("/<id>", methods = ["PUT"])
 def update_task_by_id(id):
@@ -99,17 +106,12 @@ def update_task_by_id(id):
 
     return jsonify({"task":updated_task.to_dict()}), 200
 
-
-   
-
 @bp.route("/<id>", methods = ["DELETE"])
 def delete_task_by_id(id):
     deleted_task = validate_model(Task,id)
     
     db.session.delete(deleted_task)
-
     db.session.commit()
-
 
     return make_response({"details":f'Task {deleted_task.id} \"{deleted_task.title}\" successfully deleted'}), 200
 
@@ -126,7 +128,6 @@ def ada_slack_bot(text):
 
 @bp.route("/<id>/mark_complete", methods = ["PATCH"])
 def is_complete(id):
-    
     
     updated_task = validate_model(Task,id)
 
@@ -151,7 +152,6 @@ def is_incomplete(id):
     db.session.commit()
 
     return jsonify({"task":final_task}), 200
-
 
 goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
@@ -209,60 +209,32 @@ def delete_goal(id):
 
 @goal_bp.route("/<id>/tasks", methods = ["POST"])
 def goal_task(id):
+    
     goal = validate_model(Goal, id)
     task = Task(goal_id =goal.id, goal = goal )
-
     request_body = request.get_json()
-  
-
     task.tasks = request_body["task_ids"]
+    goal.tasks = [Task.query.get(id) for id in request_body["task_ids"]]
 
-    print(task.goal)
-    print(request_body["task_ids"])
-    
-    print(goal.tasks)
-    print(goal.tasks)
 
-    db.session.add(task) 
+    db.session.add(goal)
     db.session.commit()
 
-    return make_response({"id":task.goal_id, "task_ids":task.tasks}, 200 )
-
-    
+    return make_response({"id":goal.id, "task_ids":task.tasks}), 200 
 
 @goal_bp.route("/<id>/tasks", methods = ["GET"])
 def get_task_of_one_goal(id):
-    
+
     goal = validate_model(Goal, id)
-    # tasks = Task.query.all()
-    # for task in tasks:
-    #   if task.goal_id == goal.id:
-    #     task_list.append({task})
 
-    # goal.tasks
+    task_list = []
 
-    #     "id": task.id,
-    #     "title": task.title,
-    #     "description": task.description,
-    # "goal_id": task.goal_id}
-    
-    
-    
-    goals =  []
     for task in goal.tasks:
-      goals.append(
-            {
-            "id": task.id,
-            "title": task.title,
-            }
-        )
-      goal.tasks.append(task["goals"])
-    
-      
+        task_list.append({"id": task.id ,"goal_id": task.goal_id, 
+        "title": task.title,"description": task.description, "is_complete": False})
+
     db.session.add(goal)
     db.session.commit()
-    if goal:
-      return make_response({"id": goal.id,"title": goal.title, "tasks":goal.tasks}, 200)
-    # else:
-    #   return make_response({"id": goal.id,"title": goal.title, "tasks":goal.tasks, "goal_id": goal.id }, 200 )
 
+    return make_response({"id": goal.id,"title": goal.title, "tasks":task_list}, 200)
+   
