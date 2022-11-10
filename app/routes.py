@@ -119,7 +119,7 @@ def create_goal():
         else:
                 db.session.add(new_goal)
                 db.session.commit()
-        return make_response(jsonify({f"task": new_goal.to_dict()}), 201)
+        return make_response(jsonify({f"goal": new_goal.to_dict()}), 201)
 
 #======== get goal(s) =========================================
 @goals_bp.route("", methods=["GET"])
@@ -145,7 +145,7 @@ def delete_task(goal_id):
         return make_response({"details": f'goal {goal_id} "{goal.title}" successfully deleted'}, 200)
 
 #======== update goal =========================================
-@goals_bp.route("/<model_id>", methods=["PUT"])
+@goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
         request_body = request.get_json()
         goal = validate_model(Goal, goal_id)
