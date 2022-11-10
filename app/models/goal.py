@@ -16,14 +16,12 @@ class Goal(db.Model):
         return {
             "id": self.goal_id,
             "title": self.title,
-            "tasks" : self.get_task_list()}
-        
+            "tasks" : self.get_task_list()}        
         
     @classmethod
     def from_dict(cls,goal_dict):
         return cls(
-            title=goal_dict["title"]                        
-        )
+            title=goal_dict["title"])
     
     def get_task_list(self):
         list_of_tasks = []

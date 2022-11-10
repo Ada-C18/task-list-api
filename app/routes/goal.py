@@ -12,8 +12,6 @@ from app.routes.task import get_all_objects, get_model_from_id, update_one_objec
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
 
 
-
-
 ######################### WAVE 5 ##########################
 @goal_bp.route('', methods=["GET"])
 def get_all_goals():
@@ -55,7 +53,6 @@ def delete_one_goal(goal_id):
     db.session.commit()
     return jsonify({"details":f"Goal {goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
 
-
 @goal_bp.route('<goal_id>/tasks', methods=["POST"])
 def create_task_id_to_goal(goal_id):
     goal = get_model_from_id(Goal,goal_id)
@@ -75,7 +72,7 @@ def create_task_id_to_goal(goal_id):
 @goal_bp.route('<goal_id>/tasks', methods =["GET"])
 def get_tasks_from_goal_id(goal_id):
     goal = get_model_from_id(Goal, goal_id)
-    tasks = goal.get_task_list()
+    # tasks = goal.get_task_list()
     
     return jsonify(goal.to_dict_task_id()), 200
     
