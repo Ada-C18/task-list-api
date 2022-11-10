@@ -98,8 +98,8 @@ def post_message(task):
         # PATH = "https://hooks.slack.com/services/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"
         PATH = "https://slack.com/api/chat.postMessage"
         HEADER = {"Authorization": KEY}
-        PARAMS = {"channel": "task-notifications","text": f"Someone just completed the task {task}."}
-        requests.post(url=PATH, data=PARAMS, headers=HEADER)
+        PARAMS = {"channel": "task-notifications","text": f"Someone just completed the task."}
+        requests.post(url=PATH, headers=HEADER, data=PARAMS)
 
 #========= delete task ======================================
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
