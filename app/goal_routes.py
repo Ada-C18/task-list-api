@@ -96,7 +96,7 @@ def read_goals(goal_id):
     else:
         goal_dict["tasks"] = []
 
-    return jsonify(goal_dict)
+    return goal_dict
 
 
 
