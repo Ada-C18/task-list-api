@@ -40,24 +40,15 @@ class Task(db.Model):
         }
     @classmethod
     def from_dict(cls, dict):
-        if "completed_at" in dict.keys() and "goal_id" in dict.keys():
-            return cls (
-                goal_id = dict["goal_id"],
-                title = dict["title"],
-                description = dict["description"],
-                completed_at = dict["completed_at"]
-            )
-        elif "completed_at" in dict.keys():
-            return cls (
-                title = dict["title"],
-                description = dict["description"],
-                completed_at = dict["completed_at"]
-            )
-        else:
-            return cls (
-                title = dict["title"],
-                description = dict["description"],
-            )
+        return cls (
+            title = dict["title"],
+            description = dict["description"]
+        ) if len(dict) == 2 else cls (
+            title = dict["title"],
+            description = dict["description"],
+            completed_at = dict["completed_at"]
+        )
+
 
 
 
