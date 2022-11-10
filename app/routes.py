@@ -185,3 +185,27 @@ def delete_one_goal(goal_id):
     return jsonify({"details": f'Goal {chosen_goal.goal_id} "{chosen_goal.title}" successfully deleted'}), 200
 
 # ******** Wave 6 ********
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_all_tasks_belonging_to_a_goal(goal_id):
+    goal = get_one_obj_or_abort(Goal, goal_id)
+
+    tasks_response = [task.to_dict() for task in goal.tasks]
+
+    return jsonify(tasks_response), 200
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_belonging_to_a_goal(goal_id):
+    parent_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    
+    new_task = Task.from_dict(request_body)
+    new_task.goal = parent_goal
+
+    db.session.add(new_task)
+    db.session.commit()
+
+    return jsonify(new_task), 200
