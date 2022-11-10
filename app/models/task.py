@@ -1,5 +1,5 @@
 from app import db
-from flask import jsonify
+from flask import jsonify, abort, make_response
 
 
 class Task(db.Model):
@@ -24,3 +24,27 @@ class Task(db.Model):
             "is_complete" : self.is_complete()
             }
         return task_dict
+
+    @classmethod
+    def from_dict(cls, request_body):
+        try:
+            task = Task(title = request_body["title"],
+                        description = request_body["description"]) 
+            return task
+        except:
+            abort(make_response({"details" : "Invalid data"}, 400))
+
+    @classmethod
+    def validate_task_id(cls, task_id):
+        try:
+            task_id = int(task_id)
+        except:
+            abort(make_response({"message" : f"task id: {task_id} is invalid"}, 400))
+    
+        task = Task.query.get(task_id)
+
+        if not task:
+            abort(make_response({"message" : f"task {task_id} not found"}, 404))
+    
+        return task
+        

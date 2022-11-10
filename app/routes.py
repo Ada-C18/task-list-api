@@ -7,28 +7,27 @@ import sqlalchemy
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
 
-def validate_task_id(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"message" : f"task id: {task_id} is invalid"}, 400))
+# all task methods
+    # Create
+@task_bp.route("", methods=["POST"])
+def create_task():
     
-    task = Task.query.get(task_id)
+    request_body = request.get_json()
+    new_task = Task.from_dict(request_body)
 
-    if not task:
-        abort(make_response({"message" : f"task {task_id} not found"}, 404))
+    db.session.add(new_task)
+    db.session.commit()
+
+    return make_response({"task" : new_task.to_dict()}, 201)
     
-    return task
-
-
+    # Read
 @task_bp.route("", methods=["GET"])
 def get_all_task():
-
+    
     sort_query = request.args.get("sort")
     if sort_query:
         sort_function = getattr(sqlalchemy, sort_query)
         task_list = Task.query.order_by(sort_function(Task.title))
-
     else:
         task_list = Task.query.all()
     
@@ -36,36 +35,24 @@ def get_all_task():
     for task in task_list:
         response.append(task.to_dict())
     
-    return jsonify(response), 200
+    return jsonify(response), 200  
 
 
-    
 
-@task_bp.route("", methods=["POST"])
-def create_task():
-    request_body = request.get_json()
-    try:
-        new_task = Task (title = request_body["title"],
-            description = request_body["description"]) 
-    except:
-        abort(make_response({"details" : "Invalid data"}, 400))
+# Individual task methods
 
-    db.session.add(new_task)
-    db.session.commit()
-
-    return make_response({"task" : new_task.to_dict()}, 201)
-
-
+    # Read
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id): 
     
-    task = validate_task_id(task_id)
+    task = Task.validate_task_id(task_id)
     
     return {"task" : task.to_dict()}, 200
 
+    # Update
 @task_bp.route ("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_task_id(task_id)
+    task = Task.validate_task_id(task_id)
     
     request_body = request.get_json()
 
@@ -76,10 +63,17 @@ def update_task(task_id):
 
     return {"task" : task.to_dict()}, 200
 
+@task_bp.route("<task_id>/<status>", methods=["PATCH"])
+def mark_task_status(task_id, status):
+    pass
+    
 
+
+
+    # Delete
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
-    task = validate_task_id(task_id)
+    task = Task.validate_task_id(task_id)
 
     db.session.delete(task)
     db.session.commit()
