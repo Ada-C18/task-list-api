@@ -98,9 +98,14 @@ Visit https://api.slack.com/methods/chat.postMessage to read about the Slack API
 Answer the following questions. These questions will help you become familiar with the API, and make working with it easier.
 
 - What is the responsibility of this endpoint?
+  - This endpoint posts a message to a public channel, private channel or direct message/IM channel
 - What is the URL and HTTP method for this endpoint?
+  - URL = https://slack.com/api/chat.postMessage
+  - HTTP method = POST
 - What are the _two_ _required_ arguments for this endpoint?
+  - Token & Channel
 - How does this endpoint relate to the Slackbot API key (token) we just created?
+  - To access this endpoint, the token must be passed as HTTP Authorization header or as a POST parameter. 
 
 Now, visit https://api.slack.com/methods/chat.postMessage/test.
 
