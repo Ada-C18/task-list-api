@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request, abort, make_response
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from app.routes_helper import get_one_obj_or_abort
+from datetime import datetime
+import requests, os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
@@ -12,8 +15,8 @@ def create_task():
 
     # new_task = Task.from_dict(request_body)
     if "title" not in response_body or\
-       "description" not in response_body:
-       # “is_complete” not in respnse_body
+        "description" not in response_body:
+        # “is_complete” not in respnse_body
         return jsonify({"details": "Invalid data"}), 400
     new_task = Task(
         title = response_body["title"],
@@ -77,3 +80,108 @@ def delete_one_task(task_id):
     db.session.commit()
 
     return jsonify({"details": f'Task {chosen_task.task_id} "{chosen_task.title}" successfully deleted'}), 200
+
+# def check_is_complete(self):
+#         if self.completed_at:
+#             return True
+#         else:
+#             return False 
+
+# ******** Wave 3 ********
+
+@task_bp.route("<task_id>/mark_complete", methods=["PATCH"])
+def mark_complite_task(task_id):
+    chosen_task = get_one_obj_or_abort(Task, task_id)
+    
+    task = Task.query.get(task_id)
+    if task is None:
+        return make_response("The task was not found", 404)
+    task.completed_at = datetime.now()
+    db.session.commit()
+    
+    PATH = "https://slack.com/api/chat.postMessage"
+    
+    SLACKBOT_TOKEN = os.environ.get("SLACKBOT_TOKEN")
+
+    query_params = {
+        "token": SLACKBOT_TOKEN,
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+    }
+
+    requests.post(url=PATH, data=query_params, headers={"Authorization": SLACKBOT_TOKEN})
+    
+    return jsonify({"task":chosen_task.to_dict()}), 200
+
+@task_bp.route("<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplite_task(task_id):
+    chosen_task = get_one_obj_or_abort(Task,task_id)
+    task = Task.query.get(task_id)
+    if task is None:
+        return make_response("The task was not found", 404)
+    task.completed_at = None
+    db.session.commit()
+    return jsonify({"task":chosen_task.to_dict()}), 200
+
+# ******** Wave 5 ********
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
+
+@goal_bp.route("", methods=["POST"])
+def create_goal():
+    response_body = request.get_json()
+
+    if "title" not in response_body:
+        return jsonify({"details": "Invalid data"}), 400
+    new_goal = Goal(
+        title = response_body["title"],
+        )
+
+    db.session.add(new_goal)
+    db.session.commit()
+
+    return jsonify({"goal": new_goal.to_dict()}), 201
+
+@goal_bp.route("", methods=["GET"])
+def get_all_goals():
+    
+    goals = Goal.query.all()
+
+    response = [goal.to_dict() for goal in goals]
+
+    return jsonify(response), 200
+
+@goal_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    return jsonify({
+        "goal": chosen_goal.to_dict()}), 200
+
+@goal_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal_with_new_vals(goal_id):
+
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    if "title" not in request_body:
+            return jsonify({"message":"Request must include title"}), 400
+
+    chosen_goal.title = request_body["title"]
+
+    db.session.commit()
+
+    return jsonify({f"goal": chosen_goal.to_dict()}), 200
+
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
+
+    db.session.delete(chosen_goal)
+
+    db.session.commit()
+
+    return jsonify({"details": f'Goal {chosen_goal.goal_id} "{chosen_goal.title}" successfully deleted'}), 200
+
+# ******** Wave 6 ********

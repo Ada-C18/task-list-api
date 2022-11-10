@@ -7,19 +7,16 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
     is_complete = db.Column(db.Boolean, default = False)
-
-    def check_is_complete(self):
-        if self.completed_at:
-            return True
-        else:
-            return False 
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
+    goal = db.relationship("Goal", back_populates = 'tasks' )
+    
 
     def to_dict(self):
         task_dict = {
         "id": self.task_id,
         "title": self.title,
         "description": self.description,
-        "is_complete": self.check_is_complete()
+        "is_complete": False if self.completed_at is None else True
         }
         
         return task_dict
@@ -31,6 +28,8 @@ class Task(db.Model):
             new_obj = cls(
             title=data_dict["title"], 
             description=data_dict["description"], 
-            is_complete=data_dict["is_complete"])
+            is_complete= data_dict["is_complete"])
             
             return new_obj
+
+
