@@ -16,16 +16,14 @@ class Task(db.Model):
         completed_at=data_dict["completed_at"])
 
     def to_dict(self):
+        task_dict = dict(
+            id=self.task_id,
+            title=self.title,
+            description=self.description,
+            is_complete=False
+        )
+
         if self.goal_id:
-            return dict(
-            goal_id=self.goal_id,
-            id=self.task_id,
-            title=self.title,
-            description=self.description,
-            is_complete=False)
-        else:
-            return dict(
-            id=self.task_id,
-            title=self.title,
-            description=self.description,
-            is_complete=False)
+            task_dict["goal_id"] = self.goal_id
+        
+        return task_dict

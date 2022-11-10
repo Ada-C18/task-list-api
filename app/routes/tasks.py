@@ -6,12 +6,14 @@ import os
 import requests
 from app.routes.helper_functions import validate_model
 
+
 bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
 
 @bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
+
     return make_response(dict(task = task.to_dict()), 200)
 
 
@@ -33,6 +35,7 @@ def read_all_tasks():
     tasks_response = [task.to_dict() for task in tasks]
 
     return jsonify(tasks_response), 200
+
 
 @bp.route("", methods=["POST"])
 def create_task():
@@ -56,6 +59,7 @@ def create_task():
 
     return make_response(dict( task = new_task.to_dict()), 201)
 
+
 @bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
@@ -73,7 +77,9 @@ def update_task(task_id):
         task.completed_at = request_body["completed_at"]
 
     db.session.commit()
+
     return make_response(dict(task = task.to_dict()), 200)
+
 
 @bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -81,22 +87,9 @@ def delete_task(task_id):
 
     db.session.delete(task)
     db.session.commit()  
+
     return make_response({'details': f'Task {task.task_id} "{task.title}" successfully deleted'}, 200)
 
-def slack_bot(message):
-    PATH = "https://slack.com/api/chat.postMessage"
-    SLACK_API_KEY = os.environ.get("API_KEY")
-
-    bot_params = {
-        "channel" : "#task-notifications",
-        "text" : message
-    }
-
-    bot_header = {
-        "Authorization" : SLACK_API_KEY
-    }
-
-    requests.post(PATH, data=bot_params, headers=bot_header)
 
 @bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def update_mark_complete(task_id):
@@ -114,6 +107,7 @@ def update_mark_complete(task_id):
             description=task.description,
             is_complete=True)), 200)
 
+
 @bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def update_mark_incomplete(task_id):
     task = validate_model(Task, task_id)
@@ -128,3 +122,19 @@ def update_mark_incomplete(task_id):
             description=task.description,
             is_complete=False)), 200)
 
+
+# Helper function for PATCH
+def slack_bot(message):
+    PATH = "https://slack.com/api/chat.postMessage"
+    SLACK_API_KEY = os.environ.get("API_KEY")
+
+    bot_params = {
+        "channel" : "#task-notifications",
+        "text" : message
+    }
+
+    bot_header = {
+        "Authorization" : SLACK_API_KEY
+    }
+
+    requests.post(PATH, data=bot_params, headers=bot_header)
