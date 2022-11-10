@@ -10,8 +10,10 @@ class Goal(db.Model):
         goal_dict = {
             "id": self.goal_id,
             "title": self.title,
+            
         }
         return goal_dict
+    
     
     @classmethod
     def from_dict(cls, data_dict):

@@ -2,7 +2,6 @@ from app import db
 
 
 
-
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
@@ -12,15 +11,18 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates = "tasks")
     
 
-    def to_dict(self):
+    def to_dict(self,include_join = False):
         task_dict = {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete":bool(self.completed_at)
         }
+        if include_join:
+            task_dict["goal_id"] = self.goal_id
         return task_dict
 
+   
     @classmethod
     def from_dict(cls, data_dict):
         if "title" in data_dict and "description" in data_dict:
@@ -28,4 +30,3 @@ class Task(db.Model):
             description = data_dict["description"])
 
             return new_obj
-

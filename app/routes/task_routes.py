@@ -1,5 +1,5 @@
 
-from flask import Blueprint, jsonify, request, make_response, abort
+from flask import Blueprint, jsonify, request, make_response
 from app import db 
 from app.models.task import Task
 from sqlalchemy import desc, asc
@@ -7,9 +7,6 @@ from datetime import datetime
 import os
 import requests
 from .routes_helper import validate 
-
-
-
 
 
 
@@ -29,15 +26,14 @@ def create_task():
     
     response = {"task": new_task.to_dict()}
 
-    return make_response(jsonify(response)), 201 
+    return jsonify(response), 201 
    
-
 
 @tasks_bp.route("", methods=["GET"]) 
 def get_all_tasks():
 
     title_query = request.args.get("sort")
-    # print(title_query)
+    
     if title_query == "desc":
         tasks = Task.query.order_by(desc(Task.title))       
     elif title_query == "asc": 
@@ -55,10 +51,11 @@ def get_all_tasks():
 def get_one_task(task_id):
     task = validate(Task,task_id)
 
+    if task.goal_id is not None:
+        return {"task": task.to_dict(include_join = True)}, 200
+       
     return {"task" : task.to_dict()}, 200
-
-
-    
+  
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -75,7 +72,7 @@ def update_task(task_id):
     
 
   
-    return make_response(jsonify(response)), 200
+    return jsonify(response), 200
 
 
 
@@ -89,20 +86,16 @@ def delete_task(task_id):
     return jsonify({"details": f'Task {task_id} "{task.title}" successfully deleted'}), 200
 
 
-
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"]) 
 def update_task_is_complete(task_id):
     task = validate(Task,task_id)
     
 
-
-
     task.completed_at=datetime.utcnow() 
    
     response = {"task": task.to_dict()}
     
-
-    
+ 
     db.session.commit()
 
    
@@ -110,9 +103,8 @@ def update_task_is_complete(task_id):
     requests.post("https://slack.com/api/chat.postMessage", json = {"channel": "task-notifications", "text": f"Someone just completed the task {task.title}"}, headers = {"Authorization": SLACK_TOKEN})
 
     if task.completed_at:
-        return make_response(jsonify(response)), 200
+        return jsonify(response), 200
     
-
     
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"]) 
 def mark_incomplete(task_id):
@@ -126,7 +118,7 @@ def mark_incomplete(task_id):
    
     db.session.commit()
        
-    return make_response(jsonify(response)), 200
+    return jsonify(response), 200
 
 
 
