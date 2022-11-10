@@ -17,8 +17,11 @@ def validate_task(task_id):
 @tasks_bp.route("", methods=['POST'])
 def add_task():
     request_body = request.get_json()
+    if 'title' not in request_body or 'description' not in request_body or 'completed_at' not in request_body:
+        abort(make_response({"details": "Invalid data"}, 400))
     new_task = Task(title=request_body['title'], description=request_body['description'])
     db.session.add(new_task)
+    
     db.session.commit()
 
     is_complete = False
