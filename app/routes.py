@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
 
-#READ all tasks 
+#read all tasks 
 @task_list_bp.route("", methods=["GET"])
 def get_all_tasks():
     sort_query = request.args.get("sort")
@@ -25,10 +25,9 @@ def get_all_tasks():
         tasks = Task.query.all()
 
     response = [task.to_dict() for task in tasks]
-
     return jsonify(response), 200
 
-#READ one task
+#read one task
 @task_list_bp.route("/<task_id>", methods= ["GET"])
 def get_one_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -39,7 +38,7 @@ def get_one_task(task_id):
 
     return jsonify(response), 200
 
-#CREATE new task
+#create new task
 @task_list_bp.route("", methods = ["POST"])
 def create_new_task():
     request_body = request.get_json()
@@ -56,7 +55,7 @@ def create_new_task():
     return jsonify(response_body), 201
 
 
-#UPDATE task
+#update task
 @task_list_bp.route("/<task_id>", methods = ["PUT"])
 def update_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -66,11 +65,11 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
+    
     response_body = {"task": task.to_dict()}
-
     return jsonify(response_body)
 
-#DELETE task
+#delete task
 @task_list_bp.route("/<task_id>", methods = ["DELETE"])
 def delete_task(task_id):
     task = validate_model_id(Task, task_id)
@@ -80,7 +79,7 @@ def delete_task(task_id):
 
     return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200 
 
-#UPDATE mark complete
+#mark complete
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
 def mark_complete(task_id):
     task = validate_model_id(Task, task_id)
@@ -95,7 +94,7 @@ def mark_complete(task_id):
 
     return jsonify(response), 200
 
-#UPDATE mark incomplete
+#mark incomplete
 @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
 def mark_incomplete(task_id):
     task = validate_model_id(Task, task_id)
@@ -124,7 +123,7 @@ def validate_model_id(cls, model_id):
 
     return chosen_object
 
-#get sorted tasks helper function
+#get sorted tasks
 def get_tasks_sorted(sort_query):
     if sort_query == "desc": 
         tasks = Task.query.order_by(Task.title.desc()).all()
@@ -133,7 +132,7 @@ def get_tasks_sorted(sort_query):
 
     return(tasks)
 
-#PATCH slackbot for mark complete
+#slackbot for mark complete
 def send_completed_msg(task):
     try:
         result = client.chat_postMessage(

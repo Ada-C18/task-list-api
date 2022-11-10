@@ -12,7 +12,7 @@ from app.routes import validate_model_id
 
 goals_bp = Blueprint("goals", __name__, url_prefix = "/goals")
 
-#CREATE a new goal
+#create new goal
 @goals_bp.route("", methods = ["POST"])
 def create_new_goal():
     request_body = request.get_json()
@@ -25,29 +25,26 @@ def create_new_goal():
     db.session.commit()
 
     response_body = {"goal": new_goal.to_dict()}
-
     return jsonify(response_body), 201
 
-#READ all goals
+#read all goals
 @goals_bp.route("", methods = ["GET"])
 def get_all_goals():
     goals = Goal.query.all()
 
-    response = [goal.to_dict() for goal in goals]
+    response_body = [goal.to_dict() for goal in goals]
+    return jsonify(response_body), 200
 
-    return jsonify(response), 200
-
-#GET get one goal
+#read one goal
 @goals_bp.route("/<goal_id>", methods = ["GET"])
 def get_one_goal(goal_id):
 
     goal = validate_model_id(Goal, goal_id)
 
     response_body = {"goal": goal.to_dict()}
-
     return jsonify(response_body), 200
     
-#UPDATE goal
+#update goal
 @goals_bp.route("/<goal_id>", methods = ["PUT"])
 def update_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
@@ -58,10 +55,9 @@ def update_goal(goal_id):
     db.session.commit()
 
     response_body = {"goal": goal.to_dict()}
-
     return jsonify(response_body), 200
 
-#DELETE a goal
+#delete a goal
 @goals_bp.route("/<goal_id>", methods = ["DELETE"])
 def delete_one_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
@@ -72,7 +68,7 @@ def delete_one_goal(goal_id):
     return jsonify({"details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'}), 200
 
 
-# POST assign tasks to a goal 
+#assign tasks to a goal 
 @goals_bp.route("/<goal_id>/tasks", methods = ["POST"])
 def post_task_ids_to_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
@@ -83,14 +79,14 @@ def post_task_ids_to_goal(goal_id):
     for task_id in task_id_list:
         task = validate_model_id(Task, task_id)
         goal.tasks.append(task)
-        task.goal_id = goal_id
+        task.goal_id = goal.goal_id
 
     db.session.commit()
     response_body = {"id": goal.goal_id, "task_ids": task_id_list}
 
     return jsonify(response_body), 200
 
-# GET tasks of one goal
+#get tasks of one goal
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_of_one_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
