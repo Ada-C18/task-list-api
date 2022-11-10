@@ -7,9 +7,9 @@ import os, requests
 from dotenv import load_dotenv
 
 
-
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
 
 # ======== vaildating function ===============================
 def validate_model(cls, model_id):
@@ -21,7 +21,6 @@ def validate_model(cls, model_id):
         if not model:
                 abort(make_response({"message":f"{cls.__name__} {model_id} does not exist."}, 404))
         return model
-
 
 
 #======== TASK ROUTES =========================================
@@ -37,7 +36,7 @@ def create_task():
         else:
                 db.session.add(new_task)
                 db.session.commit()
-        return make_response(jsonify({f"task": new_task.to_dict()}), 201)
+        return jsonify({f"task": new_task.to_dict()}), 201
 
 #======== get task(s) ==========================================
 @tasks_bp.route("", methods=["GET"])
@@ -55,12 +54,12 @@ def get_all_tasks():
         task_response = []
         for task in tasks:
                 task_response.append(task.to_dict())
-        return make_response(jsonify(task_response), 200)
+        return jsonify(task_response), 200
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
         task = validate_model(Task, task_id)
-        return make_response({f"task": task.from_dict()}, 200)
+        return {f"task": task.from_dict()}, 200
 
 #======== upate task ==========================================
 @tasks_bp.route("/<task_id>", methods=["PUT"])
@@ -71,7 +70,7 @@ def update_task(task_id):
         task.description = request_body["description"]
 
         db.session.commit()
-        return make_response({f"task": task.to_dict()}, 200)
+        return {f"task": task.to_dict()}, 200
 
 #========= complete, incomplete, post to slack ===============
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
@@ -80,7 +79,7 @@ def patch_task_incomplete(task_id):
         task.completed_at = None
 
         db.session.commit()
-        return make_response({f"task": task.to_dict()}, 200)
+        return {f"task": task.to_dict()}, 200
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def patch_task_complete(task_id):
@@ -89,7 +88,7 @@ def patch_task_complete(task_id):
 
         db.session.commit()
         post_message(task)
-        return make_response({f"task": task.to_dict()}, 200)
+        return {f"task": task.to_dict()}, 200
 
 def post_message(task):
         KEY = os.environ.get("SLACK_TOKEN")
@@ -107,7 +106,7 @@ def delete_task(task_id):
 
         db.session.delete(task)
         db.session.commit()
-        return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
+        return {"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200
 
 
 
@@ -123,7 +122,7 @@ def create_goal():
         else:
                 db.session.add(new_goal)
                 db.session.commit()
-        return make_response(jsonify({f"goal": new_goal.to_dict()}), 201)
+        return jsonify({f"goal": new_goal.to_dict()}), 201
 
 #======== get goal(s) =========================================
 @goals_bp.route("", methods=["GET"])
@@ -138,9 +137,9 @@ def get_all_goals():
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_one_goal(goal_id):
         goal = validate_model(Goal, goal_id)
-        return{"goal": goal.to_dict()}
+        return {"goal": goal.to_dict()}, 200
 
-#======== get goal(s) =========================================
+#======== delete goal =========================================
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
         goal = validate_model(Goal, goal_id)
@@ -148,7 +147,7 @@ def delete_goal(goal_id):
 
         db.session.delete(goal)
         db.session.commit()
-        return make_response({"details": f'goal {goal_id} "{goal.title}" successfully deleted'}, 200)
+        return {"details": f'goal {goal_id} "{goal.title}" successfully deleted'}, 200
 
 #======== update goal =========================================
 @goals_bp.route("/<goal_id>", methods=["PUT"])
@@ -174,20 +173,17 @@ def post_task_ids_to_goal(goal_id):
                 task_ids.append(task_id)
         
         db.session.commit()
-        return {
-                "id": goal.goal_id,
-                "task_ids" : task_ids}
+        
+        return jsonify({"id": goal.goal_id,
+                "task_ids" : task_ids}), 200
+
 
 #======== get specific task with goal id ========================
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_for_specific_goal(goal_id):
         goal = validate_model(Goal, goal_id)
         tasks_response = [task.to_dict_with_goal() for task in goal.tasks]
-        return {
-                "id": goal.goal_id,
+        
+        return jsonify({"id": goal.goal_id,
                 "title": goal.title,
-                "tasks": tasks_response}
-
-# AssertionError: 
-# assert 'goal_id' in 
-# {'description': 'Notice something new every day', 'id': 1, 'is_complete': False, 'title': 'Go on my daily walk 🏞'}
+                "tasks": tasks_response}), 200
