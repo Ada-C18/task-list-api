@@ -2,7 +2,7 @@ from app.models.goal import Goal
 import pytest
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_post_task_ids_to_goal(client, one_goal, three_tasks):
     # Act
     response = client.post("/goals/1/tasks", json={
@@ -23,7 +23,7 @@ def test_post_task_ids_to_goal(client, one_goal, three_tasks):
     assert len(Goal.query.get(1).tasks) == 3
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_post_task_ids_to_goal_already_with_goals(client, one_task_belongs_to_one_goal, three_tasks):
     # Act
     response = client.post("/goals/1/tasks", json={
@@ -42,7 +42,7 @@ def test_post_task_ids_to_goal_already_with_goals(client, one_task_belongs_to_on
     assert len(Goal.query.get(1).tasks) == 2
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_for_specific_goal_no_goal(client):
     # Act
     response = client.get("/goals/1/tasks")
@@ -50,14 +50,16 @@ def test_get_tasks_for_specific_goal_no_goal(client):
 
     # Assert
     assert response.status_code == 404
+    assert "Goal 1" in response_body["message"]
+    assert response_body == {"message": "Could not get Goal 1 as it was not found"}
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_for_specific_goal_no_tasks(client, one_goal):
     # Act
     response = client.get("/goals/1/tasks")
@@ -74,7 +76,7 @@ def test_get_tasks_for_specific_goal_no_tasks(client, one_goal):
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_tasks_for_specific_goal(client, one_task_belongs_to_one_goal):
     # Act
     response = client.get("/goals/1/tasks")
@@ -99,7 +101,7 @@ def test_get_tasks_for_specific_goal(client, one_task_belongs_to_one_goal):
     }
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_task_includes_goal_id(client, one_task_belongs_to_one_goal):
     response = client.get("/tasks/1")
     response_body = response.get_json()
@@ -116,3 +118,72 @@ def test_get_task_includes_goal_id(client, one_task_belongs_to_one_goal):
             "is_complete": False
         }
     }
+
+# @pytest.mark.skip()
+def test_update_task_includes_goal_id(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/2", json={
+        "title": "Answer forgotten email 📧",
+        "description": "Set reminder to reply",
+        "goal_id": 1})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 2,
+                "goal_id": 1,
+                "title": "Answer forgotten email 📧",
+                "description": "Set reminder to reply",
+                "is_complete": False
+            }
+    }
+
+
+# @pytest.mark.skip()
+def test_update_task_includes_goal_title(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/2", json={
+        "title": "Answer forgotten email 📧",
+        "description": "Set reminder to reply",
+        "goal": "Build a habit of going outside daily"})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 2,
+                "goal_id": 1,
+                "title": "Answer forgotten email 📧",
+                "description": "Set reminder to reply",
+                "is_complete": False
+            }
+    }
+
+
+# @pytest.mark.skip()
+def test_update_task_includes_new_goal_title(client, three_tasks_one_task_belongs_to_one_goal):
+    response = client.put("/tasks/3", json={
+        "title": "Pay my outstanding tickets 😭",
+        "description": "Fix broken headlight",
+        "goal": "Build better financial habits"})
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "task" in response_body
+    assert "goal_id" in response_body["task"]
+    assert response_body == {
+        "task": 
+            {
+                "id": 3,
+                "goal_id": 2,
+                "title": "Pay my outstanding tickets 😭",
+                "description": "Fix broken headlight",
+                "is_complete": False
+            }
+    }
+
