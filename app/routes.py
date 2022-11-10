@@ -246,37 +246,3 @@ def delete_one_goal(goal_id):
 
     return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
 
-
-# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-# def update_is_complete(task_id):
-#     update_is_valid_id = get_one_task_or_abort(task_id)
-
-#     update_is_valid_id.completed_at = datetime.today()
-#     db.session.add(update_is_valid_id)
-#     db.session.commit()
-
-#     SLACK_PATH = "https://slack.com/api/chat.postMessage"
-#     SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
-    
-#     headers = {
-#         "Authorization" : f"Bearer {SLACK_BOT_TOKEN}"
-#         }
-#     params = {
-#         "channel": "task-notifications",
-#         "text": f"Someone just completed the task {update_is_valid_id.title}"
-#         }
-
-#     requests.get(url=SLACK_PATH, headers=headers, params=params)
-
-
-#     return jsonify({"task":Task.to_dict(update_is_valid_id)}), 200
-
-# @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-# def update_incompete(task_id):
-#     task_incompete = get_one_task_or_abort(task_id)
-#     task_incompete.completed_at = None
-
-#     db.session.add(task_incompete)
-#     db.session.commit()
-
-#     return jsonify({"task":Task.to_dict(task_incompete)}), 200
