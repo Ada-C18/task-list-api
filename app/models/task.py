@@ -26,7 +26,6 @@ class Task(db.Model):
                 "title":self.title,
                 "description":self.description,
                 "is_complete": self.is_complete,
-                #"goal_id":self.goal_id
             }
 
     @classmethod
@@ -38,4 +37,14 @@ class Task(db.Model):
             title=task_dict["title"],
             description=task_dict["description"],
             is_complete=task_dict["is_complete"]
+        )
+
+    @classmethod
+    def from_dict_goal(cls, gid):
+        
+        return cls(
+            goal_id=gid,
+            title="",
+            description="great",
+            is_complete=False
         )

@@ -155,23 +155,31 @@ def delete_one_goal(goal_id):
 def get_tasks_for_goal(goal_id):
     chosen_goal = get_model_from_id(Goal, goal_id)
 
-    #tasks = []
-    #for item in chosen_goal.task_items:
-    #    tasks.append(item.to_dict())
-
     return jsonify(chosen_goal.to_dict_task()), 200
 
 @goal_bp.route('/<goal_id>/tasks', methods=['POST'])
 def create_tasks_for_goal(goal_id):
+    matching_goal = Goal.query.get(goal_id)
+
     request_body = request.get_json()
+    task_ids = request_body["task_ids"]
+    
+    #for task in task_ids:
+    for i in task_ids: 
+        if not i in matching_goal.tasks:
+            new_task = Task(
+                title="",
+                description="",
+                is_complete=False,
+                goal_id = matching_goal.goal_id
+            )
+            db.session.add(new_task)
+            db.session.commit()
 
-    try:
-        new_goal = Goal.from_dict(request_body)
-    except KeyError:
-        return jsonify({"details": "Invalid data"}), 400
+    response_dict = {"id": matching_goal.goal_id,
+                    "task_ids": task_ids}
 
-    db.session.add(new_goal)
-    db.session.commit()
+    return jsonify(response_dict), 200
 
 
 def get_model_from_id(cls, model_id):
