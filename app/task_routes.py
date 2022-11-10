@@ -51,8 +51,10 @@ def read_all_tasks():
 
     if sort_query == "asc":
         tasks = Task.query.order_by(Task.title.asc())
-    else: 
+    elif sort_query =="desc": 
         tasks = Task.query.order_by(Task.title.desc())
+    else: 
+        tasks = Task.query.all()
 
     tasks_response = []
     for task in tasks:
