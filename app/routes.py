@@ -12,7 +12,7 @@ def handle_tasks():
         try:
             task = Task(title = request_body['title'], description = request_body['description'])
         except KeyError:
-            invalid_dict = {"details": "invalid data"}
+            invalid_dict = {"details": "Invalid data"}
             return make_response(jsonify(invalid_dict),400)
 
         db.session.add(task)
