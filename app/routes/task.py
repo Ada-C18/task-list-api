@@ -110,7 +110,7 @@ def mark_complete_one_task(task_id):
 
     return jsonify({"task":chosen_task.to_dict()}), 200
 
-'''2ND SOLUTION FOR SLACKBOT USING BUILT-IN WEBHOOKS INTERGRATION'''
+'''2ND SOLUTION FOR SLACKBOT USING BUILT-IN WEBHOOKS INTEGRATION'''
 # @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 # def mark_complete_one_task(task_id):
     
