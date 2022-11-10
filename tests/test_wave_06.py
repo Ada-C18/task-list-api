@@ -58,6 +58,7 @@ def test_get_tasks_for_specific_goal_no_goal(client):
 
     # Assert
     assert response.status_code == 404
+    assert "message" in response_body
 
     # raise Exception("Complete test with assertion about response body")
     # # *****************************************************************
