@@ -16,16 +16,17 @@ class Task(db.Model):
         task_dict["title"] = self.title
         task_dict["description"] = self.description
         task_dict["is_complete"] = bool(self.completed_at)
-        task_dict["goal_id"] = self.goal_id
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
 
         return task_dict
 
     @classmethod
     def from_dict(cls, task_data):
-        if "title" not in task_data or "description" not in task_data:
-            return {
-                "details": "Invalid data"
-            }, 400
+        # if "title" not in task_data or "description" not in task_data:
+        #     return {
+        #         "details": "Invalid data"
+        #     }, 400
 
         new_task = Task(
             title=task_data["title"],

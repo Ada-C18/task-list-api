@@ -46,7 +46,11 @@ def post_to_slack(task_title):
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    # request_body = validate_request_body(request_body)
+
+    if "title" not in request_body or "description" not in request_body:
+        return {
+            "details": "Invalid data"
+        }, 400
 
     new_task = Task.from_dict(request_body)
 
