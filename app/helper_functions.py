@@ -47,7 +47,7 @@ def get_one_model(cls,id):
     return make_response(jsonify({class_str:model.dictionfy()}),200)
 
 def class_str_determinator(cls):
-    return "task" if cls==Task else "goal"
+    return cls.__name__.lower()
 
 def delete_one_model(cls,id):
     model = validate_model(cls,id)
