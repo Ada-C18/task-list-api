@@ -73,6 +73,7 @@ def test_create_task(client):
     response = client.post("/tasks", json={
         "title": "A Brand New Task",
         "description": "Test Description",
+        "is_complete": None
     })
     response_body = response.get_json()
 
@@ -100,6 +101,8 @@ def test_update_task(client, one_task):
     response = client.put("/tasks/1", json={
         "title": "Updated Task Title",
         "description": "Updated Test Description",
+        "is_complete": None
+
     })
     response_body = response.get_json()
 
