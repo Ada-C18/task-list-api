@@ -85,11 +85,31 @@ def post_a_task():
     return jsonify({"task": new_task.to_dict()}), 201
 
 
-@tasks_bp.route("/<task_id>", methods=["PUT"])
+@tasks_bp.route("/<task_id>", methods=["PUT", "PATCH"])
 def update_one_task(task_id):
     task_to_update = validate_model(Task, task_id, "update")
     request_body = request.get_json()
+
+    ############################ methods = ["PATCH", "PUT"] ###########################
+    # if 'goal_id' in request_body or "goal" in request_body:
+    #     pass
+    # elif "title" in request_body or "description" in request_body:
+    #     task_to_update.goal = None
+    # else:
+    #     return jsonify({"msg": "Missing needed data"}), 400
     
+    # for data in request_body:
+    #     if data == "title":
+    #         task_to_update.title = request_body["title"]
+    #     elif data == "description":
+    #         task_to_update.description = request_body["description"]
+    #     elif data == "goal_id":
+    #         task_to_update.goal = validate_model(Goal, request_body["goal_id"], "get")
+    #     elif data == "goal":
+    #         task_to_update.goal = return_goal_from_goal_title(request_body["goal"])
+
+
+    ################################# methods = ["PUT"] ################################
     if "goal_id" in request_body:
         goal_response = validate_model(Goal, request_body["goal_id"], "get")
     elif "goal" in request_body:
@@ -126,6 +146,7 @@ def mark_one_task_as_completed(task_id):
     task_to_mark_complete.completed_at = datetime.datetime.utcnow()
     db.session.commit()
 
+    ######################### PROPOSE ERROR IF TASK HAS ALREADY BEEN UPDATED #########################
     # if not task_to_mark_complete.completed_at:
     #     task_to_mark_complete.completed_at = datetime.datetime.utcnow()
     #     db.session.commit()
