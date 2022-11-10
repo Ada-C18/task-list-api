@@ -141,14 +141,3 @@ def mark_task_incomplete(task_id):
 #     else:
 #         task.completed_at = None
 # @task_bp.route("/<task_id>/complete", methods=["PATCH"])
-
-# CREATE TABLE task (
-#   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-#   name TEXT,
-#   books TEXT 
-# );
-
-# task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     title = db.Column(db.String)
-#     description = db.Column(db.String)
-#     completed_at = db.Column(db.DateTime, nullable=True)
