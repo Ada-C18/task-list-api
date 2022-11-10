@@ -113,7 +113,6 @@ def mark_complete_and_send_slackbot(task_id):
     task = validate_model(Task, task_id)
     
     task.completed_at = datetime.datetime.utcnow()
-    task.is_complete = True
 
     db.session.commit()
 
