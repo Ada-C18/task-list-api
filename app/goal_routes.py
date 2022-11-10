@@ -105,6 +105,7 @@ def add_tasks_to_goal(goal_id):
     for task_id in request_body["task_ids"]:
         task = validate_model(Task, task_id)
         task.goal = goal
+        task.goal_id = goal_id
 
         db.session.commit()
 
