@@ -1,21 +1,22 @@
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from flask import Blueprint, jsonify, request, make_response, abort
 
 bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
-def validate_goal(goal_id):
+def validate_item(cls, id):
     try:
-        goal_id = int(goal_id)
+        model_id = int(id)
     except:
-        abort(make_response({"message": f"goal {goal_id} invalid"}, 400))
+        abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
 
-    goal = Goal.query.get(goal_id)
+    item = cls.query.get(model_id)
 
-    if not goal:
-        abort(make_response({"message": f"goal {goal_id} not found"}, 404))
+    if not item:
+        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
 
-    return goal
+    return item
 
 
 def validate_dict_title(request_body):
@@ -43,7 +44,7 @@ def get_goals():
 
 @bp.route("/<id>", methods=["GET"])
 def get_one_goal(id):
-    goal = validate_goal(id)
+    goal = validate_item(Goal, id)
     goal_response = {
         "goal": goal.to_dict()
     }
@@ -65,7 +66,7 @@ def create_goal():
 
 @bp.route("/<id>", methods=["PUT"])
 def update_goal(id):
-    goal = validate_goal(id)
+    goal = validate_item(Goal, id)
 
     request_body = request.get_json()
     validate_dict_title(request_body)
@@ -81,7 +82,7 @@ def update_goal(id):
 
 @bp.route("/<id>", methods=["DELETE"])
 def delete_goal(id):
-    goal = validate_goal(id)
+    goal = validate_item(Goal, id)
     goal_id = goal.goal_id
     goal_title = f"\"{goal.title}\""
 
@@ -94,30 +95,36 @@ def delete_goal(id):
 
     return jsonify(response_body)
 
+@bp.route("/<id>/tasks", methods=["GET"], strict_slashes=False)
+def get_tasks_from_goal(id):
+    goal = validate_item(Goal, id)
+    task_query = Task.query.filter_by(goal_id=goal.goal_id)
+    tasks = task_query.all()
 
-# @bp.route("/<id>/mark_complete", methods=["PATCH"])
-# def mark_goal_complete(id):
-#     goal = validate_goal(id)
+    tasks_response = []
+    for task in tasks:
+        tasks_response.append(task.to_dict())
 
-#     goal.completed_at = date.today()
-#     goal.is_complete = True
+    response_body = goal.to_dict()
+    response_body["tasks"] = tasks_response
 
-#     db.session.commit()
+    return jsonify(response_body)
 
-#     send_completed_message(goal)
-#     response_body = {"goal": goal.to_dict()}
+@bp.route("/<id>/tasks", methods=["POST"], strict_slashes=False)
+def associate_tasks_with_goal(id):
+    goal = validate_item(Goal, id)
+    request_body = request.get_json()
+    tasks = request_body.get("task_ids",[])
 
-#     return jsonify(response_body)
+    for task_id in tasks:
+        task = validate_item(Task, task_id)
+        task.goal_id = goal.goal_id
 
-# @bp.route("/<id>/mark_incomplete", methods=["PATCH"])
-# def mark_goal_incomplete(id):
-#     goal = validate_goal(id)
+    db.session.commit()
 
-#     goal.completed_at = None
-#     goal.is_complete = False
+    response_body = {
+        "id": goal.goal_id, 
+        "task_ids": tasks
+        }
 
-#     db.session.commit()
-
-#     response_body = {"goal": goal.to_dict()}
-
-#     return jsonify(response_body)
+    return jsonify(response_body)
