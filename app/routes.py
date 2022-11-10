@@ -10,6 +10,8 @@ import os
 load_dotenv()
 
 
+# Ideally if I had had more time I would go back and refactor this to have two seperate route files for task and goal
+
 bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
