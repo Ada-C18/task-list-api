@@ -19,7 +19,8 @@ def get_model_from_id(cls, model_id):
     chosen_object = cls.query.get(model_id)
 
     if chosen_object is None:
-        return abort(make_response({"msg": f"Could not find {cls.__name__} with id:{model_id}"}, 404))
+        return abort(make_response({"msg":
+        f"Could not find {cls.__name__} with id:{model_id}"}, 404))
     return chosen_object
 
 #===============TASKS ROUTES====================================
@@ -29,7 +30,7 @@ def create_task():
         request_body = request.get_json()
         new_task = Task(
             title=request_body["title"],
-            description=request_body["description"],
+            description=request_body["description"]
             )
         db.session.add(new_task)
         db.session.commit()
@@ -82,7 +83,8 @@ def delete_one_task(task_id):
     db.session.delete(task_to_delete)
     db.session.commit()
 
-    return jsonify({"details":f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'})
+    return jsonify({"details":
+    f'Task {task_to_delete.task_id} "{task_to_delete.title}" successfully deleted'})
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_one_task_complete(task_id):   
@@ -163,7 +165,8 @@ def delete_one_goal(goal_id):
     db.session.delete(goal_to_delete)
     db.session.commit()
 
-    return jsonify({"details":f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'})
+    return jsonify({"details":
+    f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'})
 
 #=========NESTED ROUTES==========================
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
@@ -197,4 +200,3 @@ def get_tasks_for_one_goal(goal_id):
         "title": goal.title,
         "tasks":tasks
         }), 200
-        
