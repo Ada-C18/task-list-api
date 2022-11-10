@@ -65,6 +65,7 @@ def read_all_tasks():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
+    print('!!!!!')
     task = get_validate_model(Task, task_id)
     task_response = {"task": {
                 "id": task.task_id,
@@ -73,7 +74,8 @@ def read_one_task(task_id):
                 "is_complete": False
             }
         }
-
+    if task.goal_id:
+        task_response["task"]["goal_id"] = task.goal_id
     return make_response(jsonify(task_response), 200)
 
 

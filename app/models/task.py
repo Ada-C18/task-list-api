@@ -7,15 +7,19 @@ class Task(db.Model):
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
 
+    # Many tasks to one goal
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks")
+
 
     def to_dict(self):
-        task_dict = {}
-        task_dict["id"] = self.task_id
-        task_dict["title"] = self.title
-        task_dict["description"] = self.description
-        task_dict["completed_at"] = self.completed_at
+        result_dict = {}
+        result_dict["id"] = self.task_id
+        result_dict["title"] = self.title
+        result_dict["description"] = self.description
+        result_dict["completed_at"] = self.completed_at
 
-        return task_dict
+        return result_dict
 
     @classmethod
     def from_dict(cls, req_body):
