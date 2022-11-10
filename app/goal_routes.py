@@ -33,12 +33,6 @@ def get_all_goals():
 def get_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
-    id_list = []
-    if goal.tasks:
-        for task in goal.tasks:
-            id_list.append(task["task_id"])
-    goal.to_dict()["task_id"] = id_list
-
     return make_response(jsonify({"goal": goal.to_dict()}), 200)
 
 @goal_bp.route("/<goal_id>", methods=["PUT"])
