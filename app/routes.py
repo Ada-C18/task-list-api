@@ -6,8 +6,6 @@ from datetime import date
 import requests
 import os
 
-tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
-goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 def validate_model(cls, model_id):
     model = cls.query.get(model_id)
@@ -16,6 +14,10 @@ def validate_model(cls, model_id):
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
     
     return model
+
+# ************************* CRUD ROUTES FOR TASKS ****************************************
+
+tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 @tasks_bp.route("", methods=["POST"])
 def create_task():
@@ -29,22 +31,13 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
     
-    response_dict = {
-        "id": new_task.task_id,
-        "title": new_task.title,
-        "description": new_task.description,
-        "is_complete": False
-    }
-
-    return jsonify({"task": response_dict}), 201
+    return jsonify({"task": new_task.to_dict()}), 201
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
     tasks = Task.query.all()
     
-    tasks_response = []
-    for task in tasks:
-        tasks_response.append(task.to_dict())
+    tasks_response = [task.to_dict() for task in tasks]
     
     sort_query_value = request.args.get("sort")
     tasks_response.sort(
@@ -56,7 +49,12 @@ def read_all_tasks():
 def read_one_task(task_id):
     chosen_task = validate_model(Task, task_id)
 
-    return jsonify({"task": chosen_task.to_dict()})
+    if not chosen_task.goal_id:
+       return jsonify({"task": chosen_task.to_dict()})
+    else:
+        response_dict = chosen_task.to_dict()
+        response_dict["goal_id"] = chosen_task.goal_id
+        return jsonify({"task": response_dict})
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -120,6 +118,8 @@ def mark_incomplete(task_id):
 
 # **************************** CRUD ROUTES FOR GOALS *****************************************
 
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
 @goals_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
@@ -138,9 +138,7 @@ def create_goal():
 def read_all_goals():
     goals = Goal.query.all()
 
-    goals_response = []
-    for goal in goals:
-        goals_response.append(goal.to_dict())
+    goals_response = [goal.to_dict() for goal in goals]
 
     return jsonify(goals_response), 200
 
@@ -172,6 +170,33 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f"Goal {goal_id} \"{chosen_goal.title}\" successfully deleted"})
+
+# ***************************** NESTED ROUTES FOR GOALS AND TASKS *********************************
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+    chosen_goal = validate_model(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    for task_id in request_body["task_ids"]:
+        task = Task.query.get(task_id)
+        task.goal_id = chosen_goal.goal_id
+
+    db.session.commit()
+
+    return jsonify({"id": chosen_goal.goal_id, "task_ids": request_body["task_ids"]})
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def read_tasks(goal_id):
+    chosen_goal = validate_model(Goal, goal_id)
+
+    tasks_response = [task.to_dict() for task in chosen_goal.tasks]
+    
+    for i in range(len(tasks_response)):
+        tasks_response[i]["goal_id"] = chosen_goal.goal_id
+
+    return jsonify({"id": chosen_goal.goal_id, "title": chosen_goal.title, "tasks": tasks_response})
 
 
 
