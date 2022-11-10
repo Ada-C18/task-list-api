@@ -48,6 +48,7 @@ def create_task():
     is_valid = Task.is_valid(new_task)
     if not is_valid:
         return make_response(jsonify({ "details": "Invalid data"}), 400)
+    
     db.session.add(new_task)
     db.session.commit()
 
@@ -56,21 +57,12 @@ def create_task():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def one_saved_task(task_id):
     task = validate_task(task_id)
-    
-    # dict = {"task": {
-    #         "id": task.task_id,
-    #         "title": task.title,
-    #         "description": task.description,
-            # "completed_at": task.completed_at,
-            # "is_complete": task.completed_at != None
-            
-        # }}
+
     return jsonify({"task": task.to_dict()}), 200
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     tasks = Task.query.all()
-    #return jsonify(tasks.to_dict())
     title_query = request.args.get("sort")
     if title_query == "asc":
         tasks = Task.query.order_by(Task.title.asc())
@@ -80,22 +72,11 @@ def get_all_tasks():
         
     else:
         tasks = Task.query.all()
-    # end of the new code
 
-    # tasks_response = []
-    # for task in tasks:
-    #     tasks_response.append({
-    #         "id": task.id,
-    #         "title": task.title,
-    #         "description": task.description
-    #     })
-
-    # return jsonify(tasks_response)
     tasks_response = []
     for task in tasks:
         tasks_response.append(task.to_dict())
-    
-        
+
     return jsonify(tasks_response)
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
@@ -103,8 +84,6 @@ def complete_task(task_id):
     task = validate_task(task_id)
     task.completed_at = date.today()
     
-    
-    #db.session.add(task)
     db.session.commit()
     
     slack_call(task)
@@ -143,9 +122,4 @@ def delete_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({"details": f"Task {task_id} \"{task.title}\" successfully deleted" })), 200
-
-
-
-
-
 
