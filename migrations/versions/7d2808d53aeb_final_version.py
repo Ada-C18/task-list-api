@@ -1,8 +1,8 @@
 """Final version
 
-Revision ID: b1e515230107
+Revision ID: 7d2808d53aeb
 Revises: 
-Create Date: 2022-11-10 09:58:03.053401
+Create Date: 2022-11-10 10:14:11.917135
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b1e515230107'
+revision = '7d2808d53aeb'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -40,3 +40,4 @@ def downgrade():
     op.drop_table('task')
     op.drop_table('goal')
     # ### end Alembic commands ###
+
