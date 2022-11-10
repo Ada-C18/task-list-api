@@ -98,9 +98,14 @@ Visit https://api.slack.com/methods/chat.postMessage to read about the Slack API
 Answer the following questions. These questions will help you become familiar with the API, and make working with it easier.
 
 - What is the responsibility of this endpoint?
+  - This endpoint posts a message to a public channel, private channel or direct message/IM channel
 - What is the URL and HTTP method for this endpoint?
+  - URL = https://slack.com/api/chat.postMessage
+  - HTTP method = POST
 - What are the _two_ _required_ arguments for this endpoint?
+  - Token & Channel
 - How does this endpoint relate to the Slackbot API key (token) we just created?
+  - To access this endpoint, the token must be passed as HTTP Authorization header or as a POST parameter. 
 
 Now, visit https://api.slack.com/methods/chat.postMessage/test.
 
@@ -186,7 +191,7 @@ Include your Slackbot token in your code in an intentional way, following best p
 
 Test and verify that your API sends an API call to the Slack web API by using Postman!
 
-Send `PATCH` requests to `localhost:5000/tasks/<book_id>/mark_complete` (use the ID of any existing task), and check if Slack messages were sent.
+Send `PATCH` requests to `localhost:5000/tasks/<task_id>/mark_complete` (use the ID of any existing task), and check if Slack messages were sent.
 
 ![](assets/postman_feature.png)
 
