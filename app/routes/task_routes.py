@@ -36,8 +36,6 @@ def handle_tasks():
         tasks = task_query.all()
         tasks_response = [task.to_json() for task in tasks]
 
-        if not tasks_response:
-            return make_response(jsonify(f"There are no tasks"))
         return jsonify(tasks_response), 200
 
     # Create a new task
