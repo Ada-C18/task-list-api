@@ -6,7 +6,10 @@ from flask import Blueprint, jsonify, abort, make_response, request
 goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 def validate_model(cls, model_id):
-    model_id = int(model_id)
+    try:
+        model_id = int(model_id)   
+    except:
+        abort(make_response({"details":"Invalid data"}, 400)) 
     model = cls.query.get(model_id)
     if not model:
         abort(make_response({"message":f"{cls.__name__} {model_id} not found"}, 404))
