@@ -59,6 +59,8 @@ def test_get_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+    assert "message" in response_body
+    # assert response_body == []
     # assert response_body == []
     # Added assert statement
 
@@ -132,6 +134,8 @@ def test_update_task_not_found(client):
 
     # Assert
     assert response.status_code == 404
+    assert "message" in response_body
+
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************

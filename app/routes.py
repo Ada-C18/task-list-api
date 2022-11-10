@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from app import db
 from app.models.task import Task
+from datetime import datetime
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -22,11 +23,6 @@ def create_task():
 
     if "title" not in request_body or "description" not in request_body:
         return {"details": "Invalid data"}, 400
-
-    # if "completed_at" in request_body:
-    #     new_task = Task(title=request_body["title"], description=request_body["description"], completed_at=request_body["completed_at"])
-    # else:
-    #     new_task = Task(title=request_body["title"], description=request_body["description"])
 
     new_task = Task.from_dict(request_body)
     db.session.add(new_task)
@@ -82,12 +78,12 @@ def delete_task(task_id):
         "details": f"Task {task_id} \"{task.title}\" successfully deleted"
         }
     else:
-        return {"message": f"Task {task_id} not found"}, 404
+        return jsonify({"message": f"Task {task_id} not found"}), 404
 
     db.session.delete(task)
     db.session.commit()
 
-    return task_dict, 200
+    return jsonify(task_dict), 200
     
 
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -104,24 +100,55 @@ def update_task(task_id):
                     "is_complete": False
             }}
         db.session.commit()
-        return response_body, 200
+        return jsonify(response_body), 200
     else:
         db.session.commit()
-        return {"message": f"Task {task_id} not found"}, 404
- 
-@task_bp.route("/<task_id>", methods=["GET"])
-def get_task_sort_asc(task_title, three_tasks):
-    request_body =request.get_json()
-    task_request = request.args.get("sort")
-    # if task_request == "asc":
-    #     task = Task.query.order_by(Task.title.asc())
-    # elif task_request == "desc":
-    #     task = Task.query.order_by(Task.title.desc())   
-    
-    # response_body = []
-    # for task in task_request:
-    #     response_body.append(task.to_json())
-    # # sorted_list = sorted(three_tasks["title"])
-    # # sorted_d = sorted(three_tasks.items()key=["title"])
-    # return jsonify(response_body), 200
-    return request_body(task_request), 200
+        return jsonify({"message": f"Task {task_id} not found"}), 404
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_task_complete(task_id):
+    task = Task.query.get_or_404(task_id)
+    task.completed_at = datetime.now()
+    db.session.commit()
+    return jsonify(task=task.to_dict()), 200
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_task_incomplete(task_id):
+    task = Task.query.get_or_404(task_id)
+    task.completed_at = None
+    db.session.commit()
+    return jsonify(task=task.to_dict()), 200
+
+# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+# def mark_complete_on_completed_task(task_id):
+#     task = Task.query.get.arg(task_id)
+#     if task:
+#         task.completed_at = False#datetime.now()
+#         db.session.commit()
+#         return jsonify(task=task.to_dict()), 200
+#     else:
+#         task.completed_at = None
+#         db.session.commit()
+#         # return "", 404
+#         return jsonify(task=task.to_dict()), 200
+# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+# def mark_incomplete_on_incompleted_task(task_id):
+#     task = Task.query.get_or_404(task_id)
+#     if task:
+#         task.completed_at = datetime.now()
+#         db.session.commit()
+#         return jsonify(task=task.to_dict()), 200
+#     else:
+#         task.completed_at = None
+# @task_bp.route("/<task_id>/complete", methods=["PATCH"])
+
+# CREATE TABLE task (
+#   id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+#   name TEXT,
+#   books TEXT 
+# );
+
+# task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     title = db.Column(db.String)
+#     description = db.Column(db.String)
+#     completed_at = db.Column(db.DateTime, nullable=True)
