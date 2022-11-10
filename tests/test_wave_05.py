@@ -1,5 +1,5 @@
 import pytest
-
+from app.models.goal import Goal
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goals_no_saved_goals(client):
@@ -142,7 +142,7 @@ def test_delete_goal(client, one_goal):
 
     # Check that the goal was deleted
     
-    # assert Goal.query.get(1) == None
+    assert Goal.query.get(1) == None
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************

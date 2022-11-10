@@ -72,17 +72,13 @@ def list_all_tasks():
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
-    tasks = Task.query.get(task_id)
+    task_result = Task.query.get(task_id)
     
-    return {
-            "task": {
-            "id": task.task_id, 
-            "title": task.title, 
-            "description": task.description, 
-            "is_complete": False
-                    }
-                    }
-        
+
+
+    return make_response(jsonify({"task": task.to_dict()}))
+
+    
 
 
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -238,7 +234,62 @@ def delete_goal(goal_id):
     return {"details": f'Goal {goal.goal_id} "{goal.goal_title}" successfully deleted'}
 
 
+# -------------------------------------------------------------------------------
 
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_task_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+
+    goal.tasks += [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+
+    db.session.commit()
+
+    return make_response({"id": goal.goal_id, "task_ids": [task.task_id for task in goal.tasks]}), 200
+
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_task_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    task_response = []
+
+    for task in goal.tasks:
+        task_response.append(task.to_dict())
+
+    return make_response({"id": goal.goal_id,
+    "title": goal.goal_title,
+    "tasks": task_response}), 200  
+
+
+
+@goal_bp.route("/<task_id>/tasks", methods=["GET"])
+def get_one_task_goal(task_id):
+    task = validate_model(Task, task_id)
+    
+    # tasks = Task.query.get(task_id)
+    
+    goal_response = []
+    
+    for goal in goal.tasks:
+        goal_response.append(task.to_dict())
+
+
+    # return goal_response
+    return {
+        "goal_id": goal.goal_id,
+        "title": goal.goal_title,
+        "tasks":{
+            "task": {
+            "id": task.task_id, 
+            "goal_id": goal.goal_id,
+            "title": task.title, 
+            "description": task.description, 
+            "is_complete": task.completed_at
+                    }
+                    }}
+        
 
 
 
