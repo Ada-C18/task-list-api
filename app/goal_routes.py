@@ -58,3 +58,30 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_id} "{delete_goal.title}" successfully deleted'}), 200
+
+
+@goal_bp.route('/<goal_id>/tasks', methods=['POST'])
+def post_task_ids_to_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    for id in request_body["task_ids"]:
+        new_task = validate_model(Task, id)
+        new_task.goal = goal
+        db.session.add(new_task)
+        db.session.commit()
+    
+    return jsonify({"id": int(goal_id),
+                   "task_ids": request_body["task_ids"]})
+
+
+@goal_bp.route('/<goal_id>/tasks', methods=['GET'])
+def get_task_for_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    tasks_result = [] 
+    for task in goal.tasks:
+        tasks_result.append(task.to_dict_nested())
+    return jsonify({
+        "id": goal.goal_id,
+        "title": goal.title,
+        "tasks": tasks_result
+    }), 200

@@ -74,7 +74,10 @@ def get_or_sort_tasks():
 def get_one_task(task_id):
     task_chosen = validate_model(Task, task_id)
 
-    return jsonify({"task":task_chosen.to_dict()}), 200
+    if not task_chosen.goal_id:
+        return jsonify({"task":task_chosen.to_dict()}), 200
+
+    return jsonify({"task":task_chosen.to_dict_nested()}), 200
 
 
 @task_bp.route('/<task_id>', methods=['PUT'])
