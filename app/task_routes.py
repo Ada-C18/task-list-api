@@ -29,8 +29,8 @@ def validate_info(request_obj):
         return request_obj
 
 
-def wrap_task(task_obj):
-    return {"task": task_obj}
+def wrap_response(cls, response_obj):
+    return {f"{cls.__name__.lower()}": response_obj}
 
 @tasks_bp.route("", methods=["POST"])
 def create_new_task():
@@ -41,7 +41,7 @@ def create_new_task():
     db.session.add(new_task)
     db.session.commit()
 
-    response_body = wrap_task(new_task.to_dict())
+    response_body = wrap_response(Task, new_task.to_dict())
 
     return make_response(response_body, 201)
 
@@ -64,7 +64,7 @@ def get_all_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
-    return wrap_task(task.to_dict())
+    return wrap_response(Task, task.to_dict())
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -75,7 +75,7 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
-    return wrap_task(task.to_dict())
+    return wrap_response(Task, task.to_dict())
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -100,7 +100,7 @@ def mark_complete(task_id):
     r = requests.post('https://slack.com/api/chat.postMessage', data=requests_data)
     
     db.session.commit()
-    return wrap_task(task.to_dict())
+    return wrap_response(Task, task.to_dict())
     
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete(task_id):
@@ -110,4 +110,4 @@ def mark_incomplete(task_id):
     result['is_complete'] = False
 
     db.session.commit()
-    return wrap_task(result)
+    return wrap_response(Task, result)
