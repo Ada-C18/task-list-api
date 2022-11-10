@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify, abort, make_response
 from . import db
 from .models.task import Task
+from sqlalchemy import desc, asc
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -24,7 +25,7 @@ def add_task():
 
     if 'completed_at' not in request_body and new_task.completed_at:
         abort(make_response({"details": "Invalid data"}, 400))
-        
+
     db.session.add(new_task)
     db.session.commit()
 
@@ -41,7 +42,13 @@ def add_task():
 
 @tasks_bp.route("", methods=['GET'])
 def get_tasks():
-    tasks = Task.query.all()
+    sort_query = request.args.get("sort")
+    if sort_query == "asc":
+        tasks = Task.query.order_by(Task.title.asc())
+    elif sort_query == "desc":
+        tasks = Task.query.order_by(Task.title.desc())
+    else:
+        tasks = Task.query.all()
 
     response = []
     for task in tasks:
@@ -56,6 +63,38 @@ def get_tasks():
         })
     
     return jsonify(response), 200
+
+# @tasks_bp.route("tasks?sort=asc", methods=['GET'])
+# def get_asc_tasks():
+#     tasks = Task.query.order_by(Task.title.asc())
+
+#     response = []
+#     for task in tasks:
+#         is_complete = False
+#         if task.completed_at:
+#             is_complete = True
+#         response.append({
+#             "id": task.task_id,
+#             "title": task.title,
+#             "description": task.description,
+#             "is_complete": is_complete
+#         })
+
+# @tasks_bp.route("tasks?sort=desc", methods=['GET'])
+# def get_desc_tasks():
+#     tasks = Task.query.order_by(Task.title.desc())
+
+#     response = []
+#     for task in tasks:
+#         is_complete = False
+#         if task.completed_at:
+#             is_complete = True
+#         response.append({
+#             "id": task.task_id,
+#             "title": task.title,
+#             "description": task.description,
+#             "is_complete": is_complete
+#         })
 
 @tasks_bp.route("/<task_id>", methods=['GET'])
 def get_one_task(task_id):
