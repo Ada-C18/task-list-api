@@ -15,7 +15,7 @@ def create_goal():
     request_body = request.get_json()
     
     if (("title") not in request_body):
-        return make_response({"title": "Invalid data"}, 400)
+        return make_response({"details": "Invalid data"}, 400)
     
     new_goal = Goal.from_dict(request_body)
     db.session.add(new_goal)
@@ -38,3 +38,29 @@ def get_all_goals():
     for goal in goals:
         goals_response.append(goal.to_dict())
     return jsonify(goals_response)
+
+@goals_bp.route("/<goal_id>", methods=["GET"])
+def read_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    return make_response({"goal": goal.to_dict()}, 200)
+
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    
+    request_body = request.get_json()
+    
+    goal.title = request_body["title"]
+    
+    db.session.commit()
+    
+    return make_response({"goal": goal.to_dict()}, 200)
+
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return make_response({"details": f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted"}, 200)
