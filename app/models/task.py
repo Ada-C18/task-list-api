@@ -1,5 +1,6 @@
 from app import db
-from flask import jsonify, abort, make_response
+from flask import abort, make_response
+import datetime
 
 
 class Task(db.Model):
@@ -24,6 +25,18 @@ class Task(db.Model):
             "is_complete" : self.is_complete()
             }
         return task_dict
+    
+    def mark_complete(self):
+        if self.is_complete():
+            pass
+        else:
+            self.completed_at = datetime.datetime.now()
+        
+    def mark_incomplete(self):
+        if not self.is_complete():
+            pass
+        else:
+            self.completed_at = None           
 
     @classmethod
     def from_dict(cls, request_body):

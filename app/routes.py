@@ -2,6 +2,7 @@ from app import db
 from .models.task import Task
 from flask import Blueprint, request, make_response, jsonify, abort
 import sqlalchemy 
+import datetime
 
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
@@ -63,9 +64,17 @@ def update_task(task_id):
 
     return {"task" : task.to_dict()}, 200
 
-@task_bp.route("<task_id>/<status>", methods=["PATCH"])
-def mark_task_status(task_id, status):
-    pass
+@task_bp.route("<task_id>/<marker>", methods=["PATCH"])
+def mark_task_status(task_id, marker):
+    task = Task.validate_task_id(task_id)
+    eval("task." + marker + "()")
+    
+
+    db.session.commit()
+
+    return {"task" : task.to_dict()}, 200
+    
+
     
 
 
