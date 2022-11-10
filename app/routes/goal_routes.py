@@ -85,7 +85,6 @@ def send_task_ids_to_goal(goal_id):
     request_body = request.get_json()
 
     for task_id in request_body["task_ids"]:
-        # task = validate_task(task_id)
         task = validate_obj(Task, task_id)
         task.goal_id = goal.goal_id
 
@@ -106,12 +105,9 @@ def get_tasks_of_one_goal(goal_id):
     tasks = goal.tasks
     tasks_list = [task.to_dict() for task in tasks]
 
-    # convert goal to dict
     goal_dict = goal.to_dict()
-    # add tasks_list to goal dict
     goal_dict["tasks"] = tasks_list
 
-    # iterate tasks_list and add goal_id
     for task in goal_dict["tasks"]:
         task["goal_id"] = goal.goal_id
 
