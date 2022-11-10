@@ -53,11 +53,11 @@ def get_one_goal(goal_id):
     response = {"goal": goal.create_dict()}
     return make_response(response)
 
-@goals_bp.route("/<goal_id>", methods=["PUT"])
+@goals_bp.route("/<goal_id>", methods=["PUT" or "PATCH"])
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     request_body = request.get_json()
-    goal.update(request_body)
+    goal.patch(request_body)
 
     db.session.commit()
 

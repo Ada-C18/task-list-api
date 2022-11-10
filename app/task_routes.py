@@ -82,11 +82,11 @@ def get_one_task(task_id):
     response = {"task": task.create_dict()}
     return make_response(response)
 
-@tasks_bp.route("/<task_id>", methods=["PUT"])
+@tasks_bp.route("/<task_id>", methods=["PUT" or "PATCH"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
     request_body = request.get_json()
-    task.update(request_body)
+    task.patch(request_body)
 
     db.session.commit()
 

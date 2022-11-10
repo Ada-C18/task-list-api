@@ -10,14 +10,14 @@ class Goal(db.Model):
             goal_as_dict = {}
             goal_as_dict["id"] = self.goal_id  
             goal_as_dict["title"] = self.title
-
+            print(tasks)
             if tasks:
                 goal_as_dict["tasks"] = [task.create_dict() for task in self.tasks]
             
             return goal_as_dict
 
-    def update(self,req_body):
-        self.title = req_body["title"]
+    def patch(self, req_body):
+        self.title = req_body.get("title")
 
     @classmethod 
     def new_instance_from_dict(cls, req_body):

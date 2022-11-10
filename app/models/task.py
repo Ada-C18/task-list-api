@@ -7,7 +7,6 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime)
-    # is_complete = db.Column(db.Boolean, default=False)
     goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
     goal = db.relationship("Goal", back_populates="tasks")
 
@@ -24,15 +23,16 @@ class Task(db.Model):
         
         return task_as_dict
 
-    def update(self,req_body):
-        self.title = req_body["title"]
-        self.description = req_body["description"]
+    def patch(self, req_body):
+        self.title = req_body.get("title")
+        self.description = req_body.get("description")
+        self.goal_id = req_body.get("goal_id")
 
     @classmethod 
     def new_instance_from_dict(cls, req_body):
         new_dict = cls(
                         title = req_body["title"],
                         description = req_body["description"],
-                        # is_complete = req_body["is_complete"]
+                        goal_id = req_body.get("goal_id")
                         )
         return new_dict
