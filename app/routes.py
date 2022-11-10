@@ -48,14 +48,14 @@ def validate_model(cls, id):
     try:
         id = int(id)
     except:
-        abort(make_response({"details": f"Task {id} invalid"}, 400))
+        abort(make_response({"details": f"{cls.__name__} {id} invalid"}, 400))
 
-    task = cls.query.get(id)
+    model = cls.query.get(id)
 
-    if not task:
-        abort(make_response({"details": f"Task {id} not found"}, 404))
+    if not model:
+        abort(make_response({"details": f"{cls.__name__} {id} not found"}, 404))
     
-    return task
+    return model
 
 @task_bp.route("", methods=["GET"])
 def get_tasks():
@@ -222,5 +222,5 @@ def delete_goal(goal_id):
     db.session.delete(goal)
     db.session.commit()
 
-    return make_response(jsonify(details=f"Task {goal.goal_id} \"{goal.title}\" successfully deleted")) 
+    return make_response(jsonify(details=f"Goal {goal.goal_id} \"{goal.title}\" successfully deleted")) 
 
