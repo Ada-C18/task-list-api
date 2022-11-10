@@ -35,9 +35,11 @@ def get_all_tasks():
     else:
         tasks = Task.query.all()
 
-    response = []
-    for task in tasks:
-        response.append(task.to_dict())
+    # response = []
+    # for task in tasks:
+    #     response.append(task.to_dict())
+    ###### refactor the lines above #######
+    response = [task.to_dict() for task in tasks]    
 
     return make_response(jsonify(response),200) 
 

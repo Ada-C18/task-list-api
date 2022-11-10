@@ -91,11 +91,11 @@ def post_tasks_to_goal(goal_id):
 def get_tasks_for_goal(goal_id):
     goal = get_model_from_id(Goal,goal_id)
     
-    task_list = []
+    task_lists = []
     for task in goal.tasks:
-        task_list.append(task.to_dict())
+        task_lists.append(task.to_dict())
 
     goal_dict = goal.to_dict()  
-    goal_dict['tasks'] = task_list  
+    goal_dict['tasks'] = task_lists 
 
     return make_response(jsonify(goal_dict),200) 
