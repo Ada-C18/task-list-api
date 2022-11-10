@@ -159,7 +159,19 @@ def get_tasks_for_goal(goal_id):
     #for item in chosen_goal.task_items:
     #    tasks.append(item.to_dict())
 
-    return jsonify(chosen_goal.to_dict()), 200
+    return jsonify(chosen_goal.to_dict_task()), 200
+
+@goal_bp.route('/<goal_id>/tasks', methods=['POST'])
+def create_tasks_for_goal(goal_id):
+    request_body = request.get_json()
+
+    try:
+        new_goal = Goal.from_dict(request_body)
+    except KeyError:
+        return jsonify({"details": "Invalid data"}), 400
+
+    db.session.add(new_goal)
+    db.session.commit()
 
 
 def get_model_from_id(cls, model_id):
