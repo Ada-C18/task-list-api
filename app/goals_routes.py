@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from app.models.goal import Goal
+from app.models.task import Task
 from sqlalchemy import asc, desc
 from datetime import datetime
 from .task_routes import validate_model, wrap_response
 import requests
 import os
+
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
 
@@ -41,7 +43,7 @@ def get_all_goals():
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def get_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    return wrap_response(Goal, goal.to_dict())
+    return jsonify(wrap_response(Goal, goal.to_dict()))
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
@@ -50,7 +52,7 @@ def update_goal(goal_id):
     goal.title = request_body["title"]
 
     db.session.commit()
-    return wrap_response(Goal, goal.to_dict())
+    return jsonify(wrap_response(Goal, goal.to_dict()))
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
@@ -60,3 +62,44 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return make_response({"details": response_body})
+
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def create_tasks_list(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    
+    for task in request_body['task_ids']:
+        new_task = validate_model(Task, task)
+        goal.tasks.append(new_task)  
+    db.session.commit()
+
+    return jsonify({
+        "id": int(goal_id),
+        "task_ids": request_body['task_ids']
+    })
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def getting_all_tasks(goal_id):
+    goal = validate_model(Goal, goal_id)
+    request_body = request.get_json()
+    tasks_list = []
+    for task in goal.tasks:
+        if not task.completed_at:
+            is_complete = False
+        else:
+            is_complete = True
+        tasks_list.append(
+            {
+                "id": task.task_id,
+                "goal_id": task.goal_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": is_complete
+            }
+        )
+    return jsonify({
+        "id": int(goal_id),
+        "title": goal.title,
+        "tasks": tasks_list
+    })
+
