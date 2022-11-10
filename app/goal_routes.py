@@ -5,6 +5,7 @@ from flask import request, Blueprint, jsonify, make_response, abort
 from sqlalchemy import desc
 from datetime import datetime
 import requests
+import os
 
 
 goals_bp = Blueprint("goals_bp", __name__, url_prefix="/goals")
@@ -24,7 +25,6 @@ def handle_goals():
 
         db.session.add(new_goal)
         db.session.commit()
-
         return jsonify(goal=new_goal.to_json_goal()), 201
 
     elif request.method == "GET":
@@ -101,7 +101,6 @@ def unprocessable(error):
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = get_goal_by_id(goal_id)
-
     request_body = request.get_json()
     if not request_body: 
         abort(400)
@@ -121,4 +120,5 @@ def valid_int(number, parameter_type):
         int(number)
     except:
         abort(make_response({"error": f'{parameter_type} must be an integer'}, 400))
+
 

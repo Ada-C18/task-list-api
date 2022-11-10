@@ -121,7 +121,7 @@ def test_mark_complete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == None
+    assert response_body == {"message": f"Task 1 does not exist"}
 
 
 def test_mark_incomplete_missing_task(client):
@@ -131,7 +131,7 @@ def test_mark_incomplete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-    assert response_body == None
+    assert response_body == {"message": f"Task 1 does not exist"}
 
     # created test for creating tasks
 
