@@ -28,14 +28,7 @@ def validate_model(cls, model_id):
 def read_all_tasks():
     title_query = request.args.get('title')
     sort_query = request.args.get('sort')
-    # task_query = Task.query
-    # if title_query:
-    #     task_query = task_query.filter_by(title=title_query)
-    # if sort_query == 'asc':
-    #     task_query = task_query.order_by(Task.title.asc())
-    # if sort_query == 'desc':
-    #     task_query = task_query.order_by(Task.title.desc())
-    # tasks = Task.query.all()
+
     if title_query:
         tasks = Task.query.filter_by(title=title_query)
         
@@ -103,44 +96,16 @@ def delete_task(task_id):
 
 
 
-# @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-# def mark_incomplete(task_id):
-#     task = validate_model(Task, task_id)
-#     task.completed_at = None
-#     db.session.commit()
-#     return make_response(jsonify({'task': task.to_dict()}))
 
-
-
-# @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-# def mark_complete(task_id):
-#     task = validate_model(Task, task_id)
-    
-#     task.completed_at = datetime.datetime.today()
-#     db.session.commit()
-#     update_community(f'Someone just completed the task {task.title}')
-#     return make_response(jsonify({'task': task.to_dict()}))
-
-# def update_community(message):
-#     URL = "https://slack.com/api/chat.postMessage"
-#     API_KEY = os.environ.get("SLACK_API_KEY")
-#     print(API_KEY)
-#     query_params = {"channel":"task-notifications", "text":message, "token":API_KEY}
-#     #header = {"Authorization":API_KEY}
-#     x = requests.post(URL, data=query_params)
-#     print(x.text)
-
-# ask ashley why 'bearer disappears 
 def update_community(message):
     load_dotenv()
     URL = "https://slack.com/api/chat.postMessage"
     API_KEY = os.environ.get("SLACK_API_KEY")
-    
     query_params = {"channel":"task-notifications", "text":message}
     header = {"Authorization":API_KEY}
-    print(header)
-    x = requests.post(URL, data=query_params, headers=header)
-    print(x.text)
+
+    requests.post(URL, data=query_params, headers=header)
+
 
 @tasks_bp.route("/<task_id>/<command>", methods=["PATCH"])
 def update_completed_at(task_id, command):

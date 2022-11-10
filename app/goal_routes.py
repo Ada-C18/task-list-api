@@ -10,8 +10,6 @@ load_dotenv()
 
 goals_bp = Blueprint('goals', __name__, url_prefix='/goals')
 
-
-
 @goals_bp.route("", methods=["GET"])
 def read_all_goals():
     title_query = request.args.get('title')
@@ -53,7 +51,7 @@ def update_goal(goal_id):
     db.session.commit()
 
     return jsonify({'goal': goal.goal_to_dict()})
-
+    
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
