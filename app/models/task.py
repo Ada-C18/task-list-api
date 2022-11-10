@@ -7,7 +7,7 @@ class Task(db.Model):
     description = db.Column(db.Text)
     completed_at = db.Column(db.DateTime, nullable=True)
     goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
-    goal = db.relationship("Goal", back_populates="task")
+    goal = db.relationship("Goal", back_populates="tasks")
     
     @classmethod
     def from_dict(cls, task_data):
