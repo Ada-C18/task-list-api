@@ -17,11 +17,15 @@ def validate_task(task_id):
 @tasks_bp.route("", methods=['POST'])
 def add_task():
     request_body = request.get_json()
-    if 'title' not in request_body or 'description' not in request_body or 'completed_at' not in request_body:
+    if 'title' not in request_body or 'description' not in request_body:
         abort(make_response({"details": "Invalid data"}, 400))
-    new_task = Task(title=request_body['title'], description=request_body['description'])
+
+    new_task = Task.from_dict(request_body)
+
+    if 'completed_at' not in request_body and new_task.completed_at:
+        abort(make_response({"details": "Invalid data"}, 400))
+        
     db.session.add(new_task)
-    
     db.session.commit()
 
     is_complete = False
@@ -60,10 +64,10 @@ def get_one_task(task_id):
     is_complete = False
     if task.completed_at:
         is_complete = True
-    return {"id": task.task_id,
+    return {"task": {"id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": is_complete}, 200
+            "is_complete": is_complete}}, 200
 
 @tasks_bp.route("/<task_id>", methods=['PUT'])
 def update_task(task_id):
@@ -79,10 +83,10 @@ def update_task(task_id):
     is_complete = False
     if task.completed_at:
         is_complete = True
-    return {"id": task.task_id,
+    return {"task": {"id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": is_complete}, 200
+            "is_complete": is_complete}}, 200
 
 @tasks_bp.route("/<task_id>", methods=['DELETE'])
 def delete_task(task_id):
@@ -90,4 +94,4 @@ def delete_task(task_id):
     title = task.title
     db.session.delete(task)
     db.session.commit()
-    return make_response(f"Task {title} successfully deleted"), 200
+    return {"details": f'Task {task_id} "{title}" successfully deleted'}, 200
