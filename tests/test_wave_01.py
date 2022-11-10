@@ -1,4 +1,4 @@
-from app.models.task import Task
+from app.models import Task
 import pytest
 
 
