@@ -110,12 +110,14 @@ def update_task(id):
 @bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_task(id)
+    task_id = task.task_id
+    task_title = f"\"{task.title}\""
 
     db.session.delete(task)
     db.session.commit()
 
     response_body = {
-        "details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
+        "details": f'Task {task_id} {task_title} successfully deleted'
     }
 
     return jsonify(response_body)
