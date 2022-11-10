@@ -29,8 +29,9 @@ def handle_tasks():
         
         db.session.add(task)
         db.session.commit()
-
+        slack_send_new_task(task)
         db.session.refresh(task)
+
         task = task.to_dict()
         response = {"task":task}
         return make_response(response,201)
@@ -73,13 +74,8 @@ def mark_task(id, mark):
     mark = mark_truthy_falsy(mark)
     if mark == True:
         if task.completed_at == None:
-            # connect to Slack API to send a message to the task-notifications channel
-            SLACK_URL = "https://slack.com/api/chat.postMessage"
-            PARAMS = {"channel":"task-notifications",
-                     "text":f"Someone just completed the task {task.to_dict()['title']}"
-                     }
-            HEADERS ={"Authorization": f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"}
-            requests.post(url = SLACK_URL, headers=HEADERS, params=PARAMS,)
+            slack_add_check(task)
+            slack_send_completed_task(task)
         task.completed_at = date.today()
         db.session.commit()
         return make_response({"task":task.to_dict()},200)
