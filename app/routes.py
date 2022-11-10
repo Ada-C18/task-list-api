@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from . import db
 from .models.task import Task
 
@@ -21,3 +21,34 @@ def add_task():
         "description": new_task.description,
         "is_complete": is_complete
     }}, 201
+
+@tasks_bp.route("", methods=['GET'])
+def get_tasks():
+    tasks = Task.query.all()
+
+    response = []
+    for task in tasks:
+        is_complete = False
+        if task.completed_at:
+            is_complete = True
+        response.append({
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": is_complete
+        })
+    
+    return jsonify(response), 200
+
+@tasks_bp.route("/<task_id>", methods=['GET'])
+def get_one_task(task_id):
+    # add validate id
+    task = Task.query.get(task_id)
+
+    is_complete = False
+    if task.completed_at:
+        is_complete = True
+    return {"id": task.task_id,
+            "title": task.title,
+            "description": task.description,
+            "is_complete": is_complete}, 200
