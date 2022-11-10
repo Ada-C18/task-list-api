@@ -113,7 +113,7 @@ def test_update_goal_not_found(client):
     # Assert
     assert response.status_code == 404
     assert "details" in response_body
-    # assert response_body == {"details": "Invalid data"}
+    assert response_body == {"details": "Invalid data"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -145,7 +145,7 @@ def test_delete_goal_not_found(client):
     # Assert
     assert response.status_code == 404
     assert "details" in response_body
-    # assert response_body == {"details": "Invalid data"}
+    assert response_body == {"details": "Invalid data"}
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal_missing_title(client):

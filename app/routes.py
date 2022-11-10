@@ -8,7 +8,7 @@ import requests, os
 
 task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
-
+# ******** Wave 1 ********
 @task_bp.route("", methods=["POST"])
 def create_task():
     response_body = request.get_json()
@@ -26,7 +26,7 @@ def create_task():
     db.session.commit()
 
     return jsonify({"task": new_task.to_dict()}), 201
-
+# ******** Wave 2 ********
 @task_bp.route("", methods=["GET"])
 def get_all_tasks():
     title_param = request.args.get("sort") 
@@ -211,6 +211,6 @@ def post_task_belonging_to_a_goal(goal_id):
         
         db.session.add(select_task)
         db.session.commit()
-  
+
 
     return jsonify({"id": int(goal_id), "task_ids": request_body["task_ids"]}), 200
