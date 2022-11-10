@@ -85,14 +85,7 @@ def read_all_tasks():
 @bp.route("/<id>", methods = ["GET"])
 def read_tasks_by_id(id):
     task = validate_model(Task,id)
-    if task.goal_id != None:
-        return jsonify({
-            "task":{
-            "id": task.id, "title": task.title, 
-        "description": task.description, "is_complete": False,"goal_id": task.goal_id}}), 200
-    
-    else:
-        return jsonify({"task":task.to_dict()}), 200
+    return jsonify({"task":task.to_dict()}), 200
 
 @bp.route("/<id>", methods = ["PUT"])
 def update_task_by_id(id):
@@ -230,11 +223,13 @@ def get_task_of_one_goal(id):
     task_list = []
 
     for task in goal.tasks:
-        task_list.append({"id": task.id ,"goal_id": task.goal_id, 
-        "title": task.title,"description": task.description, "is_complete": False})
+        task = task.to_dict()
+        task_list.append(task)
+       
+    print()
 
     db.session.add(goal)
     db.session.commit()
 
     return make_response({"id": goal.id,"title": goal.title, "tasks":task_list}, 200)
-   
+
