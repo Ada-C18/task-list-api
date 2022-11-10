@@ -6,6 +6,7 @@ class Task(db.Model):
     title = db.Column(db.Text)
     description = db.Column(db.Text)
     completed_at = db.Column(db.DateTime, nullable=True)
+    goal = db.relationship("Goal", back_populates="task")
     
     @classmethod
     def from_dict(cls, task_data):
