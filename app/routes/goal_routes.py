@@ -117,7 +117,6 @@ def delete_goal(goal_id):
 #   set each task FK with the goal id
     # goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'), nullable=True)
 # 
-
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def give_task_to_goal(goal_id):
     request_body = request.get_json()
@@ -125,12 +124,11 @@ def give_task_to_goal(goal_id):
     #accessing the list of task_ids
     request_body["task_ids"]
     for id in request_body["task_ids"]:
-        
+        id = int(id)
         #gets the task object/dictionary
-        #sets task FK to goal ID
         task = Task.query.get(id)
-        task.goal_id = int(goal_id)
-
+        task.goal_id = goal_id
+        print(task.goal_id)
 
     db.session.commit()
 
@@ -139,22 +137,39 @@ def give_task_to_goal(goal_id):
         "task_ids": request_body["task_ids"]
     })
 
+
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_goal_with_task(goal_id):
-    goal = get_record_by_id(Task, goal_id)
-    
-    tasks = []
+    goal = get_record_by_id(Goal, goal_id)
 
+    #create a brand new list
+    #add dict version of each task instance via goal.tasks
+    task_list = []
+    # iterate over goal.tasks
+    for task in goal.tasks:
+        if goal_id:
+
+    # append each task dict to goal_list
+            task_list.append({
+                "id": task.task_id,
+                "goal_id":int(goal_id),
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            })
+        else:
+            task_list.append({
+                "id": task.task_id,
+                "goal_id": int(goal_id),
+                "title": task.title,
+                "description": task.description,
+                "is_complete": bool(task.completed_at)
+            })
+    
     response_body = jsonify({
         "id": int(goal_id),
         "title": goal.title,
-        "tasks": tasks
+        "tasks": task_list
     })
-
-
-    # return response_body
-
-    # return goal
-
 
     return response_body
