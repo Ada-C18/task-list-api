@@ -1,4 +1,4 @@
-from app.models.task import Goal
+from app.models.goal import Goal
 import pytest
 
 
@@ -84,16 +84,22 @@ def test_create_goal(client):
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal(client, one_goal):
     # Act
-    response = client.put("/goal/1", json={
-        "title": "Wake up early"
+    response = client.put("/goals/1", json={
+        "title": "Updata My New Goal"
     })
     response_body = response.get_json()
     # Assert
     # ---- Complete Assertions Here ----
     assert response.status_code == 200
-    # assert "goal" in response_body
-    # assert response_body == {"goal": "Wake up early"}
-
+    assert "goal" in response_body
+    assert response_body == {
+        "goal": {
+            "id": 1,
+            "title": "Updata My New Goal"
+        }
+    }
+    goal = Goal.query.get(1)
+    assert goal.title == "Updata My New Goal"
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
@@ -130,19 +136,15 @@ def test_delete_goal(client, one_goal):
     assert response.status_code == 404
     assert "details" in response_body
 
-    # raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
-
+   
 
 @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
     raise Exception("Complete test")
 
     # Act
-    # ---- Complete Act Here ----
-
+    response = client.delete("/s/1")
+    response_body = response.get_json()
     # Assert
     # ---- Complete Assertions Here ----
     # assertion 1 goes here
