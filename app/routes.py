@@ -165,10 +165,9 @@ def update_goal_with_new_vals(goal_id):
 
     request_body = request.get_json()
 
-    if "title" not in request_body:
-            return jsonify({"message":"Request must include title"}), 400
-
-    chosen_goal.title = request_body["title"]
+    if "title" in request_body:
+        # return jsonify({"details":"Request must include title"}), 400
+        chosen_goal.title = request_body["title"]   
 
     db.session.commit()
 
@@ -188,11 +187,16 @@ def delete_one_goal(goal_id):
 
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_all_tasks_belonging_to_a_goal(goal_id):
-    goal = get_one_obj_or_abort(Goal, goal_id)
+    chosen_goal = get_one_obj_or_abort(Goal, goal_id)
 
-    tasks_response = [task.to_dict() for task in goal.tasks]
+    tasks_list = []
+    for task in chosen_goal.tasks:
+        tasks_list.append(task.to_dict())
 
-    return jsonify(tasks_response), 200
+    # tasks_response = [task.to_dict() for task in goal.tasks]
+    response_dict = chosen_goal.to_dict()
+    response_dict["tasks"] = tasks_list
+    return jsonify(response_dict), 200
 
 
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
@@ -201,11 +205,12 @@ def post_task_belonging_to_a_goal(goal_id):
 
     request_body = request.get_json()
 
-    
-    new_task = Task.from_dict(request_body)
-    new_task.goal = parent_goal
+    for task in request_body["task_ids"]:
+        select_task = get_one_obj_or_abort(Task,task)
+        select_task.goal = parent_goal
+        
+        db.session.add(select_task)
+        db.session.commit()
+  
 
-    db.session.add(new_task)
-    db.session.commit()
-
-    return jsonify(new_task), 200
+    return jsonify({"id": int(goal_id), "task_ids": request_body["task_ids"]}), 200

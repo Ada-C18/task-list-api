@@ -58,8 +58,8 @@ def test_get_goal_not_found(client):
     # Assert
     # ---- Complete Test ----
     assert response.status_code == 404
-    assert "message" in response_body
-    assert response_body == {"message": "Goal with id '1' was not found in the database."}
+    assert "details" in response_body
+    assert response_body == {"details":"Invalid data"}
     
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -103,19 +103,17 @@ def test_update_goal(client, one_goal):
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
-    pass
     # raise Exception("Complete test")
     # Act
-    response = client.put("/goal/1", json={
+    response = client.put("/goals/3", json={
         "title": "Wake up early"
     })
     response_body = response.get_json()
 
     # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
+    assert response.status_code == 404
+    assert "details" in response_body
+    # assert response_body == {"details": "Invalid data"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
@@ -138,21 +136,18 @@ def test_delete_goal(client, one_goal):
 
    
 
-@pytest.mark.skip(reason="test to be completed by student")
+# @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
-    raise Exception("Complete test")
 
     # Act
-    response = client.delete("/s/1")
+    response = client.delete("/goals/1")
     response_body = response.get_json()
     # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
+    assert response.status_code == 404
+    assert "details" in response_body
+    # assert response_body == {"details": "Invalid data"}
 
-
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_create_goal_missing_title(client):
     # Act
     response = client.post("/goals", json={})
