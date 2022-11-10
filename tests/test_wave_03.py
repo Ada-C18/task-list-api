@@ -3,9 +3,10 @@ from unittest.mock import Mock, patch
 from datetime import datetime
 from app.models.task import Task
 import pytest
+import time
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_on_incomplete_task(client, one_task):
     # Arrange
     """
@@ -24,11 +25,13 @@ def test_mark_complete_on_incomplete_task(client, one_task):
         mock_get.return_value.status_code = 200
 
         # Act
+        # time.sleep(60)
+
         response = client.patch("/tasks/1/mark_complete")
     response_body = response.get_json()
-
     # Assert
     assert response.status_code == 200
+
     assert "task" in response_body
     assert response_body["task"]["is_complete"] == True
     assert response_body == {
@@ -42,7 +45,7 @@ def test_mark_complete_on_incomplete_task(client, one_task):
     assert Task.query.get(1).completed_at
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_on_complete_task(client, completed_task):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -62,7 +65,7 @@ def test_mark_incomplete_on_complete_task(client, completed_task):
     assert Task.query.get(1).completed_at == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+#@pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_on_completed_task(client, completed_task):
     # Arrange
     """
@@ -99,7 +102,7 @@ def test_mark_complete_on_completed_task(client, completed_task):
     assert Task.query.get(1).completed_at
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_on_incomplete_task(client, one_task):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -119,7 +122,7 @@ def test_mark_incomplete_on_incomplete_task(client, one_task):
     assert Task.query.get(1).completed_at == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_complete")
@@ -127,14 +130,14 @@ def test_mark_complete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
+    assert response_body == {"message": "id number not found"}
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -142,8 +145,8 @@ def test_mark_incomplete_missing_task(client):
 
     # Assert
     assert response.status_code == 404
-
-    raise Exception("Complete test with assertion about response body")
+    assert response_body == {"message": "id number not found"}
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
