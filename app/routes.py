@@ -43,12 +43,15 @@ def create_task():
 def get_all_tasks():
         title_query = request.args.get("title")
         sort_query = request.args.get("sort")
+        id_sort = request.args.get("task_id")
         if sort_query == "asc": 
                 tasks = Task.query.order_by(Task.title).all()
         elif sort_query == "desc":
                 tasks = Task.query.order_by(Task.title.desc()).all()
         elif title_query:
                 tasks = Task.query.get(title=title_query)
+        elif id_sort:
+                tasks = Task.query.order_by(Task.task_id.desc()).all()
         else:
                 tasks = Task.query.all()
         task_response = []
@@ -128,7 +131,7 @@ def create_goal():
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
         goals = Goal.query.all()
-        
+
         goal_response = []
         for goal in goals:
                 goal_response.append(goal.to_dict())
