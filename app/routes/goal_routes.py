@@ -6,6 +6,7 @@ from app.models.goal import Goal
 from sqlalchemy import asc
 from sqlalchemy import desc
 from datetime import date
+from app.routes.routes_helper import get_one_obj_or_abort
 from app.routes.task_routes import get_one_task_or_abort
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix ="/goals")
@@ -162,4 +163,48 @@ def update_task(goal_id):
     "task_ids": task_id_list
     }
     return make_response(jsonify(goal_dict)),200
+
+@goal_bp.route("", methods=["GET"])
+def get_all_goals():
+    goal = Goal.query.all()
+
+    response = [goal.to_dict() for goal in goal]
+
+    return jsonify(response), 200
+
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_all_tasks_belonging_to_a_goal(goal_id):
+    goal = get_one_obj_or_abort(Goal, goal_id)
+
+    task_response = [task.to_dict() for task in goal.tasks]
+
+    return jsonify(task_response), 200
+
+
+# @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+# def get_one_task(goal_id):
+#     goals = Goal.query.all()
+#     try:
+#         goal_id = int(goal_id)
+#     except ValueError:
+#         response_str = f"Invalid goal_id: {goal_id} ID must be integer"
+#         return jsonify({"message": response_str}), 400
+#     task_list = []
+#     for task in goals:
+#         task_dict = {
+#             "id": task.task_id,
+#             "goal_id": task.goal_id,
+#             "title": task.title,
+#             "description": task.description,
+#             "completed_at": task.completed_at
+#         }
+        
+#         return jsonify({"id": task.goal_id,
+#                 "title": task.title,
+#             "goal": task_list.append(task_dict)}), 200
+#     response_message = f"Could not find goal with ID {goal_id}"
+#     return jsonify({"message": response_message}), 404
+    
+    
     
