@@ -117,7 +117,8 @@ def mark_complete(task_id):
     task.completed_at = date.today()
 
     text = f"Someone just completed the task {task.title}"
-    post_to_slack(text)
+    response = post_to_slack(text)
+    print(response.text)
 
     db.session.commit()
     # client.chat_postMessage(
