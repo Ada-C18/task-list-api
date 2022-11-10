@@ -33,87 +33,58 @@ def create_goal():
 
     db.session.add(new_goal) # track this object
     db.session.commit() # any changes that are pending commit those changes as data written in SQL
-    return make_response(jsonify({
-        "goal": {
-            "id": new_goal.goal_id,
-            "title": new_goal.title,
-        }
-    }), 201)
+
+    new_goal_response = {"goal": new_goal.to_dict()}
+    return make_response(jsonify(new_goal_response), 201)
 
 
 @goals_bp.route("", methods=["GET"])
 def read_all_goals():
     goals = Goal.query.all()
 
-    goals_response = []
-
-    for goal in goals:
-        goals_response.append(
-            {
-                "id": goal.goal_id,
-                "title": goal.title
-            }
-        )
-
-    return make_response(jsonify(goals_response), 200)
+    goals_list = [goal.to_dict() for goal in goals]
+    return make_response(jsonify(goals_list), 200)
 
 
 @goals_bp.route("/<goal_id>", methods=["GET"])
 def read_one_goal(goal_id):
     goal = get_validate_model(Goal, goal_id)
-    return make_response(jsonify({
-        "goal": {
-            "id": goal.goal_id,
-            "title": goal.title,
-        }
-    }), 200)
+    current_goal_response = {"goal": goal.to_dict()}
+
+    return make_response(jsonify(current_goal_response), 200)
 
 
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal_model = get_validate_model(Goal, goal_id)
+    goal = get_validate_model(Goal, goal_id)
 
     request_body = request.get_json()
-
-    if not goal_model: 
-        return make_response({"message":f"Goal {goal_model} not found"}, 404)  
-
-    goal_model.title = request_body["title"]
+    goal.title = request_body["title"]
 
     db.session.commit()
 
-    return make_response({
-        "goal": {
-            "id": goal_model.goal_id,
-            "title": goal_model.title
-        }
-    }, 200)
+    current_goal_response = {"goal": goal.to_dict()}
+    return make_response(jsonify(current_goal_response), 200)
 
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
-    task = get_validate_model(Goal, goal_id)
+    goal = get_validate_model(Goal, goal_id)
 
-    goal_model = Goal.query.get(goal_id)
-
-    if not goal_model: 
-        return make_response({"message":f"Task {goal_id} not found"}, 404)  
-
-    db.session.delete(goal_model)
+    db.session.delete(goal)
     db.session.commit()
 
-    return make_response({"details": f'Goal {goal_id} "{goal_model.title}" successfully deleted'}, 200)
+    return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200)
 
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
 def sending_list_of_task_ids_to_goal(goal_id):
     goal = get_validate_model(Goal, goal_id)
+
     request_body = request.get_json()
     task_ids = request_body["task_ids"]
 
-    goal.tasks = []
-    for task_id in task_ids:
-        goal.tasks.append(Task.query.get(task_id))
+    goal.tasks = [Task.query.get(task_id) for task_id in task_ids]
     
     db.session.commit() # any changes that are pending commit those changes as data written in SQL
 
@@ -126,29 +97,12 @@ def sending_list_of_task_ids_to_goal(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def getting_list_of_tasks_by_goal(goal_id):
     goal = get_validate_model(Goal, goal_id)
-    print('HELLO!!!!!!!')
-    tasks_list = []
-    for task in goal.tasks:
-        # task_dict = {}
-        # task_dict["id"] = task.task_id
-        # task_dict["title"] = task.title
-        # task_dict["description"] = task.description
-        # task_dict["is_complete"] = False
-        # tasks_list.append(task_dict)
-        tasks_list.append(
-            {
-                "id": task.task_id,
-                "goal_id": task.goal_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": False
-            }
-        )
-        
-    # db.session.commit() # any changes that are pending commit those changes as data written in SQL
+
+    tasks_list = [task.to_dict() for task in goal.tasks]
 
     return make_response(jsonify({
             "id": goal.goal_id,
             "title": goal.title,
             "tasks": tasks_list
         }), 200)
+
