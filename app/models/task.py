@@ -17,12 +17,10 @@ class Task(db.Model):
         result_dict["id"] = self.task_id
         result_dict["title"] = self.title
         result_dict["description"] = self.description
-        result_dict["completed_at"] = self.completed_at
+        result_dict["is_complete"] = bool(self.completed_at) # False if completed_at is null
+
+        if self.goal_id:
+            result_dict["goal_id"] = self.goal_id
 
         return result_dict
 
-    @classmethod
-    def from_dict(cls, req_body):
-        return cls(title=req_body["title"],
-            description=req_body["description"],
-            completed_at=req_body["completed_at"])
