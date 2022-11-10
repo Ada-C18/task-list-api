@@ -37,6 +37,15 @@ def slack_bot_message(text):
 
     requests.post(URL, data=query_params, headers={"Authorization": API_KEY})
 
+def put_or_patch_model(cls, model_id):
+    model = validate_model(cls, model_id)
+    request_body = request.get_json()
+    model.patch(request_body)
+
+    db.session.commit()
+
+    return {cls.__name__.lower(): model.create_dict()}
+
 # ===================
 # ROUTES
 # ===================
@@ -82,15 +91,13 @@ def get_one_task(task_id):
     response = {"task": task.create_dict()}
     return make_response(response)
 
-@tasks_bp.route("/<task_id>", methods=["PUT" or "PATCH"])
+@tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
-    task = validate_model(Task, task_id)
-    request_body = request.get_json()
-    task.patch(request_body)
+    return put_or_patch_model(Task, task_id)
 
-    db.session.commit()
-
-    return {"task": task.create_dict()}
+@tasks_bp.route("/<task_id>", methods=["PATCH"])
+def patch_task(task_id):
+    return put_or_patch_model(Task, task_id)
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):

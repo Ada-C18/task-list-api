@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request, abort
 from .models.goal import Goal
 from .models.task import Task
-from .task_routes import validate_model
+from .task_routes import validate_model, put_or_patch_model
 from app import db
 import requests, os
 
@@ -53,15 +53,13 @@ def get_one_goal(goal_id):
     response = {"goal": goal.create_dict()}
     return make_response(response)
 
-@goals_bp.route("/<goal_id>", methods=["PUT" or "PATCH"])
+@goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = validate_model(Goal, goal_id)
-    request_body = request.get_json()
-    goal.patch(request_body)
+    return put_or_patch_model(Goal, goal_id)
 
-    db.session.commit()
-
-    return {"goal": goal.create_dict()}
+@goals_bp.route("/<goal_id>", methods=["PATCH"])
+def patch_goal(goal_id):
+    return put_or_patch_model(Goal, goal_id)
 
 @goals_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
