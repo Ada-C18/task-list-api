@@ -109,6 +109,8 @@ def get_one_task(task_id):
                 "description": task.description,
                 "is_complete": is_completed
             }
+            if task.goal_id is not None:
+                task_dict["goal_id"]=task.goal_id
             return jsonify({"task": task_dict}), 200
     response_message = f"Could not find task with ID {task_id}"
     return jsonify({"message": response_message}), 404
