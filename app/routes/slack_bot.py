@@ -9,8 +9,6 @@ path = 'https://slack.com/api/chat.postMessage'
 SLACK_TOKEN = os.environ.get("SLACK_TOKEN")
 channel = "task_notifications"
 
-#2ND SOLUTION FOR SLACKBOT
-
 def slack_message(text):
     
     query_params = {"channel":channel,
