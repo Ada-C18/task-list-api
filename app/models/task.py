@@ -20,5 +20,6 @@ class Task(db.Model):
         task_dict["title"] = self.title
         task_dict["description"] = self.description
         task_dict["is_complete"] = bool(self.completed_at)
+        task_dict["goal_id"] = self.goal_id
 
         return task_dict

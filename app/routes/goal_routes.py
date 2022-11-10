@@ -83,7 +83,13 @@ def assign_tasks(goal_id):
         "task_ids": request_body["task_ids"] #this will not indicate if any tasks weren't found in the validate step
         }), 200)
 
-
-
 #GET TASKS
+
+@goals_bp.route("/<goal_id>/tasks", methods = ["GET"])
+def get_tasks_for_one_goal(goal_id):
+    goal = validate_model(Goal, goal_id)   
+    tasks_response = []
+    for task in goal.tasks:
+        tasks_response.append(task.to_dict())
+    return make_response(jsonify({"id": goal.goal_id, "title": goal.title, "tasks": tasks_response}), 200)
 
