@@ -12,6 +12,7 @@ class Task(db.Model):
     def task_from_dict(cls, response_dict):
         return cls(title=response_dict["title"],
         description=response_dict["description"], 
+        completed_at=response_dict.get("completed_at", None),
         is_complete=response_dict.get("is_complete", False)
         )
 
