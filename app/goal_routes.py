@@ -7,10 +7,8 @@ goal_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 
 def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except: 
-        abort(make_response({"details":"Invalid data"}, 400))
+
+    model_id = int(model_id)
 
     model = cls.query.get(model_id)
     if not model:
