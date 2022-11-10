@@ -60,7 +60,10 @@ def get_all_tasks():
 
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
-    all_goals = Goal.query.all()
+    sort_param = request.args.get("sort")
+    sort_func = getattr(Goal.title, sort_param)() if sort_param in ("asc", "desc") else None
+    all_goals = Goal.query.order_by(sort_func).all()
+
     return jsonify([goal.to_dict() for goal in all_goals])
 
 
