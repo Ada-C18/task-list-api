@@ -153,17 +153,17 @@ def update_incompete(task_id):
 # ###################################################################
 goal_bp = Blueprint("goal_bp",__name__, url_prefix="/goals")
 
-def get_one_goal_or_abort(goal_id):
+def get_one_goal_or_abort(id):
     try:
-        goal_id = int(goal_id)
+        id = int(id)
     except ValueError:
-        response_str = f"Invalid goal_id: `{goal_id}`.Id must be an integer."
+        response_str = f"Invalid id: `{id}`.Id must be an integer."
         abort(make_response(jsonify({'message':response_str}), 400))
 
-    matching_goal = Goal.query.get(goal_id)
+    matching_goal = Goal.query.get(id)
 
     if not matching_goal: 
-        response_str = f"Goal with id {goal_id} was not found in the database."
+        response_str = f"Goal with id {id} was not found in the database."
         abort(make_response(jsonify({'message':response_str}), 404))
     return matching_goal
 
@@ -183,7 +183,7 @@ def add_goal():
 
     return {
         "goal":{
-            "id" : new_goal.goal_id,
+            "id" : new_goal.id,
             "title" : new_goal.title
         }
     }, 201
@@ -193,25 +193,26 @@ def add_goal():
 def get_all_goals():
 
     goals = Goal.query.all()
+
     response = [Goal.to_dict(goal) for goal in goals]
     return jsonify(response), 200
 
 
-@goal_bp.route("/<goal_id>", methods=["GET"])
-def get_one_goal(goal_id):
-    chosen_goal = get_one_goal_or_abort(goal_id)
+@goal_bp.route("/<id>", methods=["GET"])
+def get_one_goal(id):
+    chosen_goal = get_one_goal_or_abort(id)
     goal_dict = {
         "goal":{
-            "id" : chosen_goal.goal_id,
+            "id" : chosen_goal.id,
             "title" : chosen_goal.title
         }
     }
         
     return jsonify(goal_dict), 200
 
-@goal_bp.route("/<goal_id>", methods=["PUT"])
-def update_one_task(goal_id):
-    chosen_goal = get_one_goal_or_abort(goal_id)
+@goal_bp.route("/<id>", methods=["PUT"])
+def update_one_task(id):
+    chosen_goal = get_one_goal_or_abort(id)
     request_body = request.get_json()
 
     if "title" not in request_body:
@@ -223,18 +224,18 @@ def update_one_task(goal_id):
 
     return {
         "goal":{
-            "id" : chosen_goal.goal_id,
+            "id" : chosen_goal.id,
             "title" : chosen_goal.title
         }
     }, 200
 
-@goal_bp.route("/<goal_id>", methods=["DELETE"])
-def delete_one_goal(goal_id):
-    chosen_goal = get_one_goal_or_abort(goal_id)
+@goal_bp.route("/<id>", methods=["DELETE"])
+def delete_one_goal(id):
+    chosen_goal = get_one_goal_or_abort(id)
 
     db.session.delete(chosen_goal)
 
     db.session.commit()
 
-    return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
+    return jsonify({"details": f'Goal {id} "{chosen_goal.title}" successfully deleted'}), 200
 
