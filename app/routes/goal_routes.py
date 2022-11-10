@@ -166,9 +166,9 @@ def update_task(goal_id):
 
 @goal_bp.route("", methods=["GET"])
 def get_all_goals():
-    goal = Goal.query.all()
+    goals = Goal.query.all()
 
-    response = [goal.to_dict() for goal in goal]
+    response = [goal.to_dict() for goal in goals]
 
     return jsonify(response), 200
 
@@ -179,32 +179,6 @@ def get_all_tasks_belonging_to_a_goal(goal_id):
 
     task_response = [task.to_dict() for task in goal.tasks]
 
-    return jsonify(task_response), 200
-
-
-# @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
-# def get_one_task(goal_id):
-#     goals = Goal.query.all()
-#     try:
-#         goal_id = int(goal_id)
-#     except ValueError:
-#         response_str = f"Invalid goal_id: {goal_id} ID must be integer"
-#         return jsonify({"message": response_str}), 400
-#     task_list = []
-#     for task in goals:
-#         task_dict = {
-#             "id": task.task_id,
-#             "goal_id": task.goal_id,
-#             "title": task.title,
-#             "description": task.description,
-#             "completed_at": task.completed_at
-#         }
-        
-#         return jsonify({"id": task.goal_id,
-#                 "title": task.title,
-#             "goal": task_list.append(task_dict)}), 200
-#     response_message = f"Could not find goal with ID {goal_id}"
-#     return jsonify({"message": response_message}), 404
-    
-    
-    
+    return jsonify({"id": goal.goal_id,
+                "title": goal.title,
+            "tasks": task_response}), 200
