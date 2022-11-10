@@ -2,6 +2,8 @@ from app.models.task import Task
 from app import db
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
+import datetime
+from datetime import date
 
 
 
@@ -104,6 +106,48 @@ def delete_task(task_id):
 
 
     return make_response(jsonify(details=f"Task {task.task_id} \"{task.title}\" successfully deleted"))
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete(task_id):
+    task = validate_task(Task, task_id)
+    # request_body = request.get_json()
+
+    # task.title = request_body["title"]
+    # task.description = request_body["description"]
+    task.completed_at = date.today()
+
+    db.session.commit()
+
+    dict_response = {
+            "task": task.to_dict()
+                        }
+    dict_response["task"]["is_complete"]= True
+    return make_response(jsonify(dict_response),200)
+
+@task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_task(Task, task_id)
+    task.completed_at = None
+    # request_body = request.get_json()
+    # request_body["completed_at"] = None
+    # try:
+    #     isinstance(task.completed_at, datetime.date)
+    #     # datetime.datetime)
+    # except:
+    #     abort(make_response({"details": f"Task {task_id} invalid"}, 400))
+
+    # task.title = request_body["title"]
+    # task.description = request_body["description"]
+    # task.completed_at = date.today()
+
+    db.session.commit()
+    dict_response = {
+            "task": task.to_dict()
+                        }
+    dict_response["task"]["is_complete"]= False
+    return make_response(jsonify(dict_response),200)
+
+
 
 
 
