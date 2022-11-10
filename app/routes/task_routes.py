@@ -8,7 +8,6 @@ from app.helper_validate import validate_model
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
-# read all tasks
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
     sort_query = request.args.get("sort")
@@ -23,14 +22,12 @@ def read_all_tasks():
     tasks_response = [task.to_dict() for task in tasks]
     return jsonify(tasks_response)
 
-# read one task
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
 
     return {"task": task.to_dict()}
 
-# create new task
 @task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
@@ -44,7 +41,6 @@ def create_task():
 
     return {"task": new_task.to_dict()}, 201
 
-# update task
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
     task = validate_model(Task, task_id)
@@ -54,10 +50,8 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
-    
     return {"task": task.to_dict()}
 
-# delete task
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
     task = validate_model(Task, task_id)
@@ -67,25 +61,23 @@ def delete_task(task_id):
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
 
-# mark complete with patch
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-def mark_complete(task_id):
+def mark_task_complete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = datetime.now()
     db.session.commit()
-    post_slack(task)
+    slack_bot_post(task)
+
     return {"task": task.to_dict()}
 
-# mark incomplete with patch
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-def mark_incomplete(task_id):
+def mark_task_incomplete(task_id):
     task = validate_model(Task, task_id)
     task.completed_at = None
     db.session.commit()
     return {"task": task.to_dict()}
 
-# slack bot helper
-def post_slack(task):
+def slack_bot_post(task):
     url = 'https://slack.com/api/chat.postMessage'
     params = {
         "channel": "task-notifications",

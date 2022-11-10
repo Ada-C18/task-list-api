@@ -6,7 +6,6 @@ from app.helper_validate import validate_model
 
 goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
 
-# read all tasks
 @goal_bp.route("", methods=["GET"])
 def read_all_goals():
     goals = Goal.query.all()
@@ -14,14 +13,12 @@ def read_all_goals():
     goals_response = [goal.to_dict() for goal in goals]
     return jsonify(goals_response)
 
-# read one task
 @goal_bp.route("/<goal_id>", methods=["GET"])
-def read_one_task(goal_id):
+def read_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     return {"goal": goal.to_dict()}
 
-# # create new task
 @goal_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
@@ -35,7 +32,6 @@ def create_goal():
 
     return {"goal": new_goal.to_dict()}, 201
 
-# update task
 @goal_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -46,7 +42,6 @@ def update_goal(goal_id):
     db.session.commit()
     return {"goal": goal.to_dict()}
 
-# delete task
 @goal_bp.route("/<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -56,7 +51,6 @@ def delete_goal(goal_id):
 
     return make_response({"details": f'Goal {goal_id} "{goal.title}" successfully deleted'}, 200)
 
-# nested route
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def add_tasks_goal(goal_id):
     goal = validate_model(Goal, goal_id)
@@ -86,4 +80,4 @@ def read_tasks(goal_id):
         "title": goal.title,
         "tasks": tasks
         }
-    return jsonify(tasks_response)
+    return tasks_response
