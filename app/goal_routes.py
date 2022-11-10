@@ -83,9 +83,9 @@ def create_goal():
 def edit_goal(id):
     
     goal = validate_model(Goal,id)
-    request_body = request.get_json()
+    # request_body = request.get_json()
 
-    goal.title=request_body["title"]
+    goal.title=request.get_json()["title"]
     
 
     db.session.commit()

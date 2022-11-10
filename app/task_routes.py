@@ -5,13 +5,22 @@ from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
 from datetime import date
 import requests
+import json
 #NEW IMPORTS
 import os
-import slack
+#import slack
 from pathlib import Path
 from dotenv import load_dotenv
 from .goal_routes import validate_model
 
+
+slack_token = os.environ.get('SLACK_TOKEN')
+headers = {'Authorization': slack_token}
+
+def post_to_slack(text, blocks=None):
+    slack_data ={'channel': '#slack-bot-test-channel', 'text':text}
+    requests.post('https://slack.com/api/chat.postMessage', headers=headers,
+                    data=slack_data)
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
 
@@ -30,20 +39,7 @@ def get_all_task():
 
     task_response = [task.to_dict() for task in all_tasks]
 
-    return make_response(jsonify(task_response), 200)
-
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"message":f"task {task_id} invalid"}, 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response({"message":f"Task {task_id} not found"}, 404))
-
-#     return task
+    return (jsonify(task_response))
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
@@ -82,29 +78,33 @@ def edit_task(task_id):
 
     return make_response(jsonify({'task': task.to_dict()}), 200)
 # CHANGE ROUTE BOT TO SOMETHING
-env_path= Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
+# env_path= Path('.') / '.env'
+# load_dotenv(dotenv_path=env_path)
 
-client=slack.WebClient(token=os.environ['SLACK_TOKEN'])
+# client=slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
 @tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
 def patch_task_complete(task_id,complete):
-
     task = validate_model(Task,task_id)
 
     if complete == "mark_complete":
         task.completed_at = date.today()
+        text = f"Someone just completed the task {task.title}"
+        post_to_slack(text)
         # client.chat_postMessage(
         #     channel="#slack-bot-test-channel",
         #     text=f"Someone just completed the task {task.title}"
         # )
-
     elif complete == "mark_incomplete":
         task.completed_at = None
 
     db.session.commit()
 
-    return make_response({'task': task.to_dict()}), 200
+    return make_response({'task': task.to_dict()}, 200)
+
+
+
+
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
