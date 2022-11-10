@@ -182,7 +182,7 @@ def post_task_ids_to_goal(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_for_specific_goal(goal_id):
         goal = validate_model(Goal, goal_id)
-        tasks_response = [task.to_dict_with_goal() for task in goal.tasks]
+        tasks_response = [task.goals_dict() for task in goal.tasks]
         
         return jsonify({"id": goal.goal_id,
                 "title": goal.title,

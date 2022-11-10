@@ -28,7 +28,7 @@ class Task(db.Model):
             "is_complete": is_complete
         }
     
-    def to_dict_with_goal(self):
+    def goals_dict(self):
         is_complete = False if self.completed_at == None else True
         return {
             "id": self.task_id,
