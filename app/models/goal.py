@@ -1,6 +1,4 @@
 from app import db
-import sqlalchemy as sa
-
 
 class Goal(db.Model):
     goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -16,5 +14,3 @@ class Goal(db.Model):
             "id": self.goal_id,
             "title": self.title
         }
-    
-    

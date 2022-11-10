@@ -1,6 +1,4 @@
 from app import db
-import sqlalchemy as sa
-from datetime import datetime
 
 
 class Task(db.Model):
