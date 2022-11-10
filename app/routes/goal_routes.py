@@ -99,13 +99,7 @@ def add_tasks_to_goal(goal_id):
 @goals_bp.route("<goal_id>/tasks", methods=["GET"])
 def get_tasks_from_goal(goal_id):
     goal = validate_model(Goal, goal_id)
+
     goal_dict = goal.to_dict()
     goal_dict["tasks"] = [task.to_dict() for task in goal.tasks]
-
     return goal_dict, 200
-
-    # return {
-    #     "id": goal_id,
-    #     "title": goal.title,
-    #     "tasks": goal.tasks
-    # }, 200
