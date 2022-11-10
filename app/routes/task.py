@@ -4,22 +4,22 @@ from app.models.task import Task
 from sqlalchemy import asc, desc
 from datetime import date 
 import requests
+import os
+
+# refactor thought: List of Task Object; cls;
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
 @task_bp.route('', methods=['POST'])
 def create_one_task():
     request_body = request.get_json()   
-    #print(request_body)
     try:
         new_task= Task(title=request_body['title'],
                     description=request_body['description'],
-                    #completed_at=request_body['completed_at']
                     completed_at=request_body.get('completed_at') # ".get" vs "[]" return None instead of error
                     )
     except KeyError:
         return jsonify({"details": "Invalid data"}), 400 
-    #print(request_body)
     db.session.add(new_task)
     db.session.commit()
     return jsonify(new_task.to_response()), 201
@@ -84,26 +84,24 @@ def update_one_task(task_id):
 
 #/tasks/1/mark_complete and added API
 path = "https://slack.com/api/chat.postMessage"
-API_KEY = "Bearer xoxb-3831949166102-4330548743939-M7VwemzW4oIcUOjzx0JLQ9El"
-#os.env
+API_Token = os.environ.get("SLACK_API_TOKEN")
 
 @task_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_task_slack(task_id):
     mark_complete_task = get_task_from_id(task_id)
     mark_complete_task.completed_at = date.today() 
+    
     if mark_complete_task:
         query_params = {
             "channel": "task-notifications",
-            "text": f"Someone just completed the task {mark_complete_task.title}",
-            "format": "json"
+            "text": f"Someone just completed the task {mark_complete_task.title}"
         }
     else:
         query_params = {
             "channel": "task-notifications",
-            "text": f"No this No. {task_id} task",
-            "format": "json"
+            "text": f"No this No. {task_id} task"
         }
-    headers = {"Authorization": API_KEY}
+    headers = {"Authorization": API_Token}
     response = requests.post(path, data=query_params, headers=headers)
     db.session.commit()
     return jsonify(mark_complete_task.to_response()), 200
@@ -138,7 +136,8 @@ def delete_one_task(task_id):
     db.session.commit()
     return jsonify({"details": f"Task {task_to_delete.task_id} \"{task_to_delete.title}\" successfully deleted"}), 200    
 
-# helper
+
+# helper function
 def get_task_from_id(task_id):
     try:
         task_id = int(task_id)

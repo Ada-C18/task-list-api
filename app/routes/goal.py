@@ -57,15 +57,17 @@ def delete_one_goal(goal_id):
 @goal_bp.route('/<goal_id>/tasks', methods=['POST'])
 def post_tasks_for_goal(goal_id): 
     # task_items = lists of Task Objects
-    # task_ids = list of integers   
+    # input_task_ids = given list of integers  
+    # task_id_list = result task ids list
     new_goal = get_goal_from_id(goal_id) 
     request_body = request.get_json() 
     input_task_ids = request_body["task_ids"]
+     
     task_id_list = []
     for task_id in input_task_ids:
         task_obj = get_task_from_id(task_id)
         task_obj.goal_id = new_goal.goal_id # link!
-        task_id_list.append(task_obj.task_id)
+        task_id_list.append(task_obj.task_id) # only append task_id
     #db.session.add(new_goal)
     db.session.commit()
     return jsonify({
@@ -81,12 +83,13 @@ def get_tasks_for_goal(goal_id):
     res_tasks = []
     for task in new_goal.tasks:
         res_tasks.append(task.to_dict())
+
     return jsonify({
             "id": new_goal.goal_id,
             "title":new_goal.title,
             "tasks":res_tasks
                 }), 200
-
+                
 
 # helper
 def get_goal_from_id(goal_id):

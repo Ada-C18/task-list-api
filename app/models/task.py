@@ -21,6 +21,7 @@ class Task(db.Model):
                 "description":self.description,
                 "is_complete": True if self.completed_at else False               
         }
+        # add condition so goal_id could show when necessary
         if self.goal_id:
             task_dict["goal_id"] = self.goal_id            
         return task_dict
