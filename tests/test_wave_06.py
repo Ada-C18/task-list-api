@@ -76,28 +76,28 @@ def test_get_tasks_for_specific_goal_no_tasks(client, one_goal):
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_get_tasks_for_specific_goal(client, one_task_belongs_to_one_goal):
-#     # Act
-#     response = client.get("/goals/1/tasks")
-#     response_body = response.get_json()
+def test_get_tasks_for_specific_goal(client, one_task_belongs_to_one_goal):
+    # Act
+    response = client.get("/goals/1/tasks")
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 200
-#     assert "tasks" in response_body
-#     assert len(response_body["tasks"]) == 1
-#     assert response_body == {
-#         "id": 1,
-#         "title": "Build a habit of going outside daily",
-#         "tasks": [
-#             {
-#                 "id": 1,
-#                 "goal_id": 1,
-#                 "title": "Go on my daily walk 🏞",
-#                 "description": "Notice something new every day",
-#                 "is_complete": False
-#             }
-#         ]
-#     }
+    # Assert
+    assert response.status_code == 200
+    assert "tasks" in response_body
+    assert len(response_body["tasks"]) == 1
+    assert response_body == {
+        "id": 1,
+        "title": "Build a habit of going outside daily",
+        "tasks": [
+            {
+                "id": 1,
+                "goal_id": 1,
+                "title": "Go on my daily walk 🏞",
+                "description": "Notice something new every day",
+                "is_complete": False
+            }
+        ]
+    }
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

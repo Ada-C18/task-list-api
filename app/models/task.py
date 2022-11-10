@@ -12,7 +12,7 @@ class Task(db.Model):
     def to_dict(self):
         task_as_dict = {}
         task_as_dict["goal_id"]=self.goal_id
-        task_as_dict["id"] = self.id
+        task_as_dict["id"] = self.task_id
         task_as_dict["title"] = self.title
         task_as_dict["description"] = self.description
         task_as_dict["is_complete"] = True
