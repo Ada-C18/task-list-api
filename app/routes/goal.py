@@ -10,7 +10,7 @@ from app.routes.slack_bot import slack_message
 from app.routes.task import get_all_objects, get_model_from_id, update_one_object
 
 goal_bp = Blueprint("goal",__name__,url_prefix="/goals")
-# task_bp = Blueprint("task", __name__, url_prefix="/tasks")
+
 
 
 
