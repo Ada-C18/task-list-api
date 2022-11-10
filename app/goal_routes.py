@@ -72,7 +72,8 @@ def add_task_ids_to_goal(goal_id):
     task_ids = request_body["task_ids"]
 
     for id in task_ids:
-        task = Task.query.get(int(id))
+        #task = Task.query.get(int(id))
+        task = validate_model(Task, int(id))
         if task not in chosen_goal.tasks:
             chosen_goal.tasks.append(task)
             #db.session.add(task)
