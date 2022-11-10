@@ -4,7 +4,7 @@ from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
 from datetime import date
-import requests
+import requests, json
 #NEW IMPORTS
 import os
 import slack
@@ -14,7 +14,6 @@ from .goal_routes import validate_model
 
 
 tasks_bp = Blueprint('tasks_bp', __name__, url_prefix='/tasks')
-
 
 #Get Tasks: Getting Saved Tasks
 @tasks_bp.route("", methods=["GET"])
@@ -32,18 +31,6 @@ def get_all_task():
 
     return make_response(jsonify(task_response), 200)
 
-# def validate_task(task_id):
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"message":f"task {task_id} invalid"}, 400))
-
-#     task = Task.query.get(task_id)
-
-#     if not task:
-#         abort(make_response({"message":f"Task {task_id} not found"}, 404))
-
-#     return task
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
@@ -87,6 +74,7 @@ load_dotenv(dotenv_path=env_path)
 
 client=slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
+
 @tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
 def patch_task_complete(task_id,complete):
 
@@ -94,10 +82,10 @@ def patch_task_complete(task_id,complete):
 
     if complete == "mark_complete":
         task.completed_at = date.today()
-        # client.chat_postMessage(
-        #     channel="#slack-bot-test-channel",
-        #     text=f"Someone just completed the task {task.title}"
-        # )
+        client.chat_postMessage(
+            channel="#slack-bot-test-channel",
+            text=f"Someone just completed the task {task.title}"
+        )
 
     elif complete == "mark_incomplete":
         task.completed_at = None
