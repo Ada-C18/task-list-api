@@ -53,6 +53,9 @@ def update_one_task(goal_id):
 def delete_one_task(goal_id):
     goal_to_delete = validate_model(Goal, goal_id, "delete")
 
+    for task in goal_to_delete.tasks:
+        task.goal = None
+
     db.session.delete(goal_to_delete)
     db.session.commit()
     return jsonify({"details": f"Goal {goal_to_delete.goal_id} \"{goal_to_delete.title}\" successfully deleted"}), 200
