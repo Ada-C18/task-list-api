@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from app.models.goal import Goal
-from app.models.goal import Goal
+from app.models.task import Task
 from datetime import datetime
 from .task_routes import validate_model
 import requests
@@ -73,5 +73,16 @@ def assign_tasks_to_goal(goal_id):
     request_body = request.get_json()
     task_ids = request_body["task_ids"]
     
+    task_list = []
     for id in task_ids:
-        pass
+        task = Task.query.get(id)
+        task_list.append(task)
+    goal.tasks = task_list
+
+    db.session.commit()
+    
+    return make_response(
+        {"id": goal.goal_id,
+         "task_ids": task_ids},
+        200
+    )
