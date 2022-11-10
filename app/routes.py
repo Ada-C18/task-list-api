@@ -4,14 +4,23 @@ from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
 from sqlalchemy import desc, asc
 from datetime import date
-import slack
+import requests
+# import slack
 import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-env_path = Path('.') / '.env'
-load_dotenv(dotenv_path=env_path)
-client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
+# env_path = Path('.') / '.env'
+# load_dotenv(dotenv_path=env_path)
+# client = slack.WebClient(token=os.environ['SLACK_TOKEN'])
+load_dotenv()
+slack_token = os.environ.get('SLACK_TOKEN')
+
+
+def post_to_slack(text, blocks=None):
+    return requests.post('https://slack.com/api/chat.postMessage',
+                         {'token': slack_token, 'channel': '#slack-bot-test-channel', 'text': text})
+
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
@@ -107,9 +116,12 @@ def mark_complete(task_id):
     request_body = request.get_json()
     task.completed_at = date.today()
 
+    text = f"Someone just completed the task {task.title}"
+    post_to_slack(text)
+
     db.session.commit()
-    client.chat_postMessage(
-        channel='#slack-bot-test-channel', text=f"Someone just completed the task {task.title}")
+    # client.chat_postMessage(
+    #     channel='#slack-bot-test-channel', text=f"Someone just completed the task {task.title}")
 
     return make_response({'task': task.to_dict()}, 200)
 
