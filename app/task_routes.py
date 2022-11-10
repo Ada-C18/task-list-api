@@ -5,8 +5,9 @@ from app.models.task import Task
 from app import db
 from app.models.goal import Goal
 from sqlalchemy import desc
+from sqlalchemy import asc
 
-task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+tasks_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
 
 @tasks_bp.route("", methods=["POST", "GET"])
 def handle_tasks():
