@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
-from app.models.task import Task
+from app.models.goal import Goal
 from app.models.goal import Goal
 from datetime import datetime
 from .task_routes import validate_model
@@ -23,3 +23,18 @@ def create_goal():
     
     goal_response = Goal.query.get(1)
     return make_response({"goal": goal_response.to_dict()}, 201)
+
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    sort_query = request.args.get("sort")
+    if sort_query == "asc":
+        goals = Goal.query.order_by(Goal.title)
+    elif sort_query == "desc":
+        goals = Goal.query.order_by(Goal.title.desc()) #ColumnElement.desc() method produces a descending ORDER BY clause element
+    else:
+        goals = Goal.query.all()
+    
+    goals_response = []
+    for goal in goals:
+        goals_response.append(goal.to_dict())
+    return jsonify(goals_response)
