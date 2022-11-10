@@ -7,27 +7,13 @@ from sqlalchemy import asc
 from sqlalchemy import desc
 from datetime import date
 from app.routes.routes_helper import get_one_obj_or_abort
+from app.routes.routes_helper import validate_id
 from app.routes.task_routes import get_one_task_or_abort
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix ="/goals")
 
-# def post_message_to_slack(text):
-#     return requests.post('https://slack.com/api/chat.postMessage', {
-#         'channel': 'Goal-notifications',
-#         'text': text
-#         # 'icon_emoji': slack_icon_emoji,
-#         # 'username': slack_user_name,
-#         # 'blocks': json.dumps(blocks) if blocks else None
-#     }).json()	
-
 def get_one_goal_or_abort(goal_id):
-    try:
-        goal_id = int(goal_id)
-    except ValueError:
-        response_str = f"Invalid goal_id: {goal_id} ID must be Integer"
-        abort(make_response(jsonify({"message: response_str"}), 400))
-
-    matching_goal = Goal.query.get(goal_id)
+    matching_goal = get_one_obj_or_abort(Goal,goal_id)
 
     if not matching_goal:
         response_str = f"Goal with id {goal_id} not found in database"
@@ -42,17 +28,19 @@ def create_Goal():
     request_body = request.get_json() # when we are requesting something like sending something extra
     if "title" not in request_body:
             return jsonify({"details": "Invalid data"}), 400
+    new_goal = Goal.from_dict(request_body)
 
-    new_goal = Goal(
-        title = request_body["title"]
+    # new_goal = Goal(
+    #     title = request_body["title"]
         
-    )
+    # )
     db.session.add(new_goal)
     db.session.commit()
 
-    goal_dict = {"id": new_goal.goal_id,
-    "title": new_goal.title
-    }
+    # goal_dict = {"id": new_goal.goal_id,
+    # "title": new_goal.title
+    # }
+    goal_dict = new_goal.to_dict()
 
     return jsonify({"goal":goal_dict}), 201
 
@@ -61,27 +49,31 @@ def get_Goal_all():
     goals = Goal.query.all()
     response = []
     for goal in goals:
-        response.append({
-            "id": goal.goal_id,
-            "title": goal.title
-        }
+        response.append(
+            goal.to_dict()
+        #     {
+        #     "id": goal.goal_id,
+        #     "title": goal.title
+        # }
         )
     return jsonify(response), 200
 
 @goal_bp.route("/<goal_id>", methods =["GET"])
 def get_one_Goal(goal_id):
     goals = Goal.query.all()
-    try:
-        goal_id = int(goal_id)
-    except ValueError:
-        response_str = f"Invalid goal_id: {goal_id} ID must be integer"
-        return jsonify({"message": response_str}), 400
+    validate_id(goal_id, 'goal_id')
+    # try:
+    #     goal_id = int(goal_id)
+    # except ValueError:
+    #     response_str = f"Invalid goal_id: {goal_id} ID must be integer"
+    #     return jsonify({"message": response_str}), 400
 
     for goal in goals:
-        goal_dict = {
-            "id": goal.goal_id,
-            "title": goal.title
-        }
+        # goal_dict = {
+        #     "id": goal.goal_id,
+        #     "title": goal.title
+        # }
+        goal_dict = goal.to_dict()
         return jsonify({"goal": goal_dict}), 200
     response_message = f"Could not find goal with ID {goal_id}"
     return jsonify({"message": response_message}), 404
@@ -94,47 +86,12 @@ def update_Goal(goal_id):
     goal.title = request_body["title"]
     db.session.commit()
 
-    goal_dict = {"id": goal.goal_id,
-    "title": goal.title
-    }
+    # goal_dict = {"id": goal.goal_id,
+    # "title": goal.title
+    # }
+    goal_dict = goal.to_dict()
 
     return jsonify({"goal":goal_dict}), 200
-
-# @goal_bp.route("/<goal_id>/mark_complete", methods = ["PATCH"])
-# def update_Goal_completed_at(goal_id):
-#     goal = get_one_goal_or_abort(goal_id) #validated goal_id = 1
-#     if Goal.completed_at is None:
-#         Goal.completed_at = date.today()
-#     is_completed = True
-#     db.session.commit()
-#     post_message_to_slack("Someone just completed the Goal "+Goal.title)
-#     Goal_dict = {
-#         "id": Goal.goal_id,
-#         "title": Goal.title,
-#         "description": Goal.description,
-#         "is_complete": is_completed
-#     }
-#     return jsonify({"Goal":Goal_dict}),200
-#     # lessons- 1) Always chk blueprint. Path will start after that
-#     #2) call request body only if there are extra params other than url directly
-
-# @goal_bp.route("/<goal_id>/mark_incomplete", methods = ["PATCH"])
-# def update_Goal_mark_incomplete_on_completed_Goal(goal_id):
-#     goal = get_one_goal_or_abort(goal_id) #validated goal_id = 1
-#     Goal.completed_at = None
-#     is_completed = False
-#     db.session.commit()
-#     Goal_dict = {
-#         "id": Goal.goal_id,
-#         "title": Goal.title,
-#         "description": Goal.description,
-#         "is_complete": is_completed
-#     }
-#     return jsonify({"Goal":Goal_dict}),200
-#     # lessons- 1) Always chk blueprint. Path will start after that
-#     #2) call request body only if there are extra params other than url directly
-
-    
 
 @goal_bp.route("<goal_id>", methods=["DELETE"])
 def delete_one_Goal(goal_id):
@@ -162,6 +119,8 @@ def update_task(goal_id):
     goal_dict = {"id": goal.goal_id,
     "task_ids": task_id_list
     }
+    
+    
     return make_response(jsonify(goal_dict)),200
 
 @goal_bp.route("", methods=["GET"])
@@ -176,9 +135,16 @@ def get_all_goals():
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_all_tasks_belonging_to_a_goal(goal_id):
     goal = get_one_obj_or_abort(Goal, goal_id)
+    if goal is None:
+        response_str = f"id {goal_id} was not found in the database."
+        abort(make_response(jsonify({"message":response_str}), 404))
 
     task_response = [task.to_dict() for task in goal.tasks]
+    goal_dict = goal.to_dict()
+    goal_dict["tasks"] = task_response
 
-    return jsonify({"id": goal.goal_id,
-                "title": goal.title,
-            "tasks": task_response}), 200
+    # return jsonify(
+    #     {"id": goal.goal_id,
+    #             "title": goal.title,
+    #         "tasks": task_response}), 200
+    return jsonify(goal_dict),200

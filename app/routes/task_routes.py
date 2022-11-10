@@ -4,6 +4,8 @@ from app import db
 from app.models.task import Task
 from sqlalchemy import asc
 from sqlalchemy import desc
+from app.routes.routes_helper import get_one_obj_or_abort
+from app.routes.routes_helper import validate_id
 from datetime import date
 
 task_bp = Blueprint("task_bp", __name__, url_prefix ="/tasks")
@@ -18,13 +20,14 @@ def post_message_to_slack(text):
     }).json()	
 
 def get_one_task_or_abort(task_id):
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task_id: {task_id} ID must be Integer"
-        abort(make_response(jsonify({"message: response_str"}), 400))
+    # try:
+    #     task_id = int(task_id)
+    # except ValueError:
+    #     response_str = f"Invalid task_id: {task_id} ID must be Integer"
+    #     abort(make_response(jsonify({"message: response_str"}), 400))
 
-    matching_task = Task.query.get(task_id)
+    # matching_task = Task.query.get(task_id)
+    matching_task = get_one_obj_or_abort(Task, task_id)
 
     if not matching_task:
         response_str = f"Task with id {task_id} not found in database"
@@ -41,11 +44,11 @@ def create_task():
         "description" not in request_body:
             return jsonify({"details": "Invalid data"}), 400
 
-    new_task = Task(
-        title = request_body["title"],
-        description = request_body["description"]
-        
-    )
+    # new_task = Task(
+    #     title = request_body["title"],
+    #     description = request_body["description"]    
+    # )
+    new_task = Task.from_dict(request_body)
     db.session.add(new_task)
     db.session.commit()
     
@@ -54,11 +57,12 @@ def create_task():
         is_completed = False
 
 
-    task_dict = {"id": new_task.task_id,
-    "title": new_task.title,
-    "description": new_task.description,
-    "is_complete": is_completed
-    }
+    # task_dict = {"id": new_task.task_id,
+    # "title": new_task.title,
+    # "description": new_task.description,
+    # "is_complete": is_completed
+    # }
+    task_dict = new_task.to_dict()
 
     return jsonify({"task":task_dict}), 201
 
@@ -78,42 +82,48 @@ def get_task_all():
         is_completed = True
         if task.completed_at is None:
             is_completed = False
-        task_dict = {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": is_completed
+        # task_dict = {
+        #     "id": task.task_id,
+        #     "title": task.title,
+        #     "description": task.description,
+        #     "is_complete": is_completed
             
-        }
+        # }
+        task_dict = task.to_dict()
 
         response.append(task_dict)
     return jsonify(response), 200
 
 @task_bp.route("/<task_id>", methods =["GET"])
 def get_one_task(task_id):
-    tasks = Task.query.all()
-    try:
-        task_id = int(task_id)
-    except ValueError:
-        response_str = f"Invalid task_id: {task_id} ID must be integer"
-        return jsonify({"message": response_str}), 400
-
-    for task in tasks:
-        if task_id == task.task_id:
-            is_completed = True
-            if task.completed_at is None:
-                is_completed = False
-            task_dict = {
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": is_completed
-            }
-            if task.goal_id is not None:
-                task_dict["goal_id"]=task.goal_id
-            return jsonify({"task": task_dict}), 200
-    response_message = f"Could not find task with ID {task_id}"
-    return jsonify({"message": response_message}), 404
+    validate_id(task_id,'task_id')
+    # tasks = Task.query.all()
+    # try:
+    #     task_id = int(task_id)
+    # except ValueError:
+    #     response_str = f"Invalid task_id: {task_id} ID must be integer"
+    #     return jsonify({"message": response_str}), 400
+    matching_task = get_one_obj_or_abort(Task,task_id)
+    if matching_task is None:
+        response_message = f"Could not find task with ID {task_id}"
+        return jsonify({"message": response_message}), 404
+        
+    # for task in tasks:
+    #     if task_id == task.task_id:
+    is_completed = True
+    if matching_task.completed_at is None:
+        is_completed = False
+    # task_dict = {
+    #     "id": matching_task.task_id,
+    #     "title": matching_task.title,
+    #     "description": matching_task.description,
+    #     "is_complete": is_completed
+    # }
+    task_dict = matching_task.to_dict()
+    if matching_task.goal_id is not None:
+        task_dict["goal_id"]=matching_task.goal_id
+    return jsonify({"task": task_dict}), 200
+    
 
 @task_bp.route("/<task_id>", methods = ["PUT"])
 def update_task(task_id):

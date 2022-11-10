@@ -11,7 +11,8 @@ class Task(db.Model):
 
     def to_dict(self):
         task_as_dict = {}
-        task_as_dict["goal_id"]=self.goal_id
+        if self.goal_id is not None:
+            task_as_dict["goal_id"]=self.goal_id
         task_as_dict["id"] = self.task_id
         task_as_dict["title"] = self.title
         task_as_dict["description"] = self.description
@@ -24,5 +25,6 @@ class Task(db.Model):
     def from_dict(cls, task_data):
         new_task = Task(title=task_data["title"], 
             description=task_data["description"],
-            completed_at=task_data["completed_at"])
+            # completed_at=task_data["completed_at"])
+        )
         return new_task
