@@ -170,3 +170,23 @@ def test_update_task_invalid_completed_at(client, one_task):
     assert task.title != "Updated Task Title"
     assert task.description != "Updated Test Description"
     assert task.completed_at == None
+
+
+def test_get_invalid_task_id(client, one_task):
+    # Act
+    response = client.get("/tasks/asdf")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"details": "Invalid Task id"}
+
+
+def test_get_invalid_goal_id(client, one_goal):
+    # Act
+    response = client.get("/goals/asdf")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 400
+    assert response_body == {"details": "Invalid Goal id"}
