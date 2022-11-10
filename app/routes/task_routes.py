@@ -111,14 +111,22 @@ def get_one_task(task_id):
     task = get_record_by_id(Task, task_id)
     # task = validate_goal(task_id)
 
-    return {
+    response = {
         "task": {
             "id": task.task_id,
             "title": task.title,
             "description": task.description,
-            "is_complete": bool(task.completed_at)
+            "is_complete": bool(task.completed_at),
         }
-        }
+        } 
+
+  
+    if task.goal_id == None:
+        pass
+    else:
+        response["task"]["goal_id"] = task.goal_id
+    
+    return response
 
 
 

@@ -160,7 +160,7 @@ def get_goal_with_task(goal_id):
         else:
             task_list.append({
                 "id": task.task_id,
-                "goal_id": False,
+                "goal_id": int(goal_id),
                 "title": task.title,
                 "description": task.description,
                 "is_complete": bool(task.completed_at)
@@ -172,7 +172,4 @@ def get_goal_with_task(goal_id):
         "tasks": task_list
     })
 
-
-    # return response_body
-
-    # return goal
+    return response_body
