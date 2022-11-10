@@ -99,7 +99,7 @@ def test_update_task(client, one_task):
 
     # Assert
     assert response.status_code == 200
-    # assert "task" in response_body
+    assert "task" in response_body
     assert response_body == {
         "task": {
             "id": 1,

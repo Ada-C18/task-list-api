@@ -26,20 +26,20 @@ def validate_model(cls, model_id):
 
     return model
 
-def validate_request(data):
+def validate_request(cls,data):
     try:
-        new_task = Task(title =data["title"],
+        new_cls = cls(title =data["title"],
                 description =data["description"])
     except:
         abort(make_response(
             {"details": "Invalid data"}, 400))
-    return new_task
+    return new_cls
 
 
 @task_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = validate_request(request_body)
+    new_task = validate_request(Task,request_body)
 
     db.session.add(new_task)
     db.session.commit()
@@ -186,19 +186,20 @@ def mark_incomplete(task_id):
 
     return(make_response(not_completed_response),200)
 
+#Goals
 
 @goal_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
-    new_goal = validate_request(request_body)
-
+    new_goal = Goal(title =request_body["title"])
+    
     db.session.add(new_goal)
     db.session.commit()
 
     return make_response({
             "goal": {
             "id":new_goal.goal_id,
-            "title": new_goal.title,
+            "title":new_goal.title
         }}
     , 201)
 
@@ -240,3 +241,35 @@ def handle_goal(goal_id):
         }}
 
     return get_response, 200
+
+@goal_bp.route("/<goal_id>", methods=["PUT"])
+def update_task(goal_id):
+    goal = validate_model(Goal, goal_id)
+
+    request_body = request.get_json()
+
+    goal.title = request_body["title"]
+
+    db.session.commit()
+
+    update_response = {
+        "goal": {
+            "id": goal.goal_id,
+            "title": goal.title
+        }
+    }
+
+    return make_response(update_response), 200
+
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+
+    goal = validate_model(Goal, goal_id)
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    task_response =  {
+        "details": f'Goal {goal_id} "{goal.title}" successfully deleted'
+    }
+    return make_response(task_response), 200
