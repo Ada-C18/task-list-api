@@ -65,9 +65,8 @@ def add_tasks_goal(goal_id):
     task_id_list = request_body["task_ids"]
 
     for id in task_id_list:
-        task = Task.query.get(id)
+        task = validate_model(Task, id)
         task.goal = goal
-
         db.session.add(task)
         db.session.commit()
 
@@ -80,24 +79,11 @@ def add_tasks_goal(goal_id):
 def read_tasks(goal_id):
     goal = validate_model(Goal, goal_id)
 
-    tasks = []
-    for task in goal.tasks:
-        completed = None
-        if not task.completed_at:
-            completed = False
-        else:
-            completed = True 
-        one_task = {
-            "id": task.task_id,
-            "goal_id": goal.goal_id,
-            "title": task.title,
-            "description": task.description,
-            "is_complete": completed
-        }
-        tasks.append(one_task)
+    tasks = [task.to_dict() for task in goal.tasks]
 
-    return {
+    tasks_response = {
         "id": goal.goal_id,
         "title": goal.title,
         "tasks": tasks
-    }
+        }
+    return jsonify(tasks_response)
