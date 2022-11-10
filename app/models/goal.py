@@ -1,6 +1,5 @@
 from app import db
 
-
 class Goal(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
@@ -14,10 +13,8 @@ class Goal(db.Model):
         }
     
     def update(self, req_body):
-        self.title=req_body["title"],
-        #self.description=req_body["description"]
+        self.title=req_body["title"]
 
     @classmethod
     def from_dict(cls, goal_data):
-        new_goal = Goal(title=goal_data["title"])
-        return new_goal
+        return Goal(title=goal_data["title"])

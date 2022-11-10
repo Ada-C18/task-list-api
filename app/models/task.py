@@ -10,11 +10,17 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
+        if self.goal_id:
+            return {"id": self.id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": self.is_complete,
+                    "goal_id": self.goal_id   
+            }
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            #"completed_at": self.completed_at,
             "is_complete": self.is_complete 
         }
     
@@ -26,17 +32,4 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, task_data):
-        new_task = Task(title=task_data["title"],
-                        description=task_data["description"])
-                        #completed_at=task_data["completed_at"])
-        return new_task
-
-#From Planet
-
-#     @classmethod   
-#     def from_json(cls, req_body):
-#         return cls(
-#             title= req_body["title"],
-#             completed_at= req_body["completed_at"],
-#             description= req_body["description"]
-#         )
+        return Task(title=task_data["title"], description=task_data["description"])
