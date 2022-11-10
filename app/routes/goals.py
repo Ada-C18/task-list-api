@@ -13,22 +13,6 @@ def post_goal():
     return {"goal": new_goal.to_dict()}, 201
 
 
-@goals.route("", methods=["GET"])
-def get_all_goals():
-    sort = request.args.get("sort")
-    sort = getattr(Goal.title, sort)() if sort in ("asc", "desc") else None
-    return jsonify([g.to_dict() for g in Goal.query.order_by(sort).all()])
-
-
-@goals.route("/<goal_id>", methods=["PUT"])
-def put_goal(goal_id):
-    form_data = request.get_json()
-    goal = Goal.query.get_or_404(goal_id)
-    goal.update(**form_data)
-    db.session.commit()
-    return {"goal": goal.to_dict()}
-
-
 @goals.route("/<goal_id>/tasks", methods=["POST"])
 def post_tasks_to_goal(goal_id):
     goal = Goal.query.get_or_404(goal_id)

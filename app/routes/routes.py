@@ -48,13 +48,13 @@ def put_item(item_id):
     item = model.query.get_or_404(item_id)
     item.update(**form_data)
     db.session.commit()
-    return {model_name: model.to_dict()}
+    return {model_name: item.to_dict()}
 
 
 @tasks.route("/<item_id>", methods=["DELETE"])
 @goals.route("/<item_id>", methods=["DELETE"])
 def delete_item(item_id):
-    model, model_name = bp_model(request.blueprint)
+    model, _ = bp_model(request.blueprint)
     item = model.query.get_or_404(item_id)
     db.session.delete(item)
     db.session.commit()
