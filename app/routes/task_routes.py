@@ -9,6 +9,8 @@ import requests
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
+# The routes below are ordered by CRUD
+
 #==============================
 #       HELPER FUNCTIONS
 #==============================

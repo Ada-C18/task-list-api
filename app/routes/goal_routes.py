@@ -5,8 +5,9 @@ from app.models.task import Task
 from app.routes.helper_functions import validate_model
 
 
-
 goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
+
+# The routes below are ordered by CRUD
 
 #==============================
 #         CREATE GOAL
