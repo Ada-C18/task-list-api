@@ -164,9 +164,10 @@ def create_tasks_for_goal(goal_id):
     request_body = request.get_json()
     task_ids = request_body["task_ids"]
     
-    #for task in task_ids:
-    for i in task_ids: 
-        if not i in matching_goal.tasks:
+    tasks = matching_goal.get_task_list()
+    goal_task_ids = [x["id"] for x in tasks]
+    for tid in task_ids: 
+        if tid not in goal_task_ids:
             new_task = Task(
                 title="",
                 description="",
