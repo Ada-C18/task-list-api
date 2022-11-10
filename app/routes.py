@@ -87,7 +87,7 @@ def patch_task_incomplete(task_id):
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def patch_task_complete(task_id):
         task = validate_model(Task, task_id)
-        task.completed_at = datetime.now()
+        task.completed_at = datetime.today()
 
         db.session.commit()
         post_message(task)
@@ -98,7 +98,7 @@ def post_message(task):
         # PATH = "https://hooks.slack.com/services/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"
         PATH = "https://slack.com/api/chat.postMessage"
         HEADER = {"Authorization": KEY}
-        PARAMS = {"channel": "task-completed","text": f"Someone just completed the task {task}."}
+        PARAMS = {"channel": "task-notifications","text": f"Someone just completed the task {task}."}
         requests.post(url=PATH, data=PARAMS, headers=HEADER)
 
 #========= delete task ======================================
