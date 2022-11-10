@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import Mock, patch
 from datetime import datetime
 from app.models.task import Task

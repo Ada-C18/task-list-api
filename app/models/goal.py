@@ -1,13 +1,12 @@
 from app import db
 
 
-class Goal(db.Model):
-    goal_id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String)
 
+class Goal(db.Model):
+    goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String)
     tasks = db.relationship("Task", back_populates="goal", lazy=True)
-    # Lazy parameter determines how the related objects get loaded
-    # when querying through relationships.
+   
 
 
     def return_body(self):

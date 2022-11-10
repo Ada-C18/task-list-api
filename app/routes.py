@@ -7,8 +7,8 @@ from app.models.goal import Goal
 from app.routes_helper import get_one_obj_or_abort
 
 
-task_bp = Blueprint("task_bp", __name__, url_prefix="/task")
-goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goal")
+task_bp = Blueprint("task_bp", __name__, url_prefix="/tasks")
+goal_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
 
 # Create a Task: Valid Task With null completed_at
@@ -18,7 +18,7 @@ def create_task():
 
     if "title" not in response_body or\
        "description" not in response_body or\
-       "is_complete" not in response_body:
+       "completed_at" not in response_body:
         return jsonify({"details": "Invalid data"}), 400
 
     new_task = Task.from_dict(response_body)
@@ -138,9 +138,7 @@ def create_goal():
     if "title" not in response_body:
         return jsonify({"details": "Invalid data"}), 400
 
-    new_goal = Goal(
-        title = response_body["title"]
-    )
+    new_goal = Goal(title = response_body["title"])
 
     db.session.add(new_goal)
     db.session.commit()
@@ -191,16 +189,16 @@ def delete_goal_by_id(goal_id):
 # One-to-Many Relationship bewteen goals and tasks
 # ==================================================
 
-# @goal_bp.route("/<goal_id>/task", methods=["POST"])
-# def post_task_belonging_to_a_goal(goal_id):
-#     parent_goal = get_one_obj_or_abort(Goal, goal_id)
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_belonging_to_a_goal(goal_id):
+    parent_goal = get_one_obj_or_abort(Goal, goal_id)
 
-#     request_body = request.get_json()
+    request_body = request.get_json()
 
-#     new_task = Task.from_dict(request_body)
-#     new_task.goal = parent_goal
+    new_task = Task.from_dict(request_body)
+    new_task.goal = parent_goal
 
-#     db.session.add(new_task)
-#     db.session.commit()
+    db.session.add(new_task)
+    db.session.commit()
 
-#     return jsonify({f"id": {new_task.goal.goal_id}, "task_ids": {new_task.task_id}}), 201
+    return jsonify({f"id": {new_task.goal.goal_id}, "task_ids": {new_task.task_id}}), 201
