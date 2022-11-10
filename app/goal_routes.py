@@ -8,7 +8,7 @@ import os
 
 goal_bp = Blueprint("goal", __name__, url_prefix="/goals")
 
-def validate_goal(cls,id):
+def validate_model(cls,id):
     try:
         id=int(id)
     except:
@@ -44,7 +44,7 @@ def read_all_goal():
 @goal_bp.route("/<id>", strict_slashes=False, methods =["GET"])
 def read_one_goal(id):
     
-    goal = validate_goal(Goal,id)
+    goal = validate_model(Goal,id)
     return {"goal":goal.to_dict()}, 200
 
 @goal_bp.route("/", strict_slashes=False, methods =["POST"])
@@ -65,7 +65,7 @@ def create_goal():
 @goal_bp.route("/<id>", strict_slashes=False, methods =["PUT"])
 def update_goal(id):
 
-    goal = validate_goal(Goal,id)
+    goal = validate_model(Goal,id)
     request_body = request.get_json()
 
     try:
@@ -80,7 +80,7 @@ def update_goal(id):
 @goal_bp.route("/<id>", strict_slashes=False, methods =["DELETE"])
 def delete_goal(id):
 
-    goal = validate_goal(Goal,id)
+    goal = validate_model(Goal,id)
 
     db.session.delete(goal)
     db.session.commit()
@@ -94,13 +94,13 @@ def delete_goal(id):
 @goal_bp.route("/<goal_id>/tasks", strict_slashes=False, methods =["GET"])
 def read_tasks_goal(goal_id):
     
-    goal = validate_goal(Goal,goal_id)
+    goal = validate_model(Goal,goal_id)
 
     return make_response(jsonify(goal.to_dict(tasks=True)), 200)
 
 @goal_bp.route("/<goal_id>/tasks", strict_slashes=False, methods =["POST"])
 def create_tasks_goal(goal_id):
-    goal = validate_goal(Goal,goal_id)
+    goal = validate_model(Goal,goal_id)
     request_body = request.get_json()
     goal.tasks = [Task.query.get(task_id) for task_id in request_body["task_ids"]]
 

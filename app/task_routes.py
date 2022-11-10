@@ -7,7 +7,7 @@ import os
 
 task_bp = Blueprint("task", __name__, url_prefix="/tasks")
 
-def validate_task(cls,task_id):
+def validate_model(cls,task_id):
     try:
         task_id=int(task_id)
     except:
@@ -44,7 +44,7 @@ def read_all_task():
 @task_bp.route("/<id>", strict_slashes=False, methods =["GET"])
 def read_one_task(id):
     
-    task = validate_task(Task,id)
+    task = validate_model(Task,id)
     return {"task":task.to_dict()}, 200
 
 @task_bp.route("/", strict_slashes=False, methods =["POST"])
@@ -65,7 +65,7 @@ def create_task():
 @task_bp.route("/<id>", strict_slashes=False, methods =["PUT"])
 def update_task(id):
 
-    task = validate_task(Task,id)
+    task = validate_model(Task,id)
     request_body = request.get_json()
 
     try:
@@ -81,7 +81,7 @@ def update_task(id):
 @task_bp.route("/<id>", strict_slashes=False, methods =["DELETE"])
 def delete_task(id):
 
-    task = validate_task(Task,id)
+    task = validate_model(Task,id)
 
     db.session.delete(task)
     db.session.commit()
@@ -94,7 +94,7 @@ def delete_task(id):
 
 @task_bp.route("/<id>/mark_incomplete", strict_slashes=False, methods =["PATCH"])
 def update_incomplete(id):
-    task = validate_task(Task,id)
+    task = validate_model(Task,id)
     task.completed_at = None
     
 
@@ -115,7 +115,7 @@ def slack_bot(message):
 
 @task_bp.route("/<id>/mark_complete", strict_slashes=False, methods =["PATCH"])
 def update_complete(id):
-    task = validate_task(Task,id)
+    task = validate_model(Task,id)
     task.completed_at = datetime.datetime.now()
 
     db.session.commit()
