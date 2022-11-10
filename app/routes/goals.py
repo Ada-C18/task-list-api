@@ -32,3 +32,8 @@ def read_all_goals():
 
     return jsonify(all_goals)
 
+@bp.route("/<goal_id>", methods=["GET"])
+def read_one_goal(goal_id):
+    one_goal = validate_model(Goal, goal_id)
+    return make_response({"goal": one_goal.to_dict()}, 200)
+
