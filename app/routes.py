@@ -92,13 +92,8 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return {"task": {
-            "id": 1,
-            "title": "Updated Task Title",
-            "description": "Updated Test Description",
-            "is_complete": False
-        }
-    }
+    return make_response(jsonify({"task": task.to_dict()}))
+    
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -199,11 +194,7 @@ def get_one_goal(goal_id):
     goal = validate_model(Goal, goal_id)
     goals = Goal.query.get(goal_id)
     
-
-    return {"goal":
-            {"id": goal.goal_id, 
-            "title": goal.goal_title}
-            }
+    return make_response(jsonify({'goal': goal.to_dict_goal()}), 200)
 
 
 
@@ -217,10 +208,8 @@ def update_goal(goal_id):
     
     db.session.commit()
 
-    return {"goal":{
-            "id": 1,
-            "title": "Updated Goal Title",
-        }}
+    return make_response(jsonify({'goal': goal.to_dict_goal()}), 200)
+    
 
 
 @goal_bp.route("/<goal_id>", methods=["DELETE"])
@@ -296,48 +285,3 @@ def get_one_task_goal(task_id):
 
 
 # ---------------------------------------------------------------------------------------------------------
-# def validate_task(id):
-#     tasks = Task.query.get(task_id)
-#     try:
-#         task_id = int(task_id)
-#     except:
-#         abort(make_response({"message": f"task {task_id} is invalid"}, 400))
-#     for task in tasks:
-#         if task.task_id == task_id:
-#             return task
-#     abort(make_response({"message": f"{task_id} not found"}, 404))   
-    
-    
-    
-    
-    # @task_bp.route("", methods=["POST"])
-# def create_task():
-#     request_body = request.get_json()
-    
-#     new_task = Task.from_dict(request_body)
-
-#     db.session.add(new_task)
-#     db.session.commit()
-
-#     return make_response(jsonify(f"task: {new_task.title} successfully created"), 201)
-
-    
-    
-    
-    
-    # tasks = Task.query.get(task_id)
-    # task_id = int(task_id)
-    # task = validate_model(Task, task_id)
-    # for task in tasks:
-    #     if task.task_id == task_id:
-    #         return {"task": {
-    #             "id": task.task_id,
-    #             "title": task.title,
-    #             "description": task.description,
-    #             "is_complete": task.completed_at
-    #         } 
-    #         }
-
-    # return {"message":f"task {task_id} not found"}, 404
-# {"task": task.to_dict()}
-
