@@ -2,7 +2,6 @@ from app import db
 from app.models.goal import Goal
 from flask import Blueprint, jsonify, make_response, request,abort
 from app.models.task import Task
-from sqlalchemy import desc, asc
 from app.task_routes import validate_model
 
 
@@ -57,9 +56,8 @@ def update_goal(goal_id):
 
 
 @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
-def get_tasks_for_specific_goal(goal_id):
+def post_tasks_to_goal(goal_id):
     goal = validate_model(Goal,goal_id)
-
     request_body = request.get_json()
     task_ids= []
     for task_id in request_body["task_ids"]:
@@ -72,7 +70,7 @@ def get_tasks_for_specific_goal(goal_id):
     
     
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
-def get_task_includes_goal_id(goal_id):
+def get_task_with_goal_id(goal_id):
     
     goal = validate_model(Goal,goal_id)
 

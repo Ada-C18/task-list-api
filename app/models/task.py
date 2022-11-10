@@ -9,6 +9,12 @@ class Task(db.Model):
     goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal_id'))
     goal = db.relationship("Goal", back_populates="tasks")
     
+    @classmethod
+    def from_dict(cls, task_data):
+        new_task = Task(title=task_data["title"],
+                        description=task_data["description"])
+        return new_task
+    
     def to_dict(self):
         is_complete = False if self.completed_at == None else True
         return {
@@ -17,12 +23,6 @@ class Task(db.Model):
         "description":self.description,
         "is_complete":is_complete
         }
-
-    @classmethod
-    def from_dict(cls, task_data):
-        new_task = Task(title=task_data["title"],
-                        description=task_data["description"])
-        return new_task
     
     def other_dict(self):
         is_complete = False if self.completed_at == None else True

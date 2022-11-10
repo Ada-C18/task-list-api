@@ -13,12 +13,12 @@ def validate_model(cls, model_id):
     try:
         model_id = int(model_id)
     except:
-        abort(make_response({"details":"invalid"}, 400))
+        abort(make_response({"details":f"{cls.__name__} {model_id} invalid"}, 400))
         
     model = cls.query.get(model_id)
 
     if not model:
-        abort(make_response({"details":"not found"}, 404))
+        abort(make_response({"details":f"{cls.__name__} {model_id} not found"}, 404))
     return model
 
 
@@ -31,7 +31,6 @@ def create_task():
     if "completed_at" not in request_body:
         request_body["completed_at"]= None
         
-
     new_task = Task(title=request_body["title"],
                     description=request_body["description"],
                     completed_at=request_body["completed_at"])
