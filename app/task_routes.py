@@ -60,8 +60,9 @@ def read_all_tasks():
 @tasks_bp.route("<task_id>", methods=["GET"])
 def read_task_by_id(task_id): 
     task = validate_model(Task, task_id)
-    
-    return jsonify({"task":task.to_dict()}), 200
+    if task.goal_id is None:
+        return jsonify({"task":task.to_dict()}), 200
+    return jsonify({"task":task.to_dict_incl_goal_id()}), 200
 
 #Helper function for use in READ route: read_task_by_id and UPDATE route: update_task
 def validate_model(cls, id):

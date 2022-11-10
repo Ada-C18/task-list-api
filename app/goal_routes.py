@@ -28,9 +28,9 @@ def create_goal():
 
 @goals_bp.route('', methods=["GET"])
 def get_all_goals():
-    goals = Goal.query.all()
+    all_goals = Goal.query.all()
 
-    result = [item.to_dict() for item in goals]
+    result = [item.to_dict() for item in all_goals]
 
     return jsonify(result), 200
 
@@ -62,3 +62,37 @@ def delete_one_goal(goal_id):
     db.session.commit()
 
     return jsonify({"details": f'Goal {goal_to_delete.goal_id} "{goal_to_delete.title}" successfully deleted'}), 200
+
+#Wave 6: Nested Routes
+@goals_bp.route('/<goal_id>/tasks', methods=['POST'])
+def add_task_ids_to_goal(goal_id):
+    chosen_goal = validate_model(Goal, goal_id)
+    
+    request_body = request.get_json()
+    task_ids = request_body["task_ids"]
+
+    for id in task_ids:
+        task = Task.query.get(int(id))
+        if task not in chosen_goal.tasks:
+            chosen_goal.tasks.append(task)
+            #db.session.add(task)
+            db.session.commit()
+    
+    return jsonify({
+        "id" : int(goal_id),
+        "task_ids": task_ids
+    }), 200
+
+@goals_bp.route('/<goal_id>/tasks', methods=['GET'])
+def get_tasks_by_goal_id(goal_id):
+    chosen_goal = validate_model(Goal, goal_id)
+
+    return jsonify(chosen_goal.to_dict_incl_tasks()), 200
+    
+    
+
+
+
+
+        
+

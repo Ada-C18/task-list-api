@@ -7,20 +7,33 @@ class Goal(db.Model):
         primary_key=True)
 
     title = db.Column(db.String)
-    task_items = db.relationship(
+    tasks = db.relationship(
         "Task", 
-        back_populates = 'goal')
+        back_populates = 'goal', lazy = True)
     
     def to_dict(self):
         return {
             "id": self.goal_id,
             "title": self.title,
-            #"task_items": self.task_items
+            #"tasks": self.tasks
         }
+    
+    def to_dict_incl_tasks(self):
+        tasks = self.get_task_items()
 
+        return {
+            "id": self.goal_id,
+            "title": self.title,
+            "tasks": tasks
+        }
+    
+    #Helper method to use in to_dict_incl_tasks()
     def get_task_items(self):
-        list_of_tasks = [item.to_dict() for item in self.task_items]
-        
+        if self.tasks is None:
+            return None
+        list_of_tasks = [item.to_dict_incl_goal_id() for item in self.tasks]
+        return list_of_tasks
+
     @classmethod
     def from_dict(cls, dict):
         return cls (
@@ -28,5 +41,5 @@ class Goal(db.Model):
         ) if len(dict) == 1 else cls (
             title = dict["title"],
             description = dict["description"],
-            task_items = dict["task_items"]
+            tasks = dict["tasks"]
         )

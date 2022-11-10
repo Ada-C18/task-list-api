@@ -14,10 +14,11 @@ class Task(db.Model):
         default = None)
     goal_id = db.Column(
         db.Integer,
-        db.ForeignKey("goal.goal_id"))
+        db.ForeignKey("goal.goal_id"),
+        nullable = True)
     goal = db.relationship(
         "Goal", 
-        back_populates='task_items')
+        back_populates='tasks')
     
     def to_dict(self):
         return {
@@ -29,6 +30,14 @@ class Task(db.Model):
     # Source: 
     # https://stackoverflow.com/questions/52325025/use-of-if-else-inside-a-dict-to-set-a-value-to-key-using-python
 
+    def to_dict_incl_goal_id(self):
+        return{
+            "id": self.id,
+            "goal_id": self.goal_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": False if self.completed_at is None else True    
+        }
     @classmethod
     def from_dict(cls, dict):
         return cls (
