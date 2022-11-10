@@ -51,14 +51,15 @@ def boolean_completeness(completed_at):
     return True
 
 
-def format_return_json_task(target_task):
+def format_return_task(target_task):
     return {"id": target_task.task_id,
+            "goal_id": target_task.goal_id,
             "title": target_task.title,
             "description": target_task.description,
             "is_complete": boolean_completeness(target_task.completed_at)
             }
     
-def format_return_json_goal(target_goal):
+def format_return_goal(target_goal):
     return {"id": target_goal.goal_id,
             "title": target_goal.title
             }
@@ -83,7 +84,7 @@ def add_task():
         db.session.add(new_task)
         db.session.commit()
 
-        return {"task":format_return_json_task(new_task)}, 201
+        return {"task":format_return_task(new_task)}, 201
     except KeyError:
         return {"details":"Invalid data"}, 400
    
@@ -109,7 +110,7 @@ def list_all_tasks():
 
 
 
-    response = [format_return_json_task(task) for task in tasks]
+    response = [format_return_task(task) for task in tasks]
     return jsonify(response), 200
 
 
@@ -121,7 +122,7 @@ def list_all_tasks():
 def get_task_by_id(task_id):
     task = return_task_or_abort(task_id)
 
-    return {"task":format_return_json_task(task)}, 200
+    return {"task":format_return_task(task)}, 200
 
 
 
@@ -144,7 +145,7 @@ def update_task(task_id):
 
     db.session.commit()
 
-    return {"task":format_return_json_task(task)}, 200
+    return {"task":format_return_task(task)}, 200
 
 
 
@@ -169,7 +170,7 @@ def mark_complete(task_id):
    
     db.session.commit()
 
-    return {"task":format_return_json_task(task)}, 200
+    return {"task":format_return_task(task)}, 200
 
 
 
@@ -181,7 +182,7 @@ def mark_incomplete(task_id):
    
     db.session.commit()
 
-    return {"task":format_return_json_task(task)}, 200
+    return {"task":format_return_task(task)}, 200
 
 
 
@@ -203,7 +204,7 @@ def add_goal():
         db.session.add(new_goal)
         db.session.commit()
 
-        return {"goal":format_return_json_goal(new_goal)}, 201
+        return {"goal":format_return_goal(new_goal)}, 201
     except KeyError:
         return {"details":"Invalid data"}, 400
    
@@ -216,7 +217,7 @@ def add_goal():
 def list_all_goals():    
     goals = Goal.query.all()
 
-    response = [format_return_json_goal(goal) for goal in goals]
+    response = [format_return_goal(goal) for goal in goals]
     return jsonify(response), 200
 
 
@@ -228,7 +229,7 @@ def list_all_goals():
 def get_goal_by_id(goal_id):
     goal = return_goal_or_abort(goal_id)
 
-    return {"goal":format_return_json_goal(goal)}, 200
+    return {"goal":format_return_goal(goal)}, 200
 
 
 
@@ -248,7 +249,7 @@ def update_goal(goal_id):
 
     db.session.commit()
 
-    return {"goal":format_return_json_goal(goal)}, 200
+    return {"goal":format_return_goal(goal)}, 200
 
 
 
@@ -262,4 +263,40 @@ def delete_goal(goal_id):
     db.session.commit()
 
     return {"details": reponse_message}, 200
+
+
+
+
+
+
+                            #### LINKED ROUTES ####
+
+# @goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def send_tasks_to_goal(goal_id):
+#     goal=return_goal_or_abort(goal_id)
+
+#     request_body=request.get_json()
+
+#     if "task_ids" not in request_body:
+#         return jsonify("Must include task ids"), 400
+
+#     for task_id in request_body["task_ids"]:
+#         task = return_goal_or_abort(task_id)
+#         task.goal = goal_id
+
+#     db.session.commit()
+
+#     return jsonify({"id": goal_id, "task_ids": goal.tasks}), 200
+
+
+
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])
+def list_all_goal_tasks(goal_id):    
+    goal = return_goal_or_abort(goal_id)
+
+    response = [format_return_task(task) for task in goal.tasks]
+    return jsonify({"id": int(goal_id), "title": goal.title, "tasks": response}), 200
+
+
 
