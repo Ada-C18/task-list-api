@@ -157,7 +157,39 @@ def test_get_tasks_sorted_title_id_desc(client, three_tasks):
     ]
 
 def test_get_goals_sorted_asc(client, three_goals):
-    pass
+    response = client.get("/goals?sort=asc")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 3
+    assert response_body == [
+        {
+            "id": 1,
+            "title": "Code Task List"},
+        {
+            "id": 2,
+            "title": "Deploy Task List"},
+        {
+            "id": 3,
+            "title": "Submit Task List"},
+    ]
 
 def test_get_goals_sorted_desc(client, three_goals):
-    pass
+    response = client.get("/goals?sort=desc")
+    response_body = response.get_json()
+
+    # Assert
+    assert response.status_code == 200
+    assert len(response_body) == 3
+    assert response_body == [
+        {
+            "id": 3,
+            "title": "Submit Task List"},
+        {
+            "id": 2,
+            "title": "Deploy Task List"},
+        {
+            "id": 1,
+            "title": "Code Task List"},
+    ]
