@@ -96,7 +96,7 @@ def test_update_goal(client, one_goal):
     assert goal.title == "Updated Goal Title"
 
 
-#@pytest.mark.skip(reason="test to be completed by student")
+
 def test_update_goal_not_found(client):
     # Act
     response = client.put("/goals/1", json={
@@ -111,7 +111,7 @@ def test_update_goal_not_found(client):
                             }
 
 
-#@pytest.mark.skip(reason="No way to test this feature yet")
+
 def test_delete_goal(client, one_goal):
     # Act
     response = client.delete("/goals/1")
@@ -129,13 +129,8 @@ def test_delete_goal(client, one_goal):
     assert response.status_code == 404
     assert Goal.query.get(1) == None
 
-    #raise Exception("Complete test with assertion about response body")
-    # *****************************************************************
-    # **Complete test with assertion about response body***************
-    # *****************************************************************
 
 
-#@pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
     # Act
     response = client.delete("/goals/1")
