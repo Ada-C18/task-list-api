@@ -2,8 +2,33 @@ from app import db
 from app.models.task import Task
 from flask import Blueprint, jsonify, request, make_response, abort
 from datetime import date
+import requests
+import os
 
 bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
+
+SLACK_PM_URL = "https://slack.com/api/chat.postMessage"
+CHANNEL_ID = "C049V84LRHD"
+
+def send_completed_message(task):
+    try:
+        MESSAGE = f"Someone just completed the task {task.title}"
+        AUTH_HEADER = {"Authorization": f"Bearer {os.environ.get('SLACK_KEY')}"}
+
+        parameters = {
+            "channel": CHANNEL_ID,
+            "text": MESSAGE
+        }
+
+        response = requests.post(SLACK_PM_URL, params=parameters,
+                    headers=AUTH_HEADER)
+        response_body = response.json()
+        
+        if response_body["ok"] == True:
+            print("Task completion message successfully posted to Slack.")
+
+    except requests.HttpError:
+        print("Task completion message was unable to be posted to Slack.")
 
 
 def validate_task(task_id):
@@ -105,6 +130,7 @@ def mark_task_complete(id):
 
     db.session.commit()
 
+    send_completed_message(task)
     response_body = {"task": task.to_dict()}
 
     return jsonify(response_body)
