@@ -25,6 +25,10 @@ def validate_dict_title(request_body):
         abort(make_response({"details": "Invalid data"}, 400))
 
 
+def append_dicts_to_list(objects):
+    return [object.to_dict() for object in objects]
+
+
 @bp.route("", methods=["GET"], strict_slashes=False)
 def get_goals():
     sort_query = request.args.get("sort")
@@ -36,9 +40,8 @@ def get_goals():
 
     goals = goal_query.all()
 
-    goals_response = []
-    for goal in goals:
-        goals_response.append(goal.to_dict())
+    goals_response = append_dicts_to_list(goals)
+    
     return jsonify(goals_response)
 
 
@@ -101,9 +104,7 @@ def get_tasks_from_goal(id):
     task_query = Task.query.filter_by(goal_id=goal.goal_id)
     tasks = task_query.all()
 
-    tasks_response = []
-    for task in tasks:
-        tasks_response.append(task.to_dict())
+    tasks_response = append_dicts_to_list(tasks)
 
     response_body = goal.to_dict()
     response_body["tasks"] = tasks_response
