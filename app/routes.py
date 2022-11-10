@@ -37,11 +37,13 @@ def create_task():
     }, 201
 
 
-
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
+    tasks = Task.query.all()
+    sort_request = request.args.get("sort") #Added this
     task_list = []
-
+    
+    """HELPER FUNCTION TO DETERMINE IF TASK IS COMPLETED"""
     def is_complete():
         if "completed_at" in task_list == None:
             return True
@@ -49,14 +51,18 @@ def read_all_tasks():
             return False
 
     task_response = []
-    tasks = Task.query.all()
     for task in tasks:
         task_response.append({
         "id":task.task_id,
         "title":task.title,
         "description":task.description,
         "is_complete":is_complete()
-        })
+            }) 
+
+    if sort_request == "asc":
+        task_response = sorted(task_response, key=lambda a: a["title"])
+    elif sort_request == "desc":
+        task_response = sorted(task_response, key=lambda d: d["title"], reverse=True) 
 
     return jsonify(task_response)
 
@@ -102,7 +108,20 @@ def update_task(task_id):
     else:
         db.session.commit()
         return {"message": f"Task {task_id} not found"}, 404
+ 
+@task_bp.route("/<task_id>", methods=["GET"])
+def get_task_sort_asc(task_title, three_tasks):
+    request_body =request.get_json()
+    task_request = request.args.get("sort")
+    # if task_request == "asc":
+    #     task = Task.query.order_by(Task.title.asc())
+    # elif task_request == "desc":
+    #     task = Task.query.order_by(Task.title.desc())   
     
-@task_bp.route("/<task_id>sort=asc", methods=["GET"])
-def get_task_sort_asc(task_id):
-    
+    # response_body = []
+    # for task in task_request:
+    #     response_body.append(task.to_json())
+    # # sorted_list = sorted(three_tasks["title"])
+    # # sorted_d = sorted(three_tasks.items()key=["title"])
+    # return jsonify(response_body), 200
+    return request_body(task_request), 200
