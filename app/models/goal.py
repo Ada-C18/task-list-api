@@ -7,7 +7,14 @@ class Goal(db.Model):
     tasks = db.relationship("Task", backref='goal', lazy=True)
 
     def to_dict(self):
-        return dict(
+        if self.tasks:
+            return dict(
+                id = self.goal_id,
+                title = self.title,
+                tasks=[task.to_dict() for task in self.tasks])
+
+        else:
+            return dict(
             id = self.goal_id,
             title = self.title)
     

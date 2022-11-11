@@ -10,11 +10,20 @@ class Task(db.Model):
 
 
     def to_dict(self):
-        return dict(
-            id = self.task_id,
-            title = self.title,
-            description = self.description,
-            is_complete = self.completed_at)
+        if self.goal_id:
+            return dict(
+                id = self.task_id,
+                title = self.title,
+                description = self.description,
+                is_complete = False if self.completed_at is None else True,
+                goal_id = self.goal_id)
+
+        else:
+            return dict(
+                id = self.task_id,
+                title = self.title,
+                description = self.description,
+                is_complete = False if self.completed_at is None else True)
 
     @classmethod
     def from_dict(cls, data_dict):
