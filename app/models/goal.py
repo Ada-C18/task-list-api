@@ -3,11 +3,10 @@ from app import db
 
 
 class Goal(db.Model):
-    goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    goal_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     tasks = db.relationship("Task", back_populates="goal", lazy=True)
    
-
 
     def return_body(self):
         return {
@@ -15,7 +14,6 @@ class Goal(db.Model):
             "title": self.title
         }
     
-
     @classmethod
     def from_dict(cls, data_dict):
         if "title" in data_dict:

@@ -4,7 +4,7 @@ from app import db
 # create the table with attributes
 # after created, flask db migrate, flask db upgrade
 class Task(db.Model):
-    task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    task_id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
@@ -13,12 +13,16 @@ class Task(db.Model):
     
 
     def return_body(self):
-        return {
+        task_dict =  {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.check_complete_or_not()
         }
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
+
+        return task_dict
 
    
     @classmethod
