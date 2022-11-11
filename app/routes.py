@@ -183,7 +183,7 @@ def add_goal():
 
     return {
         "goal":{
-            "id" : new_goal.id,
+            "id" : new_goal.goal_id,
             "title" : new_goal.title
         }
     }, 201
@@ -203,16 +203,16 @@ def get_one_goal(id):
     chosen_goal = get_one_goal_or_abort(id)
     goal_dict = {
         "goal":{
-            "id" : chosen_goal.id,
+            "id" : chosen_goal.goal_id,
             "title" : chosen_goal.title
         }
     }
         
     return jsonify(goal_dict), 200
 
-@goal_bp.route("/<id>", methods=["PUT"])
-def update_one_task(id):
-    chosen_goal = get_one_goal_or_abort(id)
+@goal_bp.route("/<goal_id>", methods=["PUT"])
+def update_one_task(goal_id):
+    chosen_goal = get_one_goal_or_abort(goal_id)
     request_body = request.get_json()
 
     if "title" not in request_body:
@@ -224,18 +224,46 @@ def update_one_task(id):
 
     return {
         "goal":{
-            "id" : chosen_goal.id,
+            "id" : chosen_goal.goal_id,
             "title" : chosen_goal.title
         }
     }, 200
 
-@goal_bp.route("/<id>", methods=["DELETE"])
-def delete_one_goal(id):
-    chosen_goal = get_one_goal_or_abort(id)
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_one_goal(goal_id):
+    chosen_goal = get_one_goal_or_abort(goal_id)
 
     db.session.delete(chosen_goal)
 
     db.session.commit()
 
-    return jsonify({"details": f'Goal {id} "{chosen_goal.title}" successfully deleted'}), 200
+    return jsonify({"details": f'Goal {goal_id} "{chosen_goal.title}" successfully deleted'}), 200
 
+# ###################################################################
+
+# POST
+# @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+# def post_task_ids_to_goal(goal_id):
+#     # tasks is a list 
+#     # check if a goal 
+#     # check if a task 
+#     # do request 
+
+#     request_body = request.get_json()
+
+#     new_goal_with_task = {
+#         "task_ids": 
+#         }
+    
+
+
+#     db.session.add(new_goal_with_task)
+
+#     db.session.commit()
+
+#     return {
+#             "id" : new_goal_with_task.goal_id,
+#             "task_ids" : new_goal_with_task. # ????????
+#         }, 201
+
+# # GET 
