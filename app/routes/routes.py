@@ -64,10 +64,14 @@ def read_all_task():
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_id(Task, task_id)
-    response_body = {
-        "task": task.to_dict()
-    }
-    return response_body
+    if task.goal_id is None:
+        return {"task": task.to_dict()}
+    else:
+        return {"task": task.to_new_dict()}
+    # response_body = {
+    #     "task": task.to_dict()
+    # }
+    # return response_body
 
 #UPDATE TASK
 @task_bp.route("/<task_id>", methods=["PUT"])
@@ -153,6 +157,39 @@ def create_goal():
         }
     return make_response(response_body), 201
 
+#POST # 
+@goals_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_tasks_to_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+
+    request_body = request.get_json()
+    task_ids = []
+
+    for task_id in request_body["task_ids"]:
+        task = validate_id(Task, task_id)
+
+        goal.tasks.append(task) 
+        task_ids.append(task_id)
+
+    db.session.commit()
+
+    return {"id": goal.goal_id, "task_ids": task_ids}
+
+@goals_bp.route("/<goal_id>/tasks", methods=["GET"])   
+def get_tasks_with_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+
+    response = []
+
+    for task in goal.tasks:
+        response.append(task.to_new_dict())
+
+    return {"id": goal.goal_id, "title": goal.title, "tasks": response}
+
+
+
+    
+
 ## GET ALL GOALS
 @goals_bp.route("", methods=["GET"])
 def get_all_goals():
@@ -197,3 +234,4 @@ def delete_goal(goal_id):
 
     return {
         "details": f'Goal {goal_id} "{goal_dict["title"]}" successfully deleted'}
+
