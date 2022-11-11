@@ -6,10 +6,7 @@ from sqlalchemy import asc, desc
 from datetime import date
 import requests
 import json
-#NEW IMPORTS
 import os
-#import slack
-from pathlib import Path
 from dotenv import load_dotenv
 from .goal_routes import validate_model
 
@@ -41,14 +38,15 @@ def get_all_task():
 
     return (jsonify(task_response))
 
+
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def handle_task(task_id):
     task = validate_model(Task,task_id)
 
     return{"task":task.to_dict()} 
 
-@tasks_bp.route("", methods=["POST"])
 
+@tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
 
@@ -65,6 +63,7 @@ def create_task():
 
     return make_response(jsonify({'task': new_task.to_dict()}), 201)
 
+
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def edit_task(task_id):
     
@@ -77,11 +76,7 @@ def edit_task(task_id):
     db.session.commit()
 
     return make_response(jsonify({'task': task.to_dict()}), 200)
-# CHANGE ROUTE BOT TO SOMETHING
-# env_path= Path('.') / '.env'
-# load_dotenv(dotenv_path=env_path)
 
-# client=slack.WebClient(token=os.environ['SLACK_TOKEN'])
 
 @tasks_bp.route('/<task_id>/<complete>', methods=['PATCH'])
 def patch_task_complete(task_id,complete):
@@ -91,20 +86,13 @@ def patch_task_complete(task_id,complete):
         task.completed_at = date.today()
         text = f"Someone just completed the task {task.title}"
         post_to_slack(text)
-        # client.chat_postMessage(
-        #     channel="#slack-bot-test-channel",
-        #     text=f"Someone just completed the task {task.title}"
-        # )
+        
     elif complete == "mark_incomplete":
         task.completed_at = None
 
     db.session.commit()
 
     return make_response({'task': task.to_dict()}, 200)
-
-
-
-
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])

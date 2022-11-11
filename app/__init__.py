@@ -4,13 +4,8 @@ from flask_migrate import Migrate
 import os
 from dotenv import load_dotenv
 from datetime import datetime
-#from video
-# import slack
-# from pathlib import Path
 
 
-# env_path = Path('.')/'.env' #from vid
-# load_dotenv(dotenv_path=env_path) #from vid
 db = SQLAlchemy()
 migrate = Migrate()
 load_dotenv()
