@@ -3,7 +3,6 @@ from app.models.goal import Goal
 from app import db
 from flask import Blueprint, jsonify, make_response, request, abort
 from sqlalchemy import asc, desc
-# import datetime
 from datetime import date
 import requests
 import os
@@ -19,7 +18,7 @@ def create_task():
     # new_task = Task.from_dict(request_body)
 
     if "description" not in request_body or "title" not in request_body:
-         abort(make_response({"details": "Invalid data"}, 400))
+        abort(make_response({"details": "Invalid data"}, 400))
     
     new_task = Task.from_dict(request_body)
 
@@ -29,6 +28,7 @@ def create_task():
     dict_response = {
             "task": new_task.to_dict()
                         }
+    # dict_response["task"]["is_complete"] = False
     return make_response(jsonify(dict_response), 201)
 
 def validate_model(cls, id):
@@ -64,8 +64,7 @@ def get_tasks():
 def get_one_task(task_id):
     
     task = validate_model(Task, task_id)
-    return {"task": task.to_dict()
-    }, 200
+    return ({"task": task.to_dict()}, 200)
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -76,10 +75,10 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
-
     dict_response = {
             "task": task.to_dict()
                         }
+    
     return make_response(jsonify(dict_response),200)
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
@@ -102,8 +101,6 @@ def mark_complete(task_id):
     dict_response = {
             "task": task.to_dict()
                         }
-    dict_response["task"]["is_complete"]= True
-
     message = f"Someone just completed the task {task.title}"
     send_slack_message(message)
     
@@ -115,12 +112,10 @@ def mark_incomplete(task_id):
     task.completed_at = None
     
     db.session.commit()
-    dict_response = {
+
+    return make_response(jsonify({
             "task": task.to_dict()
-                        }
-    dict_response["task"]["is_complete"]= False
-    
-    return make_response(jsonify(dict_response),200)
+                        }),200)
 
 def send_slack_message(message):
     path = "https://slack.com/api/chat.postMessage"
@@ -134,7 +129,7 @@ def send_slack_message(message):
     }
 
     requests.post(path, json=post_arguments, headers=header)
- 
+
 @goals_bp.route("", methods=["POST"])
 def create_goal():
     request_body = request.get_json()
@@ -197,7 +192,7 @@ def tasks_ids_to_goal(goal_id):
         task = validate_model(Task, task_id)
         goal.tasks.append(task)
 
-    db.session.add(goal)
+    # db.session.add(goal)
     db.session.commit()
 
     return make_response(jsonify(id=goal.goal_id, task_ids=request_body["task_ids"]))
@@ -206,25 +201,11 @@ def tasks_ids_to_goal(goal_id):
 @goals_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_of_goal(goal_id):
     goal = validate_model(Goal, goal_id)
-    tasks = Task.query.get(goal_id)
-
-    tasks_of_goal_response = goal.to_dict()
-    tasks_of_goal_response["tasks"] = [tasks]
-    
-    
-    return make_response(jsonify(tasks_of_goal_response))
+    dict_response = goal.to_dict()
+    dict_response["tasks"]= [task.to_dict() for task in goal.tasks]
+    return make_response(jsonify(dict_response))
 
 
-    # assert response_body == {
-    #     "id": 1,
-    #     "title": "Build a habit of going outside daily",
-    #     "tasks": [
-    #         {
-    #             "id": 1,
-    #             "goal_id": 1,
-    #             "title": "Go on my daily walk 🏞",
-    #             "description": "Notice something new every day",
-    #             "is_complete": False
-    #         }
-    #     ]
+
+
     
