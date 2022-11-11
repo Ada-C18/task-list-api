@@ -69,17 +69,8 @@ def get_all_tasks():
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    chosen_task = get_one_task_or_abort(task_id)
-    task_dict = {
-        "task":{
-            "id" : chosen_task.id,
-            "title" : chosen_task.title,
-            "description" : chosen_task.description,
-            "is_complete" : chosen_task.is_complete
-        }
-    }
-        
-    return jsonify(task_dict), 200
+    chosen_task = get_one_task_or_abort(task_id)  
+    return jsonify({"task":Task.to_dict(chosen_task)}), 200
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_one_task(task_id):
@@ -244,26 +235,41 @@ def delete_one_goal(goal_id):
 # POST
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id):
-    # tasks is a list 
-    # check if a goal 
-    # check if a task 
-    # do request 
+
+    big_goal_id = get_one_goal_or_abort(goal_id)
 
     request_body = request.get_json()
 
-    new_goal_with_task = {
-        "task_ids": Goal.tasks
-        }
+    for task_id in request_body["task_ids"]:
+        valid_task = get_one_task_or_abort(task_id)
+        valid_task.goals = big_goal_id
+        db.session.commit()
     
+    big_goal_task_id_list = []
+    for task in big_goal_id.tasks:
+        big_goal_task_id_list.append(task.id)
+
+    new_goal_with_task = {
+        "id" : big_goal_id.goal_id,
+        "task_ids": big_goal_task_id_list
+        }
 
 
-    db.session.add(new_goal_with_task)
-
-    db.session.commit()
-
-    return {
-            "id" : new_goal_with_task.goal_id,
-            "task_ids" : new_goal_with_task. # ????????
-        }, 201
+    return jsonify(new_goal_with_task), 200
 
 # # GET 
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_one_goal_with_tasks(goal_id):
+    chosen_big_goal_id = get_one_goal_or_abort(goal_id)
+
+    big_goal_task_id_list = []
+    for task in chosen_big_goal_id.tasks:
+        big_goal_task_id_list.append(Task.to_dict(task))
+
+    goal_dict = {
+            "id" : chosen_big_goal_id.goal_id,
+            "title" : chosen_big_goal_id.title,
+            "tasks": big_goal_task_id_list
+        }
+        
+    return jsonify(goal_dict), 200

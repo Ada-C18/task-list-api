@@ -12,12 +12,21 @@ class Task(db.Model):
 
     def to_dict(self):
         if self.completed_at is None:
-            task_dict = {
-                "id":self.id,
-                "title":self.title,
-                "description":self.description,
-                "is_complete": False
-            }
+            if self.goal_id is None: 
+                task_dict = {
+                    "id":self.id,
+                    "title":self.title,
+                    "description":self.description,
+                    "is_complete": False
+                }
+            else:
+                task_dict = {
+                    "id":self.id,
+                    "goal_id": self.goal_id,
+                    "title":self.title,
+                    "description":self.description,
+                    "is_complete": False
+                }
         else: 
             task_dict = {
                 "id":self.id,
