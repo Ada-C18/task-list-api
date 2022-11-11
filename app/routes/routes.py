@@ -3,6 +3,7 @@ from app import db
 from app.models.task import Task
 from datetime import datetime
 from app.models.goal import Goal
+import os, requests
 
 #VALIDATE ID
 def validate_id(class_obj,id):
@@ -97,6 +98,7 @@ def delete_task(task_id):
         "details": f'Task {task_id} "{task_dict["title"]}" successfully deleted'}
 
 #MARK COMPLETE
+#MODIFY MARK COMPLETE TO CALL SLACK API
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"]) #custom endpoint mark task complete
 def mark_complete(task_id):
     task = validate_id(Task, task_id)
@@ -106,7 +108,15 @@ def mark_complete(task_id):
     response = {
         "task": task.to_dict()
     }
-    
+    slack_key = os.environ.get("SLACKBOT_API_KEY")
+    path = "https://slack.com/api/chat.postMessage"
+    data = {
+        "channel": "task-notifications",
+        "text": f"Someone just completed the task {task.title}"
+    }
+    headers = {
+        "authorization":f"Bearer {slack_key}"
+    }
     return jsonify(response)
 
 
@@ -123,3 +133,67 @@ def mark_incomplete(task_id):
 
     return jsonify(response)
 
+### GOAL ROUTES
+#POST/CREATE A GOAL
+goals_bp = Blueprint("Goal", __name__, url_prefix="/goals")
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
+    if "title" not in request_body:
+        return make_response({"details": "Invalid data"}, 400)
+
+    new_goal = Goal(title=request_body["title"])
+
+    #abort(make_response)  
+    db.session.add(new_goal)
+    db.session.commit()
+
+    response_body = {
+        "goal": new_goal.to_dict()
+        }
+    return make_response(response_body), 201
+
+## GET ALL GOALS
+@goals_bp.route("", methods=["GET"])
+def get_all_goals():
+    goals = Goal.query.all()
+    response = []
+
+    for goal in goals:
+        response.append(goal.to_dict())
+    return jsonify(response), 200
+
+#GET ONE GOAL
+@goals_bp.route("/<goal_id>", methods=["GET"])
+def get_one_goal(goal_id):
+    goal = validate_id(Goal, goal_id) #id instead of goal_id
+    response_body = {
+        "goal": goal.to_dict()
+    }
+    return response_body
+
+#UPDATE GOAL
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+    request_body = request.get_json() 
+    goal.title = request_body["title"]
+
+    db.session.commit()
+    response_body =  {
+        "goal": goal.to_dict()
+        }
+    return make_response(response_body, 200)
+
+#DELETE ONE GOAL
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_id(Goal, goal_id)
+
+    goal_dict = goal.to_dict()
+
+    db.session.delete(goal)
+    db.session.commit()
+
+    return {
+        "details": f'Goal {goal_id} "{goal_dict["title"]}" successfully deleted'}
