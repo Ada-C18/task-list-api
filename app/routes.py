@@ -242,28 +242,28 @@ def delete_one_goal(goal_id):
 # ###################################################################
 
 # POST
-# @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
-# def post_task_ids_to_goal(goal_id):
-#     # tasks is a list 
-#     # check if a goal 
-#     # check if a task 
-#     # do request 
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+    # tasks is a list 
+    # check if a goal 
+    # check if a task 
+    # do request 
 
-#     request_body = request.get_json()
+    request_body = request.get_json()
 
-#     new_goal_with_task = {
-#         "task_ids": 
-#         }
+    new_goal_with_task = {
+        "task_ids": Goal.tasks
+        }
     
 
 
-#     db.session.add(new_goal_with_task)
+    db.session.add(new_goal_with_task)
 
-#     db.session.commit()
+    db.session.commit()
 
-#     return {
-#             "id" : new_goal_with_task.goal_id,
-#             "task_ids" : new_goal_with_task. # ????????
-#         }, 201
+    return {
+            "id" : new_goal_with_task.goal_id,
+            "task_ids" : new_goal_with_task. # ????????
+        }, 201
 
 # # GET 
