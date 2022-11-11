@@ -1,221 +1,152 @@
 from flask import Blueprint, jsonify, abort, make_response, request
-
+from os import abort
+from app.models.task import Task
+from app import db
+import json
+from datetime import datetime
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
-### Create a Task: Valid Task With `null` `completed_at`
+now = datetime.now() 
+date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 
-# As a client, I want to be able to make a `POST` request to `/tasks` with the following HTTP request body
-# so that I know I successfully created a Task that is saved in the database.
+@tasks_bp.route("", methods=['POST'])
+def created_task():
+    request_body = request.get_json()
+    print(request_body)
+    created_task = Task(title=request_body["title"],
+                description=request_body["description"],
+            is_complete = date_time)
+                        
+    db.session.add(created_task)
+    db.session.commit()
 
-0️⃣
-app.route('/', methods = ['POST'])
-def task_completed_null:
-    pass
-#   return {
-#     "title": "A Brand New Task",
-#     "description": "Test Description",
-#     "completed_at": NULL
-#   }, "201", "CREATED"
-
-1️⃣
-# {
-#   "task": {
-#     "id": 1,
-#     "title": "A Brand New Task",
-#     "description": "Test Description",
-#     "is_complete": false
-#   }
-# }
+    return make_response(f"Task {created_task.title} successfully created", 201)
 
 
+def validate_task_id(task_id):
+    try:
+        task_id = int(task_id)
+    except:
+        abort(make_response({"message":f"Task {task_id} invalid"}, 400))
 
-### Get Tasks: Getting Saved Tasks
-# As a client, I want to be able to make a `GET` request to `/tasks` when there is at least one saved task and get this response:
-2️⃣
+    task = Task.query.get(task_id)
 
-# `200 OK`
-# ```json
-# [
-#   {
-#     "id": 1,
-#     "title": "Example Task Title 1",
-#     "description": "Example Task Description 1",
-#     "is_complete": false
-#   },
-#   {
-#     "id": 2,
-#     "title": "Example Task Title 2",
-#     "description": "Example Task Description 2",
-#     "is_complete": false
-#   }
-# ]
-# ```
-app.route('/', methods = ['GET'])
-def saved_tasks:
-    pass 
+    if not task:
+        abort(make_response({"message":f"Task {task_id} not found"}, 404))
+
+    return task
+
+@tasks_bp.route('', methods=['GET'])
+def query_all():
+    all_tasks = Task.query.all()
+    tasks_lists = []
+    for task in all_tasks:
+            tasks_lists.append({
+                "id": task.task_id,
+                "title": task.title,
+                "description": task.description,
+                "is_complete": task.is_complete
+            })
+    print(tasks_lists)
+    return jsonify(tasks_lists)
 
 
 
+@tasks_bp.route('/<task_id>', methods=['GET'])
+def one_saved_task(task_id):
+    task = validate_task_id(task_id)
+    return {
+            # "id": task.id,
+            "title": task.title,
+            "description": task.description,
+            # "is_complete": task.date_time
+        }
 
 
-3️⃣
-### Get Tasks: No Saved Tasks
-# As a client, I want to be able to make a `GET` request to `/tasks` when there are zero saved tasks and get this response:
-# `200 OK`
-# ```json
-# []
-# ```
+@tasks_bp.route('/<task_id>', methods=['PUT'])
+def update_tasks(task_id):
+    task = validate_task_id(task_id)
+    request_body = request.get_json()
+    
+    task.title = request_body["title"]
+    task.description = request_body["description"]
+    task.is_complete = date_time
 
-app.route('/', methods = ['GET'])
-def no_saved_tasks:
-    pass 
+    db.session.commit()
 
+    return make_response(f"Task {task_id} successfully updated", 201)
 
+@tasks_bp.route('/<id>', methods=['DELETE'])
+def delete_tasks(task_id):
+    test = validate_task_id(task_id)
 
-4️⃣
-### Get One Task: One Saved Task
-# As a client, I want to be able to make a `GET` request to `/tasks/1` when there is at least one saved task and get this response:
-# `200 OK`
-# ```json
-# {
-#   "task": {
-#     "id": 1,
-#     "title": "Example Task Title 1",
-#     "description": "Example Task Description 1",
-#     "is_complete": false
-#   }
-# }
-# ```
-# app.route('/', methods = ['GET'])
-def one_saved_tasks:
-    pass 
+    db.session.delete(test)
+    db.session.commit()
 
+    return make_response(f"Test #{test.id} successfully deleted, 200 OK")
 
-5️⃣
-### Update Task
+# # Note that the update endpoint does update the `completed_at` attribute. 
+# This will be updated with custom endpoints implemented in Wave 03.
 
-# As a client, I want to be able to make a `PUT` request to `/tasks/1` when there is at least one saved task with this request body:
+# # ### No matching Task: Get, Update, and Delete
 
-# ```json
-# {
-#   "title": "Updated Task Title",
-#   "description": "Updated Test Description",
-# }
-# ```
+# # and there is no existing task with `task_id`
 
-# and get this response:
+# # The response code should be `404`.
 
-# `200 OK`
+# # You may choose the response body.
 
-# ```json
-# {
-#   "task": {
-#     "id": 1,
-#     "title": "Updated Task Title",
-#     "description": "Updated Test Description",
-#     "is_complete": false
-#   }
-# }
-# ```
-# Note that the update endpoint does update the `completed_at` attribute. This will be updated with custom endpoints implemented in Wave 03.
-
-app.route('/', methods = ['GET'])
-def update_tasks:
-    pass 
+# # Make sure to complete the tests for non-existing tasks to check that the correct response body is returned.
+# @tasks_bp.route('/', methods=['DELETE'])
+# def no_matching_tasks():
+#     pass 
 
 
-### Delete Task: Deleting a Task
+# # ### Create a Task: Invalid Task With Missing Data
 
-# As a client, I want to be able to make a `DELETE` request to `/tasks/1` when there is at least one saved task and get this response:
+# # #### Missing `title`
 
-# `200 OK`
+# # As a client, I want to be able to make a `POST` request to `/tasks` with the following HTTP request body
 
-# ```json
-# {
-#   "details": "Task 1 \"Go on my daily walk 🏞\" successfully deleted"
-# }
-# ```
+# # ```json
+# # {
+# #   "description": "Test Description",
+# #   "completed_at": null
+# # }
+# # ```
 
-app.route('/', methods = ['DELETE'])
-def delete_tasks:
-    pass 
+# # and get this response:
 
+# # `400 Bad Request`
 
+# # ```json
+# # {
+# #   "details": "Invalid data"
+# # }
+# # ```
 
-# ### No matching Task: Get, Update, and Delete
+# # so that I know I did not create a Task that is saved in the database.
 
-# As a client, if I make any of the following requests:
+# # #### Missing `description` 
+# # If the HTTP request is missing `description`, we should also get this response:
+# # `400 Bad Request`
 
-#   * `GET` `/tasks/<task_id>`
-#   * `UPDATE` `/tasks/<task_id>`
-#   * `DELETE` `/tasks/<task_id>`
-
-# and there is no existing task with `task_id`
-
-# The response code should be `404`.
-
-# You may choose the response body.
-
-# Make sure to complete the tests for non-existing tasks to check that the correct response body is returned.
-app.route('/', methods = ['DELETE'])
-def no_matching_tasks:
-    pass 
-
-
-# ### Create a Task: Invalid Task With Missing Data
-
-# #### Missing `title`
-
-# As a client, I want to be able to make a `POST` request to `/tasks` with the following HTTP request body
-
-# ```json
-# {
-#   "description": "Test Description",
-#   "completed_at": null
-# }
-# ```
-
-# and get this response:
-
-# `400 Bad Request`
-
-# ```json
-# {
-#   "details": "Invalid data"
-# }
-# ```
-
-# so that I know I did not create a Task that is saved in the database.
-app.route('/', methods = ['DELETE'])
-def missing_title_input:
-    pass 
+# # ```json
+# # {
+# #   "details": "Invalid data"
+# # }
+# # ```
+# @tasks_bp.route('/', methods=['DELETE'])
+# def missing_description():
+#     pass 
 
 
-
-
-# #### Missing `description` 
-# If the HTTP request is missing `description`, we should also get this response:
-# `400 Bad Request`
-
-# ```json
-# {
-#   "details": "Invalid data"
-# }
-# ```
-app.route('/', methods = ['DELETE'])
-def missing_description:
-    pass 
-
-
-#### Missing `completed_at`
-# If the HTTP request is missing `completed_at`, we should also get this response:
-# `400 Bad Request`
-# ```json0️⃣
-# {
-#   "details": "Invalid data"
-# }
-# ```
-app.route('/', methods = ['DELETE'])
-def missing_description:
-    pass 
+# #### Missing `completed_at`
+# # If the HTTP request is missing `completed_at`, we should also get this response:
+# # `400 Bad Request`
+# # ```json0️⃣
+# # {
+# #   "details": "Invalid data"
+# # }
+# # ```
