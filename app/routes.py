@@ -55,12 +55,14 @@ def query_all():
 def one_saved_task(task_id):
     # task_validate = validate_task_id(task_id)
     task = Task.query.get(task_id)
-    print(task_id)
-    return {
-        "id": task.task_id,
-        "title": task.title,
-        "description": task.description
-    }
+    if task == None:
+        return "The task ID submitted, does not exist: error code 404"
+    else:      
+        return {
+            "id": task.task_id,
+            "title": task.title,
+            "description": task.description
+        }
     #
     # print(task)
 
