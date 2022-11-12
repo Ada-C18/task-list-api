@@ -17,11 +17,15 @@ def created_task():
     created_task = Task(title=request_body["title"],
                 description=request_body["description"],
             completed_at=request_body["completed_at"])
-                        
-    db.session.add(created_task)
-    db.session.commit()
+    
+    if created_task.title == "":
+        return f"{created_task.title}, 400 Bad Request"
 
-    return jsonify({"task": created_task.build_task_dict()}), 201
+    else:
+        db.session.add(created_task)
+        db.session.commit()
+
+        return jsonify({"task": created_task.build_task_dict()}), 201
 
 
 def validate_task_id(task_id):
@@ -77,7 +81,7 @@ def update_tasks(task_id):
 
     db.session.commit()
 
-    return make_response(f"Task {task_id} successfully updated", 201)
+    return make_response(f"Task {task_id} successfully updated", 200)
 
 @tasks_bp.route('/<id>', methods=['DELETE'])
 def delete_tasks(task_id):
@@ -88,21 +92,6 @@ def delete_tasks(task_id):
 
     return make_response(f"Test #{test.id} successfully deleted, 200 OK")
 
-# # Note that the update endpoint does update the `completed_at` attribute. 
-# This will be updated with custom endpoints implemented in Wave 03.
-
-# # ### No matching Task: Get, Update, and Delete
-
-# # and there is no existing task with `task_id`
-
-# # The response code should be `404`.
-
-# # You may choose the response body.
-
-# # Make sure to complete the tests for non-existing tasks to check that the correct response body is returned.
-# @tasks_bp.route('/', methods=['DELETE'])
-# def no_matching_tasks():
-#     pass 
 
 
 # # ### Create a Task: Invalid Task With Missing Data
