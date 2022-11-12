@@ -136,7 +136,7 @@ def get_any_goal():
     # Update
 @goal_bp.route ("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
-    goal = Goal.validate_task_id(goal_id)
+    goal = Goal.validate_goal_id(goal_id)
     
     request_body = request.get_json()
 
@@ -146,21 +146,21 @@ def update_goal(goal_id):
 
     return {"goal" : goal.to_dict()}, 200
 
-# @goal_bp.route("<goal_id>/<marker>", methods=["PATCH"])
-# def mark_goal_status(goal_id, marker):
-#     goal = Goal.validate_goal_id(goal_id)
-#     eval("goal." + marker + "()")
+@goal_bp.route("<goal_id>/<marker>", methods=["PATCH"])
+def mark_goal_status(goal_id, marker):
+    goal = Goal.validate_goal_id(goal_id)
+    eval("goal." + marker + "()")
     
-#     db.session.commit()
+    db.session.commit()
 
-#     return {"goal" : goal.to_dict()}, 200
+    return {"goal" : goal.to_dict()}, 200
 
     # Delete
-# @goal_bp.route("/<goal_id>", methods=["DELETE"])
-# def delete_goal(goal_id):
-#     goal = Goal.validate_goal_id(goal_id)
+@goal_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = Goal.validate_goal_id(goal_id)
 
-#     db.session.delete(goal)
-#     db.session.commit()
+    db.session.delete(goal)
+    db.session.commit()
     
-#     return make_response({"details" : f"Task {goal_id} \"{goal.title}\" successfully deleted"}, 200)
+    return make_response({"details" : f"Goal {goal_id} \"{goal.title}\" successfully deleted"}, 200)

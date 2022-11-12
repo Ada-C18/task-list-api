@@ -26,12 +26,12 @@ class Goal(db.Model):
         try:
             goal_id = int(goal_id)
         except:
-            abort(make_response({"message" : f"task id: {goal_id} is invalid"}, 400))
+            abort(make_response({"message" : f"goal id: {goal_id} is invalid"}, 400))
     
         goal = Goal.query.get(goal_id)
 
         if not goal:
-            abort(make_response({"message" : f"task {goal_id} not found"}, 404))
+            abort(make_response({"message" : f"goal {goal_id} not found"}, 404))
     
         return goal
         
