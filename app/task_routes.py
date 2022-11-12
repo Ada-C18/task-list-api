@@ -77,13 +77,24 @@ def validate_task(task_id):
 @task_bp.route("/<task_id>", methods=['GET'])
 def get_one_task(task_id):
     task = validate_task(task_id)
-    return {"task":{
+    
+    if task.goal_id:
+        response = {"task":{
             "id": task.task_id,
+            "goal_id": task.goal_id,
             "title": task.title,
             "description": task.description,
             "is_complete": False
             }},200
-    
+    else:        
+        response = {"task":{
+                    "id": task.task_id,
+                    "title": task.title,
+                    "description": task.description,
+                    "is_complete": False
+                    }},200
+
+    return response
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
