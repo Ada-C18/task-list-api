@@ -119,25 +119,22 @@ def mark_task_incomplete(task_id):
     db.session.commit()
     return jsonify(task=task.to_dict()), 200
 
-# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-# def mark_complete_on_completed_task(task_id):
-#     task = Task.query.get.arg(task_id)
-#     if task:
-#         task.completed_at = False#datetime.now()
-#         db.session.commit()
-#         return jsonify(task=task.to_dict()), 200
-#     else:
-#         task.completed_at = None
-#         db.session.commit()
-#         # return "", 404
-#         return jsonify(task=task.to_dict()), 200
-# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-# def mark_incomplete_on_incompleted_task(task_id):
-#     task = Task.query.get_or_404(task_id)
-#     if task:
-#         task.completed_at = datetime.now()
-#         db.session.commit()
-#         return jsonify(task=task.to_dict()), 200
-#     else:
-#         task.completed_at = None
-# @task_bp.route("/<task_id>/complete", methods=["PATCH"])
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_complete_on_completed_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    # task_completed_at = datetime.now()
+
+    db.session.commit()
+    
+    return jsonify(task=task.to_dict()), 200
+
+@task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
+def mark_incomplete_on_incompleted_task(task_id):
+    task = Task.query.get_or_404(task_id)
+    if task:
+        task.completed_at = datetime.now()
+        db.session.commit()
+        return jsonify(task=task.to_dict()), 200
+    else:
+        task.completed_at = None
+
