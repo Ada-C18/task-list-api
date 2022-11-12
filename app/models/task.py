@@ -8,6 +8,8 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable = True)
+    goal_id = db.Column(db.Integer, db.ForeignKey("goal.id"), nullable = True)
+
     
 
 
@@ -24,6 +26,8 @@ class Task(db.Model):
             "description" : self.description, 
             "is_complete" : self.is_complete()
             }
+        if self.goal_id != None:
+            task_dict.update({"goal_id" : self.goal_id})
         return task_dict
     
     def mark_complete(self):

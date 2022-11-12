@@ -164,3 +164,32 @@ def delete_goal(goal_id):
     db.session.commit()
     
     return make_response({"details" : f"Goal {goal_id} \"{goal.title}\" successfully deleted"}, 200)
+
+
+# Nested route for task assigned to one goal
+
+@goal_bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+    goal = Goal.validate_goal_id(goal_id)
+
+    request_body = request.get_json()
+
+    
+    for task in request_body["task_ids"]:
+        new_task = Task.validate_task_id(task)
+        new_task.goal_id = goal_id
+        
+    db.session.commit()
+
+    return make_response({
+        "id" : goal.id,
+        "task_ids" : goal.get_task_ids()
+    }, 200)
+
+@goal_bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_from_goal(goal_id):
+    goal = Goal.validate_goal_id(goal_id)
+    response_body = goal.to_dict()
+    response_body.update({"tasks" : goal.get_tasks()})
+
+    return make_response(response_body, 200)
