@@ -10,6 +10,7 @@ tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 now = datetime.now() 
 date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 
+
 @tasks_bp.route("", methods=['POST'])
 def created_task():
     request_body = request.get_json()
@@ -19,7 +20,14 @@ def created_task():
             completed_at=request_body["completed_at"])
     
     if created_task.title == "":
-        return f"{created_task.title}, 400 Bad Request"
+        return abort(make_response({"message":f"Task {created_task.title} invalid"}, 400))
+
+    elif created_task.description == "":
+        return abort(make_response({"message":f"Task {created_task.description} invalid"}, 400))
+
+
+    elif created_task.completed_at == "":
+        return abort(make_response({"message":f"Task {created_task.completed_at} invalid"}, 400))
 
     else:
         db.session.add(created_task)
@@ -67,8 +75,7 @@ def one_saved_task(task_id):
             "title": task.title,
             "description": task.description
         }
-    #
-    # print(task)
+
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
 def update_tasks(task_id):
@@ -83,62 +90,14 @@ def update_tasks(task_id):
 
     return make_response(f"Task {task_id} successfully updated", 200)
 
-@tasks_bp.route('/<id>', methods=['DELETE'])
-def delete_tasks(task_id):
-    test = validate_task_id(task_id)
 
-    db.session.delete(test)
+@tasks_bp.route('/<task_id>', methods=['DELETE'])
+def delete_tasks(task_id):
+    test_task = validate_task_id(task_id)
+
+    db.session.delete(test_task)
     db.session.commit()
 
-    return make_response(f"Test #{test.id} successfully deleted, 200 OK")
+    return make_response(f"Task #{task_id} successfully deleted, 200 OK")
 
-
-
-# # ### Create a Task: Invalid Task With Missing Data
-
-# # #### Missing `title`
-
-# # As a client, I want to be able to make a `POST` request to `/tasks` with the following HTTP request body
-
-# # ```json
-# # {
-# #   "description": "Test Description",
-# #   "completed_at": null
-# # }
-# # ```
-
-# # and get this response:
-
-# # `400 Bad Request`
-
-# # ```json
-# # {
-# #   "details": "Invalid data"
-# # }
-# # ```
-
-# # so that I know I did not create a Task that is saved in the database.
-
-# # #### Missing `description` 
-# # If the HTTP request is missing `description`, we should also get this response:
-# # `400 Bad Request`
-
-# # ```json
-# # {
-# #   "details": "Invalid data"
-# # }
-# # ```
-# @tasks_bp.route('/', methods=['DELETE'])
-# def missing_description():
-#     pass 
-
-
-# #### Missing `completed_at`
-# # If the HTTP request is missing `completed_at`, we should also get this response:
-# # `400 Bad Request`
-# # ```json0️⃣
-# # {
-# #   "details": "Invalid data"
-# # }
-# # ```
 
