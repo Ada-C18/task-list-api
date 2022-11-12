@@ -4,12 +4,12 @@ from app.models.task import Task
 from app import db
 import json
 from datetime import datetime
+from sqlalchemy import asc, desc
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
-now = datetime.now() 
-date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-
+# now = datetime.now() 
+# date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 
 @tasks_bp.route("", methods=['POST'])
 def created_task():
@@ -18,22 +18,23 @@ def created_task():
     created_task = Task(title=request_body["title"],
                 description=request_body["description"],
             completed_at=request_body["completed_at"])
-    
+
     if created_task.title == "":
-        return abort(make_response({"message":f"Task {created_task.title} invalid"}, 400))
+        make_response({"message":f"Task {created_task.title} invalid"}, 400)
 
-    elif created_task.description == "":
-        return abort(make_response({"message":f"Task {created_task.description} invalid"}, 400))
+    if created_task.description == "":
+        return make_response({"message":f"Task {created_task.description} invalid"}, 400)
 
 
-    elif created_task.completed_at == "":
-        return abort(make_response({"message":f"Task {created_task.completed_at} invalid"}, 400))
+    if created_task.completed_at == None:
+        return make_response({"message":f"Task {created_task.complete_at} invalid"}, 400)
 
     else:
         db.session.add(created_task)
         db.session.commit()
-
-        return jsonify({"task": created_task.build_task_dict()}), 201
+    
+    return jsonify({"task": created_task.build_task_dict()}), 201
+    
 
 
 def validate_task_id(task_id):
@@ -52,16 +53,21 @@ def validate_task_id(task_id):
 @tasks_bp.route('', methods=['GET'])
 def query_all():
     all_tasks = Task.query.all()
+
     tasks_lists = []
     for task in all_tasks:
             tasks_lists.append({
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "completed_at": bool(task.completed_at)
+                "is_complete": bool(task.completed_at)
             })
     print(tasks_lists)
     return jsonify(tasks_lists)
+    # query_desc = Task.query.order_by(Task.title.desc())
+    # query_asc = Task.order_by(Task.title.asc())
+
+
 
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def one_saved_task(task_id):
@@ -84,7 +90,7 @@ def update_tasks(task_id):
     
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed_at"]
+    task.is_complete = request_body["is_complete"]
 
     db.session.commit()
 
