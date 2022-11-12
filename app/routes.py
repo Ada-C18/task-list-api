@@ -16,12 +16,12 @@ def created_task():
     print(request_body)
     created_task = Task(title=request_body["title"],
                 description=request_body["description"],
-            is_complete = date_time)
+            completed_at=request_body["completed_at"])
                         
     db.session.add(created_task)
     db.session.commit()
 
-    return make_response(f"Task {created_task.title} successfully created", 201)
+    return jsonify({"task": created_task.build_task_dict()}), 201
 
 
 def validate_task_id(task_id):
@@ -46,23 +46,23 @@ def query_all():
                 "id": task.task_id,
                 "title": task.title,
                 "description": task.description,
-                "is_complete": task.is_complete
+                "completed_at": bool(task.completed_at)
             })
     print(tasks_lists)
     return jsonify(tasks_lists)
 
-
-
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def one_saved_task(task_id):
-    task = validate_task_id(task_id)
+    # task_validate = validate_task_id(task_id)
+    task = Task.query.get(task_id)
+    print(task_id)
     return {
-            # "id": task.id,
-            "title": task.title,
-            "description": task.description,
-            # "is_complete": task.date_time
-        }
-
+        "id": task.task_id,
+        "title": task.title,
+        "description": task.description
+    }
+    #
+    # print(task)
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
 def update_tasks(task_id):
@@ -71,7 +71,7 @@ def update_tasks(task_id):
     
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.is_complete = date_time
+    task.completed_at = request_body["completed_at"]
 
     db.session.commit()
 
@@ -150,3 +150,4 @@ def delete_tasks(task_id):
 # #   "details": "Invalid data"
 # # }
 # # ```
+
