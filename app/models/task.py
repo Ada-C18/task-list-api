@@ -18,6 +18,15 @@ class Task(db.Model):
                 "description": self.description,
                 "is_complete": True
             }
+        if self.goal_id and not self.completed_at:
+            return {
+                "id": self.task_id,
+                "goal_id": self.goal_id,
+                "title": self.title,
+                "description": self.description,
+                "is_complete": False
+            }
+
         else:
             return {
                 "id": self.task_id,
