@@ -1,41 +1,15 @@
 from app import db
+from app.helper_functions import validate_model, slack_bot_message
 from app.models.task import Task
 from datetime import datetime
 from flask import Blueprint, abort, jsonify, make_response, request
 from sqlalchemy import asc, desc
-import os, requests
 from dotenv import load_dotenv
 load_dotenv()
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 
-# -------Helper Functions-------
-def validate_model(cls, model_id):
-    try:
-        model_id = int(model_id)
-    except:
-        abort(make_response({"message": f"{cls.__name__} {model_id} invalid"}, 400))
-
-    model = cls.query.get(model_id)
-
-    if not model:
-        abort(make_response({"message": f"{cls.__name__} {model_id} not found"}, 404))
-
-    return model
-
-def slack_bot_message(message):
-    slack_api_key = os.environ.get("SLACK_BOT_TOKEN")
-    slack_url = "https://slack.com/api/chat.postMessage"
-    header = {"Authorization": slack_api_key}
-
-    query_params = {
-        "channel": "task-notifications",
-        "text": message
-    }
-    print(slack_api_key)
-    requests.post(url=slack_url, data=query_params, headers=header)
     
-
 # -------Routes-------
 @tasks_bp.route("", methods=["POST"])
 def create_task():
