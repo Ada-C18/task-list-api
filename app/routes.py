@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, make_response, request, abort
 from app import db
 from app.models.task import Task
 from sqlalchemy import desc
+import datetime
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -42,16 +43,12 @@ def handle_tasks():
 @tasks_bp.route("/<task_id>", methods=["GET", "PUT", "DELETE"])
 
 def handle_task(task_id):
-    if request.method == "GET":
-        task = validate_model_id(Task, task_id)
-        #task = Task.query.get(task_to_get)
+    task = validate_model_id(Task, task_id)
 
+    if request.method == "GET":
         return make_response(jsonify({"task": task.to_dict()}), 200)
 
     elif request.method == "PUT":
-        task = validate_model_id(Task, task_id)
-        #task = Task.query.get(task_to_edit)
-
         request_body = request.get_json()
 
         task.title = request_body["title"]
@@ -62,8 +59,6 @@ def handle_task(task_id):
         return make_response(jsonify({"task": task.to_dict()}), 200)
 
     elif request.method == "DELETE":
-        task = validate_model_id(Task, task_id)
-        #task = Task.query.get(task_to_delete)
         
         db.session.delete(task)
         db.session.commit()
@@ -83,14 +78,24 @@ def validate_model_id(cls,task_id):
     
     return chosen_object
 
-# #def check_for_missing_info(task_id):
-#     task = validate_model_id(Task, task_id)
+@tasks_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
+def mark_complete(task_id):
+    task = validate_model_id(Task, task_id)
 
-#     if "title" not in task:
-#         return make_response("Missing title", 400)
+    task.completed_at = datetime.date.today()
+    task.is_complete = True
 
-#     if "description" not in task:
-#         return make_response("Missing description", 400)
+    db.session.commit()
 
-#     if "completed_at" not in task:
-#         return make_response("Missing completed_at value", 400)
+    return make_response(jsonify({"task": task.to_dict()}), 200)
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def mark_incomplete(task_id):
+    task = validate_model_id(Task, task_id)
+    
+    task.completed_at = None
+    task.is_complete = False
+
+    db.session.commit()
+
+    return make_response(jsonify({"task": task.to_dict()}), 200)
