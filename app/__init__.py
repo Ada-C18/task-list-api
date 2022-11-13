@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import os
 from dotenv import load_dotenv
+import os
 
 
 db = SQLAlchemy()
@@ -30,5 +30,11 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # Register Blueprints here
+    from app.tasks import task_bp
+    from app.goal import goal_bp 
+    
+    app.register_blueprint(task_bp)
+    app.register_blueprint(goal_bp)
+
 
     return app
