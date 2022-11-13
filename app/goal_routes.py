@@ -95,7 +95,7 @@ def create_list_of_tasks(goal_id):
     for task_id in task_list:
         task= Task.query.get(task_id)
         task.goal_id = goal.goal_id
-        print (id)
+
     db.session.commit()
 
     return {
@@ -106,7 +106,7 @@ def create_list_of_tasks(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_goal_and_task(goal_id):
     goal = validate_goal(goal_id)
-  
+
     task_list = []
 
     for task in goal.tasks:
