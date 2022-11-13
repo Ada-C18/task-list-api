@@ -120,5 +120,3 @@ def valid_int(number, parameter_type):
         int(number)
     except:
         abort(make_response({"error": f'{parameter_type} must be an integer'}, 400))
-
-

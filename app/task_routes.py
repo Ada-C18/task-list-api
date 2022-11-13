@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import requests
 from flask import Blueprint, jsonify, request, abort, make_response
 from app.models.task import Task
@@ -79,7 +79,7 @@ SLACK_URL = os.environ.get("SLACK_URL")
 def handle_task_complete(task_id):
     task = validate_id(task_id)
     validated_task = task.query.get(task_id)
-    task.completed_at = datetime.now()
+    task.completed_at = datetime.date.today()
 
     headers = {"Authorization":f"Bearer {TOKEN}"}
     data = {

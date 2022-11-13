@@ -1,4 +1,3 @@
-
 from app import db
 from flask import current_app
 
@@ -29,4 +28,3 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": bool(self.completed_at)
         }
-        
