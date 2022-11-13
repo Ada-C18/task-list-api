@@ -50,58 +50,63 @@ def read_one_goal(goal_id):
         # return make_response(jsonify(None))
         return []
 
-# @authors_bp.route("", methods=["POST"])
-# def create_author():
-#     request_body = request.get_json()
-#     new_author = Author(name=request_body["name"],)
+@goals_bp.route("", methods=["POST"])
+def create_goal():
+    request_body = request.get_json()
 
-#     db.session.add(new_author)
-#     db.session.commit()
+    if not "title" in request_body:
+        return jsonify({
+            "details": "Invalid data"
+        }), 400
 
-#     return make_response(jsonify(f"Author {new_author.name} successfully created"), 201)
+    new_goal = Goal(title=request_body["title"])
 
-# @authors_bp.route("", methods=["GET"])
-# def read_all_authors():
-    
-#     authors = Author.query.all()
+    db.session.add(new_goal)
+    db.session.commit()
 
-#     authors_response = []
-#     for author in authors:
-#         authors_response.append(
-#             {
-#                 "name": author.name
-#             }
-#         )
-#     return jsonify(authors_response)
+    return {
+            "goal": new_goal.to_dict_goal()
+        }, 201
 
-# @authors_bp.route("/<author_id>/books", methods=["POST"])
-# def create_book(author_id):
 
-#     author = validate_model(Author, author_id)
+@goals_bp.route("/<goal_id>", methods=["PUT"])
+def update_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
 
-#     request_body = request.get_json()
-#     new_book = Book(
-#         title=request_body["title"],
-#         description=request_body["description"],
-#         author=author
-#     )
-#     db.session.add(new_book)
-#     db.session.commit()
-#     return make_response(jsonify(f"Book {new_book.title} by {new_book.author.name} successfully created"), 201)
+    request_body = request.get_json()
+    print(request_body)
 
-# @authors_bp.route("/<author_id>/books", methods=["GET"])
-# def read_books(author_id):
+    db.session.commit()
 
-#     author = validate_model(Author, author_id)
+    return make_response(jsonify(f"Updated Goal Title")) # {goal.goal_id}
 
-#     books_response = []
-#     for book in author.books:
-#         books_response.append(
-#             {
-#             "id": book.id,
-#             "title": book.title,
-#             "description": book.description
-#             }
-#         )
-#     return jsonify(books_response)
+@goals_bp.route("/<goal_id>", methods=["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_model(Goal, goal_id)
+    if goal:
+        goal_dict = {
+            "details": f"Goal {goal_id} \"{goal.title}\" successfully deleted"
+            # "details": f"Goal {goal_id} \"Build a habit of going outside daily\" successfully deleted"
+            }
 
+        db.session.delete(goal)
+        db.session.commit()
+        return jsonify(goal_dict), 200
+    # return make_response(jsonify(f"Goal #{goal_dict} successfully deleted"))
+
+
+    # if goal:
+    #     goal_dict = {
+    #     # "details": f"Goal {goal_id} \"{goal.title}\" successfully deleted"
+    #     "details": f"Goal {goal_id} \"Build a habit of going outside daily\" successfully deleted"
+    #     }
+    # else:
+    #     db.session.delete(goal)
+    #     db.session.commit()
+
+    #     return jsonify({"message": f"Goal {goal_id} not found"}), 404
+
+    # db.session.delete(goal)
+    # db.session.commit()
+
+    # return jsonify(goal_dict), 200
