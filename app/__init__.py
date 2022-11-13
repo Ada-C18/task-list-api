@@ -21,18 +21,14 @@ def create_app(test_config=None):
             "SQLALCHEMY_TEST_DATABASE_URI")
 
     # Import models here for Alembic setup
-    from app.models.task import Task # What the heck is happening? 
-    from app.models.goal import Goal 
-
     db.init_app(app)
     migrate.init_app(app, db)
 
     # Register Blueprints here
-    from app.models.task import Task # accessed here but not on l 25 -26 ??
     from .task_routes import tasks_bp
     app.register_blueprint(tasks_bp)
 
-    from app.models.goal import Goal 
+
     from .goal_routes import goals_bp
     app.register_blueprint(goals_bp)
     

@@ -22,12 +22,9 @@ class Task(db.Model):
             "description": self.description,
             "is_complete": bool(self.completed_at)
         }
-        
+
+
     def to_dict_with_goal(self):
-        return {
-            "id": self.task_id,
-            "title": self.title,
-            "description": self.description,
-            "is_complete": bool(self.completed_at), 
+        return {**self.to_dict(), **{
             "goal_id" : self.goal_id
-        }
+        }}

@@ -5,7 +5,6 @@ from app.task_routes import validate_model
 from flask import Blueprint, request, make_response, jsonify
 
 
-
 goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 
 @goals_bp.route("", methods=["POST"])
@@ -34,14 +33,18 @@ def update_goal(model_id):
     request_body = request.get_json()
     goal.title = request_body["title"]
     db.session.commit()
-    return {"goal": goal.to_dict()}, 200
+    return {
+        "goal": goal.to_dict()
+        }, 200
 
 @goals_bp.route("<model_id>", methods=["DELETE"])
 def delete_goal(model_id):
     goal = validate_model(Goal, model_id)
     db.session.delete(goal)
     db.session.commit()
-    return {"details": f'Goal {model_id} "{goal.title}" successfully deleted'}, 200
+    return {
+        "details": f'Goal {model_id} "{goal.title}" successfully deleted'
+        }, 200
 
 @goals_bp.route("<goal_id>/tasks", methods=["POST"])
 def post_task_ids_to_goal(goal_id):

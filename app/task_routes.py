@@ -14,10 +14,12 @@ def validate_model(cls, model_id):
     try: 
         model_id = int(model_id)
     except:
-        abort(make_response({"message":f"{cls.__name__} {model_id} is invalid, please search by task_id."}, 400))
+        abort(make_response({
+            "message": f"{cls.__name__} {model_id} is invalid, please search by task_id."}, 400))
     task = cls.query.get(model_id)
     if not task:
-        abort(make_response({"message":f"{cls.__name__} {model_id} does not exist."}, 404))
+        abort(make_response({"message":
+        f"{cls.__name__} {model_id} does not exist."}, 404))
     return task 
 
 @tasks_bp.route("", methods=["POST"])
@@ -33,19 +35,21 @@ def create_one_task():
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks():
     sort_query = request.args.get("sort")
-    if sort_query == "desc":
-        tasks = Task.query.order_by(Task.title.desc()).all()
-    else:
-        tasks = Task.query.order_by(Task.title).all() 
+    tasks = (
+        Task.query.order_by(Task.title.desc()).all()
+        if sort_query == "desc"
+        else Task.query.order_by(Task.title).all()
+    ) 
     return jsonify([task.to_dict() for task in tasks])
 
 @tasks_bp.route("<task_id>", methods=["GET"])
 def get_one_task(task_id):
     task = validate_model(Task, task_id)
-    if not task.goal_id:
-        return {"task":task.to_dict()}
-    else:
-        return {"task": task.to_dict_with_goal()}
+    return (
+        {"task":task.to_dict()} 
+        if task.goal_id is None
+        else {"task": task.to_dict_with_goal()}
+    )
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -61,7 +65,8 @@ def delete_task(task_id):
     task = validate_model(Task, task_id)
     db.session.delete(task)
     db.session.commit()
-    return {"details" :f'Task {task_id} "{task.title}" successfully deleted'}, 200
+    return {"details" :
+    f'Task {task_id} "{task.title}" successfully deleted'}, 200
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_task_complete(task_id):
