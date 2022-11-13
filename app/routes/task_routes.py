@@ -19,7 +19,7 @@ def create_task():
 
     try:
         new_task = Task.create(request_body)
-    except KeyError as error:
+    except KeyError:
         return make_response({"details": "Invalid data"}, 400)
 
     db.session.add(new_task)
