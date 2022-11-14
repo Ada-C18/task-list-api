@@ -89,16 +89,6 @@ def mark_tasks_complete_or_incomplete(task_id, mark):
     db.session.commit()
     return jsonify({"task": task.to_json()}), 200
 
-    # if mark == "mark_complete":
-    #     send_to_slack(task.title, "task-notifications")
-    #     task.completed_at = datetime.now()
-    #     db.session.commit()
-    #     return jsonify({"task": task.to_json()}), 200
-    # elif mark == "mark_incomplete":
-    #     task.completed_at = None
-    #     db.session.commit()
-    #     return jsonify({"task": task.to_json()}), 200
-
 # ==================================
 # Helper function to validate id
 # ==================================
