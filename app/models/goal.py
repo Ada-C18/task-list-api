@@ -3,9 +3,9 @@ from flask import abort, make_response
 
 
 class Goal(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String)
-    tasks = db.relationship("Task")
+    tasks = db.relationship("Task", back_populates="goal")
 
     def to_dict(self):
         goal_dict = {
