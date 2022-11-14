@@ -1,0 +1,3 @@
+SQLALCHEMY_DATABASE_URIsour=postgresql+psycopg2://postgres:postgres@localhost:5432/task_list_api_development
+SQLALCHEMY_TEST_DATABASE_URI=postgresql+psycopg2://postgres:postgres@localhost:5432/task_list_api_test
+SLACK_BOT_TOKEN=xoxb-4351728997829-4340245815175-eLLDkO2z0AvyNdtszI3XozZg
