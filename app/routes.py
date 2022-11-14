@@ -13,10 +13,7 @@ task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
 @task_bp.route('', methods=['GET'])
 def get_all_tasks():
-    #title_query_value = request.args.get("title") # has to be string
     sort_query_value = request.args.get("sort") # has to be string
-    #if title_query_value is not None: # ! rather checking not None
-    #    tasks = Task.query.filter_by(title=title_query_value)
     if sort_query_value == 'asc':
         tasks = Task.query.order_by(Task.title).all()
     elif sort_query_value == 'desc':
@@ -56,7 +53,6 @@ def update_one_task(task_id):
     request_body = request.get_json()
 
     try:
-        #update_task = Task.from_dict(request_body)
         update_task.title = request_body["title"]
         update_task.description = request_body["description"]
     except KeyError:
@@ -78,8 +74,6 @@ def delete_one_task(task_id):
 def change_value_of_task(task_id, mark_tf):
     task_to_patch = get_model_from_id(Task, task_id)
 
-    #request_body = request.get_json()
-
     try:
         if mark_tf == 'mark_complete':
             task_to_patch.is_complete = True # True or False
@@ -88,7 +82,6 @@ def change_value_of_task(task_id, mark_tf):
         elif mark_tf == 'mark_incomplete':
             task_to_patch.is_complete = False # True or False
             task_to_patch.completed_at = None
-        #task_to_patch.is_complete = request_body["is_complete"] # True or False
     except KeyError:
         return jsonify({"msg": "Missing needed data"}), 400 
 

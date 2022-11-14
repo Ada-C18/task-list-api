@@ -8,17 +8,10 @@ class Goal(db.Model):
 
 
     def to_dict(self):
-        if self.get_task_list() == []: 
-            return {
-                "id":self.goal_id,
-                "title":self.title,
-            }
-        else: 
-            return {
-                "id":self.goal_id,
-                "title":self.title,
-                "tasks": self.get_task_list()
-            }
+        return {
+            "id":self.goal_id,
+            "title":self.title,
+        }
 
     def to_dict_task(self):
         return {
