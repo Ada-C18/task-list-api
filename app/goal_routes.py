@@ -26,7 +26,7 @@ def create_goal():
 @goal_bp.route("/<goal_id>/tasks", methods=["POST"])
 def send_a_task_to_goal(goal_id):
     request_body = request.get_json()
-    
+  
     chosen_goal = get_one_obj_or_abort(Goal, goal_id)
     list_of_chosen_tasks = [get_one_obj_or_abort(Task, task_id) for task_id in request_body["task_ids"]] 
     # for task_id in request_body["task_ids"]:
@@ -65,13 +65,25 @@ def get_one_saved_goal(goal_id):
 @goal_bp.route("/<goal_id>/tasks", methods=["GET"])
 def get_tasks_of_one_goal(goal_id):
     chosen_goal = get_one_obj_or_abort(Goal, goal_id)
-    tasks = Task.query.filter_by(goal_id=goal_id)
-    list_of_tasks = [task.to_dict() for task in tasks]
+    #tasks = Task.query.filter_by(goal_id=goal_id)
+    list_of_tasks = [task.to_dict() for task in chosen_goal.tasks]
+    #list_of_tasks = [task.to_dict() for task in tasks]
+    # list_of_tasks = []
+    # for task in tasks:
+    #     task_dict = {
+    #         "id": task.id,
+    #         "title": task.title,
+    #         "description": task.description,
+    #         "goal_id": int(goal_id),
+    #         "is_complete": task.is_complete
+
+    #     }
+        # list_of_tasks.append(task_dict)
 
     chosen_goal_dict = {
     "id":chosen_goal.goal_id,
     "title":chosen_goal.title,
-    "tasks":list_of_tasks
+    "tasks": list_of_tasks
     }
 
     return jsonify(chosen_goal_dict), 200

@@ -13,6 +13,7 @@ class Task(db.Model):
     def to_dict(self):
         task_dict = {
             "id": self.task_id,
+            "goal_id": self.goal_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.is_complete
@@ -23,6 +24,9 @@ class Task(db.Model):
         else:
             task_dict["is_complete"] = True
 
+        if self.goal_id is None:
+            task_dict.pop("goal_id")
+  
         return task_dict
 
 

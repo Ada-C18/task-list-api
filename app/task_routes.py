@@ -80,23 +80,23 @@ def read_all_tasks():
 def get_one_task(task_id):
     chosen_task = get_one_task_or_abort(task_id)
 
-    if chosen_task.completed_at is None:
-        task = {
-            "id": chosen_task.task_id,
-            "title": chosen_task.title,
-            "description": chosen_task.description,
-            "is_complete": False
-        }
+    # if chosen_task.completed_at is None:
+    #     task = {
+    #         "id": chosen_task.task_id,
+    #         "title": chosen_task.title,
+    #         "description": chosen_task.description,
+    #         "is_complete": False
+    #     }
 
-    else:
-        task = {
-            "id": chosen_task.task_id,
-            "title": chosen_task.title,
-            "description": chosen_task.description,
-            "completed at": chosen_task.completed_at,
-            "is_complete": True}
+    # else:
+    #     task = {
+    #         "id": chosen_task.task_id,
+    #         "title": chosen_task.title,
+    #         "description": chosen_task.description,
+    #         "completed at": chosen_task.completed_at,
+    #         "is_complete": True}
         
-    return jsonify({"task": task}), 200
+    return jsonify({"task": chosen_task.to_dict()}), 200
 
 
 
