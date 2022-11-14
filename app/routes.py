@@ -72,8 +72,10 @@ def update_task_completion(task_id, complete_tag):
     if complete_tag == "mark_complete":
         #put in a line here about making the timestamp for completed_at
         task.completed_at = date.today().strftime("%B %d, %Y")
-        task.is_complete = True
-    # #elif complete_tag == "mark_incomplete":
+        task.is_complete = True  #not sure if this line is redundant
+    elif complete_tag == "mark_incomplete":
+        task.completed_at = None
+        task.is_complete = False #not sure if this line is redundant
     db.session.commit()
     response = {"task": task.make_dict()}
     return make_response(response, 200)
