@@ -3,6 +3,8 @@ from app.models.task import Task
 from app import db
 from sqlalchemy import desc, asc
 from datetime import date
+import os
+import requests
 
 
 
@@ -70,9 +72,20 @@ def update_task(task_id):
 def update_task_completion(task_id, complete_tag):
     task = validate_task(task_id)
     if complete_tag == "mark_complete":
-        #put in a line here about making the timestamp for completed_at
         task.completed_at = date.today().strftime("%B %d, %Y")
         task.is_complete = True  #not sure if this line is redundant
+        #post a message to slack to say the task is complete.
+        #----------Make the following into a helper function later-----#
+        path = "https://slack.com/api/chat.postMessage"
+        query_params = {
+            "token" : os.environ.get("SLACK_API_KEY"),
+            "channel" : "task-notifications"
+        }
+
+        response = requests.post(path, params = query_params)
+        #return make_response(response, 200)
+
+        #----------end helper function--------------#
     elif complete_tag == "mark_incomplete":
         task.completed_at = None
         task.is_complete = False #not sure if this line is redundant
