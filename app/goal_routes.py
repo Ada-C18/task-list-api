@@ -39,6 +39,7 @@ def get_all_goals():
         response.append(goal.to_dict())
     
     return jsonify(response), 200  
+
 @goal_bp.route("random", methods=["GET"])
 def get_random_goal():
     goal_list = Goal.query.all()
