@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.task import Task
 from app import db
 from sqlalchemy import desc, asc
+from datetime import date
 
 
 
@@ -63,6 +64,20 @@ def update_task(task_id):
     db.session.commit()
     response = {"task": task.make_dict()}  #refactor this line and line 37 above to helper function? or method on class?
     return make_response(response, 200)
+
+#can the following be combined with the route above?
+@task_bp.route("/<task_id>/<complete_tag>", methods = ["PUT", "PATCH"])
+def update_task_completion(task_id, complete_tag):
+    task = validate_task(task_id)
+    if complete_tag == "mark_complete":
+        #put in a line here about making the timestamp for completed_at
+        task.completed_at = date.today().strftime("%B %d, %Y")
+        task.is_complete = True
+    # #elif complete_tag == "mark_incomplete":
+    db.session.commit()
+    response = {"task": task.make_dict()}
+    return make_response(response, 200)
+
 
 @task_bp.route("/<task_id>", methods = ["DELETE"])
 def delete_task(task_id):
