@@ -84,16 +84,20 @@ def delete_one_task(task_id):
 @task_bp.route("/<task_id>/<mark>", methods=["PATCH"])
 def mark_tasks_complete_or_incomplete(task_id, mark):
     task = validate_id(Task, task_id)
-    if mark == "mark_complete":
-        send_to_slack(task.title, "task-notifications")
-        task.completed_at = datetime.now()
-        db.session.commit()
-        return jsonify({"task": task.to_json()}), 200
-    elif mark == "mark_incomplete":
-        task.completed_at = None
-        db.session.commit()
-        return jsonify({"task": task.to_json()}), 200
-# can combine this into one expression - ternary https://www.geeksforgeeks.org/ternary-operator-in-python/
+    task.completed_at = datetime.now() if mark == "mark_complete" else None
+    send_to_slack(task.title, "task-notifications", mark)
+    db.session.commit()
+    return jsonify({"task": task.to_json()}), 200
+
+    # if mark == "mark_complete":
+    #     send_to_slack(task.title, "task-notifications")
+    #     task.completed_at = datetime.now()
+    #     db.session.commit()
+    #     return jsonify({"task": task.to_json()}), 200
+    # elif mark == "mark_incomplete":
+    #     task.completed_at = None
+    #     db.session.commit()
+    #     return jsonify({"task": task.to_json()}), 200
 
 # ==================================
 # Helper function to validate id
@@ -113,16 +117,19 @@ def validate_id(class_name,id):
 # ==================================
 # Helper function to send message to slack
 # ==================================
-def send_to_slack(title, channel_name):
-    client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
-    logger = logging.getLogger(__name__)
-    try:
+def send_to_slack(title, channel_name, mark):
+    if mark == "mark_complete":
+        client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+        logger = logging.getLogger(__name__)
+        try:
     # Call the chat.postMessage method using the WebClient
-        result = client.chat_postMessage(
-            channel=channel_name, 
-            text= f"Someone just completed the task '{title}'"
-        )
-        logger.info(result)
+            result = client.chat_postMessage(
+                channel=channel_name, 
+                text= f"Someone just completed the task '{title}'"
+            )
+            logger.info(result)
 
-    except SlackApiError as e:
-        logger.error(f"Error posting message: {e}")
+        except SlackApiError as e:
+            logger.error(f"Error posting message: {e}")
+    else:
+        pass
