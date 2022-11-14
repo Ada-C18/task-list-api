@@ -50,18 +50,3 @@ class Task(db.Model):
             return task
         except:
             abort(make_response({"details" : "Invalid data"}, 400))
-
-    @classmethod
-    def validate_task_id(cls, task_id):
-        try:
-            task_id = int(task_id)
-        except:
-            abort(make_response({"message" : f"task id: {task_id} is invalid"}, 400))
-    
-        task = Task.query.get(task_id)
-
-        if not task:
-            abort(make_response({"message" : f"task {task_id} not found"}, 404))
-    
-        return task
-        

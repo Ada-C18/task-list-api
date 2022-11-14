@@ -36,17 +36,4 @@ class Goal(db.Model):
         except:
             abort(make_response({"details" : "Invalid data"}, 400))
 
-    @classmethod
-    def validate_goal_id(cls, goal_id):
-        try:
-            goal_id = int(goal_id)
-        except:
-            abort(make_response({"message" : f"goal id: {goal_id} is invalid"}, 400))
-    
-        goal = Goal.query.get(goal_id)
-
-        if not goal:
-            abort(make_response({"message" : f"goal {goal_id} not found"}, 404))
-    
-        return goal
         
