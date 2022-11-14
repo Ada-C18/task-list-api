@@ -17,8 +17,6 @@ def handle_goals():
         goals = Goal.query.all()
         goals_response = [goal.to_json() for goal in goals]
 
-        if not goals_response:
-            return make_response(jsonify(f"There are no goals"))
         return jsonify(goals_response), 200
 
     # Create a new goal
@@ -59,7 +57,11 @@ def handle_goal(goal_id):
 
     # Show a single goal
     if request.method == "GET":
-        return goal.to_json(), 200
+        goal = get_record_by_id(Goal, goal_id)
+        
+        return {
+            "goal": goal.to_json()
+        }, 200
     
     # Update a goal
     elif request.method == "PUT":
@@ -100,6 +102,7 @@ def handle_goals_tasks(goal_id):
         goal_dict = goal.to_json()
         goal_dict["tasks"] = task_list
         
+        print(goal_id)
         return jsonify(goal_dict)
     
     elif request.method == "POST":

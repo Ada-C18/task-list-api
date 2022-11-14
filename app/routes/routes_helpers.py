@@ -7,7 +7,7 @@ def get_record_by_id(cls, task_id):
     try:
         task_id = int(task_id)
     except ValueError:
-        error_message(f"Invalid id {task_id}", 400)
+        error_message(f"Invalid id {task_id}", 404)
 
     model = cls.query.get(task_id)
     if model:

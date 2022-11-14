@@ -34,6 +34,7 @@ def handle_tasks():
             task_query = task_query.order_by(Task.title.asc())
 
         tasks = task_query.all()
+        tasks_response = []
         tasks_response = [task.to_json() for task in tasks]
 
         return jsonify(tasks_response), 200
@@ -42,19 +43,17 @@ def handle_tasks():
     elif request.method == "POST":
         request_body = request.get_json()
 
-        try:
-            new_task = Task.from_dict(request_body)
-        except KeyError:
-            return (f"Invalid data", 400)
-
-        # Add this new instance of task to the database
+        if "title" not in request_body or "description" not in request_body:
+            return make_response({"details": "Invalid data"}), 400
+        else: 
+            new_task = Task(
+                        title=request_body["title"],
+                        description=request_body["description"])
+        
         db.session.add(new_task)
         db.session.commit()
 
-        # Successful response
-        return {
-            "task": new_task.to_json()
-        }, 201
+        return {"task": new_task.to_json()}, 201
 
 # Path/Endpoint to get a single task
 # Include the id of the record to retrieve as a part of the endpoint
@@ -67,10 +66,15 @@ def handle_task(task_id):
 
     # Show a single task
     if request.method == "GET":
-        return task.to_json(), 200
+        task = get_record_by_id(Task, task_id)
+        return {
+        "task": task.to_json()
+        }, 200
     
     # Update a task
     elif request.method == "PUT":
+        task = get_record_by_id(Task, task_id)
+
         request_body = request.get_json()
 
         task.update(request_body)
@@ -85,12 +89,14 @@ def handle_task(task_id):
 
     # Delete a task
     elif request.method == "DELETE":
+        task = get_record_by_id(Task, task_id)
+
         db.session.delete(task)
         db.session.commit()
 
     return {
         "details": f'Task {task.task_id} \"{task.title}\" successfully deleted',
-    }, 202
+    }, 200
 
 # PATCH /task/id/mark_complete
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
@@ -99,7 +105,6 @@ def mark_complete_task(task_id):
     task = get_record_by_id(Task, task_id)
     task.completed_at = date.today()
 
-    print(task)
     headers = {
         "Authorization": f"Bearer {SLACK_BOT_TOKEN}",
     }
@@ -119,8 +124,9 @@ def mark_complete_task(task_id):
 
     db.session.commit()
 
-    return task.to_json(), 200
-
+    return {
+        "task": task.to_json()
+    }
 
 # PATCH /task/id/mark_incomplete
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
@@ -130,4 +136,6 @@ def mark_incomplete_task(task_id):
 
     db.session.commit()
 
-    return task.to_json(), 200
+    return {
+        "task": task.to_json()
+    }
