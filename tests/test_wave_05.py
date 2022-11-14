@@ -30,6 +30,15 @@ def test_get_goals_one_saved_goal(client, one_goal):
         }
     ]
 
+def test_get_one_random_goal(client, three_goals):
+    response = client.get("/goals/random")
+    response_body = response.get_json()
+
+    assert response.status_code == 200
+    assert "goal" in response_body
+    assert len(response_body) == 1
+    
+
 
 # @pytest.mark.skip(reason="No way to test this feature yet")
 def test_get_goal(client, one_goal):

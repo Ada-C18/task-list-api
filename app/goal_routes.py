@@ -4,6 +4,7 @@ from .models.goal import Goal
 from flask import Blueprint, request, make_response, jsonify, abort
 import sqlalchemy
 from .route_helpers import validate_model_id
+import random
 
 
 
@@ -32,12 +33,19 @@ def get_all_goals():
         goal_list = Goal.query.order_by(sort_function(Goal.title))
     else:
         goal_list = Goal.query.all()
-    
+
     response = []    
     for goal in goal_list:
         response.append(goal.to_dict())
     
     return jsonify(response), 200  
+@goal_bp.route("random", methods=["GET"])
+def get_random_goal():
+    goal_list = Goal.query.all()
+    max_index = len(goal_list) - 1
+    rand_goal = goal_list[random.randint(0,max_index)]
+
+    return jsonify({"goal" : rand_goal.to_dict()}), 200
 
 
 
@@ -50,10 +58,6 @@ def get_specific_goal(goal_id):
     goal = validate_model_id(Goal, goal_id)
     
     return {"goal" : goal.to_dict()}, 200
-@goal_bp.route("", methods = ["GET"])
-def get_any_goal():
-    goal = Goal.query.get(1)
-    return{"goal" : goal.to_dict()}, 200
 
     # Update
 @goal_bp.route ("/<goal_id>", methods=["PUT"])
@@ -97,8 +101,8 @@ def post_task_ids_to_goal(goal_id):
     request_body = request.get_json()
 
     
-    for task in request_body["task_ids"]:
-        new_task = Task.validate_task_id(task)
+    for task_id in request_body["task_ids"]:
+        new_task = validate_model_id(Task, task_id)
         new_task.goal_id = goal_id
         
     db.session.commit()
