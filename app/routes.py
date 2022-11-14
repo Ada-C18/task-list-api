@@ -52,35 +52,39 @@ def validate_task_id(task_id):
 
 @tasks_bp.route('', methods=['GET'])
 def query_all():
-    all_tasks = Task.query.all()
+    query_tasks = Task.query.all()
+    task_sort_query = request.args.get("sort")
 
-    tasks_lists = []
-    for task in all_tasks:
-            tasks_lists.append({
-                "id": task.task_id,
-                "title": task.title,
-                "description": task.description,
-                "is_complete": bool(task.completed_at)
-            })
-    print(tasks_lists)
-    return jsonify(tasks_lists)
-    # query_desc = Task.query.order_by(Task.title.desc())
-    # query_asc = Task.order_by(Task.title.asc())
+    if task_sort_query == "desc":
+        query_tasks = Task.query.order_by(Task.title.desc())
+        return query_tasks
 
+    elif task_sort_query == "asc":
+        query_tasks = query_asc = Task.order_by(Task.title.asc())
+        return query_tasks
+
+    else:
+        tasks_lists = []
+        for task in query_tasks:
+                tasks_lists.append({
+                    "id": task.task_id,
+                    "title": task.title,
+                    "description": task.description,
+                    "is_complete": bool(task.completed_at)
+                })
+        print(tasks_lists)
+        return jsonify(tasks_lists)
+    
 
 
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def one_saved_task(task_id):
-    # task_validate = validate_task_id(task_id)
-    task = Task.query.get(task_id)
-    if task == None:
+    task_validate = validate_task_id(task_id)
+    # task = Task.query.get(task_id)
+    if task_id == None:
         return "The task ID submitted, does not exist: error code 404"
     else:      
-        return {
-            "id": task.task_id,
-            "title": task.title,
-            "description": task.description
-        }
+        return jsonify(Task.build_task_dict())
 
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
