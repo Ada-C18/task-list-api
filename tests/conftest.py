@@ -1,10 +1,11 @@
 import pytest
 from app import create_app
-from app.models.task import Task
-from app.models.goal import Goal
+from app.models.task_model import Task
+from app.models.goal_model import Goal
 from app import db
 from datetime import datetime
 from flask.signals import request_finished
+# test
 
 
 @pytest.fixture

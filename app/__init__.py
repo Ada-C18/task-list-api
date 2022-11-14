@@ -1,8 +1,8 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-import os
 from dotenv import load_dotenv
+from flask import Flask
+import os
 
 
 db = SQLAlchemy()
@@ -23,12 +23,17 @@ def create_app(test_config=None):
             "SQLALCHEMY_TEST_DATABASE_URI")
 
     # Import models here for Alembic setup
-    from app.models.task import Task
-    from app.models.goal import Goal
+    from app.models.task_model import Task
+    from app.models.goal_model import Goal
 
     db.init_app(app)
     migrate.init_app(app, db)
 
     # Register Blueprints here
-
+    from .routes.task import task_bp
+    app.register_blueprint(task_bp)
+    
+    from .routes.goal import goal_bp
+    app.register_blueprint(goal_bp)
+    
     return app
