@@ -2,6 +2,10 @@ from flask import Blueprint, abort, jsonify, make_response, request
 from app import db
 from app.models.task import Task
 from datetime import datetime
+from app import os  
+
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN', None)
+# slack_client = SlackClient(SLACK_TOKEN)
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -28,9 +32,9 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return {
+    return jsonify({
         "task": new_task.to_dict()
-    }, 201
+    }), 201
 
 
 @task_bp.route("", methods=["GET"])
@@ -66,9 +70,9 @@ def read_all_tasks():
 def read_one_task(task_id):
     task = validate_model(Task, task_id)
     if task.task_id:
-        return {"task":task.to_dict()}
+        return make_response(jsonify({"task":task.to_dict()}))
     else:
-        return {"message": f"Task {task_id} not found"}, 404
+        return make_response(jsonify({"message": f"Task {task_id} not found"})), 404
 
 @task_bp.route("/<task_id>", methods=["DELETE"])
 def delete_task(task_id):
@@ -123,7 +127,7 @@ def mark_task_incomplete(task_id):
 def mark_complete_on_completed_task(task_id):
     task = Task.query.get_or_404(task_id)
     # task_completed_at = datetime.now()
-
+    
     db.session.commit()
     
     return jsonify(task=task.to_dict()), 200
@@ -137,4 +141,5 @@ def mark_incomplete_on_incompleted_task(task_id):
         return jsonify(task=task.to_dict()), 200
     else:
         task.completed_at = None
+        error_msg = {"message": "No task found"}
 
