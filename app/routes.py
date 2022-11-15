@@ -10,13 +10,11 @@ from app.models.task import Task
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
-# now = datetime.now() 
-# date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 
 @tasks_bp.route("", methods=['POST'])
 def created_task():
     response_body = request.get_json()
-  
+
     if "title" not in response_body or "description" not in response_body:
         return {"details": "Invalid data"}, 400
     
@@ -27,7 +25,8 @@ def created_task():
     db.session.add(created_task)
     db.session.commit()
     
-    return jsonify(created_task.build_task_dict()), 201
+    return make_response(jsonify({"task": created_task.build_task_dict()})), 201
+
 
 def validate_task_id(task_id):
     try:
@@ -75,10 +74,7 @@ def one_saved_task(task_id):
         return "The task ID submitted, does not exist: error code 404"
     else:    
         return {"task": task_validate.build_task_dict()}
-        # query_lists = []
-        # for query in task_validate:
-        #     query_lists.append(task_validate.build_task_dict())
-        # return jsonify(task_validate.build_task_dict())
+
 
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
@@ -95,9 +91,7 @@ def update_tasks(task_id):
     db.session.commit()
 
     return jsonify({"task": validate_id.build_task_dict()}),200
-    # return "task": f"Task {task_id} successfully updated", 200)
-    # return make_response("task": f"Task {task_id} successfully updated", 200)
-
+    
 
 @tasks_bp.route('/<task_id>', methods=['DELETE'])
 def delete_tasks(task_id):
