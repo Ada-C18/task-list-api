@@ -1,8 +1,8 @@
-"""empty message
+"""Adding goals and task models
 
-Revision ID: 44c84efb13a7
+Revision ID: 2ebaf05a6720
 Revises: 
-Create Date: 2022-11-10 11:52:21.681758
+Create Date: 2022-11-14 16:12:19.878354
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '44c84efb13a7'
+revision = '2ebaf05a6720'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,6 +28,8 @@ def upgrade():
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
+    sa.Column('goal_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['goal_id'], ['goal.goal_id'], ),
     sa.PrimaryKeyConstraint('task_id')
     )
     # ### end Alembic commands ###
