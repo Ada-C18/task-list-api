@@ -1,12 +1,33 @@
 from os import abort
 from app import db
 from app.models.task import Task
+from app.models.goal import Goal
 from flask import Blueprint, jsonify, abort, make_response, request
 import datetime 
 import requests
 import os 
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
+goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
+
+@goals_bp.route("", methods=["POST"])
+def add_goal():
+    try:
+        request_body = request.get_json()
+        new_goal = Goal.from_json(Goal, request_body)
+        db.session.add(new_goal)
+        db.session.commit()
+        goals_response = {}
+        goal_in_dict = new_goal.to_dict()
+        goals_response["goal"] = goal_in_dict
+
+        return jsonify (goals_response), 201
+
+    except:
+        response_body = {}
+        response_body["details"] = "Invalid data"
+
+        return response_body, 400
 
 @tasks_bp.route("", methods=["POST"])
 def add_task():
@@ -18,18 +39,26 @@ def add_task():
         new_task = Task.from_json(Task, request_body)
         db.session.add(new_task)
         db.session.commit()
-
         tasks_response = {}
-
         task_in_dict = new_task.to_dict()
-        tasks_response["task"]=task_in_dict
+        tasks_response["task"] = task_in_dict
+
         return jsonify (tasks_response), 201
 
     except:
         response_body = {}
         response_body["details"] = "Invalid data"
+
         return response_body, 400
 
+@goals_bp.route("", methods=["GET"])
+def read_all_goals():
+    goals = Goal.query.all()
+    goals_response = []
+    for goal in goals:
+        goals_response.append(goal.to_dict())
+
+    return jsonify (goals_response), 200
 
 @tasks_bp.route("", methods=["GET"])
 def read_all_tasks():
@@ -54,7 +83,17 @@ def read_all_tasks():
     tasks_response = []
     for task in tasks:
         tasks_response.append(task.to_dict())
+
     return jsonify (tasks_response), 200
+
+@goals_bp.route("/<id>", methods=["GET"])
+def read_one_goal(id):
+    goal = validate_model(Goal, id)
+    goals_response = {}
+    goal_in_dict = goal.to_dict()
+    goals_response["goal"]=goal_in_dict
+
+    return jsonify (goals_response), 200
 
 @tasks_bp.route("/<id>", methods=["GET"])
 def read_one_task(id):
@@ -62,32 +101,48 @@ def read_one_task(id):
     tasks_response = {}
     task_in_dict = task.to_dict()
     tasks_response["task"]=task_in_dict
+
     return jsonify (tasks_response), 200
+
+@goals_bp.route("/<id>", methods=["PUT"])
+def update_goal(id):
+    goal = validate_model(Goal, id)
+    request_body = request.get_json()
+    goal.title = request_body["title"]
+    db.session.commit()
+    goals_response = {}
+    goal_in_dict = goal.to_dict()
+    goals_response["goal"]=goal_in_dict
+
+    return jsonify (goals_response), 200
 
 @tasks_bp.route("/<id>", methods=["PUT"])
 def update_task(id):
     task = validate_model(Task, id)
     request_body = request.get_json()
-
     task.title = request_body["title"]
     task.description = request_body["description"]
-    # not working 
-    # task.completed_at = request_body["completed_at"]
-
     db.session.commit()
-
     tasks_response = {}
     task_in_dict = task.to_dict()
     tasks_response["task"]=task_in_dict
 
     return jsonify (tasks_response), 200
 
+@goals_bp.route("/<id>", methods=["DELETE"])
+def delete_goal(id):
+    goal = validate_model(Goal, id)
+    db.session.delete(goal)
+    db.session.commit()
+    response_body = {}
+    response_body["details"] = (f'Goal {id} "{goal.title}" successfully deleted')
+
+    return response_body, 200
+
 @tasks_bp.route("/<id>", methods=["DELETE"])
 def delete_task(id):
     task = validate_model(Task, id)
-
     db.session.delete(task)
-
     db.session.commit()
     response_body = {}
     response_body["details"] = (f'Task {id} "{task.title}" successfully deleted')
@@ -97,12 +152,9 @@ def delete_task(id):
 @tasks_bp.route("/<id>/mark_complete", methods=["PATCH"])
 def mark_complete_on_incomplete_task(id):
     task = validate_model(Task, id)
-
     task.completed_at = datetime.datetime.utcnow()
     db.session.commit()
-
     slack_bot(f"Someone just completed the task {task.title}")
-
     task_in_dict = task.to_dict()
     task_in_dict["is_complete"] = True
     tasks_response = {"task" : task_in_dict}
@@ -112,11 +164,8 @@ def mark_complete_on_incomplete_task(id):
 @tasks_bp.route("/<id>/mark_incomplete", methods=["PATCH"])
 def mark_incomplete_on_complete_task(id):
     task = validate_model(Task, id)
-
     task.completed_at = None
-    
     db.session.commit()
-
     tasks_response = {}
     task_in_dict = task.to_dict()
     tasks_response["task"]=task_in_dict
@@ -137,6 +186,7 @@ def slack_bot(msg):
     }
 
     requests.post(PATH, params=query_params, headers=headers)
+
 # verify id
 def validate_model(cls, model_id):
     try:
