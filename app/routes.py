@@ -28,19 +28,6 @@ def created_task():
     db.session.commit()
     
     return jsonify(created_task.build_task_dict()), 201
-        # if title is not in response body then return invalid data
-        # if description is not in response body then return invalid datay_tasks.description == "":
-
-        # return make_response({"message":f"Task {created_task.description} invalid"}, 400)
-
-  # created_task = Task(title=response_body["title"],
-    #             description=response_body["description"],
-    #         completed_at=response_body["completed_at"])
-
-
-    # if created_task.completed_at == None:
-    #     return make_response({"message":f"Task {created_task.complete_at} invalid"}, 400)
-
 
 def validate_task_id(task_id):
     try:
