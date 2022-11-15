@@ -16,7 +16,8 @@ class Task(db.Model):
                 title = self.title,
                 description = self.description,
                 goal_id = self.goal_id,
-                is_complete = False
+                is_complete = False is self.completed_at is None 
+               
             )
         else:
             return dict(
