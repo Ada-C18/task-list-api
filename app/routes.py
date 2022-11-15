@@ -78,11 +78,15 @@ def update_task_completion(task_id, complete_tag):
         #----------Make the following into a helper function later-----#
         path = "https://slack.com/api/chat.postMessage"
         query_params = {
-            "token" : os.environ.get("SLACK_API_KEY"),
-            "channel" : "task-notifications"
+            #"token" : os.environ.get("SLACK_API_KEY"),
+            "channel" : "task-notifications",
+            "text": "Someone just completed the task " + task.title
+        }
+        headers = {
+            "Authorization" : "Bearer " + os.environ.get("SLACK_API_KEY")
         }
 
-        response = requests.post(path, params = query_params)
+        response = requests.post(path, params = query_params, headers = headers)
         #return make_response(response, 200)
 
         #----------end helper function--------------#
