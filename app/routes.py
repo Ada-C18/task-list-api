@@ -16,8 +16,8 @@ def created_task():
     request_body = request.get_json()
     print(request_body)
     created_task = Task(title=request_body["title"],
-                description=request_body["description"],
-            completed_at=request_body["completed_at"])
+                description=request_body["description"])
+            # completed_at=request_body["completed_at"])
 
     if created_task.title == "":
         make_response({"message":f"Task {created_task.title} invalid"}, 400)
@@ -52,39 +52,51 @@ def validate_task_id(task_id):
 
 @tasks_bp.route('', methods=['GET'])
 def query_all():
-    query_tasks = Task.query.all()
-    task_sort_query = request.args.get("sort")
+    
+    sort_query = request.args.get("sort")
 
-    if task_sort_query == "desc":
-        query_tasks = Task.query.order_by(Task.title.desc())
-        return query_tasks
+    if sort_query== "desc":
+        query_tasks = query_tasks.order_by(Task.sort.desc())
 
-    elif task_sort_query == "asc":
-        query_tasks = query_asc = Task.order_by(Task.title.asc())
-        return query_tasks
 
-    else:
-        tasks_lists = []
-        for task in query_tasks:
-                tasks_lists.append({
-                    "id": task.task_id,
-                    "title": task.title,
-                    "description": task.description,
-                    "is_complete": bool(task.completed_at)
-                })
-        print(tasks_lists)
-        return jsonify(tasks_lists)
+    elif sort_query == "asc":
+        query_tasks = query_tasks.order_by(Task.sort.asc())
+
+    all_query_tasks = Task.query.all()
+
+    query_lists = []
+    # for task in query_tasks:
+    #         query_lists.append(task.build_task_dict())
+
+    for query in all_query_tasks:
+        query_lists.append({
+            "id":query.task_id,
+            "title":query.title,
+            "description":query.description,
+            "is_complete": bool(query.completed_at)
+        })
+
+        if query.completed_at == False:
+            query.completed_at == None
+
+    print(query_lists)
+    return jsonify(query_lists)
     
 
 
 @tasks_bp.route('/<task_id>', methods=['GET'])
 def one_saved_task(task_id):
     task_validate = validate_task_id(task_id)
+    
     # task = Task.query.get(task_id)
     if task_id == None:
         return "The task ID submitted, does not exist: error code 404"
-    else:      
-        return jsonify(Task.build_task_dict())
+    else:    
+        return {"task": task_validate.build_task_dict()}
+        # query_lists = []
+        # for query in task_validate:
+        #     query_lists.append(task_validate.build_task_dict())
+        # return jsonify(task_validate.build_task_dict())
 
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
@@ -94,7 +106,7 @@ def update_tasks(task_id):
     
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.is_complete = request_body["is_complete"]
+    task.is_complete = request_body["completed_at"]
 
     db.session.commit()
 
