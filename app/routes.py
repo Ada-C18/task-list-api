@@ -20,14 +20,17 @@ def created_task():
             # completed_at=request_body["completed_at"])
 
     if created_task.title == "":
-        make_response({"message":f"Task {created_task.title} invalid"}, 400)
+        created_task = Task(details=request_body["details"])
+        return created_task
+        # make_response({"message":f"Task {created_task.title} invalid"}, 400)
 
     if created_task.description == "":
-        return make_response({"message":f"Task {created_task.description} invalid"}, 400)
+        return make_response({"details": "Invalid data"}, 400)
+        # return make_response({"message":f"Task {created_task.description} invalid"}, 400)
 
 
-    if created_task.completed_at == None:
-        return make_response({"message":f"Task {created_task.complete_at} invalid"}, 400)
+    # if created_task.completed_at == None:
+    #     return make_response({"message":f"Task {created_task.complete_at} invalid"}, 400)
 
     else:
         db.session.add(created_task)
@@ -54,33 +57,31 @@ def validate_task_id(task_id):
 def query_all():
     
     sort_query = request.args.get("sort")
-
+    
+    query_lists = []
+    
     if sort_query== "desc":
-        query_tasks = query_tasks.order_by(Task.sort.desc())
+        query_tasks = Task.query.order_by(Task.title.desc())
 
 
     elif sort_query == "asc":
-        query_tasks = query_tasks.order_by(Task.sort.asc())
+        query_tasks = Task.query.order_by(Task.title.asc())
 
-    all_query_tasks = Task.query.all()
+    else:
+        query_tasks = Task.query.all()
 
-    query_lists = []
-    # for task in query_tasks:
+    for query in query_tasks:
+        query_lists.append(query.build_task_dict())
+
+    return jsonify(query_lists), 200
+        #     "is_complete": bool(query.completed_at)
+        # })
+
+        # for task in query_tasks:
     #         query_lists.append(task.build_task_dict())
 
-    for query in all_query_tasks:
-        query_lists.append({
-            "id":query.task_id,
-            "title":query.title,
-            "description":query.description,
-            "is_complete": bool(query.completed_at)
-        })
-
-        if query.completed_at == False:
-            query.completed_at == None
-
     print(query_lists)
-    return jsonify(query_lists)
+   
     
 
 
@@ -104,22 +105,29 @@ def update_tasks(task_id):
     task = validate_task_id(task_id)
     request_body = request.get_json()
     
+    task = request_body["task"]
     task.title = request_body["title"]
     task.description = request_body["description"]
     task.is_complete = request_body["completed_at"]
 
     db.session.commit()
 
-    return make_response(f"Task {task_id} successfully updated", 200)
+    return make_response( f"Task {task_id} successfully updated", 200)
+    # return "task": f"Task {task_id} successfully updated", 200)
+    # return make_response("task": f"Task {task_id} successfully updated", 200)
 
 
 @tasks_bp.route('/<task_id>', methods=['DELETE'])
 def delete_tasks(task_id):
     test_task = validate_task_id(task_id)
+    result_notice = {"details": f'Task {task_id} "{test_task.title}" successfully deleted'}
 
     db.session.delete(test_task)
     db.session.commit()
 
-    return make_response(f"Task #{task_id} successfully deleted, 200 OK")
+    return make_response(result_notice, 200)
+
+    #     {"details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
+    # }
 
 
