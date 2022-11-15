@@ -6,8 +6,6 @@ from datetime import date
 import os
 import requests
 
-
-
 #make a blueprint
 task_bp = Blueprint("task_bp", __name__, url_prefix = "/tasks")
 
@@ -74,11 +72,11 @@ def update_task_completion(task_id, complete_tag):
     if complete_tag == "mark_complete":
         task.completed_at = date.today().strftime("%B %d, %Y")
         task.is_complete = True  #not sure if this line is redundant
+
         #post a message to slack to say the task is complete.
         #----------Make the following into a helper function later-----#
         path = "https://slack.com/api/chat.postMessage"
         query_params = {
-            #"token" : os.environ.get("SLACK_API_KEY"),
             "channel" : "task-notifications",
             "text": "Someone just completed the task " + task.title
         }
@@ -87,9 +85,8 @@ def update_task_completion(task_id, complete_tag):
         }
 
         response = requests.post(path, params = query_params, headers = headers)
-        #return make_response(response, 200)
-
         #----------end helper function--------------#
+
     elif complete_tag == "mark_incomplete":
         task.completed_at = None
         task.is_complete = False #not sure if this line is redundant
