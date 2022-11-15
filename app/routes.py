@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, abort, make_response, request
-from os import abort
-from app.models.task import Task
-from app import db
 import json
 from datetime import datetime
+from os import abort
+
+from flask import Blueprint, abort, jsonify, make_response, request
 from sqlalchemy import asc, desc
+
+from app import db
+from app.models.task import Task
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
@@ -13,31 +15,31 @@ tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
 @tasks_bp.route("", methods=['POST'])
 def created_task():
-    request_body = request.get_json()
-    print(request_body)
-    created_task = Task(title=request_body["title"],
-                description=request_body["description"])
-            # completed_at=request_body["completed_at"])
+    response_body = request.get_json()
+  
+    if "title" not in response_body or "description" not in response_body:
+        return {"details": "Invalid data"}, 400
+    
+    created_task = Task(title=response_body["title"],
+                description=response_body["description"])
 
-    if created_task.title == "":
-        created_task = Task(details=request_body["details"])
-        return created_task
-        # make_response({"message":f"Task {created_task.title} invalid"}, 400)
+    
+    db.session.add(created_task)
+    db.session.commit()
+    
+    return jsonify(created_task.build_task_dict()), 201
+        # if title is not in response body then return invalid data
+        # if description is not in response body then return invalid datay_tasks.description == "":
 
-    if created_task.description == "":
-        return make_response({"details": "Invalid data"}, 400)
         # return make_response({"message":f"Task {created_task.description} invalid"}, 400)
+
+  # created_task = Task(title=response_body["title"],
+    #             description=response_body["description"],
+    #         completed_at=response_body["completed_at"])
 
 
     # if created_task.completed_at == None:
     #     return make_response({"message":f"Task {created_task.complete_at} invalid"}, 400)
-
-    else:
-        db.session.add(created_task)
-        db.session.commit()
-    
-    return jsonify({"task": created_task.build_task_dict()}), 201
-    
 
 
 def validate_task_id(task_id):
@@ -74,15 +76,7 @@ def query_all():
         query_lists.append(query.build_task_dict())
 
     return jsonify(query_lists), 200
-        #     "is_complete": bool(query.completed_at)
-        # })
 
-        # for task in query_tasks:
-    #         query_lists.append(task.build_task_dict())
-
-    print(query_lists)
-   
-    
 
 
 @tasks_bp.route('/<task_id>', methods=['GET'])
@@ -102,17 +96,18 @@ def one_saved_task(task_id):
 
 @tasks_bp.route('/<task_id>', methods=['PUT'])
 def update_tasks(task_id):
-    task = validate_task_id(task_id)
-    request_body = request.get_json()
     
-    task = request_body["task"]
-    task.title = request_body["title"]
-    task.description = request_body["description"]
-    task.is_complete = request_body["completed_at"]
+    validate_id = validate_task_id(task_id)
+
+    response_body = request.get_json()
+    
+    validate_id.title = response_body["title"]
+    validate_id.description = response_body["description"]
+    # validate_id.completed_at = response_body["completed_at"]
 
     db.session.commit()
 
-    return make_response( f"Task {task_id} successfully updated", 200)
+    return jsonify({"task": validate_id.build_task_dict()}),200
     # return "task": f"Task {task_id} successfully updated", 200)
     # return make_response("task": f"Task {task_id} successfully updated", 200)
 
@@ -127,7 +122,5 @@ def delete_tasks(task_id):
 
     return make_response(result_notice, 200)
 
-    #     {"details": 'Task 1 "Go on my daily walk 🏞" successfully deleted'
-    # }
 
 
