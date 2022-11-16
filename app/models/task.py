@@ -16,12 +16,15 @@ class Task(db.Model):
     def make_dict(self):
         """given a task, return a dictionary
         with all the attibutes of that task."""
+        #if goal_id is empty, don't include it in dictionary.
         task_dict = {
             "id": self.task_id,
             "title": self.title,
             "description": self.description,
             "is_complete": self.is_complete
         }
+        if self.goal_id:
+            task_dict["goal_id"] = self.goal_id
         return task_dict
 
     @classmethod
