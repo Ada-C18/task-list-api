@@ -136,7 +136,6 @@ def test_delete_goal(client, one_goal):
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_delete_goal_not_found(client):
-    raise Exception("Complete test")
 
     # Act
     response = client.delete("/goals/1")

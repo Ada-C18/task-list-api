@@ -2,7 +2,7 @@ from app import db
 from app.models.task import Task 
 from flask import Flask, Blueprint, jsonify, make_response, request, abort
 from datetime import datetime as dt
-import requests
+
 
 tasks_bp = Blueprint("tasks_bp", __name__, url_prefix="/tasks")
 

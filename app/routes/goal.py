@@ -1,10 +1,10 @@
 from app import db 
 from app.models.goal import Goal
 from app.models.task import Task 
-from flask import Flask, Blueprint, jsonify, make_response, request, abort
+from flask import Flask, Blueprint, jsonify, make_response, request, abort, render_template, redirect, url_for
 from datetime import datetime as dt
 from app.routes.task import validate_model
-import requests
+
 
 goals_bp = Blueprint("goal_bp", __name__, url_prefix="/goals")
 
@@ -47,7 +47,7 @@ def update_goal(goal_id):
     db.session.commit()
     return make_response(jsonify({
         "goal":goal.to_dict()
-    }))
+    })), 200
 
 @goals_bp.route("<goal_id>", methods=["DELETE"])
 def delete_goal(goal_id):
@@ -62,7 +62,7 @@ def delete_goal(goal_id):
 @goals_bp.route("<goal_id>/tasks", methods=["POST"])
 def add_task(goal_id):
     goal = validate_model(Goal, goal_id)
-    request_body = request.get_json
+    request_body = request.get_json()
 
     goal.tasks += Task.query.filter(Task.task_id.in_(request_body["task_ids"])).all()
     db.session.commit()
@@ -73,6 +73,6 @@ def add_task(goal_id):
     }))
 
 @goals_bp.route("<goal_id>/tasks", methods=["GET"])
-def get_tasks(goal_id)
+def get_tasks(goal_id):
     goal = validate_model(Goal, goal_id)
     return make_response(jsonify(goal.to_dict(tasks=True)))
