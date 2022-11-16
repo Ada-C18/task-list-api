@@ -17,3 +17,12 @@ def post_new_goal():
     goal_dict = new_goal.make_dict()
     response = {"goal": goal_dict}
     return make_response(response, 201)
+
+@goal_bp.route("", methods = ["GET"])
+def get_all_goals():
+    goals = Goal.query.all()
+    response = []
+    for goal in goals:
+        goal_dict = goal.make_dict()
+        response.append(goal_dict)
+    return jsonify(response), 200
