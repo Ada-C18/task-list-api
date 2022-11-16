@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.goal import Goal
 from app import db
-from app.routes.task import validate_task
+from app.routes.task import validate_task, Task
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix = "/goals")
 
@@ -69,15 +69,27 @@ def create_a_goal_with_tasks(goal_id):
     for task_id in task_id_list:
         task = validate_task(task_id)
         task.goal_id = goal_id
-
     #end helper function
     db.session.add(new_goal)
     db.session.commit()
     response_body = {
-        "id": int(goal_id),
-        "task_ids": task_id_list
-        }
+        "id": int(goal_id), #there should be a better way to deal with this.
+        "task_ids": task_id_list}
     return make_response(response_body, 200)
+
+@goal_bp.route("/<goal_id>/tasks", methods = ["GET"])
+def get_one_goal_with_tasks(goal_id):
+    goal = validate_goal(goal_id)
+    task_list = []
+    for task in goal.tasks:
+        task_list.append(task.make_dict())
+    response = {
+        "id": int(goal_id),  #there should be a better way to do this;
+        "title": goal.title,
+        "tasks": task_list
+    }
+    return jsonify(response), 200
+
 
 #ideally, combine this with validate task, passing in the class as well. 
 def validate_goal(goal_id):
