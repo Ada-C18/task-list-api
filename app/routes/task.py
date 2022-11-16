@@ -17,7 +17,6 @@ COL_NAME_DEFAULT_DICT = dict(zip(COL_NAMES, COL_DEFAULTS))
 @task_bp.route("", methods = ["GET"])
 def get_all_tasks():
     #refactor to helper function
-    #this isn't working.  not sure why. 
     sort_order = request.args.get("sort")
     if sort_order == "desc":
         tasks = Task.query.order_by(Task.title.desc()).all() #Task.title is just a string??
@@ -25,7 +24,7 @@ def get_all_tasks():
         tasks = Task.query.order_by(Task.title.asc()).all() #look up doc for asc.
     else:
         tasks = Task.query.all()
-    #refactor to helper function end here? 
+    #refactor to helper function end here
     response = []
     for task in tasks:
         task_dict = task.make_dict()
