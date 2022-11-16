@@ -98,7 +98,7 @@ def update_goal(goal_id):
     return make_response(update_response), 200
 
 @bp.route("/<goal_id>", methods=["DELETE"])
-def delete_goal(goal_id, task_ids):
+def delete_goal(goal_id):
     goal = validate_model(Goal, goal_id)
 
     db.session.delete(goal)
@@ -156,7 +156,7 @@ def get_task(task_id):
 
     task = validate_model(Task, task_id)
 
-    return {
+    return make_response({
         "task": {
             "id": task_id,
             "goal_id": task.goal_id,
@@ -164,5 +164,5 @@ def get_task(task_id):
             "description": f"{task.description}",
             "is_complete": bool(task.completed_at)
         }
-    }
+    }), 200
 
