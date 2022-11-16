@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, abort, make_response, request
 from app.models.goal import Goal
 from app import db
+from app.routes.task import validate_task
 
 goal_bp = Blueprint("goal_bp", __name__, url_prefix = "/goals")
 
@@ -57,7 +58,26 @@ def delete_goal(goal_id):
     response_body = {"details": response_str}
     return make_response(response_body, 200)
 
-    
+#nested routes:
+@goal_bp.route("/<goal_id>/tasks", methods = ["POST"])
+def create_a_goal_with_tasks(goal_id):
+    new_goal = validate_goal(goal_id)
+    request_body = request.get_json()
+    task_id_list = request_body["task_ids"]
+    #begin helper function
+    #for those tasks, assign them to the goal, 
+    for task_id in task_id_list:
+        task = validate_task(task_id)
+        task.goal_id = goal_id
+
+    #end helper function
+    db.session.add(new_goal)
+    db.session.commit()
+    response_body = {
+        "id": int(goal_id),
+        "task_ids": task_id_list
+        }
+    return make_response(response_body, 200)
 
 #ideally, combine this with validate task, passing in the class as well. 
 def validate_goal(goal_id):
