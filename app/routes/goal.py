@@ -33,6 +33,22 @@ def get_one_goal(goal_id):
     goal_dict = goal.make_dict()
     return make_response({"goal": goal_dict}, 200)
 
+@goal_bp.route("/<goal_id>", methods = ["PUT", "PATCH"])
+def update_goal(goal_id):
+    goal = validate_goal(goal_id)
+    request_body = request.get_json()
+    #This could be a helper function----#
+    if "title" in request_body:
+        goal.title = request_body["title"]
+    else:
+        response_str = f"You must include an updated goal title"
+        abort(make_response({"message": response_str}, 400))
+    #end a helper function#
+    db.session.commit()
+    response = {"goal": goal.make_dict()}
+    return make_response(response, 200)
+    
+
 #ideally, combine this with validate task, passing in the class as well. 
 def validate_goal(goal_id):
     try:
