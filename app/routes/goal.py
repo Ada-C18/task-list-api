@@ -38,10 +38,10 @@ def validate_goal(goal_id):
     try:
         goal_id = int(goal_id)
     except ValueError:
-        response_str = f"Task {goal_id} must be an integer"
+        response_str = f"Goal {goal_id} must be an integer"
         abort(make_response({"message": response_str}, 400))
     goal = Goal.query.get(goal_id)
     if not goal:
-        response_str = f"Task {goal_id} not found"
+        response_str = f"Goal {goal_id} not found"
         abort(make_response({"message": response_str}, 404))
     return goal
