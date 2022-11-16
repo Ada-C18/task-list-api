@@ -48,6 +48,16 @@ def update_goal(goal_id):
     response = {"goal": goal.make_dict()}
     return make_response(response, 200)
     
+@goal_bp.route("/<goal_id>", methods = ["DELETE"])
+def delete_goal(goal_id):
+    goal = validate_goal(goal_id)
+    db.session.delete(goal)
+    db.session.commit()
+    response_str = f'Goal {goal_id} "{goal.title}" successfully deleted'
+    response_body = {"details": response_str}
+    return make_response(response_body, 200)
+
+    
 
 #ideally, combine this with validate task, passing in the class as well. 
 def validate_goal(goal_id):
@@ -61,3 +71,4 @@ def validate_goal(goal_id):
         response_str = f"Goal {goal_id} not found"
         abort(make_response({"message": response_str}, 404))
     return goal
+
