@@ -21,7 +21,7 @@ def validate_model(cls, model_id):
     model = cls.query.get(model_id)
     if not model:
         abort(make_response(
-            {"message": f"{cls.__name__} {model_id} not found"}, 404))
+            {'message': f'{cls.__name__} {model_id} not found'}, 404))
 
     return model
 
@@ -43,11 +43,11 @@ def create_goal():
     db.session.add(new_goal)
     db.session.commit()
 
-    return make_response({
+    return make_response(jsonify({
             "goal": {
             "id":new_goal.goal_id,
             "title": new_goal.title,
-        }}
+        }})
     , 201)
 
 @bp.route("", methods=["GET"])
@@ -98,15 +98,71 @@ def update_goal(goal_id):
     return make_response(update_response), 200
 
 @bp.route("/<goal_id>", methods=["DELETE"])
-def delete_task(goal_id):
-
+def delete_goal(goal_id, task_ids):
     goal = validate_model(Goal, goal_id)
 
     db.session.delete(goal)
     db.session.commit()
 
-    goal_response =  {
+    return make_response(jsonify({
         "details": f'Goal {goal.goal_id} "{goal.title}" successfully deleted'
+    })), 200
+
+
+@bp.route("/<goal_id>/tasks", methods=["POST"])
+def post_task_ids_to_goal(goal_id):
+    request_body = request.get_json()
+    goal = validate_model(Goal,goal_id)
+
+    for task_id in request_body["task_ids"]:
+        task = validate_model(Task, task_id)
+        goal.tasks.append(task)
+
+    db.session.add(goal)
+    db.session.commit()
+
+    return make_response({
+        "id": goal.goal_id,
+        "task_ids": request_body["task_ids"]
+    }), 200
+
+@bp.route("/<goal_id>/tasks", methods=["GET"])
+def get_tasks_for_specific_goal(goal_id):
+    request_body = request.get_json
+    goal = validate_model(Goal, goal_id)
+    tasks = goal.tasks
+
+    task_response = []
+
+    for task in tasks:
+        task =  {
+            "id": task.task_id,
+            "goal_id": goal.goal_id,
+            "title": f"{task.title}",
+            "description": f"{task.description}",
+            "is_complete": bool(task.completed_at)
+        }
+        task_response.append(task)
+    
+
+    return make_response({
+        "id": goal.goal_id,
+        "title": f"{goal.title}",
+        "tasks": task_response
+    }), 200
+
+@bp.route("/tasks/<task_id>", methods=["GET"])
+def get_task(task_id):
+
+    task = validate_model(Task, task_id)
+
+    return {
+        "task": {
+            "id": task_id,
+            "goal_id": task.goal_id,
+            "title": f"{task.title}",
+            "description": f"{task.description}",
+            "is_complete": bool(task.completed_at)
+        }
     }
-    return make_response(goal_response, 200)
 

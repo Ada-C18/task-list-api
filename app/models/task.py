@@ -15,7 +15,8 @@ class Task(db.Model):
             task_id=self.task_id,
             title=self.title,
             description=self.description,
-            is_complete=bool(self.completed_at)
+            is_complete=bool(self.completed_at),
+            goal_id=self.goal_id
         )
 
 
