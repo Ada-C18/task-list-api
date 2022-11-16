@@ -41,8 +41,8 @@ def update_goal(goal_id):
     if "title" in request_body:
         goal.title = request_body["title"]
     else:
-        response_str = f"You must include an updated goal title"
-        abort(make_response({"message": response_str}, 400))
+        response_str = f"Invalid data"
+        abort(make_response({"details": response_str}, 400))
     #end a helper function#
     db.session.commit()
     response = {"goal": goal.make_dict()}
