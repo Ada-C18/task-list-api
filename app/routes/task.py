@@ -102,6 +102,7 @@ def delete_task(task_id):
     response_body = {"details": f'Task {task_id} "{task.title}" successfully deleted'}
     return make_response(response_body, 200)
 
+#ideally, combine this with validate goal, passing in the class as well. 
 def validate_task(task_id):
     try:
         task_id = int(task_id)

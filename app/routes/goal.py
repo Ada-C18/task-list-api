@@ -26,3 +26,22 @@ def get_all_goals():
         goal_dict = goal.make_dict()
         response.append(goal_dict)
     return jsonify(response), 200
+
+@goal_bp.route("/<goal_id>", methods = ["GET"])
+def get_one_goal(goal_id):
+    goal = validate_goal(goal_id)
+    goal_dict = goal.make_dict()
+    return make_response({"goal": goal_dict}, 200)
+
+#ideally, combine this with validate task, passing in the class as well. 
+def validate_goal(goal_id):
+    try:
+        goal_id = int(goal_id)
+    except ValueError:
+        response_str = f"Task {goal_id} must be an integer"
+        abort(make_response({"message": response_str}, 400))
+    goal = Goal.query.get(goal_id)
+    if not goal:
+        response_str = f"Task {goal_id} not found"
+        abort(make_response({"message": response_str}, 404))
+    return goal
