@@ -2,13 +2,14 @@ from app import db
 
 
 class Goal(db.Model):
-    goal_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String)
+    tasks = db.relationship("Task", back_populates="goal")
 
     def make_dict(self):
         """return a ditionary with all attributes of a goal"""
         goal_dict = {
-            "id": self.goal_id,
+            "id": self.id,
             "title": self.title
         }
         return goal_dict
