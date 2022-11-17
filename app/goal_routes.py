@@ -11,8 +11,6 @@ from app.models.goal import Goal
 goals_bp = Blueprint('goals', __name__, url_prefix="/goals")
 
 
-
-
 @goals_bp.route("", methods=['POST'])
 def created_goal():
     response_body = request.get_json()
@@ -25,8 +23,7 @@ def created_goal():
     db.session.add(created_goal)
     db.session.commit()
     
-    return make_response(jsonify({"goal": created_goal.build_goal_dict()})), 201
-
+    return make_response(jsonify({"goal": created_goal.build_goal_dict()})), 200
 
 def validate_goal_id(goal_id):
     try:
@@ -77,8 +74,6 @@ def query_all():
 
 
 
-
-
 @goals_bp.route('/<goal_id>', methods=['PUT'])
 def update_goals(goal_id):
     
@@ -104,30 +99,3 @@ def delete_goals(goal_id):
     db.session.commit()
 
     return make_response(result_notice, 200)
-
-@goals_bp.route('/<goal_id>/mark_complete', methods=['PATCH'])
-def mark_complete_on_incomplete_goal(goal_id):
-    test_goal = validate_goal_id(goal_id)
-    test_goal.completed_at = datetime.datetime.today()
-    test_goal.is_complete = True
-    db.session.commit()
-    print(test_goal.completed_at)
-
-    return make_response({"goal": {
-            "id": test_goal.goal_id,
-            "title": test_goal.title, 
-            "description":test_goal.description, 
-            "is_complete": test_goal.is_complete}}), 200
-
-@goals_bp.route('/<goal_id>/mark_incomplete', methods=['PATCH'])
-def mark_incomplete_on_complete_goal(goal_id):
-    test_goal = validate_goal_id(goal_id)
-    test_goal.completed_at = None
-    test_goal.is_complete = False
-    db.session.commit()
-
-    return make_response({"goal": {
-            "id": test_goal.goal_id,
-            "title": test_goal.title, 
-            "description":test_goal.description, 
-            "is_complete": test_goal.is_complete}}), 200
