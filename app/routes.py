@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+import datetime
 from os import abort
 
 from flask import Blueprint, abort, jsonify, make_response, request
@@ -102,42 +102,29 @@ def delete_tasks(task_id):
 
     return make_response(result_notice, 200)
 
-@tasks_bp.route('/<task_id>/<mark_complete>', methods=['PATCH'])
-def patch_tasks(task_id):
+@tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
+def mark_complete_on_incomplete_task(task_id):
     test_task = validate_task_id(task_id)
-    response_body = request.get_json()
+    test_task.completed_at = datetime.datetime.today()
+    test_task.is_complete = True
+    db.session.commit()
+    print(test_task.completed_at)
 
-    if "completed_at" in response_body and "completed_at" == True:
-        db.session.commit()
+    return make_response({"task": {
+            "id": test_task.task_id,
+            "title": test_task.title, 
+            "description":test_task.description, 
+            "is_complete": test_task.is_complete}}), 200
 
-    if "completed_at" in response_body and "completed_at" == False:
-        db.session.commit()
-    
-    if "completed_at" in response_body and "completed_at" == None:
-        db.session.commit()
-
-    if "completed_at" not in response_body and "title" not in response_body and "description" not in response_body:
-        return "404 Not Found"
-        
-
-    return make_response(response_body, 200)
-
-@tasks_bp.route('/<task_id>/<mark_incomplete>', methods=['PATCH'])
-def patch_tasks(task_id):
+@tasks_bp.route('/<task_id>/mark_incomplete', methods=['PATCH'])
+def mark_incomplete_on_complete_task(task_id):
     test_task = validate_task_id(task_id)
-    response_body = request.get_json()
+    test_task.completed_at = None
+    test_task.is_complete = False
+    db.session.commit()
 
-    if "completed_at" in response_body and "completed_at" == True:
-        db.session.commit()
-
-    if "completed_at" in response_body and "completed_at" == False:
-        db.session.commit()
-    
-    if "completed_at" in response_body and "completed_at" == None:
-        db.session.commit()
-
-    if "completed_at" not in response_body and "title" not in response_body and "description" not in response_body:
-        return "404 Not Found"
-        
-
-    return make_response(response_body, 200)
+    return make_response({"task": {
+            "id": test_task.task_id,
+            "title": test_task.title, 
+            "description":test_task.description, 
+            "is_complete": test_task.is_complete}}), 200

@@ -1,0 +1,133 @@
+import json
+import datetime
+from os import abort
+
+from flask import Blueprint, abort, jsonify, make_response, request
+from sqlalchemy import asc, desc
+
+from app import db
+from app.models.goal import Goal
+
+goals_bp = Blueprint('goals', __name__, url_prefix="/goals")
+
+
+
+
+@goals_bp.route("", methods=['POST'])
+def created_goal():
+    response_body = request.get_json()
+
+    if "title" not in response_body:
+        return {"details": "Invalid data"}, 400
+    
+    created_goal = Goal(title=response_body["title"])
+
+    db.session.add(created_goal)
+    db.session.commit()
+    
+    return make_response(jsonify({"goal": created_goal.build_goal_dict()})), 201
+
+
+def validate_goal_id(goal_id):
+    try:
+        goal_id = int(goal_id)
+    except:
+        abort(make_response({"message":f"Goal {goal_id} invalid"}, 400))
+
+    goal = goal.query.get(goal_id)
+
+    if not goal:
+        abort(make_response({"message":f"Goal {goal_id} not found"}, 404))
+
+    return goal
+
+
+@goals_bp.route('/<goal_id>', methods=['GET'])
+def one_saved_goal(goal_id):
+    goal_validate = validate_goal_id(goal_id)
+    
+    # goal = goal.query.get(goal_id)
+    if goal_id == None:
+        return "The goal ID submitted, does not exist: error code 404"
+    else:    
+        return {"goal": goal_validate.build_goal_dict()}
+
+
+@goals_bp.route('', methods=['GET'])
+def query_all():
+    
+    sort_query = request.args.get("sort")
+    
+    query_lists = []
+    
+    if sort_query== "desc":
+        query_goals = Goal.query.order_by(Goal.title.desc())
+
+
+    elif sort_query == "asc":
+        query_goals = Goal.query.order_by(Goal.title.asc())
+
+    else:
+        query_goals = Goal.query.all()
+
+    for query in query_goals:
+        query_lists.append(query.build_goal_dict())
+
+    return jsonify(query_lists), 200
+
+
+
+
+
+@goals_bp.route('/<goal_id>', methods=['PUT'])
+def update_goals(goal_id):
+    
+    validate_id = validate_goal_id(goal_id)
+
+    response_body = request.get_json()
+    
+    validate_id.title = response_body["title"]
+    validate_id.description = response_body["description"]
+
+
+    db.session.commit()
+
+    return jsonify({"goal": validate_id.build_goal_dict()}),200
+    
+
+@goals_bp.route('/<goal_id>', methods=['DELETE'])
+def delete_goals(goal_id):
+    test_goal = validate_goal_id(goal_id)
+    result_notice = {"details": f'Goal {goal_id} "{test_goal.title}" successfully deleted'}
+
+    db.session.delete(test_goal)
+    db.session.commit()
+
+    return make_response(result_notice, 200)
+
+@goals_bp.route('/<goal_id>/mark_complete', methods=['PATCH'])
+def mark_complete_on_incomplete_goal(goal_id):
+    test_goal = validate_goal_id(goal_id)
+    test_goal.completed_at = datetime.datetime.today()
+    test_goal.is_complete = True
+    db.session.commit()
+    print(test_goal.completed_at)
+
+    return make_response({"goal": {
+            "id": test_goal.goal_id,
+            "title": test_goal.title, 
+            "description":test_goal.description, 
+            "is_complete": test_goal.is_complete}}), 200
+
+@goals_bp.route('/<goal_id>/mark_incomplete', methods=['PATCH'])
+def mark_incomplete_on_complete_goal(goal_id):
+    test_goal = validate_goal_id(goal_id)
+    test_goal.completed_at = None
+    test_goal.is_complete = False
+    db.session.commit()
+
+    return make_response({"goal": {
+            "id": test_goal.goal_id,
+            "title": test_goal.title, 
+            "description":test_goal.description, 
+            "is_complete": test_goal.is_complete}}), 200
