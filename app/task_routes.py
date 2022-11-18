@@ -9,23 +9,24 @@ import requests
 load_dotenv()
 
 task_bp = Blueprint("task_bp", __name__, url_prefix='/tasks')
-# Defining Endpoint and Creating Route Function to CREATE a task
+
 
 @task_bp.route("", methods=["POST"])
 def create_task():        
     request_body = request.get_json()
-    if 'title' not in request_body or 'description' not in request_body:# or 'completed_at' not in request_body
+    if 'title' not in request_body or 'description' not in request_body:
         return make_response(jsonify({"details":"Invalid data"})),400
     new_task= Task(
         title = request_body['title'],
         description =  request_body['description']
         
     )
-    #completed_at = request_body['completed_at']
-
+    
+            
     db.session.add(new_task)
     db.session.commit()
-
+    
+           
     return {"task": {
                 "id": new_task.task_id,
                 "title": new_task.title,
@@ -40,18 +41,10 @@ def read_all_tasks():
     task_query = Task.query
     
     sort_query = request.args.get("sort")
-  
+
     if sort_query == "asc":
         task_query = task_query.order_by(Task.title.asc())
-    #     #tasks = Task.query.sorted(title=task_asc_query,reverse=True)
     
-    #     # task_query = task_query.filter(Planet.name.ilike(f"%{name_query}%"))
-
-    # task_desc_query = request.args.get("/tasks?sort=desc")   
-    # if task_desc_query:
-        # task_query = task_query.filter(Task.title.sorted(task_desc_query,key=lambda x: x['title'],reverse=True))
-    
-        # return jsonify(task_query)
     elif sort_query == "desc":
         task_query = task_query.order_by(Task.title.desc())   
     tasks = task_query.all()
@@ -64,9 +57,7 @@ def read_all_tasks():
             "description": task.description,
             "is_complete": False
             })
-    
-    # if not tasks_response:
-    #     return make_response(jsonify([])),200        
+
     return jsonify(tasks_response),200
 
 def validate_task(task_id):
@@ -86,13 +77,24 @@ def validate_task(task_id):
 @task_bp.route("/<task_id>", methods=['GET'])
 def get_one_task(task_id):
     task = validate_task(task_id)
-    return {"task":{
+    
+    if task.goal_id:
+        response = {"task":{
             "id": task.task_id,
+            "goal_id": task.goal_id,
             "title": task.title,
             "description": task.description,
             "is_complete": False
             }},200
-    
+    else:        
+        response = {"task":{
+                    "id": task.task_id,
+                    "title": task.title,
+                    "description": task.description,
+                    "is_complete": False
+                    }},200
+
+    return response
 
 @task_bp.route("/<task_id>", methods=["PUT"])
 def update_task(task_id):
@@ -131,13 +133,11 @@ def slack_helper(title):
     payload={"channel":"slack-bot-test-channel",
             "text": f"Someone just completed the task {title}"}
 
-    # headers = {
-    # "Authorization": os.environ.get('token_slack')
-    # }
     headers = {
-    "Authorization":  "Bearer xoxb-3833211039014-4343570498547-z13ipFiCkfUPpQDZKBYuxpmZ"
+    "Authorization": os.environ.get('token_slack')
     }
-    return requests.post(URL,headers=headers, data=payload) 
+#     
+    return requests.post(URL,headers= headers, data=payload) 
 
 
 
@@ -152,6 +152,7 @@ def mark_task(task_id,complete):
     elif complete == "mark_incomplete":
         task.completed_at = None
         is_complete = False
+        
 
     db.session.commit()
     response = make_response(jsonify({f"task": {
@@ -160,6 +161,6 @@ def mark_task(task_id,complete):
                 "description": task.description,
                 "is_complete": is_complete
             }}))
-
+    
     return response,200
     

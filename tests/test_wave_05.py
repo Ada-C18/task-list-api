@@ -41,7 +41,7 @@ def test_get_goal(client, one_goal):
     assert "goal" in response_body
     assert response_body == {
         "goal": {
-            "id": 1,
+            "goal_id": 1,
             "title": "Build a habit of going outside daily"
         }
     }
