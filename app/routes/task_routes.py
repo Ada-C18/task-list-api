@@ -108,7 +108,7 @@ def send_to_slack(title, channel_name, mark):
     header_data = {'Authorization': f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"}
     message_data = {'channel': channel_name, 'text': f"Someone just completed the task {title}"}
     if mark == 'mark_complete':
-        requests.post('https://slack.com/api/chat.postMessage', params=message_data, headers=header_data)
+        requests.post('https://slack.com/api/chat.postMessage', data=message_data, headers=header_data)
 
 
 
