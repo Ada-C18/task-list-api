@@ -2,11 +2,8 @@ from flask import Blueprint, jsonify, abort, make_response, request
 from app import db
 from app.models.task import Task
 from datetime import datetime
-import logging
 import os
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
-
+import requests
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -108,18 +105,31 @@ def validate_id(class_name,id):
 # Helper function to send message to slack
 # ==================================
 def send_to_slack(title, channel_name, mark):
-    if mark == "mark_complete":
-        client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
-        logger = logging.getLogger(__name__)
-        try:
-    # Call the chat.postMessage method using the WebClient
-            result = client.chat_postMessage(
-                channel=channel_name, 
-                text= f"Someone just completed the task '{title}'"
-            )
-            logger.info(result)
+    header_data = {'Authorization': f"Bearer {os.environ.get('SLACK_BOT_TOKEN')}"}
+    message_data = {'channel': channel_name, 'text': f"Someone just completed the task {title}"}
+    if mark == 'mark_complete':
+        requests.post('https://slack.com/api/chat.postMessage', params=message_data, headers=header_data)
 
-        except SlackApiError as e:
-            logger.error(f"Error posting message: {e}")
-    else:
-        pass
+
+
+
+# original implementation using slack_sdk to make calls to slack API
+
+# import logging
+# from slack_sdk import WebClient
+# from slack_sdk.errors import SlackApiError
+
+# def send_to_slack(title, channel_name, mark):
+#     if mark == "mark_complete":
+#         client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
+#         logger = logging.getLogger(__name__)
+#         try:
+#     # Call the chat.postMessage method using the WebClient
+#             result = client.chat_postMessage(
+#                 channel=channel_name, 
+#                 text= f"Someone just completed the task '{title}'"
+#             )
+#             logger.info(result)
+
+#         except SlackApiError as e:
+#             logger.error(f"Error posting message: {e}")
