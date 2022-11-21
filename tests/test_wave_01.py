@@ -119,22 +119,22 @@ def test_update_task(client, one_task):
     assert task.completed_at == None
 
 
-# # @pytest.mark.skip(reason="No way to test this feature yet")
-# def test_update_task_not_found(client):
-#     # Act
-#     response = client.put("/tasks/1", json={
-#         "title": "Updated Task Title",
-#         "description": "Updated Test Description",
-#     })
-#     response_body = response.get_json()
+# @pytest.mark.skip(reason="No way to test this feature yet")
+def test_update_task_not_found(client):
+    # Act
+    response = client.put("/tasks/1", json={
+        "title": "Updated Task Title",
+        "description": "Updated Test Description",
+    })
+    response_body = response.get_json()
 
-#     # Assert
-#     assert response.status_code == 404
-
-#     raise Exception("Complete test with assertion about response body")
-#     # *****************************************************************
-#     # **Complete test with assertion about response body***************
-#     # *****************************************************************
+    # Assert
+    assert response.status_code == 404
+    assert Task.query.get(1) == None
+    # raise Exception("Complete test with assertion about response body")
+    # *****************************************************************
+    # **Complete test with assertion about response body***************
+    # *****************************************************************
 
 
 # # @pytest.mark.skip(reason="No way to test this feature yet")

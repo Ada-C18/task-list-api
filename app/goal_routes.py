@@ -23,7 +23,7 @@ def created_goal():
     db.session.add(created_goal)
     db.session.commit()
     
-    return make_response(jsonify({"goal": created_goal.build_goal_dict()})), 200
+    return make_response(jsonify({"goal": created_goal.goal_dict()})), 201
 
 def validate_goal_id(goal_id):
     try:
@@ -31,7 +31,7 @@ def validate_goal_id(goal_id):
     except:
         abort(make_response({"message":f"Goal {goal_id} invalid"}, 400))
 
-    goal = goal.query.get(goal_id)
+    goal = Goal.query.get(goal_id)
 
     if not goal:
         abort(make_response({"message":f"Goal {goal_id} not found"}, 404))
@@ -47,7 +47,7 @@ def one_saved_goal(goal_id):
     if goal_id == None:
         return "The goal ID submitted, does not exist: error code 404"
     else:    
-        return {"goal": goal_validate.build_goal_dict()}
+        return {"goal": goal_validate.goal_dict()}
 
 
 @goals_bp.route('', methods=['GET'])
@@ -68,7 +68,7 @@ def query_all():
         query_goals = Goal.query.all()
 
     for query in query_goals:
-        query_lists.append(query.build_goal_dict())
+        query_lists.append(query.goal_dict())
 
     return jsonify(query_lists), 200
 
@@ -87,7 +87,7 @@ def update_goals(goal_id):
 
     db.session.commit()
 
-    return jsonify({"goal": validate_id.build_goal_dict()}),200
+    return jsonify({"goal": validate_id.goal_dict()}),200
     
 
 @goals_bp.route('/<goal_id>', methods=['DELETE'])
