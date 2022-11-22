@@ -1,4 +1,7 @@
 # Task List API
+Link to my deployed Heroku app: https://jaime-task-list-api.herokuapp.com/
+It will need the appropriate paths to run, such as /tasks, /tasks<task_id>, /goals, /goals/<goals_id>/tasks
+The id is always an integer in these routes.
 
 ## Skills Assessed
 
