@@ -79,6 +79,15 @@ def one_goal(app):
     db.session.add(new_goal)
     db.session.commit()
 
+@pytest.fixture
+def three_goals(app):
+    db.session.add_all([
+        Goal(title="Eat Three Meals a Day"),
+        Goal(title="Do 3 tattoos a week"),
+        Goal(title="Get Better at Texting Friends"),
+    ])
+    db.session.commit()
+
 
 # This fixture gets called in every test that
 # references "one_task_belongs_to_one_goal"
