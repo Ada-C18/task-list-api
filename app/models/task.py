@@ -31,10 +31,3 @@ class Task(db.Model):
     def from_dict(cls, task_data):
 
         return Task(title=task_data["title"], description=task_data["description"], completed_at=None)
-        
-
-    def to_goal_dict(self):
-        return {
-            "id": self.id,
-            "goal_id": self.goal_id,
-        }
