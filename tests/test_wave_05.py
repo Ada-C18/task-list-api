@@ -93,7 +93,7 @@ def test_update_goal(client, one_goal):
     assert response.status_code == 200
 
     """Added Asserts"""
-    assert response_body == "Updated Goal Title"
+    f"'goal': 'id': 1, 'title': 'Build a habit of going outside daily'"
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
@@ -102,6 +102,13 @@ def test_update_goal_not_found(client):
 
     # Assert
     assert response.status_code == 404
+
+    #Added assertions
+    assert "message" in response_body
+    assert response_body == {"message": "Goal #3 was not found"}
+
+
+
     # assert response_body == {"message": "Goal 3 not found"}
     # raise Exception("Complete test")
     # Act
@@ -149,6 +156,8 @@ def test_create_goal_missing_title(client):
 
     # Assert
     assert response.status_code == 400
+
+    #Added assertion
     assert response_body == {
         "details": "Invalid data"
     }

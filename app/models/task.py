@@ -3,7 +3,7 @@ from datetime import datetime
 
 class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    title = db.Column(db.String)
+    title = db.Column(db.String, nullable=False)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
 
@@ -11,10 +11,12 @@ class Task(db.Model):
     goal = db.relationship("Goal", back_populates="tasks")
 
     def to_dict(self):
-        if self.completed_at:
-            completed = True
-        else:
-            completed = False
+        completed = True if self.completed_at else False
+    #     if sort_request == "asc":
+    #     task_response = sorted(task_response, key=lambda a: a["title"])
+    # elif sort_request == "desc":
+    #     task_response = sorted(task_response, key=lambda d: d["title"], reverse=True) 
+
         task_dict = {
             "id": self.task_id,
             "title": self.title,

@@ -11,10 +11,10 @@ def test_post_task_ids_to_goal(client, one_goal, three_tasks):
 
     # Assert
     assert response.status_code == 200
-    assert "goal_id" in response_body
+    assert "id" in response_body
     assert "task_ids" in response_body
     assert response_body == {
-        "goal_id": 1,
+        "id": 1,
         "task_ids": [1, 2, 3]
     }
 
@@ -49,7 +49,9 @@ def test_get_tasks_for_specific_goal_no_goal(client):
 
     # Assert
     assert response.status_code == 404
-    # assert response_body == None
+
+    """Add Assert statement"""
+    assert "message" in response_body
 
     # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
