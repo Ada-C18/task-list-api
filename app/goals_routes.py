@@ -84,7 +84,7 @@ def read_tasks (goal_id):
     goal = Goal.query.get(goal_id)
 
     return_body = goal.to_dict()
-    return_body["tasks"] = [task.to_dict() for task in goal.tasks]
+    return_body["tasks"] = [task.to_dict_in_goal() for task in goal.tasks]
 
     return make_response(jsonify(return_body), 200)
 

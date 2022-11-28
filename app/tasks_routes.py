@@ -63,7 +63,10 @@ def handle_task(task_id):
     task = validate_task(task_id)
     task = Task.query.get(task_id)
 
-    return {"task": task.to_dict()}
+    if task.goal_id is not None:
+        return{"task": task.to_dict_in_goal()}
+    else:
+        return {"task": task.to_dict()}
 
 
 @tasks_bp.route('',methods=['GET'])
@@ -133,7 +136,7 @@ def delete_task(task_id):
 
     return make_response({"details": f'Task {task_id} "{task.title}" successfully deleted'}, 200)
 
-@tasks_bp.route(TASK_ID_PREFIX + 'mark_complete', methods=['PATCH'])
+@tasks_bp.route(TASK_ID_PREFIX + '/mark_complete', methods=['PATCH'])
 def update_task_complete(task_id):
     task = validate_task(task_id)
     date_time_assign = datetime.now()

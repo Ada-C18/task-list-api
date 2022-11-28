@@ -13,6 +13,14 @@ class Task(db.Model):
     def to_dict(self):
         return {
             "id": self.task_id,
+            "title": self.title,
+            "description": self.description,
+            "is_complete": self.is_completed
+        }
+    
+    def to_dict_in_goal(self):
+        return {
+            "id": self.task_id,
             "goal_id": self.goal_id,
             "title": self.title,
             "description": self.description,
