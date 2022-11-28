@@ -75,7 +75,6 @@ def test_create_goal(client):
         }
     }
 
-
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal(client, one_goal):
     # Arrange
@@ -106,19 +105,6 @@ def test_update_goal_not_found(client):
     #Added assertions
     assert "message" in response_body
     assert response_body == {"message": "Goal #3 was not found"}
-
-
-
-    # assert response_body == {"message": "Goal 3 not found"}
-    # raise Exception("Complete test")
-    # Act
-    # ---- Complete Act Here ----
-
-    # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

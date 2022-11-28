@@ -110,7 +110,6 @@ def sending_list_of_task_ids_to_goal(goal_id):
                 "id": goal.goal_id,
                 "task_ids": request_body["task_ids"]
             }
-
     return make_response(jsonify(response), 200)   
 
 @bp.route("/<goal_id>/tasks", methods=["GET"])
@@ -118,5 +117,4 @@ def getting_tasks_of_one_goal(goal_id):
     goal=validate_model(Goal, goal_id)
 
     goals_list = [goal.to_dict_goal() for goal in goal.tasks]
-
     return jsonify(goals_list), 200

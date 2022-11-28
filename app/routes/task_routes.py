@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, jsonify, make_response, request
 from app import db
 from app.models.task import Task
-from datetime import datetime
+import datetime
 from app import os
 from .validate_model import validate_model
 import os
@@ -90,17 +90,14 @@ def mark_task_incomplete(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_on_completed_task_and_incomplete_task(task_id):
     task = validate_model(Task, task_id)
-
-    task.completed_at = datetime.now()
-
-    post_message(task)
-
+    validated_task = task.query.get(task_id)
+    task.completed_at = datetime.datetime.utcnow()
+   
+    headers = {"Authorization":f"Bearer {SLACK_TOKEN}"}
+    data = {
+        "channel":"task-notifications",
+        "text": f"Someone just completed the task {task.title}."
+    }
+    res = requests.post(SLACK_URL, headers=headers, data=data)
     db.session.commit()
-    return jsonify(task=task.to_dict()), 200
-
-def post_message(task):
-        KEY = os.environ.get("SLACK_TOKEN")
-        PATH = SLACK_URL#"https://slack.com/api/chat.postMessage"
-        HEADER = {"Authorization": KEY}
-        PARAMS = {"channel": "task-completed","text": f"Someone just completed the task {task}."}
-        requests.post(url=PATH, data=PARAMS, headers=HEADER)
+    return jsonify({"task":task.to_dict()}), 200
