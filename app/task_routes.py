@@ -72,10 +72,12 @@ def mark_complete(task_id):
     task.mark_complete()
     db.session.commit()
 
-    headers = { 'Authorization': 'Bearer ' + os.environ.get('SLACK_API_TOKEN') }
-    message = f"Someone just completed the task {task.title}"
+    slack_token = os.environ.get('SLACK_API_TOKEN')
+    if slack_token:
+        headers = { 'Authorization': 'Bearer ' + slack_token }
+        message = f"Someone just completed the task {task.title}"
 
-    requests.request("POST", SLACK_URL + message, headers=headers)
+        requests.request("POST", SLACK_URL + message, headers=headers)
 
     return {"task": task.to_dict()}
 
