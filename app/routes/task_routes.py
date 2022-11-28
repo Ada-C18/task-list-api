@@ -4,8 +4,8 @@ from app.models.task import Task
 from datetime import datetime
 from app import os
 from .validate_model import validate_model
-
-SLACK_TOKEN = os.environ.get('SLACK_TOKEN', None)
+import os
+import requests
 
 task_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
@@ -28,24 +28,22 @@ def create_task():
 
 @task_bp.route("", methods=["GET"])
 def read_all_tasks():
-    tasks = Task.query.all()
+    title_query = request.args.get("title")
+    sort_query = request.args.get("sort")
 
-    sort_request = request.args.get("sort")
-    # task_list = []
+    if sort_query == "asc": 
+                tasks = Task.query.order_by(Task.title).all()
+    elif sort_query == "desc":
+            tasks = Task.query.order_by(Task.title.desc()).all()
+    elif title_query:
+            tasks = Task.query.get(title=title_query)
+    else:
+            tasks = Task.query.all()
 
+    task_list = [task.to_dict() for task in tasks]
 
-    task_response = []
-    for task in tasks:
-        task_response.append(task.to_dict())
+    return make_response(jsonify(task_list), 200)
 
-    """WAVE 2"""
-    
-    if sort_request == "asc":
-        task_response = sorted(task_response, key=lambda a: a["title"])
-    elif sort_request == "desc":
-        task_response = sorted(task_response, key=lambda d: d["title"], reverse=True) 
-
-    return jsonify(task_response)
 
 @task_bp.route("/<task_id>", methods=["GET"])
 def read_one_task(task_id):
@@ -78,14 +76,9 @@ def update_task(task_id):
     db.session.commit()
     return jsonify(response_body), 200
  
-"""WAVE 3"""
-
-# @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
-# def mark_task_complete(task_id):
-#     task = validate_model(Task, task_id)
-#     task.completed_at = datetime.now()
-#     db.session.commit()
-#     return jsonify(task=task.to_dict()), 200
+"""WAVE 3 & 4"""
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+SLACK_URL = os.environ.get('SLACK_URL')
 
 @task_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def mark_task_incomplete(task_id):
@@ -97,10 +90,17 @@ def mark_task_incomplete(task_id):
 @task_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def mark_complete_on_completed_task_and_incomplete_task(task_id):
     task = validate_model(Task, task_id)
-    if task:
-        task.completed_at = datetime.now()
-        db.session.commit()
-    
+
+    task.completed_at = datetime.now()
+
+    post_message(task)
+
     db.session.commit()
-    
     return jsonify(task=task.to_dict()), 200
+
+def post_message(task):
+        KEY = os.environ.get("SLACK_TOKEN")
+        PATH = SLACK_URL#"https://slack.com/api/chat.postMessage"
+        HEADER = {"Authorization": KEY}
+        PARAMS = {"channel": "task-completed","text": f"Someone just completed the task {task}."}
+        requests.post(url=PATH, data=PARAMS, headers=HEADER)

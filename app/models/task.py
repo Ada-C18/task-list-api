@@ -12,10 +12,6 @@ class Task(db.Model):
 
     def to_dict(self):
         completed = True if self.completed_at else False
-    #     if sort_request == "asc":
-    #     task_response = sorted(task_response, key=lambda a: a["title"])
-    # elif sort_request == "desc":
-    #     task_response = sorted(task_response, key=lambda d: d["title"], reverse=True) 
 
         task_dict = {
             "id": self.task_id,
