@@ -25,16 +25,16 @@ def created_goal():
     
     return make_response(jsonify({"goal": created_goal.goal_dict()})), 201
 
-def validate_goal_id(goal_id):
+def validate_goal_id(cls, goal_id):
     try:
         goal_id = int(goal_id)
     except:
-        abort(make_response({"message":f"Goal {goal_id} invalid"}, 400))
+        abort(make_response({"message":f"{cls.__name__} {goal_id} invalid"}, 400))
 
     goal = Goal.query.get(goal_id)
 
     if not goal:
-        abort(make_response({"message":f"Goal {goal_id} not found"}, 404))
+        abort(make_response({"message":f"{cls.__name__} {goal_id} not found"}, 404))
 
     return goal
 
@@ -43,7 +43,8 @@ def validate_goal_id(goal_id):
 def one_saved_goal(goal_id):
     goal_validate = validate_goal_id(goal_id)
     
-    # goal = goal.query.get(goal_id)
+    goal_response = [goal_routes.todict() for goal in goals]
+
     if goal_id == None:
         return "The goal ID submitted, does not exist: error code 404"
     else:    
