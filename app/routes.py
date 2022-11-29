@@ -48,20 +48,6 @@ def query_all():
     
     query_lists = []
     
-       
-    title_query = request.args.get("title")
-    if title_query:
-        books = Book.query.filter_by(title=title_query)
-    else:
-        books = Book.query.all()
-
-    books_response = []
-    for book in books:
-        books_response.append(book.to_dict())
-    return jsonify(books_response)
-
-
-
     if sort_query== "desc":
         query_tasks = Task.query.order_by(Task.title.desc())
 
