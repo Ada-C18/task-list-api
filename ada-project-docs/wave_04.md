@@ -114,7 +114,7 @@ Fill in the HTTP Request info to test this endpoint.
 
 Press the "Test Method" button!
 
-![](assets/slack_notification_hello_world.png)
+![](assets/slack_notification_heThllo_world.png)
 
 Scroll down to see the HTTP response. Answer the following questions:
 

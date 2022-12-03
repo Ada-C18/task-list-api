@@ -8,12 +8,14 @@ from dotenv import load_dotenv
 db = SQLAlchemy()
 migrate = Migrate()
 load_dotenv()
-
+SLACK_URL = os.environ.get("SLACK_URL")
 
 def create_app(test_config=None):
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
+    
+    # app.config["SLACK_TOKEN"] = os.environ.get("SLACK_TOKEN") #wave4 implementation
+    
     if test_config is None:
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
             "SQLALCHEMY_DATABASE_URI")
@@ -23,12 +25,18 @@ def create_app(test_config=None):
             "SQLALCHEMY_TEST_DATABASE_URI")
 
     # Import models here for Alembic setup
-    from app.models.task import Task
+    from app.models.task import Task     #importing model Task into our project. This line of code can be anywhere   
     from app.models.goal import Goal
 
     db.init_app(app)
     migrate.init_app(app, db)
 
     # Register Blueprints here
+ 
+    from .routes.task import task_bp
+    # from .routes.routes import goal_bp
+    from .routes.goal import goal_bp
+    app.register_blueprint(task_bp)
+    app.register_blueprint(goal_bp)
 
     return app
