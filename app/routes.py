@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, make_response, abort
-from app import db 
+from app import db
 from app.models.task import Task
 from app.models.goal import Goal
 from datetime import datetime
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 task_list_bp = Blueprint("tasks", __name__, url_prefix = "/tasks")
 
 
-#read all tasks 
+#read all tasks
 @task_list_bp.route("", methods=["GET"])
 def get_all_tasks():
     sort_query = request.args.get("sort")
@@ -47,7 +47,7 @@ def create_new_task():
         abort(make_response({"details": "Invalid data"}, 400))
 
     new_task = Task.from_dict(request_body)
-    
+
     db.session.add(new_task)
     db.session.commit()
 
@@ -65,7 +65,7 @@ def update_task(task_id):
     task.description = request_body["description"]
 
     db.session.commit()
-    
+
     response_body = {"task": task.to_dict()}
     return jsonify(response_body)
 
@@ -77,7 +77,7 @@ def delete_task(task_id):
     db.session.delete(task)
     db.session.commit()
 
-    return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200 
+    return jsonify({"details": f'Task {task.task_id} "{task.title}" successfully deleted'}), 200
 
 #mark complete
 @task_list_bp.route("/<task_id>/mark_complete", methods = ["PATCH"])
@@ -125,7 +125,7 @@ def validate_model_id(cls, model_id):
 
 #get sorted tasks
 def get_tasks_sorted(sort_query):
-    if sort_query == "desc": 
+    if sort_query == "desc":
         tasks = Task.query.order_by(Task.title.desc()).all()
     else:
         tasks = Task.query.order_by(Task.title).all()
