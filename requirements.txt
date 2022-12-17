@@ -5,7 +5,9 @@ blinker==1.4
 certifi==2020.12.5
 chardet==4.0.0
 click==7.1.2
+coverage==6.3.3
 Flask==1.1.2
+Flask-Cors==3.0.10
 Flask-Migrate==2.6.0
 Flask-SQLAlchemy==2.4.4
 gunicorn==20.1.0
@@ -15,13 +17,14 @@ itsdangerous==1.1.0
 Jinja2==2.11.3
 Mako==1.1.4
 MarkupSafe==1.1.1
+mypy @ git+https://github.com/python/mypy.git@abc9d155ffbd9ea160eec0b57c450cdf7e53ce39
+mypy-extensions==0.4.3
 packaging==20.9
 pluggy==0.13.1
-psycopg2-binary==2.9.4
 py==1.10.0
 pycodestyle==2.6.0
 pyparsing==2.4.7
-pytest==7.1.1
+pytest==6.2.3
 pytest-cov==2.12.1
 python-dateutil==2.8.1
 python-dotenv==0.15.0

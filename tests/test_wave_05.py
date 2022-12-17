@@ -1,3 +1,4 @@
+from app.models.goal import Goal
 import pytest
 
 
