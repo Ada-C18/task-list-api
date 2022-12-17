@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_cors import CORS
 import os
 from dotenv import load_dotenv
 
@@ -12,6 +13,8 @@ load_dotenv()
 
 def create_app(test_config=None):
     app = Flask(__name__)
+    CORS(app)
+    app.config['CORS_HEADERS'] = 'Content-Type'
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     if test_config is None:
@@ -30,5 +33,10 @@ def create_app(test_config=None):
     migrate.init_app(app, db)
 
     # Register Blueprints here
+    from app.routes import tasks_bp
+    app.register_blueprint(tasks_bp)
+
+    from app.routes import goals_bp
+    app.register_blueprint(goals_bp)
 
     return app
