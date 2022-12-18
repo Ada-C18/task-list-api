@@ -84,8 +84,12 @@ def delete_task(task_id):
 def mark_complete(task_id):
     task = validate_model_id(Task, task_id)
 
-    task.completed_at = datetime.today()
-    task.is_complete = True
+    if task.is_complete == False:
+        task.completed_at = datetime.today()
+        task.is_complete = True
+    else:
+        task.is_complete = False
+        task.completed_at = None
 
     response = {"task": task.to_dict()}
 
@@ -95,17 +99,17 @@ def mark_complete(task_id):
     return jsonify(response), 200
 
 #mark incomplete
-@task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
-def mark_incomplete(task_id):
-    task = validate_model_id(Task, task_id)
+# @task_list_bp.route("/<task_id>/mark_incomplete", methods = ["PATCH"])
+# def mark_incomplete(task_id):
+#     task = validate_model_id(Task, task_id)
 
-    task.is_complete = False
-    task.completed_at = None
+#     task.is_complete = False
+#     task.completed_at = None
 
-    db.session.commit()
-    response = {"task": task.to_dict()}
+#     db.session.commit()
+#     response = {"task": task.to_dict()}
 
-    return jsonify(response), 200
+#     return jsonify(response), 200
 
 
 
