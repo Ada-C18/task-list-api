@@ -37,4 +37,8 @@ def create_app(test_config=None):
     from .routes import goals
     app.register_blueprint(goals.bp)
 
+    # addition for React task-list-front-end
+    app.config['CORS_HEADERS'] = 'Content-Type'
+    CORS(app)
+
     return app
