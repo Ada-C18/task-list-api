@@ -35,7 +35,7 @@ def read_all_tasks():
     elif sort_query == "desc":
         tasks = Task.query.order_by(Task.title.desc()).all()
     else:
-        tasks = Task.query.all()
+        tasks = Task.query.order_by(Task.task_id).all()
     
     response = []
     for task in tasks:
