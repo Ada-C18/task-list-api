@@ -4,22 +4,54 @@ from app.models.task import Task
 
 tasks_bp = Blueprint("tasks", __name__, url_prefix="/tasks")
 
+def validate_complete_request(request_body):
+    try:
+        if request_body["title"] and request_body["description"]:
+            return request_body
+
+    except:
+        abort(make_response({"details": "Invalid data"}, 400))
+
+
+def validate_task_id(task_id):
+    try:
+        task_id = int(task_id)    
+    except:
+        abort(make_response({"details": "Invalid data"}, 404))
+
+    task = Task.query.get(task_id)
+
+    if not task:
+        abort(make_response({"details": "Invalid data"}, 404))
+    
+    return task
+
+
 @tasks_bp.route("", methods=["POST"])
 def create_task():
     request_body = request.get_json()
-    new_task = validate_new_task(request_body)
-    
+    valid_data = validate_complete_request(request_body)
+    new_task = Task.from_dict(valid_data)
+
     db.session.add(new_task)
     db.session.commit()
-    return make_response(f"Task '{new_task.title}' has been successfully created", 201)
+
+    task_response = {
+        "task": new_task.to_dict()
+    }
+    return make_response(jsonify(task_response), 201)
+
 
 @tasks_bp.route("", methods=["GET"])
-def read_all_tasks():
+def get_all_tasks():
     title_query = request.args.get("title")
+    description_query = request.args.get("description")
     completed_at_query = request.args.get("completed at")
     task_query = Task.query
     if title_query:
         task_query = Task.query.filter_by(title=title_query)
+    if description_query:
+        task_query = Task.query.filter_by(description=description_query)
     if completed_at_query:
         task_query = Task.query.filter_by(completed_at=completed_at_query)
 
@@ -27,59 +59,38 @@ def read_all_tasks():
 
     tasks_response = [task.to_dict() for task in tasks]
 
-    return jsonify(tasks_response)
+    return make_response(jsonify(tasks_response), 200)
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
-def task_endpoint(task_id):
-    task = validate_task(task_id)
+def get_one_task(task_id):
+    task = validate_task_id(task_id)
 
-    return jsonify(task.to_dict())
+    task_response = {
+        "task": task.to_dict()
+    }
+
+    return make_response(jsonify(task_response), 200)
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def task_update(task_id):
-    task = validate_task(task_id)
+    task = validate_task_id(task_id)
     request_body = request.get_json()
     task.title = request_body["title"]
     task.description = request_body["description"]
-    task.completed_at = request_body["completed at"]
+    # task.completed_at = request_body["completed at"]
+
+    task_response = {
+        "task": task.to_dict()
+    }
 
     db.session.commit()
-    return make_response(f"Task '{task.title}' has been updated successfully", 200)
+    return make_response((task_response), 200)
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def task_delete(task_id):
-    task = validate_task(task_id)
+    task = validate_task_id(task_id)
 
     db.session.delete(task)
     db.session.commit()
 
-    return make_response({f"details":f"Task {task.id} '{task.title}' successfully deleted"}, 200)
-
-
-def validate_new_task(request_body):
-    try:
-        new_task = Task(
-            title=request_body["title"],
-            description=request_body["description"],
-            completed_at=request_body["completed at"]
-            )
-    
-    except:
-        abort(make_response({"details":f"Invalid data"}, 400))
-    
-    return new_task
-
-
-
-def validate_task(task_id):
-    try:
-        task_id = int(task_id)
-    except:
-        abort(make_response({"message":f"Task {task_id} invalid"}, 400))
-    
-    task = Task.query.get(task_id)
-    
-    if not task:
-        abort(make_response({"message":f"Task {task_id} not found"}, 404))
-
-    return task
+    return make_response({'details': f'Task {task.id} "{task.title}" successfully deleted'}, 200)
