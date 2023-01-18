@@ -1,10 +1,10 @@
 from app import db
-
+from .task import Task
 
 class Goal(db.Model):
     goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(80)) 
-    task_rel = db.relationship("Task", backref="goal",lazy=True) 
+    task_rel = db.relationship("Task", back_populates="goal", lazy=True) 
 
     def goal_dict(self):
             return {
@@ -13,5 +13,6 @@ class Goal(db.Model):
     
     @classmethod
     def from_dict(cls, goal_data):
-        new_Goal = Goal(title=goal_data["title"])
-        return new_Goal
+        goal_class = cls(title=goal_data["title"])
+        return goal_class
+        

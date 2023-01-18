@@ -5,9 +5,9 @@ class Task(db.Model):
     task_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(80)) 
     description  = db.Column(db.String(80)) 
-    completed_at = db.Column(db.DateTime, unique = False, nullable = True)
-    goal_rel = db.relationship("Goal", back_populates="goal",lazy='True')
-    goal_id = db.Column(db.Integer, db.ForeignKey('goal.id')) 
+    completed_at = db.Column(db.DateTime, nullable=True)
+    goal_rel = db.relationship("Goal", back_populates="tasks")
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.goal.id'),nullable=True)
 
     def build_task_dict(self):
             return {
@@ -19,7 +19,8 @@ class Task(db.Model):
 
     @classmethod
     def from_dict(cls, task_data):
-        new_Task = Task(title=task_data["title"],
+        new_Task = cls(title=task_data["title"],
                         description=task_data["description"],
-                        is_complete=bool["completed_at"])
+                        is_complete=task_data["completed_at"],
+                        completed_at=task_data.get("is_complete", None),)
         return new_Task
