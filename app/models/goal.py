@@ -4,8 +4,7 @@ from app import db
 class Goal(db.Model):
     goal_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(80)) 
-    task_rel = db.relationship("Task", backref="goal",lazy=True)
-    task_id = db.Column(db.Integer, db.ForeignKey('task.id')) 
+    task_rel = db.relationship("Task", backref="goal",lazy=True) 
 
     def goal_dict(self):
             return {

@@ -34,7 +34,7 @@ def no_saved_goal(goal_id):
     # goal.todict() for goal in Goal
 
     if goal_response is None:
-        return "The goal ID submitted, does not exist: error code 404"
+        return None
     else:    
         return jsonify({goal_validate.goal_dict()}),200 
 
@@ -45,7 +45,7 @@ def one_saved_goal(goal_id):
     goal_response = [goal.todict() for goal in Goal]
 
     if goal_id == None:
-        return "The goal ID submitted, does not exist: error code 404"
+        return None
     else:    
         return jsonify({goal_validate.goal_dict()}), 
 
@@ -57,7 +57,7 @@ def get_goal():
     goal_response = [goal.todict() for goal in Goal]
 
     if goal_validate == None:
-        return "The goal ID submitted, does not exist: error code 404"
+        return None
     else:    
         return jsonify({"goal": goal_validate.goal_dict()}), 200
 
