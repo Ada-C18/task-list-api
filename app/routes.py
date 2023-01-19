@@ -48,17 +48,13 @@ def get_one_task(task_id):
 def get_tasks():
     
     sort_query = request.args.get("sort")
-    title_query = request.args.get("title")
     task_query = Task.query
-
-    if title_query:
-        task_query = task_query.filter_by(title=title_query)
     
     if sort_query:
         if "asc" in sort_query:
-            task_query = task_query.order_by(text('title asc'))
+            task_query = task_query.order_by(Task.title.asc())
         elif "desc" in sort_query:
-            task_query = task_query.order_by(text('title desc'))
+            task_query = task_query.order_by(Task.title.desc())
         else:
             task_query = task_query.order_by(Task.id)
 
