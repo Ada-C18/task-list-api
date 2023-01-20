@@ -1,12 +1,9 @@
-import json
-import datetime
-from os import abort
-
-from flask import Blueprint, abort, jsonify, make_response, request
-from sqlalchemy import asc, desc
-
-from app import db
+from flask import Blueprint
 from app.models.task import Task
+from app import db
+from flask import Blueprint, jsonify, abort, make_response, request
+from datetime import datetime
+
 
 tasks_bp = Blueprint('tasks', __name__, url_prefix="/tasks")
 
