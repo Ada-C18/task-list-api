@@ -102,15 +102,17 @@ def test_update_goal(client, one_goal):
 
 # @pytest.mark.skip(reason="test to be completed by student")
 def test_update_goal_not_found(client):
-    raise Exception("Complete test")
-    # Act
+   # Act
     # ---- Complete Act Here ----
+    response = client.put("/goals/1", json={
+        "title": "My New Goal"
+    })
+    response_body = response.get_json()
 
-    # Assert
-    # ---- Complete Assertions Here ----
-    # assertion 1 goes here
-    # assertion 2 goes here
-    # ---- Complete Assertions Here ----
+    # raise Exception("Complete test") 
+    assert response.status_code == 404
+    assert "message" in response_body
+    assert response_body == {"message":"Goal 1 not found"}
 
 
 # @pytest.mark.skip(reason="No way to test this feature yet")

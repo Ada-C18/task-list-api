@@ -49,7 +49,6 @@ def validate_goal_id(cls, goal_id):
 #     else:    
 #         return jsonify({goal_validate.goal_dict()}), 
 
-
 @goals_bp.route('/<goal_id>', methods=['GET'])
 def get_goal(goal_id):
     goal_validate = validate_goal_id(Goal,goal_id)
@@ -73,20 +72,6 @@ def create_goal():
     
     return jsonify({"goal": created_goal.goal_dict()}), 201
 
-
-@goals_bp.route("/<goal_id>/tasks", methods=['GET'])
-def goal_not_found(goal_id):
-    response_body = request.get_json()
-    print(response_body)
-
-    goal = validate_goal_id
-
-    if not goal:
-        return "The goal ID submitted, does not exist: error code 404"
-    else:    
-        return jsonify({"goal": goal.goal_dict()}), 200
-    
-    # return make_response(jsonify({"goal": created_goal.goal_dict()}))
 
 @goals_bp.route('', methods=['GET'])
 def query_all():
@@ -115,16 +100,16 @@ def query_all():
 @goals_bp.route('/<goal_id>', methods=['PUT'])
 def update_goals(goal_id):
     
-    validate_id = validate_goal_id(Goal,goal_id)
+    goal_object = validate_goal_id(Goal,goal_id)
 
     response_body = request.get_json()
     
-    validate_id.title = response_body["title"]
-    # validate_id.description = response_body["description"]
+    if "title" in response_body:
+        goal_object.title = response_body["title"]
 
     db.session.commit()
 
-    return jsonify({"goal": validate_id.goal_dict()}),200
+    return jsonify(goal_object.goal_dict()), 200
     
 
 @goals_bp.route('/<goal_id>', methods=['DELETE'])
@@ -136,3 +121,27 @@ def delete_goals(goal_id):
     db.session.commit()
 
     return make_response(result_notice, 200)
+
+@goals_bp.route('/<goal_id>/tasks', methods=['POST'])
+def task_ids_to_goal(goal_id):
+    goal_object = validate_goal_id(Goal,goal_id)
+
+    request_body = request.get_json()
+
+    goal_object.tasks = [Task.query.get(task_id) for task_id in request_body["task_ids"]]
+    db.session.commit()
+    
+    return {"id":goal_object.goal_id,
+            "task_ids":[task.task_id for task in goal_object.tasks]}, 200
+
+
+@goals_bp.route('/<goal_id>/tasks', methods=['GET'])
+def goal_with_no_task(goal_id):
+    goal_object = validate_goal_id(Goal,goal_id)
+
+    # request_body = request.get_json()
+
+    tasks = [task.build_task_dict() for task in goal_object.tasks] 
+    
+    return {"id": goal_object.goal_id, "title": goal_object.title,
+            "tasks": tasks}, 200
