@@ -102,7 +102,7 @@ def delete_tasks(task_id):
 @tasks_bp.route('/<task_id>/mark_complete', methods=['PATCH'])
 def mark_complete_on_incomplete_task(task_id):
     test_task = validate_task_id(task_id)
-    test_task.completed_at = datetime.datetime.today()
+    test_task.completed_at = datetime.today()
     test_task.is_complete = True
     db.session.commit()
     print(test_task.completed_at)
