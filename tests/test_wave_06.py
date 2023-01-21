@@ -49,9 +49,11 @@ def test_get_tasks_for_specific_goal_no_goal(client):
     response_body = response.get_json()
 
     # Assert
+    assert "message" in response_body
+    assert response_body == {"message":"Goal 1 not found"}
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
