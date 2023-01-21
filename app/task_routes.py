@@ -34,8 +34,8 @@ def validate_task_id(task_id):
     task = Task.query.get(task_id)
 
     if not task:
-        abort(make_response({"message":f"Task {task_id} not found"}, 404))
-
+        return abort(make_response({"message":f"Task {task_id} not found"}, 404))
+        #  abort(make_response(None))
     return task
 
 @tasks_bp.route('', methods=['GET'])
