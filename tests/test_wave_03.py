@@ -5,21 +5,21 @@ from app.models.task import Task
 import pytest
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_on_incomplete_task(client, one_task):
     # Arrange
-    """
-    The future Wave 4 adds special functionality to this route,
-    so for this test, we need to set-up "mocking."
+    # """
+    # The future Wave 4 adds special functionality to this route,
+    # so for this test, we need to set-up "mocking."
 
-    Mocking will help our tests work in isolation, which is a
-    good thing!
+    # Mocking will help our tests work in isolation, which is a
+    # good thing!
 
-    We need to mock any POST requests that may occur during this
-    test (due to Wave 4).
+    # We need to mock any POST requests that may occur during this
+    # test (due to Wave 4).
 
-    There is no action needed here, the tests should work as-is.
-    """
+    # There is no action needed here, the tests should work as-is.
+    # # """
     with patch("requests.post") as mock_get:
         mock_get.return_value.status_code = 200
 
@@ -42,7 +42,7 @@ def test_mark_complete_on_incomplete_task(client, one_task):
     assert Task.query.get(1).completed_at
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_on_complete_task(client, completed_task):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -62,21 +62,21 @@ def test_mark_incomplete_on_complete_task(client, completed_task):
     assert Task.query.get(1).completed_at == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_on_completed_task(client, completed_task):
     # Arrange
-    """
-    The future Wave 4 adds special functionality to this route,
-    so for this test, we need to set-up "mocking."
+    # """
+    # The future Wave 4 adds special functionality to this route,
+    # so for this test, we need to set-up "mocking."
 
-    Mocking will help our tests work in isolation, which is a
-    good thing!
+    # Mocking will help our tests work in isolation, which is a
+    # good thing!
 
-    We need to mock any POST requests that may occur during this
-    test (due to Wave 4).
+    # We need to mock any POST requests that may occur during this
+    # test (due to Wave 4).
 
-    There is no action needed here, the tests should work as-is.
-    """
+    # There is no action needed here, the tests should work as-is.
+    # """
     with patch("requests.post") as mock_get:
         mock_get.return_value.status_code = 200
 
@@ -99,7 +99,7 @@ def test_mark_complete_on_completed_task(client, completed_task):
     assert Task.query.get(1).completed_at
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_on_incomplete_task(client, one_task):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -119,7 +119,7 @@ def test_mark_incomplete_on_incomplete_task(client, one_task):
     assert Task.query.get(1).completed_at == None
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_complete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_complete")
@@ -128,13 +128,14 @@ def test_mark_complete_missing_task(client):
     # Assert
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
+    assert response_body == {'message': 'Task 1 not found'}
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
 
 
-@pytest.mark.skip(reason="No way to test this feature yet")
+# @pytest.mark.skip(reason="No way to test this feature yet")
 def test_mark_incomplete_missing_task(client):
     # Act
     response = client.patch("/tasks/1/mark_incomplete")
@@ -143,7 +144,9 @@ def test_mark_incomplete_missing_task(client):
     # Assert
     assert response.status_code == 404
 
-    raise Exception("Complete test with assertion about response body")
+    # raise Exception("Complete test with assertion about response body")
+    
+    assert response_body == {'message': 'Task 1 not found'}
     # *****************************************************************
     # **Complete test with assertion about response body***************
     # *****************************************************************
