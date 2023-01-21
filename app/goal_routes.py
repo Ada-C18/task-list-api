@@ -26,40 +26,36 @@ def validate_goal_id(cls, goal_id):
     return goal
 
 
-@goals_bp.route('/<goal_id>', methods=['GET'])
-def no_saved_goal(goal_id):
-    goal_validate = validate_goal_id(goal_id)
+# @goals_bp.route('/<goal_id>', methods=['GET'])
+# def no_saved_goal(goal_id):
+#     goal_validate = validate_goal_id(goal_id)
     
-    goal_response = []
-    # goal.todict() for goal in Goal
+#     goal_response = []
+#     # goal.todict() for goal in Goal
 
-    if goal_response is None:
-        return None
-    else:    
-        return jsonify({goal_validate.goal_dict()}),200 
+#     if goal_response is None:
+#         return None
+#     else:    
+#         return jsonify({goal_validate.goal_dict()}),200 
+
+# @goals_bp.route('/<goal_id>', methods=['GET'])
+# def one_saved_goal(goal_id):
+#     goal_validate = validate_goal_id(goal_id)
+    
+#     goal_response = [goal.todict() for goal in Goal]
+
+#     if goal_id == None:
+#         return None
+#     else:    
+#         return jsonify({goal_validate.goal_dict()}), 
+
 
 @goals_bp.route('/<goal_id>', methods=['GET'])
-def one_saved_goal(goal_id):
-    goal_validate = validate_goal_id(goal_id)
+def get_goal(goal_id):
+    goal_validate = validate_goal_id(Goal,goal_id)
+
     
-    goal_response = [goal.todict() for goal in Goal]
-
-    if goal_id == None:
-        return None
-    else:    
-        return jsonify({goal_validate.goal_dict()}), 
-
-
-@goals_bp.route('/<goal_id>', methods=['GET'])
-def get_goal():
-    goal_validate = validate_goal_id()
-    
-    goal_response = [goal.todict() for goal in Goal]
-
-    if goal_validate == None:
-        return None
-    else:    
-        return jsonify({"goal": goal_validate.goal_dict()}), 200
+    return jsonify({"goal": goal_validate.goal_dict()}), 200
 
 @goals_bp.route("", methods=['POST'])
 def create_goal():
@@ -119,13 +115,12 @@ def query_all():
 @goals_bp.route('/<goal_id>', methods=['PUT'])
 def update_goals(goal_id):
     
-    validate_id = validate_goal_id(goal_id)
+    validate_id = validate_goal_id(Goal,goal_id)
 
     response_body = request.get_json()
     
     validate_id.title = response_body["title"]
-    validate_id.description = response_body["description"]
-
+    # validate_id.description = response_body["description"]
 
     db.session.commit()
 
@@ -134,7 +129,7 @@ def update_goals(goal_id):
 
 @goals_bp.route('/<goal_id>', methods=['DELETE'])
 def delete_goals(goal_id):
-    test_goal = validate_goal_id(goal_id)
+    test_goal = validate_goal_id(Goal,goal_id)
     result_notice = {"details": f'Goal {goal_id} "{test_goal.title}" successfully deleted'}
 
     db.session.delete(test_goal)
