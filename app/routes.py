@@ -47,19 +47,25 @@ def get_all_tasks():
     title_query = request.args.get("title")
     description_query = request.args.get("description")
     completed_at_query = request.args.get("completed at")
-    task_query = Task.query
+    sort_query = request.args.get("sort")
+    task_query = Task.query.all()
     if title_query:
         task_query = Task.query.filter_by(title=title_query)
     if description_query:
         task_query = Task.query.filter_by(description=description_query)
     if completed_at_query:
         task_query = Task.query.filter_by(completed_at=completed_at_query)
+    if sort_query == "asc":
+        task_query = Task.query.order_by(Task.title.asc())
+    if sort_query == "desc":
+        task_query = Task.query.order_by(Task.title.desc())
 
-    tasks = task_query.all()
+    tasks = task_query
 
     tasks_response = [task.to_dict() for task in tasks]
 
     return make_response(jsonify(tasks_response), 200)
+
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
