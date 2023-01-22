@@ -45,11 +45,11 @@ def create_task():
 
 @tasks_bp.route("", methods=["GET"])
 def get_all_tasks_sort_asc():
+    task_query = Task.query.all()
     title_query = request.args.get("title")
     description_query = request.args.get("description")
     completed_at_query = request.args.get("completed at")
     sort_query = request.args.get("sort")
-    task_query = Task.query.all()
     if title_query:
         task_query = Task.query.filter_by(title=title_query)
     if description_query:
