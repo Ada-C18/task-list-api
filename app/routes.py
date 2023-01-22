@@ -93,14 +93,23 @@ def task_update_entire_entry(task_id):
 
     return make_response((task_response), 200)
 
-@tasks_bp.route("/<task_id>", methods=["PATCH"])
+@tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def task_mark_complete(task_id):
     task = validate_task_id(task_id)
-    request_body = request.get_json()
-    if not request_body["completed_at"]:
-        task.completed_at = None
-    else:
-        task.completed_at = datetime.now()
+    task.completed_at = datetime.now()
+    db.session.commit()
+
+    task_response = {
+        "task": task.to_dict_get_patch()
+    }
+
+    return make_response((task_response), 200)
+    
+
+@tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+def task_mark_incomplete(task_id):
+    task = validate_task_id(task_id)
+    task.completed_at = None
 
     db.session.commit()
 
@@ -109,19 +118,6 @@ def task_mark_complete(task_id):
     }
 
     return make_response((task_response), 200)
-
-# @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
-# def task_mark_incomplete(task_id):
-#     task = validate_task_id(task_id)
-#     task.completed_at = None
-
-#     db.session.commit()
-
-#     task_response = {
-#         "task": task.to_dict_get_patch()
-#     }
-
-#     return make_response((task_response), 200)
 
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
