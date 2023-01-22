@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, abort, make_response, request
+from datetime import datetime
 from app import db
 from app.models.task import Task
 
@@ -37,13 +38,13 @@ def create_task():
     db.session.commit()
 
     task_response = {
-        "task": new_task.to_dict()
+        "task": new_task.to_dict_post_put()
     }
     return make_response(jsonify(task_response), 201)
 
 
 @tasks_bp.route("", methods=["GET"])
-def get_all_tasks():
+def get_all_tasks_sort_asc():
     title_query = request.args.get("title")
     description_query = request.args.get("description")
     completed_at_query = request.args.get("completed at")
@@ -62,7 +63,7 @@ def get_all_tasks():
 
     tasks = task_query
 
-    tasks_response = [task.to_dict() for task in tasks]
+    tasks_response = [task.to_dict_get_patch() for task in tasks]
 
     return make_response(jsonify(tasks_response), 200)
 
@@ -72,25 +73,56 @@ def get_one_task(task_id):
     task = validate_task_id(task_id)
 
     task_response = {
-        "task": task.to_dict()
+        "task": task.to_dict_get_patch()
     }
 
     return make_response(jsonify(task_response), 200)
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
-def task_update(task_id):
+def task_update_entire_entry(task_id):
     task = validate_task_id(task_id)
     request_body = request.get_json()
     task.title = request_body["title"]
     task.description = request_body["description"]
-    # task.completed_at = request_body["completed at"]
-
-    task_response = {
-        "task": task.to_dict()
-    }
 
     db.session.commit()
+
+    task_response = {
+        "task": task.to_dict_post_put()
+    }
+
     return make_response((task_response), 200)
+
+@tasks_bp.route("/<task_id>", methods=["PATCH"])
+def task_mark_complete(task_id):
+    task = validate_task_id(task_id)
+    request_body = request.get_json()
+    if not request_body["completed_at"]:
+        task.completed_at = None
+    else:
+        task.completed_at = datetime.now()
+
+    db.session.commit()
+
+    task_response = {
+        "task": task.to_dict_get_patch()
+    }
+
+    return make_response((task_response), 200)
+
+# @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
+# def task_mark_incomplete(task_id):
+#     task = validate_task_id(task_id)
+#     task.completed_at = None
+
+#     db.session.commit()
+
+#     task_response = {
+#         "task": task.to_dict_get_patch()
+#     }
+
+#     return make_response((task_response), 200)
+
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def task_delete(task_id):

@@ -1,8 +1,8 @@
-"""empty message
+"""Setting up new migrations because of errors with the previous setup
 
-Revision ID: 0a43a0915e56
+Revision ID: ec9ba7413409
 Revises: 
-Create Date: 2022-11-08 23:57:13.680506
+Create Date: 2023-01-21 23:01:06.963776
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0a43a0915e56'
+revision = 'ec9ba7413409'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,7 +23,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('goal_id')
     )
     op.create_table('task',
-    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('title', sa.String(), nullable=True),
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('completed_at', sa.DateTime(), nullable=True),
