@@ -14,18 +14,18 @@ def validate_complete_request(request_body):
         abort(make_response({"details": "Invalid data"}, 400))
 
 
-def validate_task_id(task_id):
+def validate_model_id(cls, model_id):
     try:
-        task_id = int(task_id)    
+        model_id = int(model_id)    
     except:
         abort(make_response({"details": "Invalid data"}, 404))
 
-    task = Task.query.get(task_id)
+    model = cls.query.get(model_id)
 
-    if not task:
+    if not model:
         abort(make_response({"details": "Invalid data"}, 404))
     
-    return task
+    return model
 
 
 @tasks_bp.route("", methods=["POST"])
@@ -70,7 +70,7 @@ def get_all_tasks_sort_asc():
 
 @tasks_bp.route("/<task_id>", methods=["GET"])
 def get_one_task(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
 
     task_response = {
         "task": task.to_dict_get_patch()
@@ -80,7 +80,7 @@ def get_one_task(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["PUT"])
 def task_update_entire_entry(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     request_body = request.get_json()
     task.title = request_body["title"]
     task.description = request_body["description"]
@@ -95,7 +95,7 @@ def task_update_entire_entry(task_id):
 
 @tasks_bp.route("/<task_id>/mark_complete", methods=["PATCH"])
 def task_mark_complete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     task.completed_at = datetime.now()
     db.session.commit()
 
@@ -108,7 +108,7 @@ def task_mark_complete(task_id):
 
 @tasks_bp.route("/<task_id>/mark_incomplete", methods=["PATCH"])
 def task_mark_incomplete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
     task.completed_at = None
 
     db.session.commit()
@@ -122,7 +122,7 @@ def task_mark_incomplete(task_id):
 
 @tasks_bp.route("/<task_id>", methods=["DELETE"])
 def task_delete(task_id):
-    task = validate_task_id(task_id)
+    task = validate_model_id(Task, task_id)
 
     db.session.delete(task)
     db.session.commit()

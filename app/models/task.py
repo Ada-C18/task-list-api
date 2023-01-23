@@ -6,6 +6,9 @@ class Task(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     completed_at = db.Column(db.DateTime, nullable=True)
+    goal_id = db.Column(db.Integer, db.ForeignKey('goal.id'), nullable=True)
+    goal = db.relationship("Goal", back_populates="tasks")
+
 
     def to_dict_post_put(self):
         return {
@@ -17,19 +20,37 @@ class Task(db.Model):
 
     def to_dict_get_patch(self):
         if not self.completed_at:
-            return {
-                "id": self.id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": False
-            }
-        else:
-            return {
-                "id": self.id,
-                "title": self.title,
-                "description": self.description,
-                "is_complete": True
+            if self.goal_id:
+                return {
+                    "id": self.id,
+                    "goal_id": self.goal_id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": False
                 }
+            else:
+                return {
+                    "id": self.id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": False
+                }
+        else:
+            if self.goal_id:
+                return {
+                    "id": self.id,
+                    "goal_id": self.goal_id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": False
+                }
+            else:
+                return {
+                    "id": self.id,
+                    "title": self.title,
+                    "description": self.description,
+                    "is_complete": True
+                    }
 
     @classmethod
     def from_dict(cls, task_data):
