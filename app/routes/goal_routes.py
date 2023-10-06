@@ -10,9 +10,7 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 #Create a new goal
 @goals_bp.route("", methods=["POST"])
 def create_goal():
-    request_body = request.get_json()
-
-
+    
     try:
         request_body = request.get_json() 
         new_goal = Goal(
