@@ -64,7 +64,6 @@ def get_one_goal(goal_id):
 @goals_bp.route("/<goal_id>", methods=["PUT"])
 def update_goal(goal_id):
     goal = get_record_by_id(Goal, goal_id)
-    # goal = validate_goal(goal_id)
 
     request_body = request.get_json()
 
@@ -74,10 +73,7 @@ def update_goal(goal_id):
     db.session.commit()
 
     return {
-        "goal": {
-            "id": goal.goal_id,
-            "title": goal.title,
-        }
+        "goal": goal.to_dict()
         }
 
 
