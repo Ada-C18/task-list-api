@@ -10,7 +10,7 @@ goals_bp = Blueprint("goals", __name__, url_prefix="/goals")
 #Create a new goal
 @goals_bp.route("", methods=["POST"])
 def create_goal():
-    
+
     try:
         request_body = request.get_json() 
         new_goal = Goal(
@@ -36,30 +36,19 @@ def read_all_goals():
 
     goals = Goal.query.all()
     
-    goals_response = []
-    for goal in goals:
-        goals_response.append( 
-            {
-                "id": goal.goal_id,
-                "title": goal.title,
-            }
-        )
+    goals_response = [ goal.to_dict() for goal in goals ]
+
+    # goals_response = []
+    # for goal in goals:
+    #     goals_response.append( 
+    #         {
+    #             "id": goal.goal_id,
+    #             "title": goal.title,
+    #         }
+    #     )
     
     return jsonify(goals_response)
 
-# #helper function to validate goal 
-# def validate_goal(goal_id):
-#     try:
-#         goal_id = int(goal_id)
-#     except:
-#         abort(make_response({"details": "Invalid data"}, 400))
-
-#     goal = Goal.query.get(goal_id)
-
-#     if not goal:
-#         abort(make_response({"details":f"there is no existing goal {goal_id}"}, 404))
-        
-#     return goal
 
 #Get One goal
 @goals_bp.route("/<goal_id>", methods=["GET"])
